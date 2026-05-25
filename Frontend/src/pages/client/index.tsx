@@ -1,97 +1,69 @@
-
+import Banner from "../../assets/images/banner.jpg";
+import { IoSearch } from "react-icons/io5";
 
 const index = () => {
   return (
-    <div> client index
-        <div>Content 1</div>
-        <div>Content 2</div>
-        <div>Content 3</div>
-        <div>Content 4</div>
-        <div>Content 5</div>
-        <div>Content 6</div>
-        <div>Content 7</div>
-        <div>Content 8</div>
-        <div>Content 9</div>
-        <div>Content 10</div>
-        <div>Content 10</div>
-        <div>Content 10</div>
-        <div>Content 10</div>
-        <div>Content 10</div>
-        <div>Content 10</div>
-        <div>Content 10</div>
-        <div>Content 10</div>
-        <div>Content 10</div>
-        <div>Content 10</div>
-        <div>Content 10</div>
-        <div>Content 10</div>
-        <div>Content 10</div>
-        <div>Content 10</div>
-        <div>Content 10</div>
-        <div>Content 10</div>
-        <div>Content 10</div>
-        <div>Content 10</div>
-        <div>Content 10</div>
-        <div>Content 10</div>
-        <div>Content 10</div>
-        <div>Content 10</div>
-        <div>Content 10</div>
-        <div>Content 10</div>
-        <div>Content 10</div>
-        <div>Content 10</div>
-        <div>Content 10</div>
-        <div>Content 10</div>
-        <div>Content 10</div>
-        <div>Content 10</div>
-        <div>Content 10</div>
-        <div>Content 10</div>
-        <div>Content 10</div>
-        <div>Content 10</div>
-        <div>Content 10</div>
-        <div>Content 10</div>
-        <div>Content 10</div>
-        <div>Content 10</div>
-        <div>Content 10</div>
-        <div>Content 10</div>
-        <div>Content 10</div>
-        <div>Content 10</div>
-        <div>Content 10</div>
-        <div>Content 10</div>
-        <div>Content 10</div>
-        <div>Content 10</div>
-        <div>Content 10</div>
-        <div>Content 10</div>
-        <div>Content 10</div>
-        <div>Content 10</div>
-        <div>Content 10</div>
-        <div>Content 10</div>
-        <div>Content 10</div>
-        <div>Content 10</div>
-        <div>Content 10</div>
-        <div>Content 10</div>
-        <div>Content 10</div>
-        <div>Content 10</div>
-        <div>Content 10</div>
-        <div>Content 10</div>
-        <div>Content 10</div>
-        <div>Content 10</div>
-        <div>Content 10</div>
-        <div>Content 10</div>
-        <div>Content 10</div>
-        <div>Content 10</div>
-        <div>Content 10</div>
-        <div>Content 10</div>
-        <div>Content 10</div>
-        <div>Content 10</div>
-        <div>Content 10</div>
-        <div>Content 10</div>
-        <div>Content 10</div>
-        <div>Content 10</div>
-        <div>Content 10</div>
-        <div>Content 10</div>
-        <div>Content 10</div>
-        <div>Content 10</div>
-    </div>
-  )
-}
+    <div>
+      {/* Banner */}
+      <div className="relative">
+        <img className="w-full" src={Banner} alt="Banner" />
+        <div className="absolute inset-0 bg-black opacity-50"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white text-center ">
+          <h1 className="text-6xl font-bold pb-4">Trãi nghiệm nghỉ dưỡng </h1>
+          <p className="text-6xl font-bold text-orange-400 pb-4">
+            đẳng cấp 5 sao
+          </p>
+          <p className="text-xl w-full">
+            Khám phá không gian sang trọng, dịch vụ hoàn hảo và những khoảnh
+            khắc đáng nhớ tại Aurora Hotel
+          </p>
+        </div>
+      </div>
 
-export default index
+      <div className="bg-gray-50 pt-2 pb-10">{/* Tìm phòng trống */}
+        <div className="w-2/3 border border-gray-300 rounded-lg mt-10 mx-auto p-4 bg-white shadow-md">
+          <div className="grid grid-cols-4 gap-4 p-10 items-center">
+            <div className="flex flex-col items-center w-full gap-2 font-bold">
+              <p className="text-gray-600">NHẬN PHÒNG</p>
+              <input
+                className=" cursor-pointer border border-gray-300 bg-gray-100 rounded-lg p-3 w-full hover:border-orange-400"
+                type="date"
+              />
+            </div>
+            <div className="flex flex-col items-center w-full gap-2 font-bold">
+              <p className="text-gray-600">TRẢ PHÒNG</p>
+              <input
+                className="cursor-pointer border border-gray-300 bg-gray-100 rounded-lg p-3 w-full hover:border-orange-400"
+                type="date"
+              />
+            </div>
+            <div className="flex flex-col items-center w-full gap-2 font-bold">
+              <p className="text-gray-600">SỐ KHÁCH</p>
+              <select className="cursor-pointer border border-gray-300 bg-gray-100 rounded-lg p-3 w-full hover:border-orange-400">
+                <option>1</option>
+                <option>2</option>
+                <option>3</option>
+                <option>4</option>
+              </select>
+            </div>
+            <div className="flex flex-col items-center w-full gap-2 font-bold">
+              <p className="text-gray-600">LOẠI PHÒNG</p>
+              <select className="cursor-pointer border border-gray-300 bg-gray-100 rounded-lg p-3 w-full hover:border-orange-400">
+                <option>Deluxe</option>
+                <option>Superior</option>
+                <option>Family</option>
+                <option>Presidential</option>
+              </select>
+            </div>
+          </div>
+          <div className="bg-orange-400 hover:bg-orange-500 text-white px-4 py-2 rounded-lg text-lg w-full flex items-center justify-center gap-2 font-medium cursor-pointer">
+            <IoSearch />
+            Tìm phòng trống
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default index;
