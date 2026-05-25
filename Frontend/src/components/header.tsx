@@ -16,7 +16,7 @@ const header = () => {
                 <NavLink className="focus:text-amber-600 focus:bg-amber-50 hover:bg-gray-200 p-2 rounded-xl" to="#">Phòng nghỉ</NavLink>
                 <NavLink className="focus:text-amber-600 focus:bg-amber-50 hover:bg-gray-200 p-2 rounded-xl" to="#">Đặt phòng của tôi</NavLink>
             </div>
-            <div className='bg-orange-400 text-white px-4 py-2 rounded-lg cursor-pointer text-lg font-medium flex items-center gap-2'>
+            <div className='bg-orange-400 hover:bg-orange-500 text-white px-4 py-2 rounded-lg cursor-pointer text-lg font-medium flex items-center gap-2'>
                     <FaRegCalendarCheck />
                 Đặt phòng ngay
             </div>
