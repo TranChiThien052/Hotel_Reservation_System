@@ -1,0 +1,399 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model accounts {
+  id                                                                 String                  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  username                                                           String                  @unique @db.VarChar(200)
+  password_hash                                                      String
+  role                                                               account_role            @default(customer)
+  status                                                             account_status          @default(active)
+  branch_id                                                          String?                 @db.Uuid
+  branches                                                           branches?               @relation(fields: [branch_id], references: [id], onUpdate: NoAction)
+  booking_services                                                   booking_services[]
+  bookings                                                           bookings[]
+  cancellation_requests_cancellation_requests_requested_byToaccounts cancellation_requests[] @relation("cancellation_requests_requested_byToaccounts")
+  cancellation_requests_cancellation_requests_resolved_byToaccounts  cancellation_requests[] @relation("cancellation_requests_resolved_byToaccounts")
+  customers                                                          customers?
+  history_transaction                                                history_transaction[]
+  invoice_fines                                                      invoice_fines[]
+  invoices                                                           invoices[]
+  payments                                                           payments[]
+  staff                                                              staff?
+}
+
+model booking_services {
+  id           String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  booking_id   String    @db.Uuid
+  service_id   String    @db.Uuid
+  quantity     Int       @default(1)
+  unit_price   Decimal   @db.Decimal(12, 2)
+  total_amount Decimal   @db.Decimal(12, 2)
+  added_at     DateTime  @default(now()) @db.Timestamptz(6)
+  added_by     String?   @db.Uuid
+  accounts     accounts? @relation(fields: [added_by], references: [id], onUpdate: NoAction)
+  bookings     bookings  @relation(fields: [booking_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  services     services  @relation(fields: [service_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model bookings {
+  id                    String                  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  booking_code          String                  @unique @db.VarChar(30)
+  branch_id             String                  @db.Uuid
+  customer_id           String                  @db.Uuid
+  room_type_id          String                  @db.Uuid
+  assigned_room_id      String?                 @db.Uuid
+  booking_type          booking_type
+  status                booking_status          @default(pending)
+  checkin_at            DateTime                @db.Timestamptz(6)
+  checkout_at           DateTime                @db.Timestamptz(6)
+  actual_checkin_at     DateTime?               @db.Timestamptz(6)
+  actual_checkout_at    DateTime?               @db.Timestamptz(6)
+  num_guests            Int                     @default(1)
+  room_price_snapshot   Decimal                 @db.Decimal(12, 2)
+  subtotal              Decimal                 @db.Decimal(12, 2)
+  discount_id           String?                 @db.Uuid
+  discount_amount       Decimal                 @default(0) @db.Decimal(12, 2)
+  total_amount          Decimal                 @db.Decimal(12, 2)
+  deposit_amount        Decimal                 @default(0) @db.Decimal(12, 2)
+  deposit_paid_at       DateTime?               @db.Timestamptz(6)
+  created_by            String?                 @db.Uuid
+  expires_at            DateTime?               @db.Timestamptz(6)
+  notes                 String?
+  created_at            DateTime                @default(now()) @db.Timestamptz(6)
+  updated_at            DateTime                @default(now()) @db.Timestamptz(6)
+  booking_services      booking_services[]
+  rooms                 rooms?                  @relation(fields: [assigned_room_id], references: [id], onUpdate: NoAction)
+  branches              branches                @relation(fields: [branch_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  accounts              accounts?               @relation(fields: [created_by], references: [id], onUpdate: NoAction)
+  customers             customers               @relation(fields: [customer_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  discounts             discounts?              @relation(fields: [discount_id], references: [id], onUpdate: NoAction)
+  room_types            room_types              @relation(fields: [room_type_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  cancellation_requests cancellation_requests[]
+  invoices              invoices[]
+  payments              payments[]
+  reviews               reviews?
+
+  @@index([assigned_room_id], map: "idx_bookings_assigned_room")
+  @@index([branch_id], map: "idx_bookings_branch")
+  @@index([checkin_at], map: "idx_bookings_checkin")
+  @@index([checkout_at], map: "idx_bookings_checkout")
+  @@index([booking_code], map: "idx_bookings_code")
+  @@index([customer_id], map: "idx_bookings_customer")
+  @@index([room_type_id], map: "idx_bookings_room_type")
+  @@index([status], map: "idx_bookings_status")
+}
+
+model branches {
+  id            String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name          String          @db.VarChar(150)
+  address       String
+  city          String?         @db.VarChar(100)
+  phone         String?         @db.VarChar(20)
+  email         String?         @db.VarChar(150)
+  description   String?
+  is_active     Boolean         @default(true)
+  accounts      accounts[]
+  bookings      bookings[]
+  discounts     discounts[]
+  fine_items    fine_items[]
+  holiday_dates holiday_dates[]
+  room_types    room_types[]
+  rooms         rooms[]
+  services      services[]
+  staff         staff[]
+}
+
+model cancellation_requests {
+  id                                                    String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  booking_id                                            String              @db.Uuid
+  requested_by                                          String?             @db.Uuid
+  reason                                                String?
+  status                                                cancellation_status @default(pending)
+  refund_amount                                         Decimal?            @db.Decimal(12, 2)
+  refund_processed_at                                   DateTime?           @db.Timestamptz(6)
+  resolved_by                                           String?             @db.Uuid
+  notes                                                 String?
+  created_at                                            DateTime            @default(now()) @db.Timestamptz(6)
+  updated_at                                            DateTime            @default(now()) @db.Timestamptz(6)
+  bookings                                              bookings            @relation(fields: [booking_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  accounts_cancellation_requests_requested_byToaccounts accounts?           @relation("cancellation_requests_requested_byToaccounts", fields: [requested_by], references: [id], onUpdate: NoAction)
+  accounts_cancellation_requests_resolved_byToaccounts  accounts?           @relation("cancellation_requests_resolved_byToaccounts", fields: [resolved_by], references: [id], onUpdate: NoAction)
+}
+
+model customers {
+  id             String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  account_id     String?    @unique @db.Uuid
+  full_name      String     @db.VarChar(200)
+  phone          String?    @db.VarChar(20)
+  email          String?    @db.VarChar(200)
+  id_card_number String?    @db.VarChar(50)
+  nationality    String?    @db.VarChar(100)
+  date_of_birth  DateTime?  @db.Date
+  address        String?
+  bookings       bookings[]
+  accounts       accounts?  @relation(fields: [account_id], references: [id], onUpdate: NoAction)
+  reviews        reviews[]
+}
+
+model discounts {
+  id              String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  branch_id       String?       @db.Uuid
+  code            String        @unique @db.VarChar(50)
+  description     String?
+  discount_type   discount_type
+  discount_value  Decimal       @db.Decimal(10, 2)
+  min_order_value Decimal?      @default(0) @db.Decimal(12, 2)
+  usage_limit     Int?
+  used_count      Int           @default(0)
+  valid_from      DateTime?     @db.Timestamptz(6)
+  valid_to        DateTime?     @db.Timestamptz(6)
+  is_active       Boolean       @default(true)
+  bookings        bookings[]
+  branches        branches?     @relation(fields: [branch_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([code], map: "idx_discounts_code")
+}
+
+model fine_items {
+  id            String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  branch_id     String?         @db.Uuid
+  name          String          @db.VarChar(200)
+  description   String?
+  price         Decimal         @db.Decimal(12, 2)
+  branches      branches?       @relation(fields: [branch_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  invoice_fines invoice_fines[]
+}
+
+model history_transaction {
+  id          BigInt    @id @default(autoincrement())
+  account_id  String?   @db.Uuid
+  action      String    @db.VarChar(100)
+  target_type String?   @db.VarChar(100)
+  target_id   String?   @db.Uuid
+  description String?
+  metadata    Json?
+  created_at  DateTime  @default(now()) @db.Timestamptz(6)
+  accounts    accounts? @relation(fields: [account_id], references: [id], onUpdate: NoAction)
+
+  @@index([account_id], map: "idx_logs_account")
+  @@index([created_at(sort: Desc)], map: "idx_logs_created_at")
+  @@index([target_type, target_id], map: "idx_logs_target")
+}
+
+model holiday_dates {
+  id        String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  branch_id String?   @db.Uuid
+  date      DateTime  @db.Date
+  name      String?   @db.VarChar(150)
+  branches  branches? @relation(fields: [branch_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model invoice_fines {
+  id           String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  invoice_id   String      @db.Uuid
+  fine_item_id String?     @db.Uuid
+  description  String      @db.VarChar(300)
+  amount       Decimal     @db.Decimal(12, 2)
+  added_by     String?     @db.Uuid
+  accounts     accounts?   @relation(fields: [added_by], references: [id], onUpdate: NoAction)
+  fine_items   fine_items? @relation(fields: [fine_item_id], references: [id], onUpdate: NoAction)
+  invoices     invoices    @relation(fields: [invoice_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model invoices {
+  id                 String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  invoice_code       String          @unique @db.VarChar(30)
+  booking_id         String          @db.Uuid
+  room_charge        Decimal         @default(0) @db.Decimal(12, 2)
+  service_charge     Decimal         @default(0) @db.Decimal(12, 2)
+  fine_charge        Decimal         @default(0) @db.Decimal(12, 2)
+  late_checkout_fee  Decimal         @default(0) @db.Decimal(12, 2)
+  early_checkout_fee Decimal         @default(0) @db.Decimal(12, 2)
+  discount_amount    Decimal         @default(0) @db.Decimal(12, 2)
+  total_amount       Decimal         @db.Decimal(12, 2)
+  deposit_used       Decimal         @default(0) @db.Decimal(12, 2)
+  amount_due         Decimal         @db.Decimal(12, 2)
+  refund_amount      Decimal         @default(0) @db.Decimal(12, 2)
+  notes              String?
+  issued_by          String?         @db.Uuid
+  issued_at          DateTime        @default(now()) @db.Timestamptz(6)
+  created_at         DateTime        @default(now()) @db.Timestamptz(6)
+  updated_at         DateTime        @default(now()) @db.Timestamptz(6)
+  invoice_fines      invoice_fines[]
+  bookings           bookings        @relation(fields: [booking_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  accounts           accounts?       @relation(fields: [issued_by], references: [id], onUpdate: NoAction)
+  payments           payments[]
+}
+
+model payments {
+  id              String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  booking_id      String         @db.Uuid
+  invoice_id      String?        @db.Uuid
+  payment_method  payment_method
+  status          payment_status @default(pending)
+  amount          Decimal        @db.Decimal(12, 2)
+  is_deposit      Boolean        @default(false)
+  transaction_ref String?        @db.VarChar(200)
+  paid_at         DateTime?      @db.Timestamptz(6)
+  processed_by    String?        @db.Uuid
+  notes           String?
+  created_at      DateTime       @default(now()) @db.Timestamptz(6)
+  updated_at      DateTime       @default(now()) @db.Timestamptz(6)
+  bookings        bookings       @relation(fields: [booking_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  invoices        invoices?      @relation(fields: [invoice_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  accounts        accounts?      @relation(fields: [processed_by], references: [id], onUpdate: NoAction)
+
+  @@index([booking_id], map: "idx_payments_booking")
+  @@index([status], map: "idx_payments_status")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model reviews {
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  booking_id  String    @unique @db.Uuid
+  customer_id String    @db.Uuid
+  rating      Int       @db.SmallInt
+  comment     String?
+  is_visible  Boolean   @default(true)
+  created_at  DateTime  @default(now()) @db.Timestamptz(6)
+  updated_at  DateTime  @default(now()) @db.Timestamptz(6)
+  bookings    bookings  @relation(fields: [booking_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  customers   customers @relation(fields: [customer_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model room_prices {
+  id             String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  room_type_id   String     @db.Uuid
+  price_per_day  Decimal?   @db.Decimal(12, 2)
+  price_per_hour Decimal?   @db.Decimal(12, 2)
+  weekend_rate   Decimal    @default(1.30) @db.Decimal(5, 2)
+  holiday_rate   Decimal    @default(2.00) @db.Decimal(5, 2)
+  effective_from DateTime   @default(dbgenerated("CURRENT_DATE")) @db.Date
+  effective_to   DateTime?  @db.Date
+  room_types     room_types @relation(fields: [room_type_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model room_types {
+  id          String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  branch_id   String        @db.Uuid
+  name        String        @db.VarChar(150)
+  description String?
+  max_guests  Int           @default(2)
+  images      String[]
+  is_active   Boolean       @default(true)
+  bookings    bookings[]
+  room_prices room_prices[]
+  branches    branches      @relation(fields: [branch_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  rooms       rooms[]
+
+  @@index([branch_id], map: "idx_room_types_branch")
+}
+
+model rooms {
+  id           String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  branch_id    String      @db.Uuid
+  room_type_id String      @db.Uuid
+  room_number  String      @db.VarChar(20)
+  floor        Int?
+  basic        String[]
+  extra        String[]
+  status       room_status @default(unavailable)
+  notes        String?
+  is_active    Boolean     @default(true)
+  bookings     bookings[]
+  branches     branches    @relation(fields: [branch_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  room_types   room_types  @relation(fields: [room_type_id], references: [id], onUpdate: NoAction)
+
+  @@unique([branch_id, room_number])
+  @@index([branch_id], map: "idx_rooms_branch")
+  @@index([status], map: "idx_rooms_status")
+  @@index([room_type_id], map: "idx_rooms_type")
+}
+
+model services {
+  id               String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  branch_id        String?            @db.Uuid
+  name             String             @db.VarChar(150)
+  description      String?
+  price            Decimal            @db.Decimal(12, 2)
+  unit             String?            @db.VarChar(50)
+  is_active        Boolean            @default(true)
+  booking_services booking_services[]
+  branches         branches?          @relation(fields: [branch_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model staff {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  branch_id  String   @db.Uuid
+  account_id String   @unique @db.Uuid
+  full_name  String   @db.VarChar(200)
+  phone      String?  @db.VarChar(20)
+  position   String?  @db.VarChar(100)
+  created_at DateTime @default(now()) @db.Timestamptz(6)
+  accounts   accounts @relation(fields: [account_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  branches   branches @relation(fields: [branch_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+enum account_role {
+  customer
+  staff
+  manager
+  admin
+}
+
+enum account_status {
+  active
+  inactive
+}
+
+enum booking_status {
+  pending
+  confirmed
+  checked_in
+  checked_out
+  completed
+  cancelled
+}
+
+enum booking_type {
+  daily
+  hourly
+}
+
+enum cancellation_status {
+  pending
+  confirmed
+  failed
+}
+
+enum discount_type {
+  percentage
+  fixed_amount
+}
+
+enum payment_method {
+  cash
+  bank_transfer
+  online
+}
+
+enum payment_status {
+  pending
+  paid
+  refunded
+  failed
+}
+
+enum room_status {
+  unavailable
+  available
+  occupied
+  cleaning
+  maintenance
+}
