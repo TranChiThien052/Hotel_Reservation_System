@@ -1,4 +1,4 @@
-import { prisma } from "./lib/prisma";
+import { prisma } from "./config/prisma.ts";
 
 async function main() {
     const branches = await prisma.branches.findMany();
