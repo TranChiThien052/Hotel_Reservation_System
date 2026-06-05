@@ -3,6 +3,8 @@ import demo from "../../assets/images/Deluxe.jpg";
 import { IoSearch } from "react-icons/io5";
 import Room from "../../components/client/room";
 import About from "../../assets/images/about.jpg";
+import { FaSearch } from "react-icons/fa";
+import {rooms} from "../../service/rooms";
 
 const index = () => {
   return (
@@ -149,15 +151,14 @@ const index = () => {
           </div>
 
           <div className="px-10 grid grid-cols-4 gap-7">
-            <Room />
-            <Room />
-            <Room />
-            <Room />
+            {rooms.map((room) => (
+              <Room key={room.id} room={room} />
+            ))}
           </div>
         </div>
       </div>
 
-        {/* about us */}
+      {/* about us */}
       <div className="flex mx-15 my-20 rounded-4xl overflow-hidden bg-[#1A1818] text-white">
         <div className="flex flex-col gap-5 px-10 py-20 w-3/5">
           <div className="text-xl font-bold text-orange-400">
@@ -196,10 +197,31 @@ const index = () => {
 
         <div className="w-3/6">
           <img
-          src={About}
-          alt="About Us"
-          className=" w-full h-full object-cover"
+            src={About}
+            alt="About Us"
+            className=" w-full h-full object-cover"
+          />
+        </div>
+      </div>
+
+      <div className="w-full px-15 ">
+        <div className="relative w-full h-80 rounded-4xl overflow-hidden">
+          <img
+          src="https://readdy.ai/api/search-image?query=Luxury%20hotel%20rooftop%20terrace%20at%20twilight%2C%20elegant%20outdoor%20seating%20with%20city%20lights%20view%2C%20warm%20ambient%20lighting%2C%20candles%20on%20tables%2C%20romantic%20atmosphere%2C%20modern%20architecture%2C%20professional%20architectural%20photography%2C%20warm%20amber%20tones&width=1200&height=400&seq=hotel-cta-001&orientation=landscape"
+          alt=""
+          className="w-full h-full object-cover"
         />
+        <div className="absolute inset-0 bg-black opacity-50 w-full h-full"></div>
+        <div className="flex flex-col items-center absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white text-center ">
+          <h2 className="text-4xl font-bold pb-4">
+            Sẵn sàng cho kỳ nghỉ của bạn?
+          </h2>
+          <p>Đặt phòng ngay hôm nay để tận hưởng chuyến đi tuyệt vời!</p>
+          <div className="bg-orange-400 hover:bg-orange-500 text-white px-6 py-4 rounded-lg text-lg w-1/2 flex items-center justify-center gap-2 font-medium cursor-pointer mt-8">
+            <FaSearch />
+            Khám phá phòng nghỉ
+          </div>
+        </div>
         </div>
       </div>
     </div>

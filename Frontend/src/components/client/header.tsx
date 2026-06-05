@@ -1,4 +1,4 @@
-import Logo from '../assets/icons/Logo.png'
+import Logo from '../../assets/icons/Logo.png'
 import { FaRegCalendarCheck } from 'react-icons/fa6';
 import { NavLink } from "react-router";
 const header = () => {
