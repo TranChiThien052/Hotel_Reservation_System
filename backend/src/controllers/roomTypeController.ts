@@ -1,15 +1,15 @@
-import RoomTypeService from '../services/roomTypeServices.ts';
+import RoomTypeServices from '../services/roomTypeServices.ts';
 
 class RoomTypeController {
     async getAllRoomTypes(req, res) {
-        return await RoomTypeService.getAllRoomTypes()
+        return await RoomTypeServices.getAllRoomTypes()
         .then(roomTypes => res.status(200).json(roomTypes))
         .catch(error => res.status(500).json({ error: error.message }));
     };
 
     async getRoomTypeById(req, res) {
         const { id } = req.params;
-        return await RoomTypeService.getRoomTypeById(id)
+        return await RoomTypeServices.getRoomTypeById(id)
         .then(roomType => {
             if (!roomType) {
                 return res.status(404).json({ error: "Room type not found" });
@@ -21,7 +21,7 @@ class RoomTypeController {
 
     async createRoomType(req, res) {
         const data = req.body;
-        return await RoomTypeService.createRoomType(data)
+        return await RoomTypeServices.createRoomType(data)
         .then(createdRoomType => res.status(201).json(createdRoomType))
         .catch(error => res.status(500).json({ error: error.message }));
     };
@@ -29,7 +29,7 @@ class RoomTypeController {
     async updateRoomType(req, res) {
         const { id } = req.params;
         const data = req.body;
-        return await RoomTypeService.updateRoomType(id, data)
+        return await RoomTypeServices.updateRoomType(id, data)
         .then(updatedRoomType => res.status(200).json(updatedRoomType))
         .catch(error => {
             if (error.message === "Room type not found") {
@@ -41,7 +41,7 @@ class RoomTypeController {
 
     async deleteRoomType(req, res) {
         const { id } = req.params;
-        return await RoomTypeService.deleteRoomType(id)
+        return await RoomTypeServices.deleteRoomType(id)
         .then(deletedRoomType => res.status(200).json(deletedRoomType))
         .catch(error => {
             if (error.message === "Room type not found") {

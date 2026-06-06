@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "discounts" ALTER COLUMN "valid_from" SET DEFAULT CURRENT_TIMESTAMP;
