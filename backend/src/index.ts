@@ -1,16 +1,17 @@
 import express from 'express';
-import { branchRoutes, roomTypeRoutes, roomRoutes, roomPriceRoutes } from './routes/index.ts'; 
-
+import route from './routes/index.ts'; 
+    
 const app = express();
 
 const PORT = 3000;
 
 app.use(express.json());
 
-app.use('/branches', branchRoutes);
-app.use('/room-types', roomTypeRoutes);
-app.use('/rooms', roomRoutes);
-app.use('/room-prices', roomPriceRoutes);
+app.use('/branches', route.branchRoutes);
+app.use('/room-types', route.roomTypeRoutes);
+app.use('/rooms', route.roomRoutes);
+app.use('/room-prices', route.roomPriceRoutes);
+app.use('/services', route.roomServiceRoutes);
 
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
