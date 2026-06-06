@@ -8,6 +8,13 @@ class RoomPriceController {
         .catch(error => res.status(500).json({ error: error.message }));
     };
 
+    async getRoomPricesByRoomTypeId(req, res) {
+        const { id } = req.params;
+        return await RoomPriceServices.getRoomPricesByRoomTypeId(id)
+        .then(roomPrices => res.status(200).json(roomPrices))
+        .catch(error => res.status(500).json({ error: error.message }));
+    };
+
     async getRoomPriceById(req, res) { 
         const { id } = req.params;
         return await RoomPriceServices.getRoomPriceById(id)

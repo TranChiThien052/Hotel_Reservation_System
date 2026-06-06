@@ -4,13 +4,12 @@ class RoomPriceRepository {
     async getAllRoomPrices() {
         return await prisma.room_prices.findMany();
     };
-
     async getRoomPriceById(id) {
         return await prisma.room_prices.findUnique({ where: { id } });
     };
 
-    async getRoomPricesByRoomTypeId(room_type_id) {
-        return await prisma.room_prices.findMany({ where: { room_type_id } });
+    async getRoomPricesByRoomTypeId(id) {
+        return await prisma.room_prices.findMany({ where: { room_type_id: id } });
     };
 
     async createRoomPrice(data) {

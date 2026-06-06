@@ -5,12 +5,12 @@ class RoomPriceService {
         return await RoomPriceRepository.getAllRoomPrices();
     };
 
-    async getRoomPriceById(id) {
-        return await RoomPriceRepository.getRoomPriceById(id);
+    async getRoomPricesByRoomTypeId(id) {
+        return await RoomPriceRepository.getRoomPricesByRoomTypeId(id);
     };
 
-    async getRoomPricesByRoomTypeId(room_type_id) {
-        return await RoomPriceRepository.getRoomPricesByRoomTypeId(room_type_id);
+    async getRoomPriceById(id) {
+        return await RoomPriceRepository.getRoomPriceById(id);
     };
 
     async createRoomPrice(data) {
