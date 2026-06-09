@@ -1,4 +1,6 @@
 import RoomServiceRepository from '../repositories/roomServiceRepo.ts';
+import BranchRepository from '../repositories/branchRepo.ts';
+import { Validator, ValidationError } from '../middlewares/validateData.ts';
 
 class RoomServiceService {
     async getAllServices() {
@@ -10,29 +12,70 @@ class RoomServiceService {
     };
 
     async createService(data) {
-        return await RoomServiceRepository.createService(data);
+        const validatedData = {
+            ...(data.branch_id && { branch_id: data.branch_id.trim() }),
+            ...(data.name && { name: data.name.trim() }),
+            ...(data.description && { description: data.description.trim() }),
+            ...(data.price && { price: data.price }),
+            ...(data.unit && { unit: data.unit.trim() }),
+            ...(data.is_active && { is_active: data.is_active }),
+        };
+
+        const validator = new Validator();
+
+        validator.isEmpty("Name", validatedData.name);
+
+        if(!validator.isEmpty("Price", validatedData.price)) {
+            validator.isNumber("Price", validatedData.price);
+        }
+
+        validator.isEmpty("Unit", validatedData.unit);
+
+        if (validator.error.length > 0) {
+            throw new ValidationError('400', validator.clearError());
+        }
+
+        const branches = await BranchRepository.getAllBranches();
+        const branchIds = branches.map(branch => branch.id);
+
+        if (!branchIds.includes(validatedData.branch_id)) {
+            throw new ValidationError('400', "Invalid branch ID");
+        }
+
+        return await RoomServiceRepository.createService(validatedData);
     };  
 
     async updateService(id, data) {
-        const existingService = await RoomServiceRepository.getServiceById(id);
-        if (!existingService) {
-            throw new Error("Service not found");
-        }
         const validatedData = {
-            ...(data.name !== undefined && { name: data.name }),
-            ...(data.description !== undefined && { description: data.description }),
-            ...(data.price !== undefined && { price: data.price }),
-            ...(data.unit !== undefined && { unit: data.unit }),
-            ...(data.is_active !== undefined && { is_active: data.is_active }),
+            ...(data.branch_id && { branch_id: data.branch_id.trim() }),
+            ...(data.name && { name: data.name.trim() }),
+            ...(data.description && { description: data.description.trim() }),
+            ...(data.price && { price: data.price }),
+            ...(data.unit && { unit: data.unit.trim() }),
+            ...(data.is_active && { is_active: data.is_active }),
         };
+
+        const validator = new Validator();
+
+        if (validatedData.price) {
+            validator.isNumber("Price", validatedData.price);
+        }
+
+        if (validator.error.length > 0) {
+            throw new ValidationError('400', validator.clearError());
+        }
+
+        const branches = await BranchRepository.getAllBranches();
+        const branchIds = branches.map(branch => branch.id);
+
+        if (validatedData.branch_id && !branchIds.includes(validatedData.branch_id)) {
+            throw new ValidationError('400', "Invalid branch ID");
+        }
+
         return await RoomServiceRepository.updateService(id, validatedData);
     };
 
     async deleteService(id) {
-        const existingService = await RoomServiceRepository.getServiceById(id);
-        if (!existingService) {
-            throw new Error("Service not found");
-        }
         return await RoomServiceRepository.deleteService(id);
     };
 }

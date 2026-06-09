@@ -20,20 +20,27 @@ class BranchController {
     };
 
     async createBranch(req, res) {
-        const data = req.body;
+        const { name, address, city, phone, email, description, is_active } = req.body;
+        const data = { name, address, city, phone, email, description, is_active };
         return await BranchServices.createBranch(data)
         .then(createdBranch => res.status(201).json(createdBranch))
-        .catch(error => res.status(500).json({ error: error.message }));
+        .catch(error => {
+            if (error.code !== 500) {
+                return res.status(parseInt(error.code)).json({ error: error.message });
+            }
+            res.status(500).json({ error: error.message });
+        })
     };
 
     async updateBranch(req, res) {
         const { id } = req.params;
-        const data = req.body;
+        const { name, address, city, phone, email, description, is_active } = req.body;
+        const data = { name, address, city, phone, email, description, is_active };
         return await BranchServices.updateBranch(id, data)
         .then(updatedBranch => res.status(200).json(updatedBranch))
         .catch(error => {
-            if (error.message === "Branch not found") {
-                return res.status(404).json({ error: error.message });
+            if (error.code !== 500) {
+                return res.status(parseInt(error.code)).json({ error: error.message });
             }
             res.status(500).json({ error: error.message });
         });
@@ -44,8 +51,8 @@ class BranchController {
         return await BranchServices.deleteBranch(id)
         .then(deletedBranch => res.status(200).json(deletedBranch))
         .catch(error => {
-            if (error.message === "Branch not found") {
-                return res.status(404).json({ error: error.message });
+            if (error.code === "P2025") {
+                return res.status(404).json({ error: "Branch not found" });
             }
             res.status(500).json({ error: error.message });
         });

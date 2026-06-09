@@ -27,6 +27,16 @@ class BranchRepository {
     async deleteBranch(id) {
         return await prisma.branches.delete({ where: { id: id } });
     };
+
+    async getValidatingInformation() {
+        return await prisma.branches.findMany({
+            select: {
+                id: true,
+                email: true,
+                phone: true,
+            },
+        });
+    };
 }
 
 export default new BranchRepository();

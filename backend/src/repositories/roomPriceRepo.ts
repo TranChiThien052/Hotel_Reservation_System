@@ -23,6 +23,15 @@ class RoomPriceRepository {
     async deleteRoomPrice(id) {
         return await prisma.room_prices.delete({ where: { id } });
     };
+
+    async getValidatingInformation() {
+        return await prisma.room_prices.findMany({
+            select: {
+                id: true,
+                room_type_id: true,
+            },
+        });
+    };
 }
 
 export default new RoomPriceRepository();

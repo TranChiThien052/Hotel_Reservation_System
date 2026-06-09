@@ -1,4 +1,5 @@
 import RoomTypeRepository from '../repositories/roomTypeRepo.ts';
+import { Validator, ValidationError } from '../middlewares/validateData.ts';
 
 class RoomService {
     async getAllRooms() {
@@ -15,33 +16,71 @@ class RoomService {
     };
 
     async createRoom(data) {
+        const validatedData = {
+        ...(data.branch_id && { branch_id: data.branch_id.trim() }),
+        ...(data.room_type_id && { room_type_id: data.room_type_id.trim() }),
+        ...(data.room_number && { room_number: data.room_number.trim() }),
+        ...(data.floor && { floor: data.floor.trim() }),
+        ...(data.basic && { basic: data.basic }),
+        ...(data.extra && { extra: data.extra }),
+        ...(data.status && { status: data.status.trim() }),
+        ...(data.notes && { notes: data.notes.trim() }),
+        ...(data.is_active && { is_active: data.is_active }),
+        };
+
+        const validator = new Validator();
+
+        validator.isEmpty("Branch ID", validatedData.branch_id);
+        validator.isEmpty("Room Type ID", validatedData.room_type_id);
+        validator.isEmpty("Room Number", validatedData.room_number);
+        
+        if(validator.isEmpty("Status", validatedData.status)) {
+            validator.validateRoomStatus(validatedData.status);
+        }
+
+        validator.isNumber("Floor", validatedData.floor);
+
+        if (validator.error.length > 0) {
+            throw new ValidationError('400', validator.clearError());
+        }
+
         return await RoomTypeRepository.createRoomType(data);
     };
 
     async updateRoom(id, data) {
-        const existingRoom = await RoomTypeRepository.getRoomTypeById(id);
-        if (!existingRoom) {
-            throw new Error("Room not found");
-        }
         const validatedData = {
         ...(data.branch_id && { branch_id: data.branch_id }),
         ...(data.room_type_id && { room_type_id: data.room_type_id }),
         ...(data.room_number && { room_number: data.room_number }),
-        ...(data.floor !== undefined && { floor: data.floor }),
+        ...(data.floor && { floor: data.floor }),
         ...(data.basic && { basic: data.basic }),
         ...(data.extra && { extra: data.extra }),
         ...(data.status && { status: data.status }),
-        ...(data.notes !== undefined && { notes: data.notes }),
-        ...(data.is_active !== undefined && { is_active: data.is_active }),
+        ...(data.notes && { notes: data.notes }),
+        ...(data.is_active && { is_active: data.is_active }),
         };
+
+        const validator = new Validator();
+
+        validator.isNumber("Floor", validatedData.floor);
+
+        if(validatedData.status) {
+            validator.validateRoomStatus(validatedData.status);
+        }
+
+        if (validator.error.length > 0) {
+            throw new ValidationError('400', validator.clearError());
+        }
+
+        const existingRoom = await RoomTypeRepository.getRoomTypeById(id);
+        if (!existingRoom) {
+            throw new ValidationError('404', "Room not found");
+        }
+
         return await RoomTypeRepository.updateRoomType(id, validatedData);
     };
 
     async deleteRoom(id) {
-        const existingRoom = await RoomTypeRepository.getRoomTypeById(id);
-        if (!existingRoom) {
-            throw new Error("Room not found");
-        }
         return await RoomTypeRepository.deleteRoomType(id);
     };
 }

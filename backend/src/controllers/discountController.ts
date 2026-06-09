@@ -20,20 +20,27 @@ class DiscountController {
     };
 
     async createDiscount(req, res) {
-        const data = req.body;
+        const { branch_id, code, description, discount_type, discount_value, min_order_value, usage_limit, valid_from, valid_to, is_active } = req.body;
+        const data = { branch_id, code, description, discount_type, discount_value, min_order_value, usage_limit, valid_from, valid_to, is_active };
         return await DiscountService.createDiscount(data)
         .then(createdDiscount => res.status(201).json(createdDiscount))
-        .catch(error => res.status(500).json({ error: error.message }));
+        .catch(error => {
+            if (error.code !== 500) {
+                return res.status(parseInt(error.code)).json({ error: error.message });
+            }
+            res.status(500).json({ error: error.message });
+        });
     };
 
     async updateDiscount(req, res) {
         const { id } = req.params;
-        const data = req.body;
+        const { branch_id, code, description, discount_type, discount_value, min_order_value, usage_limit, valid_from, valid_to, is_active } = req.body;
+        const data = { branch_id, code, description, discount_type, discount_value, min_order_value, usage_limit, valid_from, valid_to, is_active };
         return await DiscountService.updateDiscount(id, data)
         .then(updatedDiscount => res.status(200).json(updatedDiscount))
         .catch(error => {
-            if (error.message === "Discount not found") {
-                return res.status(404).json({ error: error.message });
+            if (error.code !== 500) {
+                return res.status(parseInt(error.code)).json({ error: error.message });
             }
             res.status(500).json({ error: error.message });
         }
@@ -45,7 +52,7 @@ class DiscountController {
         return await DiscountService.deleteDiscount(id)
         .then(deletedDiscount => res.status(200).json(deletedDiscount))
         .catch(error => {   
-            if (error.message === "Discount not found") {
+            if (error.code === "P2025") {
                 return res.status(404).json({ error: error.message });
             }
             res.status(500).json({ error: error.message });

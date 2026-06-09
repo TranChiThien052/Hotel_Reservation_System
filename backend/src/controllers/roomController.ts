@@ -27,20 +27,27 @@ class RoomController {
     };
 
     async createRoom(req, res) {
-        const data = req.body;
+        const { branch_id, room_type_id, room_number, floor, basic, extra, status, notes, is_available } = req.body;
+        const data = { branch_id, room_type_id, room_number, floor, basic, extra, status, notes, is_available };
         return await RoomServices.createRoom(data)
         .then(createdRoom => res.status(201).json(createdRoom))
-        .catch(error => res.status(500).json({ error: error.message }));
+        .catch(error => {
+            if (error.code !== 500) {
+                return res.status(parseInt(error.code)).json({ error: error.message });
+            }
+            res.status(500).json({ error: error.message });
+        });
     };
 
     async updateRoom(req, res) {
         const { id } = req.params;
-        const data = req.body;
+        const { branch_id, room_type_id, room_number, floor, basic, extra, status, notes, is_available } = req.body;
+        const data = { branch_id, room_type_id, room_number, floor, basic, extra, status, notes, is_available };
         return await RoomServices.updateRoom(id, data)
         .then(updatedRoom => res.status(200).json(updatedRoom))
         .catch(error => {
-            if (error.message === "Room not found") {
-                return res.status(404).json({ error: error.message });
+            if (error.code !== 500) {
+                return res.status(parseInt(error.code)).json({ error: error.message });
             }
             res.status(500).json({ error: error.message });
         });
@@ -51,7 +58,7 @@ class RoomController {
         return await RoomServices.deleteRoom(id)
         .then(deletedRoom => res.status(200).json(deletedRoom))
         .catch(error => {
-            if (error.message === "Room not found") {
+            if (error.code === "P2025") {
                 return res.status(404).json({ error: error.message });
             }
             res.status(500).json({ error: error.message });

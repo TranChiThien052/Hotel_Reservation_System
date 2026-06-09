@@ -20,20 +20,27 @@ class RoomServiceController {
     };
 
     async createService(req, res) {
-        const data = req.body;
+        const { branch_id, name, description, price, unit, is_active } = req.body;
+        const data = { branch_id, name, description, price, unit, is_active };
         return await RoomServiceServices.createService(data)
         .then(createdService => res.status(201).json(createdService))
-        .catch(error => res.status(500).json({ error: error.message }));
+        .catch(error => {
+            if (error.code !== 500) {
+                return res.status(parseInt(error.code)).json({ error: error.message });
+            }
+            res.status(500).json({ error: error.message });
+        });
     };
 
     async updateService(req, res) {
         const { id } = req.params;
-        const data = req.body;
+        const { branch_id, name, description, price, unit, is_active } = req.body;
+        const data = { branch_id, name, description, price, unit, is_active };
         return await RoomServiceServices.updateService(id, data)
         .then(updatedService => res.status(200).json(updatedService))
         .catch(error => {
-            if (error.message === "Service not found") {
-                return res.status(404).json({ error: error.message });
+            if (error.code !== 500) {
+                return res.status(parseInt(error.code)).json({ error: error.message });
             }
             res.status(500).json({ error: error.message });
         });
@@ -44,7 +51,7 @@ class RoomServiceController {
         return await RoomServiceServices.deleteService(id)
         .then(deletedService => res.status(200).json(deletedService))
         .catch(error => {
-            if (error.message === "Service not found") {
+            if (error.code === "P2025") {
                 return res.status(404).json({ error: error.message });
             }
             res.status(500).json({ error: error.message });
