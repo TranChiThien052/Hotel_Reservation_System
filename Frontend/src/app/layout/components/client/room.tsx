@@ -1,5 +1,5 @@
 import { FaRegUser } from 'react-icons/fa6'
-import test from '../../assets/images/Deluxe.jpg'
+import test from '../../../../assets/images/Deluxe.jpg'
 import { MdStar } from 'react-icons/md'
 import { RiRulerLine } from 'react-icons/ri'
 import { TbBed } from 'react-icons/tb'
