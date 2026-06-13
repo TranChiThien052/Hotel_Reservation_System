@@ -98,7 +98,6 @@ class StaffService {
         }
 
         const result = await StaffRepository.updateStaff(id, validatedData);
-        console.log("Updated Staff:", result);
         return result;
     };
 

@@ -92,7 +92,7 @@ class CustomerService {
         
         if(validatedData.email) {
             validator.validateEmail(validatedData.email);
-            if (validatingInfo.some(customer => customer.email === validatedData.email && customer.id !== id)) {
+            if (validatingInfo.find(customer => customer.email === validatedData.email && customer.id !== id)) {
                 validator.pushError("Email already exists");
             }
         }

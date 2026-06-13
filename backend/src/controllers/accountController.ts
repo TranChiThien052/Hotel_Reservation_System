@@ -25,7 +25,6 @@ class AccountController {
         return await AccountService.createAccount(data)
         .then(account => res.status(201).json(account))
         .catch(error => {
-            console.log(error);
             if (error.code !== 500) {
                 return res.status(parseInt(error.code)).json({ error: error.message });
             }
@@ -40,6 +39,7 @@ class AccountController {
         return await AccountService.updateAccount(id, data)
         .then(account => res.status(200).json(account))
         .catch(error => {
+            console.log(error);
             if (error.code !== 500) {
                 return res.status(parseInt(error.code)).json({ error: error.message });
             }

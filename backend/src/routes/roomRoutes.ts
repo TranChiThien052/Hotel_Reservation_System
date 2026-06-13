@@ -3,28 +3,16 @@ import RoomController from '../controllers/roomController.ts';
 
 const router = express.Router();
 
-router.get('/branch/:id', (req, res) => {
-    RoomController.getRoomsByBranchId(req, res);
-});
+router.get('/branch/:id', RoomController.getRoomsByBranchId);
 
-router.get('/', (req, res) => {
-    RoomController.getAllRooms(req, res);
-});
+router.get('/', RoomController.getAllRooms);
 
-router.get ('/:id', (req, res) => {
-    RoomController.getRoomById(req, res);
-});
+router.get ('/:id', RoomController.getRoomById);
 
-router.post('/', (req, res) => {
-    RoomController.createRoom(req, res);
-});
+router.post('/', RoomController.createRoom);
 
-router.put('/:id', (req, res) => {
-    RoomController.updateRoom(req, res);
-});
+router.put('/:id', RoomController.updateRoom);
 
-router.delete('/:id', (req, res) => {
-    RoomController.deleteRoom(req, res);
-});
+router.delete('/:id', RoomController.deleteRoom);
 
 export default router;

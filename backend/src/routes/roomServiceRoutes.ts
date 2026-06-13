@@ -3,24 +3,14 @@ import RoomServiceController from '../controllers/roomServiceController.ts';
 
 const router = express.Router();
 
-router.get('/', (req, res) => {
-    RoomServiceController.getAllServices(req, res);
-});
+router.get('/', RoomServiceController.getAllServices);
 
-router.get ('/:id', (req, res) => {
-    RoomServiceController.getServiceById(req, res);
-});
+router.get ('/:id', RoomServiceController.getServiceById);
 
-router.post('/', (req, res) => {
-    RoomServiceController.createService(req, res);
-});
+router.post('/', RoomServiceController.createService);
 
-router.put('/:id', (req, res) => {
-    RoomServiceController.updateService(req, res);
-});
+router.put('/:id', RoomServiceController.updateService);
 
-router.delete('/:id', (req, res) => {
-    RoomServiceController.deleteService(req, res);
-});
+router.delete('/:id', RoomServiceController.deleteService);
 
 export default router;

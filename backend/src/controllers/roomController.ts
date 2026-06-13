@@ -27,8 +27,8 @@ class RoomController {
     };
 
     async createRoom(req, res) {
-        const { branch_id, room_type_id, room_number, floor, basic, extra, status, notes, is_available } = req.body;
-        const data = { branch_id, room_type_id, room_number, floor, basic, extra, status, notes, is_available };
+        const { branch_id, room_type_id, room_number, floor, basic, extra, status, notes, is_active } = req.body;
+        const data = { branch_id, room_type_id, room_number, floor, basic, extra, status, notes, is_active };
         return await RoomServices.createRoom(data)
         .then(createdRoom => res.status(201).json(createdRoom))
         .catch(error => {
@@ -41,8 +41,8 @@ class RoomController {
 
     async updateRoom(req, res) {
         const { id } = req.params;
-        const { branch_id, room_type_id, room_number, floor, basic, extra, status, notes, is_available } = req.body;
-        const data = { branch_id, room_type_id, room_number, floor, basic, extra, status, notes, is_available };
+        const { branch_id, room_type_id, room_number, floor, basic, extra, status, notes, is_active } = req.body;
+        const data = { branch_id, room_type_id, room_number, floor, basic, extra, status, notes, is_active };
         return await RoomServices.updateRoom(id, data)
         .then(updatedRoom => res.status(200).json(updatedRoom))
         .catch(error => {

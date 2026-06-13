@@ -3,24 +3,14 @@ import DiscountController from '../controllers/discountController.ts';
 
 const router = express.Router();
 
-router.get('/', (req, res) => {
-    DiscountController.getAllDiscounts(req, res);
-});
+router.get('/', DiscountController.getAllDiscounts);
 
-router.get('/:id', (req, res) => {
-    DiscountController.getDiscountById(req, res);
-});
+router.get('/:id', DiscountController.getDiscountById);
 
-router.post('/', (req, res) => {
-    DiscountController.createDiscount(req, res);
-});
+router.post('/', DiscountController.createDiscount);
 
-router.put('/:id', (req, res) => {
-    DiscountController.updateDiscount(req, res);
-});
+router.put('/:id', DiscountController.updateDiscount);
 
-router.delete('/:id', (req, res) => {
-    DiscountController.deleteDiscount(req, res);
-});
+router.delete('/:id', DiscountController.deleteDiscount);
 
 export default router;

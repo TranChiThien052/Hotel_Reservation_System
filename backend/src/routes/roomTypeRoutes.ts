@@ -3,24 +3,14 @@ import RoomTypeController from '../controllers/roomTypeController.ts';
 
 const router = express.Router();
 
-router.get('/', (req, res) => {
-    RoomTypeController.getAllRoomTypes(req, res);
-});
+router.get('/', RoomTypeController.getAllRoomTypes);
 
-router.get ('/:id', (req, res) => {
-    RoomTypeController.getRoomTypeById(req, res);
-});
+router.get ('/:id', RoomTypeController.getRoomTypeById);
 
-router.post('/', (req, res) => {
-    RoomTypeController.createRoomType(req, res);
-});
+router.post('/', RoomTypeController.createRoomType);
 
-router.put('/:id', (req, res) => {
-    RoomTypeController.updateRoomType(req, res);
-});
+router.put('/:id', RoomTypeController.updateRoomType);
 
-router.delete('/:id', (req, res) => {
-    RoomTypeController.deleteRoomType(req, res);
-});
+router.delete('/:id', RoomTypeController.deleteRoomType);
 
 export default router;
