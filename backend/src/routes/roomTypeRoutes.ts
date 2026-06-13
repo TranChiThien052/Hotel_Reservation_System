@@ -3,6 +3,8 @@ import RoomTypeController from '../controllers/roomTypeController.ts';
 
 const router = express.Router();
 
+router.get('/branch/:id', RoomTypeController.getRoomTypesByBranchId);
+
 router.get('/', RoomTypeController.getAllRoomTypes);
 
 router.get ('/:id', RoomTypeController.getRoomTypeById);

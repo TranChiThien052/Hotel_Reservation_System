@@ -11,6 +11,22 @@ class RoomTypeService {
         return await RoomTypeRepository.getRoomTypeById(id);
     };
 
+    async getRoomTypesByBranchId(branchId) {
+        const validator = new Validator();
+        if(validator.isUUID("Branch ID", branchId)) {
+            const branchExists = await BranchRepository.getBranchById(branchId);
+            if (!branchExists) {
+                throw new ValidationError('400', "Invalid branch ID");
+            }
+        }
+
+        if (validator.error.length > 0) {
+            throw new ValidationError('400', validator.clearError());
+        }
+        
+        return await RoomTypeRepository.getRoomTypesByBranchId(branchId);
+    };
+
     async createRoomType(data) {
         const validatedData = {
             ...(data.branch_id && { branch_id: data.branch_id }),

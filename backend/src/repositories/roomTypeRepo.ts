@@ -11,6 +11,12 @@ class RoomTypeRepository {
         });
     };
 
+    async getRoomTypesByBranchId(branchId) {
+        return await prisma.room_types.findMany({
+            where: { branch_id: branchId },
+        });
+    };
+
     async createRoomType(data) {
         return await prisma.room_types .create({
             data: data,

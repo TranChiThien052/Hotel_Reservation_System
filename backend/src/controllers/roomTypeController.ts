@@ -18,6 +18,18 @@ class RoomTypeController {
         })
         .catch(error => res.status(500).json({ error: error.message }));
     };
+    
+    async getRoomTypesByBranchId(req, res) {
+        const { id } = req.params;
+        return await RoomTypeServices.getRoomTypesByBranchId(id)
+        .then(roomTypes => res.status(200).json(roomTypes))
+        .catch(error => {
+            if (error.code !== 500) {
+                return res.status(parseInt(error.code)).json({ error: error.message });
+            }
+            res.status(500).json({ error: error.message });
+        });
+    };
 
     async createRoomType(req, res) {
         const { branch_id, name, description, max_guests, images, is_active } = req.body;
