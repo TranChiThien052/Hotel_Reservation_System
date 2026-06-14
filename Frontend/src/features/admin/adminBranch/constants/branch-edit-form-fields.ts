@@ -1,11 +1,15 @@
-import { rules } from "../../../shared/util/rules";
+import type { FormField } from "@/shared/types/form-field";
+import { rules } from "../../../../shared/util/rules";
+import type { BranchFormData } from "../types/branch-type";
+import { FormFieldTypes } from "@/shared/types/type-form-field";
+import { branchApi } from "../api/admin-api";
 
-export const branchEditFormFields = [
+export const branchEditFormFields: FormField<BranchFormData>[] = [
     {
-        name: "name",
+        key: "name",
         label: "Branch Name",
         placeholder: "Enter branch name",
-        type: "text",
+        type: FormFieldTypes.INPUT,
         rules:[
             {
                 required: true,
@@ -15,22 +19,24 @@ export const branchEditFormFields = [
 
     },
     {
-        name: "city",
+        key: "city",
         label: "City",
         placeholder: "Enter city",
-        type: "text",
+        type: FormFieldTypes.SELECT_FETCH,
+        fetchOptions: branchApi.getCityOptions,
         rules:[
             {
                 required: true,
                 message: "Vui lòng nhập thành phố"
             }
-        ]
+        ],
+        customData: (data: any[]) => data.map((item) => ({ label: item.name, value: item.name })) // Chuyển đổi dữ liệu thành format { label, value }
     },
     {
-        name: "address",
+        key: "address",
         label: "Address",
         placeholder: "Enter address",
-        type: "text",
+        type: FormFieldTypes.INPUT,
         rules:[
             {
                 required: true,
@@ -39,10 +45,10 @@ export const branchEditFormFields = [
         ]
     },
     {
-        name: "phone",
+        key: "phone",
         label: "Phone Number",
         placeholder: "Enter phone number",
-        type: "text",
+        type: FormFieldTypes.INPUT,
         rules:[
             {
                 required: true,
@@ -52,10 +58,10 @@ export const branchEditFormFields = [
         ]
     },
     {
-        name: "email",
+        key: "email",
         label: "Email",
         placeholder: "Enter email",
-        type: "text",
+        type: FormFieldTypes.INPUT,
         rules:[
             {
                 required: true,
@@ -65,16 +71,16 @@ export const branchEditFormFields = [
         ]
     },
     {
-        name: "description",
+        key: "description",
         label: "Description",
         placeholder: "Enter description",
-        type: "text"
+        type: FormFieldTypes.TEXTAREA
     },
     {
-        name: "is_active",
+        key: "is_active",
         label: "Status",
         placeholder: "Select status",
-        type: "select",
+        type: FormFieldTypes.SELECT,
         options: [
             { label: "Active", value: true },
             { label: "Inactive", value: false },
