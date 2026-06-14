@@ -21,3 +21,13 @@ export const generateDiscountAmount = (subtotal: number, discountType: string, d
         return discountValue;
     }
 };
+
+export const generateSubtotal = (roomPrice: number, start: Date, end: Date, type: string) => {
+    if (type === "daily") {
+        const dayDiff = generateDayDiff(start, end);
+        return roomPrice * dayDiff;
+    } else if (type === "hourly") {
+        const hourDiff = generateHourDiff(start, end);
+        return roomPrice * hourDiff;
+    }
+};

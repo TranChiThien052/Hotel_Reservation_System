@@ -10,7 +10,7 @@ class Validator {
     }
     
     clearError() {
-        let result = this.error.length + " validation error(s): " + this.error.join(", ");
+        let result = this.error.length + " validation error(s): " + this.error.join("; ");
         this.error = [];
         return result;
     }

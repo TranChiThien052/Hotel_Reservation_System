@@ -121,7 +121,6 @@ export async function createTestAccount(overrides = {}) {
 }
 
 export async function createTestStaff(branch_id, account_id, overrides = {}) {
-
   return prisma.staff.create({
     data: {
       full_name: 'Test Staff',
@@ -133,7 +132,32 @@ export async function createTestStaff(branch_id, account_id, overrides = {}) {
   });
 }
 
+export async function createTestBooking(branch_id, customer_id, room_type_id, overrides = {}) {
+  return prisma.bookings.create({
+    data: {
+      booking_code: 'TESTBOOK',
+      branch_id: branch_id,
+      customer_id: customer_id,
+      room_type_id: room_type_id,
+      booking_type: 'daily',
+      status: "pending",
+      checkin_at: new Date(Date.now() + 24 * 60 * 60 * 1000), // Check-in tomorrow
+      checkout_at: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000), // Check-out in two days
+      room_price_snapshot: 100.00,
+      num_guests: 2,
+      subtotal: 600,
+      discount_amount: 0,
+      deposit_amount: 0,
+      total_amount: 600,
+      created_at: new Date(),
+      updated_at: new Date(),
+      ...overrides,
+    }
+  });
+}
+
 export async function cleanDatabase() {
+    await prisma.bookings.deleteMany();
     await prisma.branches.deleteMany();
     await prisma.room_types.deleteMany();
     await prisma.rooms.deleteMany();
