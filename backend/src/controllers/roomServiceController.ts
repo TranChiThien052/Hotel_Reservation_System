@@ -25,7 +25,6 @@ class RoomServiceController {
         return await RoomServiceServices.createService(data)
         .then(createdService => res.status(201).json(createdService))
         .catch(error => {
-            console.error(error);
             if (error.code !== 500) {
                 return res.status(parseInt(error.code)).json({ error: error.message });
             }

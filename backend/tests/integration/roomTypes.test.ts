@@ -40,6 +40,21 @@ describe('Room Types API', () => {
             const response = await request(app).get('/room-types/00000000-0000-0000-0000-000000000000');
             expect(response.status).toBe(404);
         });
+        // Test case for getting room types by branch id
+        it('should get room types by branch id', async () => {
+            const branch = await createTestBranch();
+            for (let i = 0; i < 3; i++) 
+                await createTestRoomType(branch.id);
+            const response = await request(app).get(`/room-types/branch/${branch.id}`);
+            expect(response.status).toBe(200);
+            expect(Array.isArray(response.body)).toBe(true);
+            expect(response.body.length).toBeGreaterThan(0);
+        });
+        // Test case for getting room types by non-existent branch id
+        it('should return 400 for non-existent branch id', async () => {
+            const response = await request(app).get('/room-types/branch/00000000-0000-0000-0000-000000000000');
+            expect(response.status).toBe(400);
+        });
     });
 
     describe('POST /api/room-types', () => {

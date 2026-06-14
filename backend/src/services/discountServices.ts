@@ -60,7 +60,6 @@ class DiscountServices {
         }
 
         if (validator.error.length > 0) {
-            console.error(validator.error);
             throw new ValidationError('400', validator.clearError());
         }
 
@@ -71,9 +70,7 @@ class DiscountServices {
             }
         }
 
-        const result = await DiscountRepository.createDiscount(validatedData);
-        console.log(result);
-        return result;
+        return await DiscountRepository.createDiscount(validatedData);
     };
 
     async updateDiscount(id, data) {
@@ -121,7 +118,6 @@ class DiscountServices {
         }
 
         if (validator.error.length > 0) {
-            console.error(validator.error);
             throw new ValidationError('400', validator.clearError());
         }
 
