@@ -4,24 +4,14 @@ import BranchController from '../controllers/branchController.ts';
 
 const router = express.Router();
 
-router.get('/', (req, res) => {
-    BranchController.getAllBranches(req, res);
-});
+router.get('/', BranchController.getAllBranches);
 
-router.get('/:id', (req, res) => {
-    BranchController.getBranchById(req, res);
-});
+router.get('/:id', BranchController.getBranchById);
 
-router.post('/', (req, res) => {
-    BranchController.createBranch(req, res);
-});
+router.post('/', BranchController.createBranch);
 
-router.put('/:id', (req, res) => {
-    BranchController.updateBranch(req, res);
-});
+router.put('/:id', BranchController.updateBranch);
 
-router.delete('/:id', (req, res) => {
-    BranchController.deleteBranch(req, res);
-});
+router.delete('/:id', BranchController.deleteBranch);
 
 export default router;

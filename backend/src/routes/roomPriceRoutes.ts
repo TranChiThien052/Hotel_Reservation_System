@@ -3,28 +3,16 @@ import RoomPriceController from '../controllers/roomPriceController.ts';
 
 const router = express.Router();
 
-router.get('/room-type/:id', (req, res) => {
-    RoomPriceController.getRoomPricesByRoomTypeId(req, res);
-});
+router.get('/room-type/:id', RoomPriceController.getRoomPricesByRoomTypeId);
 
-router.get('/', (req, res) => {
-    RoomPriceController.getAllRoomPrices(req, res);
-});
+router.get('/', RoomPriceController.getAllRoomPrices);
 
-router.get ('/:id', (req, res) => {
-    RoomPriceController.getRoomPriceById(req, res);
-});
+router.get ('/:id', RoomPriceController.getRoomPriceById);
 
-router.post('/', (req, res) => {
-    RoomPriceController.createRoomPrice(req, res);
-});
+router.post('/', RoomPriceController.createRoomPrice);
 
-router.put('/:id', (req, res) => {
-    RoomPriceController.updateRoomPrice(req, res);
-});
+router.put('/:id', RoomPriceController.updateRoomPrice);
 
-router.delete('/:id', (req, res) => {
-    RoomPriceController.deleteRoomPrice(req, res);
-});
+router.delete('/:id', RoomPriceController.deleteRoomPrice);
 
 export default router;

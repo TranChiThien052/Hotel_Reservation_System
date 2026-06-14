@@ -1,4 +1,5 @@
 import RoomPriceRepository from '../repositories/roomPriceRepo.ts';
+import RoomTypeRepository from '../repositories/roomTypeRepo.ts'
 import { Validator, ValidationError } from '../middlewares/validateData.ts';
 
 class RoomPriceService {
@@ -7,11 +8,19 @@ class RoomPriceService {
     };
 
     async getRoomPricesByRoomTypeId(id) {
-        return await RoomPriceRepository.getRoomPricesByRoomTypeId(id);
+        const roomPrice = await RoomPriceRepository.getRoomPricesByRoomTypeId(id);
+        if (!roomPrice) {
+            throw new ValidationError('404', "Room price not found for the given room type ID");
+        }
+        return roomPrice;
     };
 
     async getRoomPriceById(id) {
-        return await RoomPriceRepository.getRoomPriceById(id);
+        const roomPrice = await RoomPriceRepository.getRoomPriceById(id);
+        if (!roomPrice) {
+            throw new ValidationError('404', "Room price not found");
+        }
+        return roomPrice;
     };
 
     async createRoomPrice(data) {
@@ -26,32 +35,58 @@ class RoomPriceService {
         }
 
         const validator = new Validator();
-        validator.isEmpty("Room Type ID", validatedData.room_type_id);
-        validator.isNumber("Price Per Day", validatedData.price_per_day);
-        validator.isNumber("Price Per Hour", validatedData.price_per_hour);
-        validator.isNumber("Weekend Rate", validatedData.weekend_rate);
-        validator.isNumber("Holiday Rate", validatedData.holiday_rate);
-        validator.validateDateOrder(validatedData.effective_from, validatedData.effective_to);
+        
+        if(!validator.isEmpty("Room Type ID", validatedData.room_type_id))
+            validator.isUUID("Room Type ID", validatedData.room_type_id);
+
+        if(validatedData.price_per_day) {
+            validator.isDecimal("Price Per Day", validatedData.price_per_day);
+            validator.isNonNegativeNumber("Price Per Day", validatedData.price_per_day);
+        }
+
+        if(validatedData.price_per_hour) {
+            validator.isDecimal("Price Per Hour", validatedData.price_per_hour);
+            validator.isNonNegativeNumber("Price Per Hour", validatedData.price_per_hour);
+        }
+
+        if(validatedData.weekend_rate) {
+            validator.isDecimal("Weekend Rate", validatedData.weekend_rate);
+            validator.isNonNegativeNumber("Weekend Rate", validatedData.weekend_rate);
+        }
+
+        if(validatedData.holiday_rate) {
+            validator.isDecimal("Holiday Rate", validatedData.holiday_rate);
+            validator.isNonNegativeNumber("Holiday Rate", validatedData.holiday_rate);
+        }
+        
+        if (validatedData.effective_from && validatedData.effective_to) {
+            if (validator.validateDateOrder(validatedData.effective_from, validatedData.effective_to)) {
+                validatedData.effective_from = new Date(validatedData.effective_from);
+                validatedData.effective_to = new Date(validatedData.effective_to);
+            }
+        } else if (validatedData.effective_from) {
+            if (validator.validateDate(validatedData.effective_from)) {
+                validatedData.effective_from = new Date(validatedData.effective_from);
+            }
+        } else if (validatedData.effective_to) {
+            if (validator.validateDate(validatedData.effective_to)) {
+                validatedData.effective_to = new Date(validatedData.effective_to);
+            }
+        }
 
         if (validator.error.length > 0) {
             throw new ValidationError('400', validator.clearError());
         }
 
-        const roomPriceExists = await RoomPriceRepository.getRoomPricesByRoomTypeId(validatedData.room_type_id);
-
-        if (roomPriceExists.length > 0) {
-            validator.pushError("Room price for this room type already exists");
+        const roomTypeExists = await RoomTypeRepository.getRoomTypeById(validatedData.room_type_id);
+        if (!roomTypeExists) {
+            throw new ValidationError('400', "Room type ID not found");
         }
 
-        if (validator.error.length > 0) {
-            throw new ValidationError('400', validator.clearError());
-        }
-
-        return await RoomPriceRepository.createRoomPrice(data);
+        return await RoomPriceRepository.createRoomPrice(validatedData);
     };
 
     async updateRoomPrice(id, data) {
-        const validator = new Validator();
         const validatedData = {
         ...(data.price_per_day && { price_per_day: data.price_per_day }),
         ...(data.price_per_hour && { price_per_hour: data.price_per_hour }),
@@ -61,12 +96,42 @@ class RoomPriceService {
         ...(data.effective_to && { effective_to: data.effective_to.trim() }),
         }
 
-        validator.isNumber("Price Per Day", validatedData.price_per_day);
-        validator.isNumber("Price Per Hour", validatedData.price_per_hour);
-        validator.isNumber("Weekend Rate", validatedData.weekend_rate);
-        validator.isNumber("Holiday Rate", validatedData.holiday_rate);
+        const validator = new Validator();
 
-        validator.validateDateOrder(validatedData.effective_from, validatedData.effective_to);
+        if(validatedData.price_per_day) {
+            validator.isDecimal("Price Per Day", validatedData.price_per_day);
+            validator.isNonNegativeNumber("Price Per Day", validatedData.price_per_day);
+        }
+
+        if(validatedData.price_per_hour) {
+            validator.isDecimal("Price Per Hour", validatedData.price_per_hour);
+            validator.isNonNegativeNumber("Price Per Hour", validatedData.price_per_hour);
+        }
+
+        if(validatedData.weekend_rate) {
+            validator.isDecimal("Weekend Rate", validatedData.weekend_rate);
+            validator.isNonNegativeNumber("Weekend Rate", validatedData.weekend_rate);
+        }
+
+        if(validatedData.holiday_rate) {
+            validator.isDecimal("Holiday Rate", validatedData.holiday_rate);
+            validator.isNonNegativeNumber("Holiday Rate", validatedData.holiday_rate);
+        }
+        
+        if (validatedData.effective_from && validatedData.effective_to) {
+            if (validator.validateDateOrder(validatedData.effective_from, validatedData.effective_to)) {
+                validatedData.effective_from = new Date(validatedData.effective_from);
+                validatedData.effective_to = new Date(validatedData.effective_to);
+            }
+        } else if (validatedData.effective_from) {
+            if (validator.validateDate(validatedData.effective_from)) {
+                validatedData.effective_from = new Date(validatedData.effective_from);
+            }
+        } else if (validatedData.effective_to) {
+            if (validator.validateDate(validatedData.effective_to)) {
+                validatedData.effective_to = new Date(validatedData.effective_to);
+            }
+        }
 
         if (validator.error.length > 0) {
             throw new ValidationError('400', validator.clearError());
@@ -75,11 +140,7 @@ class RoomPriceService {
         const roomPriceExists = await RoomPriceRepository.getRoomPriceById(id);
 
         if (!roomPriceExists) {
-            validator.pushError("Room price not found");
-        }
-
-        if (validator.error.length > 0) {
-            throw new ValidationError('400', validator.clearError());
+            throw new ValidationError('400', "Room price not found");
         }
 
         return await RoomPriceRepository.updateRoomPrice(id, validatedData);

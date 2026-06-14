@@ -12,19 +12,24 @@ class RoomPriceController {
         const { id } = req.params;
         return await RoomPriceServices.getRoomPricesByRoomTypeId(id)
         .then(roomPrices => res.status(200).json(roomPrices))
-        .catch(error => res.status(500).json({ error: error.message }));
+        .catch(error => {
+            if (error.code !== 500) {
+                return res.status(parseInt(error.code)).json({ error: error.message });
+            }
+            res.status(500).json({ error: error.message });
+        });
     };
 
     async getRoomPriceById(req, res) { 
         const { id } = req.params;
         return await RoomPriceServices.getRoomPriceById(id)
-        .then(roomPrice => {
-            if (!roomPrice) {
-                return res.status(404).json({ error: "Room price not found" });
+        .then(roomPrice => res.status(200).json(roomPrice))
+        .catch(error => {
+            if (error.code !== 500) {
+                return res.status(parseInt(error.code)).json({ error: error.message });
             }
-            res.status(200).json(roomPrice);
-        })
-        .catch(error => res.status(500).json({ error: error.message }));
+            res.status(500).json({ error: error.message });
+        });
     };
 
     async createRoomPrice(req, res) {
