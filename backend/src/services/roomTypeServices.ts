@@ -79,7 +79,7 @@ class RoomTypeService {
             ...(data.description && { description: data.description }),
             ...(data.max_guests && { max_guests: data.max_guests }),
             ...(data.images && { images: data.images }),
-            ...(data.is_active && { is_active: data.is_active }),
+            ...(data.is_active !== undefined && { is_active: data.is_active }),
         };
 
         const validator = new Validator();
@@ -104,7 +104,7 @@ class RoomTypeService {
         if(validatedData.images) {
             validator.isArray("Images", validatedData.images);
         }
-        if(validatedData.is_active) {
+        if(validatedData.is_active !== undefined) {
             validator.isBoolean("Is Active", validatedData.is_active);
         }
 
