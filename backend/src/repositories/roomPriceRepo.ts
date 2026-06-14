@@ -9,7 +9,7 @@ class RoomPriceRepository {
     };
 
     async getRoomPricesByRoomTypeId(id) {
-        return await prisma.room_prices.findMany({ where: { room_type_id: id } });
+        return await prisma.room_prices.findFirst({ where: { room_type_id: id }});
     };
 
     async createRoomPrice(data) {
