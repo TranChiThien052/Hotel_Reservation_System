@@ -1,4 +1,7 @@
 import BookingServiceRepository from '../repositories/bookingServiceRepo.ts';
+import BookingRepository from '../repositories/bookingRepo.ts';
+import RoomServiceRepository from '../repositories/roomServiceRepo.ts';
+import AccountRepository from '../repositories/accountRepo.ts';
 import { Validator, ValidationError } from '../middlewares/validateData.ts';
 
 class BookingServiceService {
@@ -7,41 +10,71 @@ class BookingServiceService {
     };
 
     async getBookingServiceById(id) {
+        const validator = new Validator();
+        if (!validator.isUUID("Booking Service's ID", id)) {
+            console.log("Error: ", validator.error);
+            throw new ValidationError('400', validator.clearError());
+        }
         return await BookingServiceRepository.getBookingServiceById(id);
+    };
+
+    async getBookingServicesByBookingId(bookingId) {
+        const validator = new Validator();
+        if (!validator.isUUID("Booking's ID", bookingId)) {
+            throw new ValidationError('400', validator.clearError());
+        }
+        return await BookingServiceRepository.getBookingServicesByBookingId(bookingId);
     };
 
     async createBookingService(data) {
         const validatedData = {
-            ...(data.booking_id && { booking_id: data.booking_id.trim() }),
-            ...(data.service_id && { service_id: data.service_id.trim() }),
+            ...(data.booking_id && { booking_id: data.booking_id }),
+            ...(data.service_id && { service_id: data.service_id }),
             ...(data.quantity && { quantity: data.quantity }),
             ...(data.unit_price && { unit_price: data.unit_price }),
             ...(data.total_amount && { total_amount: data.total_amount }),
-            ...(data.added_by && { added_by: data.added_by.trim() }),
+            ...(data.added_by && { added_by: data.added_by }),
         };
 
         const validator = new Validator();
-        if(validator.isEmpty("Booking ID", validatedData.booking_id)) return;
-        if(validator.isEmpty("Service ID", validatedData.service_id)) return;
-        if(validator.isEmpty("Quantity", validatedData.quantity)) return;
-        if(validator.isEmpty("Unit Price", validatedData.unit_price)) return;
-        if(validator.isEmpty("Total Amount", validatedData.total_amount)) return;
 
-        validator.isUUID("Booking ID", validatedData.booking_id);
-        validator.isUUID("Service ID", validatedData.service_id);
-        validator.isPositiveNumber("Quantity", validatedData.quantity);
-        validator.isDecimal("Unit Price", validatedData.unit_price);
-        validator.isPositiveNumber("Unit Price", validatedData.unit_price);
-        validator.isDecimal("Total Amount", validatedData.total_amount);
-        validator.isPositiveNumber("Total Amount", validatedData.total_amount);
-        
-        if(validatedData.added_by) {
-            validator.isUUID("Added By", validatedData.added_by);
+        if (!validator.isEmpty("Booking ID", validatedData.booking_id))
+            validator.isUUID("Booking ID", validatedData.booking_id);
+
+        if (!validator.isEmpty("Service ID", validatedData.service_id))
+            validator.isUUID("Service ID", validatedData.service_id);
+
+        if (!validator.isEmpty("Quantity", validatedData.quantity))
+            validator.isPositiveNumber("Quantity", validatedData.quantity);
+
+        if (!validator.isEmpty("Added_by's ID", validatedData.added_by))
+            validator.isUUID("Added_by's ID", validatedData.added_by);
+
+        if (validator.error.length > 0) {
+            throw new ValidationError('400', validator.clearError());
+        }
+
+        const booking = await BookingRepository.getBookingById(validatedData.booking_id);
+        if (!booking) {
+            validator.pushError("Booking not found");
+        }
+
+        const roomService = await RoomServiceRepository.getServiceById(validatedData.service_id);
+        if (!roomService) {
+            validator.pushError("Service not found");
+        }
+
+        const account = await AccountRepository.getAccountById(validatedData.added_by);
+        if (!account) {
+            validator.pushError("Added_by's ID not found");
         }
 
         if (validator.error.length > 0) {
             throw new ValidationError('400', validator.clearError());
         }
+
+        validatedData.unit_price = roomService ? roomService.price : 0;
+        validatedData.total_amount = validatedData.unit_price * validatedData.quantity;
 
         return await BookingServiceRepository.createBookingService(validatedData);
     };
@@ -57,23 +90,36 @@ class BookingServiceService {
             ...(data.quantity && { quantity: data.quantity }),
             ...(data.unit_price && { unit_price: data.unit_price }),
             ...(data.total_amount && { total_amount: data.total_amount }),
+            ...(data.added_by && { added_by: data.added_by }),
         };
 
         if(validatedData.quantity) {
             validator.isPositiveNumber("Quantity", validatedData.quantity);
+        } else {
+            validatedData.quantity = existingBookingService.quantity;
         }
         if(validatedData.unit_price) {
             validator.isDecimal("Unit Price", validatedData.unit_price);
             validator.isPositiveNumber("Unit Price", validatedData.unit_price);
+        } else {
+            validatedData.unit_price = existingBookingService.unit_price;
         }
-        if(validatedData.total_amount) {
-            validator.isDecimal("Total Amount", validatedData.total_amount);
-            validator.isPositiveNumber("Total Amount", validatedData.total_amount);
+
+        if(!validatedData.added_by)
+            validatedData.added_by = existingBookingService.added_by;
+
+        if (validator.isUUID("Added_by's ID", validatedData.added_by)) {
+            const account = await AccountRepository.getAccountById(validatedData.added_by);
+            if (!account) {
+                validator.pushError("Added_by's ID not found");
+            }
         }
 
         if (validator.error.length > 0) {
             throw new ValidationError('400', validator.clearError());
         }
+
+        validatedData.total_amount = validatedData.unit_price * validatedData.quantity;
 
         return await BookingServiceRepository.updateBookingService(id, validatedData);
     };

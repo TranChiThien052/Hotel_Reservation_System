@@ -3,6 +3,7 @@ import BookingServiceController from '../controllers/bookingServiceController.ts
 
 const router = express.Router();
 
+router.get('/bookings/:id', BookingServiceController.getBookingServicesByBookingId);
 router.get('/', BookingServiceController.getAllBookingServices);
 router.get('/:id', BookingServiceController.getBookingServiceById);
 router.post('/', BookingServiceController.createBookingService);

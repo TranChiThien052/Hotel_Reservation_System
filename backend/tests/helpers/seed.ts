@@ -171,7 +171,23 @@ export async function createTestCancellationRequest(booking_id, overrides = {}) 
   });
 }
 
+export async function createTestBookingService(booking_id, service_id, account_id, overrides = {}) {
+  return prisma.booking_services.create({
+    data: {
+      booking_id: booking_id,
+      service_id: service_id,
+      quantity: 1,
+      unit_price: 20.00,
+      total_amount: 20.00,
+      added_at: new Date(),
+      added_by: account_id,
+      ...overrides,
+    }
+  });
+}
+
 export async function cleanDatabase() {
+    await prisma.booking_services.deleteMany();
     await prisma.cancellation_requests.deleteMany();
     await prisma.bookings.deleteMany();
     await prisma.branches.deleteMany();
