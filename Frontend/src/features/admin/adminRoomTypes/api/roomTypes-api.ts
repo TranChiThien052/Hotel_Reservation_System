@@ -21,5 +21,9 @@ export const roomTypesApi = {
     createRoomType: async (roomTypeData: RoomTypeFormData) => {
         const res = await apiClient.post('/room-types', roomTypeData);
         return res.data;
+    },
+    deleteRoomType: async (id: string) => {
+        const res = await apiClient.delete(`/room-types/${id}`);
+        return res.data;
     }
 };

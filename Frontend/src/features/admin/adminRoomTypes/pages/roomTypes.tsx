@@ -1,5 +1,5 @@
 import { CiCirclePlus } from "react-icons/ci";
-import { FaCaretDown, FaRegBuilding } from "react-icons/fa6";
+import { FaRegBuilding } from "react-icons/fa6";
 import { IoIosCheckmarkCircleOutline } from "react-icons/io";
 import { LuWrench } from "react-icons/lu";
 import type { RoomType, RoomTypeFormData } from "../types/roomsType-type";
@@ -37,7 +37,6 @@ useEffect(() => {
   };
   fetchRoomTypes();
 }, [roomTypesData]);
-console.log("roomTypesData:", roomTypesData);
 
   const handleStatusChange = async (roomTypeId: string, roomTypeData: any) => {
       setLoading(true);
@@ -124,12 +123,12 @@ console.log("roomTypesData:", roomTypesData);
         const dynamicStatusItems: MenuProps["items"] = [
           {
             key: "active",
-            label: "Active",
+            label: <span className="text-green-600">Active</span>,
             onClick: () => handleStatusChange(record.id, { is_active: true }),
           },
           {
             key: "inactive",
-            label: "Inactive",
+            label: <span className="text-red-600">Inactive</span>,
             onClick: () => handleStatusChange(record.id, { is_active: false }),
           },
         ];

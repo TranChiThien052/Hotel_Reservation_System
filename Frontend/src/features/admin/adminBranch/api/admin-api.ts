@@ -19,6 +19,10 @@ export const branchApi = {
         const res = await apiClient.post('/branches', branchData);
         return res.data;
     },
+    deleteBranch: async (id: string) => {
+        const res = await apiClient.delete(`/branches/${id}`);
+        return res.data;
+    },
     getCityOptions: async () => {
         const res = await apiClient.get('https://provinces.open-api.vn/api/v2/');
         return res.data;

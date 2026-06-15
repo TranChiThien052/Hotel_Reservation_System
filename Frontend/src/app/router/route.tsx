@@ -1,7 +1,7 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Index from "../../features/client/index";
-import ClientLayout from "../../app/layout/clientLayout";
-import AdminLayout from "../../app/layout/adminLayout";
+import ClientLayout from "../layout/clientLayout";
+import AdminLayout from "../layout/adminLayout";
 import Branch from "../../features/admin/adminBranch/pages/branch";
 import RoomTypes from "../../features/admin/adminRoomTypes/pages/roomTypes";
 import Rooms from "../../features/admin/adminRooms/pages/rooms";

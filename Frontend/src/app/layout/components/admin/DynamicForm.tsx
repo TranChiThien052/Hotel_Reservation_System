@@ -1,6 +1,7 @@
 
 import SelectFetchCustom from '@/shared/components/select/SelectFetchCustom';
 import UploadImageCustom from '@/shared/components/upload/UploadImageCustom';
+import ExtraAmenitiesInput from '@/shared/components/input/AmenitiesInput';
 import type { FormField } from '@/shared/types/form-field';
 import { FormFieldTypes } from '@/shared/types/type-form-field';
 import { Checkbox, Input, Select } from 'antd';
@@ -163,6 +164,15 @@ const DynamicForm = <T extends object>({
             />
           );
 
+        case FormFieldTypes.ARRAY_INPUT:
+          return (
+            <ExtraAmenitiesInput
+              value={Array.isArray(value) ? value : []}
+              onChange={(newValue) => onChange(key, newValue)}
+              disabled={disabled}
+              placeholder={field.placeholder}
+            />
+          );
 
       default:
         return null;
