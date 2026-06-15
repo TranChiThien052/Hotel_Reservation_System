@@ -13,11 +13,11 @@ class AccountService {
 
     async createAccount(data) {
         const validatedData = {
-            ...(data.username && { username: data.username.trim() }),
-            ...(data.password && { password_hash: data.password.trim() }),
-            ...(data.role && { role: data.role.trim() }),
-            ...(data.status && { status: data.status.trim() }),
-            ...(data.branch_id && { branch_id: data.branch_id.trim() }),
+            ...(data.username && { username: data.username }),
+            ...(data.password && { password_hash: data.password }),
+            ...(data.role && { role: data.role }),
+            ...(data.status && { status: data.status }),
+            ...(data.branch_id && { branch_id: data.branch_id }),
         };
 
         const validator = new Validator();
@@ -58,10 +58,10 @@ class AccountService {
 
     async updateAccount(id, data) {
         const validatedData = {
-            ...(data.password && { password_hash: data.password.trim() }),
-            ...(data.role && { role: data.role.trim() }),
-            ...(data.status && { status: data.status.trim() }),
-            ...(data.branch_id && { branch_id: data.branch_id.trim() }),
+            ...(data.password && { password_hash: data.password }),
+            ...(data.role && { role: data.role }),
+            ...(data.status && { status: data.status }),
+            ...(data.branch_id && { branch_id: data.branch_id }),
         };
 
         const validator = new Validator();

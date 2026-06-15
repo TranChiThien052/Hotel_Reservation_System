@@ -2,11 +2,28 @@ import { prisma } from '../config/prisma.ts';
 
 class RoomServiceRepository {
     async getAllServices() {
-        return await prisma.services.findMany();
+        return await prisma.services.findMany({
+            include: {
+                branches: {
+                    select: {
+                        name: true,
+                    }
+                },
+            }
+        });
     };
 
     async getServiceById(id) {
-        return await prisma.services.findUnique({ where: { id } });
+        return await prisma.services.findUnique({ 
+            where: { id },
+            include: {
+                branches: {
+                    select: {
+                        name: true,
+                    }
+                },
+            }
+        });
     };
 
     async createService(data) {
