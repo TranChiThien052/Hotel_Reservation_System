@@ -185,11 +185,14 @@ describe('Booking Service API', () => {
             const staff = await createTestStaff(branch.id, account.id);
             const booking = await createTestBooking(branch.id, customer.id, roomType.id);
             const roomService = await createTestRoomService(branch.id);
+            const roomService2 = await createTestRoomService(branch.id, { name: "Test Service 2", price: 30.00 });
             const bookingService = await createTestBookingService(booking.id, roomService.id, staff.account_id);
+            const bookingService2 = await createTestBookingService(booking.id, roomService2.id, staff.account_id);
             const response = await request(app)
                 .get(`/booking-services/bookings/${booking.id}`);
             expect(response.status).toBe(200);
             expect(Array.isArray(response.body)).toBe(true);
+            expect(response.body.length).toBe(2);
         });
 
         // Test case for getting a booking services with non-existent booking's ID
@@ -206,7 +209,6 @@ describe('Booking Service API', () => {
             const response = await request(app)
                 .get(`/booking-services/invalid-id`);
             expect(response.status).toBe(400);
-            console.log(response.body);
             expect(response.body).toHaveProperty('error');
             expect(response.body.error).toContain("Booking Service's ID must be a valid UUID");
         });
@@ -291,7 +293,6 @@ describe('Booking Service API', () => {
                 .send({
                     added_by: "invalid-uuid",
                 });
-                console.error(response.body);
             expect(response.status).toBe(400);
             expect(response.body).toHaveProperty('error');
             expect(response.body.error).toContain("Added_by's ID must be a valid UUID");
