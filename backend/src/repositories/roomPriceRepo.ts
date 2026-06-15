@@ -2,14 +2,40 @@ import { prisma } from '../config/prisma.ts';
 
 class RoomPriceRepository {
     async getAllRoomPrices() {
-        return await prisma.room_prices.findMany();
+        return await prisma.room_prices.findMany({
+            include: {
+                room_types: {
+                    select: {
+                        name: true,
+                    }
+                },
+            }
+        });
     };
     async getRoomPriceById(id) {
-        return await prisma.room_prices.findUnique({ where: { id } });
+        return await prisma.room_prices.findUnique({ 
+            where: { id },
+            include: {
+                room_types: {
+                    select: {
+                        name: true,
+                    }
+                },
+            }
+        });
     };
 
     async getRoomPricesByRoomTypeId(id) {
-        return await prisma.room_prices.findFirst({ where: { room_type_id: id }});
+        return await prisma.room_prices.findFirst({ 
+            where: { room_type_id: id },
+            include: {
+                room_types: {
+                    select: {
+                        name: true,
+                    }
+                },
+            }
+        });
     };
 
     async createRoomPrice(data) {
@@ -29,6 +55,13 @@ class RoomPriceRepository {
             select: {
                 id: true,
                 room_type_id: true,
+                include: {
+                    room_types: {
+                        select: {
+                            name: true,
+                        }
+                    }
+                }
             },
         });
     };
