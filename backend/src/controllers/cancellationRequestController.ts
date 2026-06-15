@@ -34,8 +34,8 @@ class CancellationRequestController {
 
     async updateCancellationRequest(req, res) {
         const { id } = req.params;
-        const { reason, status, refund_amount, resolved_by, notes } = req.body;
-        const data = { reason, status, refund_amount, resolved_by, notes };
+        const { reason, status, refund_amount, refund_processed_at, resolved_by, notes } = req.body;
+        const data = { reason, status, refund_amount, refund_processed_at, resolved_by, notes };
         return await CancellationRequestService.updateCancellationRequest(id, data)
         .then(request => res.status(200).json(request))
         .catch(error => {

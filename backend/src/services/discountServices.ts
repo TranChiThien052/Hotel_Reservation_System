@@ -22,7 +22,7 @@ class DiscountServices {
             ...(data.usage_limit && { usage_limit: data.usage_limit }),
             ...(data.valid_from && { valid_from: data.valid_from }),
             ...(data.valid_to && { valid_to: data.valid_to }),
-            ...(data.is_active && { is_active: data.is_active }),
+            ...(data.is_active !== undefined && { is_active: data.is_active }),
         };
 
         const validator = new Validator();

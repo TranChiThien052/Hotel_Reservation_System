@@ -156,7 +156,23 @@ export async function createTestBooking(branch_id, customer_id, room_type_id, ov
   });
 }
 
+export async function createTestCancellationRequest(booking_id, overrides = {}) {
+  return prisma.cancellation_requests.create({
+    data: {
+      booking_id: booking_id,
+      reason: 'Test cancellation request',
+      status: 'pending',
+      refund_amount: 0,
+      notes: 'Test notes for cancellation request',
+      created_at: new Date(),
+      updated_at: new Date(),
+      ...overrides,
+    }
+  });
+}
+
 export async function cleanDatabase() {
+    await prisma.cancellation_requests.deleteMany();
     await prisma.bookings.deleteMany();
     await prisma.branches.deleteMany();
     await prisma.room_types.deleteMany();
