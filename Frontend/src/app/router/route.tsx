@@ -6,6 +6,7 @@ import Branch from "../../features/admin/adminBranch/pages/Branch";
 import RoomTypes from "../../features/admin/adminRoomTypes/pages/RoomTypes";
 import Rooms from "../../features/admin/adminRooms/pages/Rooms";
 import RoomPrices from "@/features/admin/adminRoomsPrices/pages/RoomPrices";
+import Services from "@/features/admin/adminServices/pages/Services";
 
 const route = () => {
   return (
@@ -20,6 +21,7 @@ const route = () => {
           <Route path="room-types" element={<RoomTypes />} />
           <Route path="rooms" element={<Rooms />} />
           <Route path="room-prices" element={<RoomPrices />} />
+          <Route path="services" element={<Services />} />
         </Route>
       </Routes>
     </BrowserRouter>

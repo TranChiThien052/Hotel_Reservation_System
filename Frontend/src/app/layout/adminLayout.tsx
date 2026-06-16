@@ -1,7 +1,7 @@
 
 import { NavLink, Outlet } from 'react-router-dom'
-import AdminHeader from './components/admin/adminHeader';
-import AdminFooter from './components/admin/adminFooter';
+import AdminHeader from './components/admin/AdminHeader';
+import AdminFooter from './components/admin/AdminFooter';
 import {sideBarItems} from '../../service/admin/sideBar';
 
 
