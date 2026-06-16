@@ -19,7 +19,7 @@ export const sideBarItems: SideBarItem[] = [
   { name: "Branch", path: "branches", icon: FaRegBuilding },
   { name: "Room Types", path: "room-types", icon: MdOutlineBed  },
   { name: "Rooms", path: "rooms", icon: LuDoorClosed  },
-  { name: "Prices", path: "prices", icon: PiMoneyWavy },
+  { name: "Room Prices", path: "room-prices", icon: PiMoneyWavy },
   { name: "Services", path: "services", icon: RiServiceBellLine  },
   {name: "Promotions", path: "promotions", icon: GoTag  },
   {name: "Accounts", path: "accounts", icon: LuUserCog  },

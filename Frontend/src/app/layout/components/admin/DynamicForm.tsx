@@ -1,17 +1,17 @@
-
-import SelectFetchCustom from '@/shared/components/select/SelectFetchCustom';
-import UploadImageCustom from '@/shared/components/upload/UploadImageCustom';
-import ExtraAmenitiesInput from '@/shared/components/input/AmenitiesInput';
-import type { FormField } from '@/shared/types/form-field';
-import { FormFieldTypes } from '@/shared/types/type-form-field';
-import { Checkbox, Input, Select } from 'antd';
+import SelectFetchCustom from "@/shared/components/select/SelectFetchCustom";
+import UploadImageCustom from "@/shared/components/upload/UploadImageCustom";
+import ExtraAmenitiesInput from "@/shared/components/input/AmenitiesInput";
+import type { FormField } from "@/shared/types/form-field";
+import { FormFieldTypes } from "@/shared/types/type-form-field";
+import { Checkbox, DatePicker, Input, Select } from "antd";
+import dayjs, { Dayjs } from "dayjs";
 
 type DynamicFormProps<T extends object> = {
   fields: FormField<T>[];
   values: T;
   onChange: (key: keyof T, value: unknown) => void;
   // errors?: Record<string, string>;
-  disabled?: boolean; 
+  disabled?: boolean;
 };
 
 const DynamicForm = <T extends object>({
@@ -19,7 +19,7 @@ const DynamicForm = <T extends object>({
   values,
   onChange,
   // errors = {},
-  disabled = false, 
+  disabled = false,
 }: DynamicFormProps<T>) => {
   const renderField = (field: FormField<T>) => {
     const key = field.key;
@@ -28,28 +28,28 @@ const DynamicForm = <T extends object>({
     switch (field.type) {
       case FormFieldTypes.INPUT:
         return (
-            <Input
-                placeholder={field.placeholder}
-                value={String(value ?? '')}
-                onChange={(e) => onChange(key, e.target.value)}
-                disabled={disabled} // Thêm disabled
-            />
+          <Input
+            placeholder={field.placeholder}
+            value={String(value ?? "")}
+            onChange={(e) => onChange(key, e.target.value)}
+            disabled={disabled} // Thêm disabled
+          />
         );
 
-    case FormFieldTypes.IMAGE_UPLOAD:
+      case FormFieldTypes.IMAGE_UPLOAD:
         return (
-            <UploadImageCustom
-                value={String(value ?? '')}
-                onChange={(url) => onChange(key, url)}
-                disabled={disabled} // Thêm disabled
-            />
+          <UploadImageCustom
+            value={String(value ?? "")}
+            onChange={(url) => onChange(key, url)}
+            disabled={disabled} // Thêm disabled
+          />
         );
 
       case FormFieldTypes.TEXTAREA:
         return (
           <Input.TextArea
             placeholder={field.placeholder}
-            value={String(value ?? '')}
+            value={String(value ?? "")}
             onChange={(e) => onChange(key, e.target.value)}
             disabled={disabled} // Thêm disabled
           />
@@ -67,81 +67,89 @@ const DynamicForm = <T extends object>({
           />
         );
 
-        case FormFieldTypes.CHECKBOX:
+      case FormFieldTypes.CHECKBOX:
         return (
           <Checkbox
             checked={Boolean(value)}
             onChange={(e) => onChange(key, e.target.checked)}
             disabled={disabled} // Thêm disabled
-            >{field.label}</Checkbox>
+          >
+            {field.label}
+          </Checkbox>
         );
 
-        case FormFieldTypes.NUMBER:
+      case FormFieldTypes.NUMBER:
         return (
           <Input
             type="number"
             placeholder={field.placeholder}
-            value={String(value ?? '')}
+            value={String(value ?? "")}
             onChange={(e) => onChange(key, Number(e.target.value))}
             disabled={disabled} // Thêm disabled
           />
         );
 
-        case FormFieldTypes.DATE:
+      case FormFieldTypes.DATE:
         return (
           <Input
             type="date"
             placeholder={field.placeholder}
-            value={String(value ?? '')}
+            value={String(value ?? "")}
             onChange={(e) => onChange(key, e.target.value)}
             disabled={disabled} // Thêm disabled
           />
         );
 
-        case FormFieldTypes.TIME:
+      case FormFieldTypes.TIME:
         return (
           <Input
             type="time"
             placeholder={field.placeholder}
-            value={String(value ?? '')}
+            value={String(value ?? "")}
             onChange={(e) => onChange(key, e.target.value)}
             disabled={disabled} // Thêm disabled
           />
         );
 
-        case FormFieldTypes.DATE_PICKER:
+      case FormFieldTypes.DATE_PICKER:
         return (
-          <Input
-            type="date"
+          <DatePicker
             placeholder={field.placeholder}
-            value={String(value ?? '')}
-            onChange={(e) => onChange(key, e.target.value)}
-            disabled={disabled} // Thêm disabled
+            value={value ? dayjs(value as any) : null}
+            onChange={(d: Dayjs | null) => onChange(key, d ? d.toDate() : null)}
+            disabled={disabled}
+            // call user-provided disabledDate function with current values
+            disabledDate={(current: Dayjs) =>
+              field.componentProps?.disabledDate
+                ? field.componentProps.disabledDate(current, values)
+                : false
+            }
+            {...(field.componentProps ?? {})}
           />
         );
 
-        case FormFieldTypes.TIME_PICKER:
+      case FormFieldTypes.TIME_PICKER:
         return (
           <Input
             type="time"
             placeholder={field.placeholder}
-            value={String(value ?? '')}
+            value={String(value ?? "")}
             onChange={(e) => onChange(key, e.target.value)}
             disabled={disabled} // Thêm disabled
           />
         );
 
-        case FormFieldTypes.PASSWORD:
+      case FormFieldTypes.PASSWORD:
         return (
           <Input.Password
             placeholder={field.placeholder}
-            value={String(value ?? '')}
+            value={String(value ?? "")}
             onChange={(e) => onChange(key, e.target.value)}
             disabled={disabled} // Thêm disabled
-           />
+          />
         );
 
-        case FormFieldTypes.RADIO:
+      case FormFieldTypes.RADIO:
         return (
           <Select
             placeholder={field.placeholder}
@@ -152,27 +160,27 @@ const DynamicForm = <T extends object>({
           />
         );
 
-        case FormFieldTypes.SELECT_FETCH:
-          return (
-            <SelectFetchCustom
-              placeholder={field.placeholder}
-              fetchOptions={field.fetchOptions}
-              value={value}
-              onChange={(value) => onChange(key, value)}
-              disabled={disabled} // Thêm disabled
-              customData={field.customData}
-            />
-          );
+      case FormFieldTypes.SELECT_FETCH:
+        return (
+          <SelectFetchCustom
+            placeholder={field.placeholder}
+            fetchOptions={field.fetchOptions}
+            value={value}
+            onChange={(value) => onChange(key, value)}
+            disabled={disabled} // Thêm disabled
+            customData={field.customData}
+          />
+        );
 
-        case FormFieldTypes.ARRAY_INPUT:
-          return (
-            <ExtraAmenitiesInput
-              value={Array.isArray(value) ? value : []}
-              onChange={(newValue) => onChange(key, newValue)}
-              disabled={disabled}
-              placeholder={field.placeholder}
-            />
-          );
+      case FormFieldTypes.ARRAY_INPUT:
+        return (
+          <ExtraAmenitiesInput
+            value={Array.isArray(value) ? value : []}
+            onChange={(newValue) => onChange(key, newValue)}
+            disabled={disabled}
+            placeholder={field.placeholder}
+          />
+        );
 
       default:
         return null;
@@ -180,12 +188,12 @@ const DynamicForm = <T extends object>({
   };
 
   return (
-    <div className='flex flex-col gap-4'>
+    <div className="flex flex-col gap-4">
       {fields.map((field) => (
-        <div key={String(field.key)} className='flex flex-col gap-1'>
-          <label className='font-medium'>
+        <div key={String(field.key)} className="flex flex-col gap-1">
+          <label className="font-medium">
             {field.label}
-            {field.required && <span className='text-red-500 ml-1'>*</span>}
+            {field.required && <span className="text-red-500 ml-1">*</span>}
           </label>
           {renderField(field)}
           {/* {errors[String(field.key)] && (

@@ -9,5 +9,6 @@ export interface FormField<T> {
   options?: { label: string; value: any }[];
   fetchOptions?: () => Promise<any>;
   rules?: any[];
-  customData?: (data: any) => any; // Hàm tùy chỉnh để xử lý dữ liệu nếu cần thiết
+  customData?: (data: any) => any; // Hàm tùy chỉnh để xử lý dữ liệu nếu cần thiết\
+  componentProps?: Record<string, any>; // Thuộc tính tùy chỉnh cho component, ví dụ như DatePicker, Select
 }

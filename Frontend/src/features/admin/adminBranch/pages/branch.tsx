@@ -143,7 +143,7 @@ const branch = () => {
       title: "Branch Name",
       dataIndex: "name",
       key: "name",
-      render: (text) => <a>{text}</a>,
+      render: (text) => <a className="text-blue-500 text-lg font-bold hover:underline">{text}</a>,
       sorter: (a, b) => a.name.localeCompare(b.name),
       defaultSortOrder: "ascend",
     },

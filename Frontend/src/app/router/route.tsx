@@ -1,10 +1,11 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Index from "../../features/client/index";
-import ClientLayout from "../layout/clientLayout";
-import AdminLayout from "../layout/adminLayout";
-import Branch from "../../features/admin/adminBranch/pages/branch";
-import RoomTypes from "../../features/admin/adminRoomTypes/pages/roomTypes";
-import Rooms from "../../features/admin/adminRooms/pages/rooms";
+import ClientLayout from "../layout/ClientLayout";
+import AdminLayout from "../layout/AdminLayout";
+import Branch from "../../features/admin/adminBranch/pages/Branch";
+import RoomTypes from "../../features/admin/adminRoomTypes/pages/RoomTypes";
+import Rooms from "../../features/admin/adminRooms/pages/Rooms";
+import RoomPrices from "@/features/admin/adminRoomsPrices/pages/RoomPrices";
 
 const route = () => {
   return (
@@ -18,6 +19,7 @@ const route = () => {
           <Route path="branches" element={<Branch />} />
           <Route path="room-types" element={<RoomTypes />} />
           <Route path="rooms" element={<Rooms />} />
+          <Route path="room-prices" element={<RoomPrices />} />
         </Route>
       </Routes>
     </BrowserRouter>
