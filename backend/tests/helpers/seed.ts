@@ -156,7 +156,39 @@ export async function createTestBooking(branch_id, customer_id, room_type_id, ov
   });
 }
 
+export async function createTestCancellationRequest(booking_id, overrides = {}) {
+  return prisma.cancellation_requests.create({
+    data: {
+      booking_id: booking_id,
+      reason: 'Test cancellation request',
+      status: 'pending',
+      refund_amount: 0,
+      notes: 'Test notes for cancellation request',
+      created_at: new Date(),
+      updated_at: new Date(),
+      ...overrides,
+    }
+  });
+}
+
+export async function createTestBookingService(booking_id, service_id, account_id, overrides = {}) {
+  return prisma.booking_services.create({
+    data: {
+      booking_id: booking_id,
+      service_id: service_id,
+      quantity: 1,
+      unit_price: 20.00,
+      total_amount: 20.00,
+      added_at: new Date(),
+      added_by: account_id,
+      ...overrides,
+    }
+  });
+}
+
 export async function cleanDatabase() {
+    await prisma.booking_services.deleteMany();
+    await prisma.cancellation_requests.deleteMany();
     await prisma.bookings.deleteMany();
     await prisma.branches.deleteMany();
     await prisma.room_types.deleteMany();

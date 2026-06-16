@@ -7,16 +7,33 @@ class BookingServiceController {
         .catch(error => res.status(500).json({ error: error.message }));
     };
 
+    async getBookingServicesByBookingId(req, res) {
+        const { id } = req.params;
+        return await BookingServiceService.getBookingServicesByBookingId(id)
+        .then(bookingServices => res.status(200).json(bookingServices))
+        .catch(error => {
+            if (error.code !== 500) {
+                return res.status(parseInt(error.code)).json({ error: error.message });
+            }
+            res.status(500).json({ error: error.message });
+        });
+    };
+
     async getBookingServiceById(req, res) {
         const { id } = req.params;
         return await BookingServiceService.getBookingServiceById(id)
         .then(bookingService => {
             if (!bookingService) {
-                return res.status(404).json({ error: "Booking service not found" });
+                return res.status(404).json({ error: 'Booking Service not found' });
             }
             res.status(200).json(bookingService);
         })
-        .catch(error => res.status(500).json({ error: error.message }));
+        .catch(error => {
+            if (error.code !== 500) {
+                return res.status(parseInt(error.code)).json({ error: error.message });
+            }
+            res.status(500).json({ error: error.message });
+        });
     };
 
     async createBookingService(req, res) {
@@ -34,8 +51,8 @@ class BookingServiceController {
 
     async updateBookingService(req, res) {
         const { id } = req.params;
-        const { quantity, unit_price, total_amount } = req.body;
-        const data = { quantity, unit_price, total_amount };
+        const { quantity, unit_price, total_amount, added_by } = req.body;
+        const data = { quantity, unit_price, total_amount, added_by };
         return await BookingServiceService.updateBookingService(id, data)
         .then(bookingService => res.status(200).json(bookingService))
         .catch(error => {

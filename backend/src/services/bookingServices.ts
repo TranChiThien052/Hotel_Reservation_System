@@ -250,7 +250,7 @@ class BookingService {
             validatedData.booking_type || existingBooking.booking_type
         );
 
-        validatedData.total_amount = validatedData.subtotal - (validatedData.deposit_amount || existingBooking.deposit_amount);
+        validatedData.total_amount = validatedData.subtotal;
         
         if (validatedData.discount_id) {
             if (validator.isUUID("Discount ID", validatedData.discount_id)) {
