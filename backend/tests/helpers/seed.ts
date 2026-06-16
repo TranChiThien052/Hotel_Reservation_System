@@ -186,7 +186,19 @@ export async function createTestBookingService(booking_id, service_id, account_i
   });
 }
 
+export async function createTestHolidayDate(branch_id, overrides = {}) {
+  return prisma.holiday_dates.create({
+    data: {
+      branch_id: branch_id,
+      date: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000),
+      name: 'Test Holiday',
+      ...overrides,
+    }
+  });
+}
+
 export async function cleanDatabase() {
+    await prisma.holiday_dates.deleteMany();
     await prisma.booking_services.deleteMany();
     await prisma.cancellation_requests.deleteMany();
     await prisma.bookings.deleteMany();
