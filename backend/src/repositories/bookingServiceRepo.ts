@@ -14,6 +14,14 @@ class BookingServiceRepository {
     async getBookingServicesByBookingId(bookingId) {
         return await prisma.booking_services.findMany({
             where: { booking_id: bookingId },
+            include: {
+                services: {
+                    select: {
+                        name: true,
+                        price: true,
+                    },
+                },
+            }
         });
     };
 

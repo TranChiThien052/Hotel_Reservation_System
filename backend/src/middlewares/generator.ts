@@ -4,6 +4,19 @@ export const generateBookingCode = (length: number): string => {
     return crypto.randomBytes(length).toString("hex").slice(0, length);
 };
 
+export const generateInvoiceCode = (): string => {
+    const prefix = "INV";
+
+    const datePart = new Date()
+        .toISOString()
+        .slice(0, 10)
+        .replace(/-/g, "");
+
+    const randomPart = Math.random().toString(36).substring(2, 7).toUpperCase();
+
+    return `${prefix}-${datePart}-${randomPart}`;
+};
+
 export const generateDayDiff = (startDate: Date, endDate: Date) => {
     const diffMs = Math.abs(endDate.getTime() - startDate.getTime());
     return Math.ceil(diffMs / (1000 * 60 * 60 * 24));
@@ -20,6 +33,42 @@ export const generateDiscountAmount = (subtotal: number, discountType: string, d
     } else if (discountType === "fixed_amount") {
         return discountValue;
     }
+};
+
+export const generateEarlyCheckoutFee = (created_at: Date, expected_checkout: Date, changed_checkout: Date, unit_price: number, checked_in: boolean): number => {
+    const now = new Date();
+    const createdDate = new Date(created_at);
+    const diffMs = now.getTime() - createdDate.getTime();
+    const diffHours = diffMs / (1000 * 60 * 60);
+
+    if (diffHours < 24) {
+        return 0;
+    }
+
+    const dayDiff = generateDayDiff(new Date(changed_checkout), new Date(expected_checkout));
+
+    if (checked_in) {
+        return unit_price * dayDiff * 0.3;
+    }
+
+    return unit_price * dayDiff * 0.2
+};
+
+export const generateLateCheckoutFee = (expected_checkout: Date, actual_checkout: Date, unit_price: number): number => {
+    const now = new Date();
+    const expectedCheckoutDate = new Date(expected_checkout);
+    const diffMs = now.getTime() - expectedCheckoutDate.getTime();
+    const diffHours = diffMs / (1000 * 60 * 60);
+
+    if (diffHours >= 1 && diffHours < 2) {
+        return unit_price * 0.2;
+    }
+
+    if (diffHours >= 2 && diffHours < 6) {
+        return unit_price * 0.5;
+    }
+
+    return unit_price;
 };
 
 export const generateSubtotal = (roomPrice: number, start: Date, end: Date, type: string) => {
