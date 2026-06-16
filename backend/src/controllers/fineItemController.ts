@@ -16,8 +16,25 @@ class FineItemController {
             }
             res.status(200).json(item);
         })
-        .catch(error => res.status(500).json({ error: error.message }));
+        .catch(error => {
+            if (error.code !== 500) {
+                return res.status(parseInt(error.code)).json({ error: error.message });
+            }
+            res.status(500).json({ error: error.message });
+        });
     };
+
+    async getFineItemsByBranchId(req, res) {
+        const { id } = req.params;
+        return await FineItemService.getFineItemsByBranchId(id)
+        .then(items => res.status(200).json(items))
+        .catch(error => {
+            if (error.code !== 500) {
+                return res.status(parseInt(error.code)).json({ error: error.message });
+            }
+            res.status(500).json({ error: error.message });
+        });
+    }
 
     async createFineItem(req, res) {
         const { branch_id, name, description, price } = req.body;

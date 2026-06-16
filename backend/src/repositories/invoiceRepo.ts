@@ -29,6 +29,13 @@ class InvoiceRepository {
         });
     };
 
+    async getAllCode() {
+        const invoices = await prisma.invoices.findMany({
+            select: { invoice_code: true },
+        });
+        return invoices.map(inv => inv.invoice_code);
+    }
+
     async updateInvoice(id, data) {
         return await prisma.invoices.update({
             where: { id: id },

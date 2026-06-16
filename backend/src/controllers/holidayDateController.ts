@@ -16,7 +16,12 @@ class HolidayDateController {
             }
             res.status(200).json(date);
         })
-        .catch(error => res.status(500).json({ error: error.message }));
+        .catch(error => {
+            if (error.code !== 500) {
+                return res.status(parseInt(error.code)).json({ error: error.message });
+            }
+            res.status(500).json({ error: error.message });
+        });
     };
 
     async createHolidayDate(req, res) {
