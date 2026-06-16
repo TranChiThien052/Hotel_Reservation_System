@@ -197,7 +197,20 @@ export async function createTestHolidayDate(branch_id, overrides = {}) {
   });
 }
 
+export async function createTestFineItem(branch_id, overrides = {}) {
+  return prisma.fine_items.create({
+    data: {
+      branch_id: branch_id,
+      name: 'Test Fine Item',
+      description: 'Test fine item for unit tests',
+      price: 50.00,
+      ...overrides,
+    }
+  });
+}
+
 export async function cleanDatabase() {
+    await prisma.fine_items.deleteMany();
     await prisma.holiday_dates.deleteMany();
     await prisma.booking_services.deleteMany();
     await prisma.cancellation_requests.deleteMany();
