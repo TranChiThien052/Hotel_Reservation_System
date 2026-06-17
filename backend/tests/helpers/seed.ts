@@ -230,7 +230,18 @@ export async function createTestInvoice(booking_id, account_id, overrides = {}) 
   });
 }
 
+export async function createTestInvoiceFine(invoice_id, overrides = {}) {
+  return prisma.invoice_fines.create({
+    data: {
+      invoice_id: invoice_id,
+      description: 'Test invoice fine for unit tests',
+      amount: 50.00,
+    }
+  });
+}
+
 export async function cleanDatabase() {
+  await prisma.invoice_fines.deleteMany();
   await prisma.invoices.deleteMany();
   await prisma.fine_items.deleteMany();
   await prisma.holiday_dates.deleteMany();
