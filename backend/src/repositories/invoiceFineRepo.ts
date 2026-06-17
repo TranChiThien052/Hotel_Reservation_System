@@ -2,18 +2,46 @@ import { prisma } from '../config/prisma.ts';
 
 class InvoiceFineRepository {
     async getAllInvoiceFines() {
-        return await prisma.invoice_fines.findMany();
+        return await prisma.invoice_fines.findMany({
+            include: {
+                fine_items: {
+                    select: {
+                        name: true,
+                        price: true,
+                        description: true,
+                    }
+                }
+            }
+        });
     };
 
     async getInvoiceFineById(id) {
         return await prisma.invoice_fines.findUnique({
             where: { id: id },
+            include: {
+                fine_items: {
+                    select: {
+                        name: true,
+                        price: true,
+                        description: true,
+                    }
+                }
+            }
         });
     };
 
     async getInvoiceFinesByInvoiceId(invoiceId) {
         return await prisma.invoice_fines.findMany({
             where: { invoice_id: invoiceId },
+            include: {
+                fine_items: {
+                    select: {
+                        name: true,
+                        price: true,
+                        description: true,
+                    }
+                }
+            }
         });
     };
 

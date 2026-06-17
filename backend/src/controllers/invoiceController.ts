@@ -30,7 +30,6 @@ class InvoiceController {
         return await InvoiceService.createInvoice(data)
             .then(invoice => res.status(201).json(invoice))
             .catch(error => {
-                console.error(error);
                 if (error.code !== 500) {
                     return res.status(parseInt(error.code)).json({ error: error.message });
                 }
