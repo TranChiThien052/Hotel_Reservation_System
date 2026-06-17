@@ -126,16 +126,13 @@ class InvoiceFineService {
         if (validatedData.fine_item_id) {
             const fineItem = await FineItemRepository.getFineItemById(validatedData.fine_item_id);
             if (!fineItem) {
-                console.error(`Fine item with ID ${validatedData.fine_item_id} not found`);
                 throw new ValidationError('404', "Fine item not found");
             }
         }
 
         if (validatedData.added_by) {
             const staffAccount = await AccountRepository.getAccountById(validatedData.added_by);
-            console.error("Validating added_by account with ID:", validatedData.added_by);
             if (!staffAccount) {
-                console.error(`Account with ID ${validatedData.added_by} not found`);
                 throw new ValidationError('404', "Added by not found");
             }
         }

@@ -240,7 +240,26 @@ export async function createTestInvoiceFine(invoice_id, overrides = {}) {
   });
 }
 
+export async function createTestPayment(booking_id, overrides = {}) {
+  return prisma.payments.create({
+    data: {
+      booking_id: booking_id,
+      invoice_id: null,
+      payment_method: 'bank_transfer',
+      status: 'paid',
+      amount: 320.00,
+      is_deposit: false,
+      transaction_ref: 'TESTTRANS',
+      paid_at: new Date(),
+      processed_by: null,
+      notes: 'Test payment for unit tests',
+      ...overrides,
+    }
+  });
+};
+
 export async function cleanDatabase() {
+  await prisma.payments.deleteMany();
   await prisma.invoice_fines.deleteMany();
   await prisma.invoices.deleteMany();
   await prisma.fine_items.deleteMany();
