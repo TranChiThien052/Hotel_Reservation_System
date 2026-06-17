@@ -258,7 +258,22 @@ export async function createTestPayment(booking_id, overrides = {}) {
   });
 };
 
+export async function createTestHistoryTransaction(account_id, overrides = {}) {
+  return prisma.history_transaction.create({
+    data: {
+      account_id: account_id,
+      action: 'Test Action',
+      target_type: 'Test Target Type',
+      target_id: null,
+      description: 'Test history transaction for unit tests',
+      metadata: {},
+      ...overrides,
+    }
+  });
+}
+
 export async function cleanDatabase() {
+  await prisma.history_transaction.deleteMany();
   await prisma.payments.deleteMany();
   await prisma.invoice_fines.deleteMany();
   await prisma.invoices.deleteMany();
