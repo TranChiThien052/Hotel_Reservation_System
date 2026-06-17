@@ -1,4 +1,5 @@
 import HolidayDateRepository from '../repositories/holidayDateRepo.ts';
+import BranchRepository from '../repositories/branchRepo.ts';
 import { Validator, ValidationError } from '../middlewares/validateData.ts';
 
 class HolidayDateService {
@@ -7,24 +8,36 @@ class HolidayDateService {
     };
 
     async getHolidayDateById(id) {
+        const validator = new Validator();
+        if (!validator.isUUID("Holiday Date ID", id)) {
+            throw new ValidationError('400', "Invalid holiday date ID format");
+        }
         return await HolidayDateRepository.getHolidayDateById(id);
     };
 
     async createHolidayDate(data) {
         const validatedData = {
-            ...(data.branch_id && { branch_id: data.branch_id.trim() }),
+            ...(data.branch_id && { branch_id: data.branch_id }),
             ...(data.date && { date: data.date }),
-            ...(data.name && { name: data.name.trim() }),
+            ...(data.name && { name: data.name }),
         };
 
         const validator = new Validator();
-        if(validator.isEmpty("Branch ID", validatedData.branch_id)) return;
-        if(validator.isEmpty("Date", validatedData.date)) return;
+        if (validatedData.branch_id) {
+            if (validator.isUUID("Branch ID", validatedData.branch_id)) {
+                const branchExists = await BranchRepository.getBranchById(validatedData.branch_id);
+                if (!branchExists) {
+                    validator.pushError("Branch ID does not exist");
+                }
+            }    
+        }
 
-        validator.isUUID("Branch ID", validatedData.branch_id);
-        validator.validateDate(validatedData.date);
-        
-        if(validatedData.name) {
+        if (!validator.isEmpty("Date", validatedData.date)) {
+            if(validator.validateDate(validatedData.date))
+                validatedData.date = new Date(validatedData.date);
+        }
+
+        if (validatedData.name) {
             validator.isString("Name", validatedData.name);
             validator.maxLength("Name", validatedData.name, 150);
         }
@@ -38,23 +51,39 @@ class HolidayDateService {
 
     async updateHolidayDate(id, data) {
         const validator = new Validator();
+
+        if(!validator.isEmpty("Holiday Date ID", id)) {
+            if (!validator.isUUID("Holiday Date ID", id)) {
+                throw new ValidationError('400', validator.clearError());
+            }
+        }
+
         const existingHolidayDate = await HolidayDateRepository.getHolidayDateById(id);
+
         if (!existingHolidayDate) {
             throw new ValidationError('404', "Holiday date not found");
         }
 
         const validatedData = {
-            ...(data.branch_id && { branch_id: data.branch_id.trim() }),
+            ...(data.branch_id && { branch_id: data.branch_id }),
             ...(data.date && { date: data.date }),
-            ...(data.name && { name: data.name.trim() }),
+            ...(data.name && { name: data.name }),
         };
 
         if(validatedData.branch_id) {
-            validator.isUUID("Branch ID", validatedData.branch_id);
+            if (validator.isUUID("Branch ID", validatedData.branch_id)) {
+                const branchExists = await BranchRepository.getBranchById(validatedData.branch_id);
+                if (!branchExists) {
+                    validator.pushError("Branch ID does not exist");
+                }
+            }
         }
+
         if(validatedData.date) {
-            validator.validateDate(validatedData.date);
+            if (validator.validateDate(validatedData.date))
+                validatedData.date = new Date(validatedData.date);
         }
+        
         if(validatedData.name) {
             validator.isString("Name", validatedData.name);
             validator.maxLength("Name", validatedData.name, 150);

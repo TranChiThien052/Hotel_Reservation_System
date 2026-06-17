@@ -186,17 +186,64 @@ export async function createTestBookingService(booking_id, service_id, account_i
   });
 }
 
+export async function createTestHolidayDate(branch_id, overrides = {}) {
+  return prisma.holiday_dates.create({
+    data: {
+      branch_id: branch_id,
+      date: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000),
+      name: 'Test Holiday',
+      ...overrides,
+    }
+  });
+}
+
+export async function createTestFineItem(branch_id, overrides = {}) {
+  return prisma.fine_items.create({
+    data: {
+      branch_id: branch_id,
+      name: 'Test Fine Item',
+      description: 'Test fine item for unit tests',
+      price: 50.00,
+      ...overrides,
+    }
+  });
+}
+
+export async function createTestInvoice(booking_id, account_id, overrides = {}) {
+  return prisma.invoices.create({
+    data: {
+      invoice_code: 'TESTINV',
+      booking_id: booking_id,
+      room_charge: 300.00,
+      service_charge: 20.00,
+      fine_charge: 0.00,
+      late_checkout_fee: 0.00,
+      early_checkout_fee: 0.00,
+      discount_amount: 0.00,
+      total_amount: 320.00,
+      deposit_used: 0.00,
+      amount_due: 320.00,
+      refund_amount: 0.00,
+      issued_by: account_id,
+      notes: 'Test invoice for unit tests',
+    }
+  });
+}
+
 export async function cleanDatabase() {
-    await prisma.booking_services.deleteMany();
-    await prisma.cancellation_requests.deleteMany();
-    await prisma.bookings.deleteMany();
-    await prisma.branches.deleteMany();
-    await prisma.room_types.deleteMany();
-    await prisma.rooms.deleteMany();
-    await prisma.room_prices.deleteMany();
-    await prisma.services.deleteMany();
-    await prisma.discounts.deleteMany();
-    await prisma.customers.deleteMany();
-    await prisma.accounts.deleteMany();
-    await prisma.staff.deleteMany();
+  await prisma.invoices.deleteMany();
+  await prisma.fine_items.deleteMany();
+  await prisma.holiday_dates.deleteMany();
+  await prisma.booking_services.deleteMany();
+  await prisma.cancellation_requests.deleteMany();
+  await prisma.bookings.deleteMany();
+  await prisma.branches.deleteMany();
+  await prisma.room_types.deleteMany();
+  await prisma.rooms.deleteMany();
+  await prisma.room_prices.deleteMany();
+  await prisma.services.deleteMany();
+  await prisma.discounts.deleteMany();
+  await prisma.customers.deleteMany();
+  await prisma.accounts.deleteMany();
+  await prisma.staff.deleteMany();
 }

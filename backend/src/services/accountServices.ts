@@ -1,4 +1,5 @@
 import AccountRepository from '../repositories/accountRepo.ts';
+import BranchRepository from '../repositories/branchRepo.ts';
 import { Validator, ValidationError } from '../middlewares/validateData.ts';
 import brcypt from 'bcrypt';
 
@@ -7,7 +8,22 @@ class AccountService {
         return await AccountRepository.getAllAccounts();
     };
 
+    async getAccountByUsername(username) {
+        const validator = new Validator();
+        validator.isString("Username", username);
+        if (validator.error.length > 0) {
+            throw new ValidationError('400', validator.clearError());
+        }
+
+        return await AccountRepository.getAccountByUsername(username);
+    };
+
     async getAccountById(id) {
+        const validator = new Validator();
+        validator.isUUID("Account ID", id);
+        if (validator.error.length > 0) {
+            throw new ValidationError('400', validator.clearError());
+        }
         return await AccountRepository.getAccountById(id);
     };
 
@@ -21,24 +37,24 @@ class AccountService {
         };
 
         const validator = new Validator();
-        if(validatedData.username) {
+        if (validatedData.username) {
             validator.isEmpty("Username", validatedData.username)
         }
-        if(validatedData.password_hash) {
+        if (validatedData.password_hash) {
             validator.isEmpty("Password", validatedData.password_hash)
             validator.validatePassword(validatedData.password_hash);
         }
 
         validator.isString("Username", validatedData.username);
         validator.maxLength("Username", validatedData.username, 200);
-        
-        if(validatedData.role) {
+
+        if (validatedData.role) {
             validator.validateAccountRole(validatedData.role);
         }
-        if(validatedData.status) {
+        if (validatedData.status) {
             validator.validateAccountStatus(validatedData.status);
         }
-        if(validatedData.branch_id) {
+        if (validatedData.branch_id) {
             validator.isUUID("Branch ID", validatedData.branch_id);
         }
 
@@ -49,6 +65,13 @@ class AccountService {
         const existingAccount = await AccountRepository.getAccountByUsername(validatedData.username);
         if (existingAccount) {
             throw new ValidationError('400', "Username already exists");
+        }
+
+        if (validatedData.branch_id) {
+            const existingBranch = await BranchRepository.getBranchById(validatedData.branch_id);
+            if (!existingBranch) {
+                throw new ValidationError('404', "Branch not found");
+            }
         }
 
         validatedData.password_hash = await brcypt.hash(validatedData.password_hash, Number(process.env.SALT_ROUNDS) || 5);
@@ -66,30 +89,40 @@ class AccountService {
 
         const validator = new Validator();
 
-        if(validatedData.password_hash) {
+        if (validatedData.password_hash) {
             validator.isString("Password Hash", validatedData.password_hash);
             validator.validatePassword(validatedData.password_hash);
+            validatedData.password_hash = await brcypt.hash(validatedData.password_hash, Number(process.env.SALT_ROUNDS) || 5);
         }
-        if(validatedData.role) {
+        if (validatedData.role) {
             validator.validateAccountRole(validatedData.role);
         }
-        if(validatedData.status) {
+        if (validatedData.status) {
             validator.validateAccountStatus(validatedData.status);
         }
-        if(validatedData.branch_id) {
-            validator.isUUID("Branch ID", validatedData.branch_id);
+        if (validatedData.branch_id) {
+            if (validator.isUUID("Branch ID", validatedData.branch_id)) {
+                const existingBranch = await BranchRepository.getBranchById(validatedData.branch_id);
+                if (!existingBranch) {
+                    throw new ValidationError('404', "Branch not found");
+                }
+            }
         }
 
         if (validator.error.length > 0) {
             throw new ValidationError('400', validator.clearError());
         }
-        
-        const existingAccount = await AccountRepository.getAccountById(id);
-        if (!existingAccount) {
-            throw new ValidationError('404', "Account not found");
+
+        if (validator.isUUID("ID", id)) {
+            const existingAccount = await AccountRepository.getAccountById(id);
+            if (!existingAccount) {
+                throw new ValidationError('404', "Account not found");
+            }
         }
 
-        validatedData.password_hash = await brcypt.hash(validatedData.password_hash, Number(process.env.SALT_ROUNDS) || 5);
+        if (validator.error.length > 0) {
+            throw new ValidationError('400', validator.clearError());
+        }
 
         return await AccountRepository.updateAccount(id, validatedData);
     };
