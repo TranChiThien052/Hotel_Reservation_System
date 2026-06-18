@@ -55,7 +55,7 @@ const RoomPrices = () => {
             } catch (error) {
                 message.error("Có lỗi xảy ra khi thêm giá phòng. Vui lòng thử lại.");
             }
-        } else if (roomPrices.mode === FormModalModes.VIEW && roomPrices.selectedRecord) {
+        } else if (roomPrices.mode === FormModalModes.UPDATE && roomPrices.selectedRecord) {
             try {
                 await roomPricesApi.updateRoomPrice(roomPrices.selectedRecord.id, values);
                 message.success("Cập nhật giá phòng thành công!");
