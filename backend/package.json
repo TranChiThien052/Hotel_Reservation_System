@@ -4,9 +4,12 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "build": "prisma generate && tsc",
+    "start": "prisma migrate deploy && node dist/server.js",
     "dev": "npx ts-node src/server.ts",
     "dev:watch": "nodemon --watch src --exec ts-node src/server.ts",
-    "test": "cross-env NODE_OPTIONS=--experimental-vm-modules jest --env-file=.env.test"
+    "test": "cross-env NODE_OPTIONS=--experimental-vm-modules jest --env-file=.env.test",
+    "migrate": "prisma migrate deploy"
   },
   "keywords": [],
   "author": "",
