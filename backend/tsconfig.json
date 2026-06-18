@@ -2,11 +2,12 @@
   // Visit https://aka.ms/tsconfig to read more about this file
   "compilerOptions": {
     // File Layout
-    // "rootDir": "./src",
-    // "outDir": "./dist",
+    "rootDir": "./src",
+    "outDir": "./dist",
     // Environment Settings
     // See also https://aka.ms/tsconfig/module
-    "module": "NodeNext",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
     "target": "ESNext",
     // "types": [],
     // For nodejs:
@@ -41,5 +42,8 @@
     "moduleDetection": "force",
     "skipLibCheck": true,
     "noImplicitAny": false,
-  }
+  },
+  "include": [
+    "src/**/*"
+  ]
 }

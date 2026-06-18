@@ -1,6 +1,6 @@
-import StaffRepository from '../repositories/staffRepo.ts';
-import AccountRepository from '../repositories/accountRepo.ts';
-import { Validator, ValidationError } from '../middlewares/validateData.ts';
+import StaffRepository from '../repositories/staffRepo';
+import AccountRepository from '../repositories/accountRepo';
+import { Validator, ValidationError } from '../middlewares/validateData';
 
 class StaffService {
     async getAllStaff() {
@@ -29,21 +29,21 @@ class StaffService {
         };
 
         const validator = new Validator();
-        if(validator.isEmpty("Branch ID", validatedData.branch_id)) 
+        if (validator.isEmpty("Branch ID", validatedData.branch_id))
             throw new ValidationError('400', "Branch ID is required");
-        if(validator.isEmpty("Account ID", validatedData.account_id)) 
+        if (validator.isEmpty("Account ID", validatedData.account_id))
             throw new ValidationError('400', "Account ID is required");
-        if(validator.isEmpty("Full Name", validatedData.full_name)) 
+        if (validator.isEmpty("Full Name", validatedData.full_name))
             throw new ValidationError('400', "Full Name is required");
 
         validator.isUUID("Branch ID", validatedData.branch_id);
         validator.isUUID("Account ID", validatedData.account_id);
         validator.isString("Full Name", validatedData.full_name);
-        
-        if(validatedData.phone) {
+
+        if (validatedData.phone) {
             validator.validatePhoneNumber(validatedData.phone);
         }
-        if(validatedData.position) {
+        if (validatedData.position) {
             validator.isString("Position", validatedData.position);
             validator.validateEnum("Position", validatedData.position, ["manager", "staff", "admin"]);
         }
@@ -55,7 +55,7 @@ class StaffService {
         const validatingAccount = await StaffRepository.getValidatingInformation();
         const duplicatePhoneStaff = validatingAccount.find(account => account.phone === validatedData.phone);
 
-        if(duplicatePhoneStaff) {
+        if (duplicatePhoneStaff) {
             throw new ValidationError('400', "Phone number already exists");
         }
 
@@ -69,19 +69,19 @@ class StaffService {
             ...(data.phone && { phone: data.phone.trim() }),
             ...(data.position && { position: data.position.trim() }),
         };
-        
+
         const validator = new Validator();
 
-        if(validatedData.branch_id) {
+        if (validatedData.branch_id) {
             validator.isUUID("Branch ID", validatedData.branch_id);
         }
-        if(validatedData.full_name) {
+        if (validatedData.full_name) {
             validator.isString("Full Name", validatedData.full_name);
         }
-        if(validatedData.phone) {
+        if (validatedData.phone) {
             validator.validatePhoneNumber(validatedData.phone);
         }
-        if(validatedData.position) {
+        if (validatedData.position) {
             validator.validateEnum("Position", validatedData.position, ["manager", "staff", "admin"]);
         }
 
@@ -93,7 +93,7 @@ class StaffService {
         const currentStaff = validatingInformation.find(staff => staff.id === id);
         const duplicatePhoneStaff = validatingInformation.find(staff => staff.phone === validatedData.phone && staff.id !== id);
 
-        if(duplicatePhoneStaff) {
+        if (duplicatePhoneStaff) {
             throw new ValidationError('400', "Phone number already exists");
         }
 
@@ -101,7 +101,7 @@ class StaffService {
             throw new ValidationError('400', validator.clearError());
         }
 
-        if(!currentStaff) {
+        if (!currentStaff) {
             throw new ValidationError('404', "Staff not found");
         }
 

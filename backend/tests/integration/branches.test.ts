@@ -20,16 +20,16 @@ describe('Branches API', () => {
     describe('POST /api/branches', () => {
         it('should create a new branch', async () => {
             const response = await request(app)
-            .post('/branches')
-            .send({
-                name: 'Test Branch',
-                address: '123 Test Street',
-                city: 'Test City',
-                phone: '0123456789',
-                email: 'test@gmail.com',
-                description: 'This is a test branch',
-                is_active: true
-            })
+                .post('/branches')
+                .send({
+                    name: 'Test Branch',
+                    address: '123 Test Street',
+                    city: 'Test City',
+                    phone: '0123456789',
+                    email: 'test@gmail.com',
+                    description: 'This is a test branch',
+                    is_active: true
+                })
 
             expect(response.status).toBe(201);
             expect(response.body).toHaveProperty('id');
@@ -46,18 +46,18 @@ describe('Branches API', () => {
             });
             expect(branchInDb).not.toBeNull();
         });
-        
+
         it('should return 400 if required fields are missing', async () => {
             const response = await request(app)
-            .post('/branches')
-            .send({
-                address: '123 Test Street',
-                city: 'Test City',
-                phone: '0123456789',
-                email: 'test@gmail.com',
-                description: 'This is a test branch',
-                is_active: true
-            });
+                .post('/branches')
+                .send({
+                    address: '123 Test Street',
+                    city: 'Test City',
+                    phone: '0123456789',
+                    email: 'test@gmail.com',
+                    description: 'This is a test branch',
+                    is_active: true
+                });
 
             expect(response.status).toBe(400);
             expect(response.body).toHaveProperty('error');
@@ -65,16 +65,16 @@ describe('Branches API', () => {
 
         it('should return 400 if email is not valid', async () => {
             const response = await request(app)
-            .post('/branches')
-            .send({
-                name: 'Test Branch',
-                address: '123 Test Street',
-                city: 'Test City',
-                phone: '0123456789',
-                email: 'invalid-email',
-                description: 'This is a test branch',
-                is_active: true
-            });
+                .post('/branches')
+                .send({
+                    name: 'Test Branch',
+                    address: '123 Test Street',
+                    city: 'Test City',
+                    phone: '0123456789',
+                    email: 'invalid-email',
+                    description: 'This is a test branch',
+                    is_active: true
+                });
 
             expect(response.status).toBe(400);
             expect(response.body).toHaveProperty('error');
@@ -82,16 +82,16 @@ describe('Branches API', () => {
 
         it('should return 400 if phone number is not valid', async () => {
             const response = await request(app)
-            .post('/branches')
-            .send({
-                name: 'Test Branch',
-                address: '123 Test Street',
-                city: 'Test City',
-                phone: 'invalid-phone',
-                email: 'test@gmail.com',
-                description: 'This is a test branch',
-                is_active: true
-            });
+                .post('/branches')
+                .send({
+                    name: 'Test Branch',
+                    address: '123 Test Street',
+                    city: 'Test City',
+                    phone: 'invalid-phone',
+                    email: 'test@gmail.com',
+                    description: 'This is a test branch',
+                    is_active: true
+                });
 
             expect(response.status).toBe(400);
             expect(response.body).toHaveProperty('error');
@@ -100,16 +100,16 @@ describe('Branches API', () => {
         it('should return 400 if phone number is duplicate', async () => {
             await createTestBranch({ phone: '0123456789' });
             const response = await request(app)
-            .post('/branches')
-            .send({
-                name: 'Test Branch 2',
-                address: '456 Test Street',
-                city: 'Test City',
-                phone: '0123456789',
-                email: 'test2@gmail.com',
-                description: 'This is another test branch',
-                is_active: true
-            });
+                .post('/branches')
+                .send({
+                    name: 'Test Branch 2',
+                    address: '456 Test Street',
+                    city: 'Test City',
+                    phone: '0123456789',
+                    email: 'test2@gmail.com',
+                    description: 'This is another test branch',
+                    is_active: true
+                });
 
             expect(response.status).toBe(400);
             expect(response.body).toHaveProperty('error');
@@ -118,16 +118,16 @@ describe('Branches API', () => {
         it('should return 400 if email is duplicate', async () => {
             await createTestBranch({ email: 'test@gmail.com' });
             const response = await request(app)
-            .post('/branches')
-            .send({
-                name: 'Test Branch 2',
-                address: '456 Test Street',
-                city: 'Test City',
-                phone: '0987654321',
-                email: 'test@gmail.com',
-                description: 'This is another test branch',
-                is_active: true
-            });
+                .post('/branches')
+                .send({
+                    name: 'Test Branch 2',
+                    address: '456 Test Street',
+                    city: 'Test City',
+                    phone: '0987654321',
+                    email: 'test@gmail.com',
+                    description: 'This is another test branch',
+                    is_active: true
+                });
 
             expect(response.status).toBe(400);
             expect(response.body).toHaveProperty('error');
@@ -160,48 +160,48 @@ describe('Branches API', () => {
         it('should update a branch', async () => {
             const branch = await createTestBranch();
             const response = await request(app)
-            .put(`/branches/${branch.id}`)
-            .send({
-                name: 'Updated Branch',
-                address: '456 Updated Street',
-                city: 'Updated City',
-                phone: '0987654321',
-                email: 'updated@gmail.com',
-                description: 'This is an updated test branch',
-                is_active: false
-            });
+                .put(`/branches/${branch.id}`)
+                .send({
+                    name: 'Updated Branch',
+                    address: '456 Updated Street',
+                    city: 'Updated City',
+                    phone: '0987654321',
+                    email: 'updated@gmail.com',
+                    description: 'This is an updated test branch',
+                    is_active: false
+                });
             expect(response.status).toBe(200);
             expect(response.body.name).toBe('Updated Branch');
         });
 
         it('should return 404 if branch not found', async () => {
             const response = await request(app)
-            .put('/branches/9999')
-            .send({
-                name: 'Updated Branch',
-                address: '456 Updated Street',
-                city: 'Updated City',
-                phone: '0987654321',
-                email: 'updated@gmail.com',
-                description: 'This is an updated test branch',
-                is_active: false
-            });
+                .put('/branches/9999')
+                .send({
+                    name: 'Updated Branch',
+                    address: '456 Updated Street',
+                    city: 'Updated City',
+                    phone: '0987654321',
+                    email: 'updated@gmail.com',
+                    description: 'This is an updated test branch',
+                    is_active: false
+                });
             expect(response.status).toBe(404);
         });
 
         it('should return 400 if email is not valid', async () => {
             const branch = await createTestBranch();
             const response = await request(app)
-            .put(`/branches/${branch.id}`)
-            .send({
-                name: 'Updated Branch',
-                address: '456 Updated Street',
-                city: 'Updated City',
-                phone: '0987654321',
-                email: 'invalid-email',
-                description: 'This is an updated test branch',
-                is_active: false
-            });
+                .put(`/branches/${branch.id}`)
+                .send({
+                    name: 'Updated Branch',
+                    address: '456 Updated Street',
+                    city: 'Updated City',
+                    phone: '0987654321',
+                    email: 'invalid-email',
+                    description: 'This is an updated test branch',
+                    is_active: false
+                });
             expect(response.status).toBe(400);
             expect(response.body).toHaveProperty('error');
         });
@@ -209,16 +209,16 @@ describe('Branches API', () => {
         it('should return 400 if phone number is not valid', async () => {
             const branch = await createTestBranch();
             const response = await request(app)
-            .put(`/branches/${branch.id}`)
-            .send({
-                name: 'Updated Branch',
-                address: '456 Updated Street',
-                city: 'Updated City',
-                phone: 'invalid-phone',
-                email: 'updated@gmail.com',
-                description: 'This is an updated test branch',
-                is_active: false
-            });
+                .put(`/branches/${branch.id}`)
+                .send({
+                    name: 'Updated Branch',
+                    address: '456 Updated Street',
+                    city: 'Updated City',
+                    phone: 'invalid-phone',
+                    email: 'updated@gmail.com',
+                    description: 'This is an updated test branch',
+                    is_active: false
+                });
             expect(response.status).toBe(400);
         });
     });

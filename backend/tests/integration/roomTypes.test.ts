@@ -21,7 +21,7 @@ describe('Room Types API', () => {
         // Test case for getting all room types
         it('should get all room types', async () => {
             const branch = await createTestBranch();
-            for (let i = 0; i < 3; i++) 
+            for (let i = 0; i < 3; i++)
                 await createTestRoomType(branch.id);
             const response = await request(app).get('/room-types');
             expect(response.status).toBe(200);
@@ -43,7 +43,7 @@ describe('Room Types API', () => {
         // Test case for getting room types by branch id
         it('should get room types by branch id', async () => {
             const branch = await createTestBranch();
-            for (let i = 0; i < 3; i++) 
+            for (let i = 0; i < 3; i++)
                 await createTestRoomType(branch.id);
             const response = await request(app).get(`/room-types/branch/${branch.id}`);
             expect(response.status).toBe(200);

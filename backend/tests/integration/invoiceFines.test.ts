@@ -58,7 +58,7 @@ describe('Invoice Fines API', () => {
             expect(response.status).toBe(404);
             expect(response.body.error).toContain("Invoice not found");
         });
-        
+
         // Test case for creating a new invoice fine with non-existent added_by id
         it('should return 404 for creating a new invoice fine with non-existent added_by id', async () => {
             const branch = await createTestBranch();
@@ -232,7 +232,7 @@ describe('Invoice Fines API', () => {
             expect(response.body.description).toBe('Updated fine description');
             expect(Number(response.body.amount)).toBe(100.00);
         });
-        
+
         // Test case for updating an invoice fine with invalid data
         it('should return 400 with invalid data', async () => {
             const branch = await createTestBranch();

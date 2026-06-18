@@ -1,7 +1,7 @@
-import CancellationRequestRepository from '../repositories/cancellationRequestRepo.ts';
-import { Validator, ValidationError } from '../middlewares/validateData.ts';
-import AccountRepository from '../repositories/accountRepo.ts';
-import BookingRepository from '../repositories/bookingRepo.ts';
+import CancellationRequestRepository from '../repositories/cancellationRequestRepo';
+import { Validator, ValidationError } from '../middlewares/validateData';
+import AccountRepository from '../repositories/accountRepo';
+import BookingRepository from '../repositories/bookingRepo';
 
 class CancellationRequestService {
     async getAllCancellationRequests() {
@@ -23,7 +23,7 @@ class CancellationRequestService {
         };
 
         const validator = new Validator();
-        if(!validator.isEmpty("Booking ID", validatedData.booking_id))
+        if (!validator.isEmpty("Booking ID", validatedData.booking_id))
             if (validator.isUUID("Booking ID", validatedData.booking_id)) {
                 const booking = await BookingRepository.getBookingById(validatedData.booking_id);
                 if (!booking) {
@@ -31,18 +31,18 @@ class CancellationRequestService {
                 }
             }
 
-        if(validatedData.requested_by) 
-            if(validator.isUUID("Requested By", validatedData.requested_by)) {
+        if (validatedData.requested_by)
+            if (validator.isUUID("Requested By", validatedData.requested_by)) {
                 const account = await AccountRepository.getAccountById(validatedData.requested_by);
                 if (!account) {
                     validator.pushError("Requested_by ID not found");
                 }
             }
 
-        if(validatedData.status)
+        if (validatedData.status)
             validator.validateCancellationStatus(validatedData.status);
 
-        if(validatedData.refund_amount) {
+        if (validatedData.refund_amount) {
             validator.isDecimal("Refund Amount", validatedData.refund_amount);
             validator.isNonNegativeNumber("Refund Amount", validatedData.refund_amount);
         }
@@ -72,22 +72,22 @@ class CancellationRequestService {
             ...(data.notes && { notes: data.notes }),
         };
 
-        if(validatedData.status) {
+        if (validatedData.status) {
             validator.validateCancellationStatus(validatedData.status);
         }
-        if(validatedData.refund_amount) {
+        if (validatedData.refund_amount) {
             validator.isDecimal("Refund Amount", validatedData.refund_amount);
             validator.isNonNegativeNumber("Refund Amount", validatedData.refund_amount);
         }
-        if(validatedData.resolved_by) {
-            if(validator.isUUID("Resolved By", validatedData.resolved_by)) {
+        if (validatedData.resolved_by) {
+            if (validator.isUUID("Resolved By", validatedData.resolved_by)) {
                 const account = await AccountRepository.getAccountById(validatedData.resolved_by);
                 if (!account) {
                     validator.pushError("Resolved_by ID not found");
                 }
             }
         }
-        if(validatedData.refund_processed_at) {
+        if (validatedData.refund_processed_at) {
             validator.validateDate(validatedData.refund_processed_at);
         }
 

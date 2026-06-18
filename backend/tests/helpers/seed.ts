@@ -1,4 +1,4 @@
-import { prisma } from './prisma.ts';
+import { prisma } from './prisma';
 
 export async function createTestBranch(overrides = {}) {
   return prisma.branches.create({

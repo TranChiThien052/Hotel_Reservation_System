@@ -1,5 +1,5 @@
 import express from 'express';
-import RoomPriceController from '../controllers/roomPriceController.ts';
+import RoomPriceController from '../controllers/roomPriceController';
 
 const router = express.Router();
 
@@ -7,7 +7,7 @@ router.get('/room-type/:id', RoomPriceController.getRoomPricesByRoomTypeId);
 
 router.get('/', RoomPriceController.getAllRoomPrices);
 
-router.get ('/:id', RoomPriceController.getRoomPriceById);
+router.get('/:id', RoomPriceController.getRoomPriceById);
 
 router.post('/', RoomPriceController.createRoomPrice);
 

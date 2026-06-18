@@ -1,4 +1,4 @@
-import { prisma } from '../config/prisma.ts';
+import { prisma } from '../config/prisma';
 
 class RoomPriceRepository {
     async getAllRoomPrices() {
@@ -13,7 +13,7 @@ class RoomPriceRepository {
         });
     };
     async getRoomPriceById(id) {
-        return await prisma.room_prices.findUnique({ 
+        return await prisma.room_prices.findUnique({
             where: { id },
             include: {
                 room_types: {
@@ -26,7 +26,7 @@ class RoomPriceRepository {
     };
 
     async getRoomPricesByRoomTypeId(id) {
-        return await prisma.room_prices.findFirst({ 
+        return await prisma.room_prices.findFirst({
             where: { room_type_id: id },
             include: {
                 room_types: {

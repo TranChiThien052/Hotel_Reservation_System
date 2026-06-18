@@ -107,7 +107,7 @@ describe('Room Prices API', () => {
                 });
             expect(response.status).toBe(400);
         });
-        
+
         // Test case for creating a room price with invalid data
         it('should return 400 for invalid data', async () => {
             const response = await request(app)
@@ -175,6 +175,6 @@ describe('Room Prices API', () => {
                     effective_to: '2024-12-31',
                 });
             expect(response.status).toBe(400);
-        });        
+        });
     });
 });

@@ -1,6 +1,6 @@
-import DiscountRepository from '../repositories/discountRepo.ts';
-import BranchRepository from '../repositories/branchRepo.ts';
-import { Validator, ValidationError } from '../middlewares/validateData.ts';
+import DiscountRepository from '../repositories/discountRepo';
+import BranchRepository from '../repositories/branchRepo';
+import { Validator, ValidationError } from '../middlewares/validateData';
 
 class DiscountServices {
     async getAllDiscounts() {
@@ -26,7 +26,7 @@ class DiscountServices {
         };
 
         const validator = new Validator();
-        
+
         if (!validator.isEmpty("Code", validatedData.code)) {
             validator.isString("Code", validatedData.code);
         }
@@ -53,7 +53,7 @@ class DiscountServices {
             validator.isBoolean("Is Active", validatedData.is_active);
         }
 
-        if(validator.validateDateOrder(validatedData.valid_from, validatedData.valid_to)) {
+        if (validator.validateDateOrder(validatedData.valid_from, validatedData.valid_to)) {
             if (new Date(validatedData.valid_from).getTime() < new Date().getTime()) {
                 validator.pushError("Valid From date cannot be in the past");
             }
@@ -77,7 +77,7 @@ class DiscountServices {
         const validatedData = {
             ...(data.branch_id && { branch_id: data.branch_id }),
             ...(data.code && { code: data.code }),
-            ...(data.description && { description: data.description  }),
+            ...(data.description && { description: data.description }),
             ...(data.discount_type && { discount_type: data.discount_type }),
             ...(data.discount_value && { discount_value: data.discount_value }),
             ...(data.min_order_value && { min_order_value: data.min_order_value }),
@@ -87,31 +87,31 @@ class DiscountServices {
             ...(data.is_active !== undefined && { is_active: data.is_active }),
         };
 
-        
+
         const validator = new Validator();
 
-        if(validatedData.code) {
+        if (validatedData.code) {
             validator.isString("Code", validatedData.code);
         }
-        if(validatedData.discount_type) {
+        if (validatedData.discount_type) {
             validator.validateDiscountType(validatedData.discount_type);
         }
-        if(validatedData.discount_value !== undefined) {
+        if (validatedData.discount_value !== undefined) {
             validator.isDecimal("Discount Value", validatedData.discount_value);
             validator.isNonNegativeNumber("Discount Value", validatedData.discount_value);
         }
-        if(validatedData.min_order_value !== undefined) {
+        if (validatedData.min_order_value !== undefined) {
             validator.isDecimal("Min Order Value", validatedData.min_order_value);
             validator.isNonNegativeNumber("Min Order Value", validatedData.min_order_value);
         }
-        if(validatedData.usage_limit !== undefined) {
+        if (validatedData.usage_limit !== undefined) {
             validator.isPositiveNumber("Usage Limit", validatedData.usage_limit);
         }
-        if(validatedData.is_active !== undefined) {
+        if (validatedData.is_active !== undefined) {
             validator.isBoolean("Is Active", validatedData.is_active);
         }
-        
-        if(validator.validateDateOrder(validatedData.valid_from, validatedData.valid_to)) {
+
+        if (validator.validateDateOrder(validatedData.valid_from, validatedData.valid_to)) {
             if (new Date(validatedData.valid_from).getTime() < new Date().getTime()) {
                 validator.pushError("Valid From date cannot be in the past");
             }

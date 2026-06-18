@@ -1,4 +1,4 @@
-import { prisma } from '../config/prisma.ts';
+import { prisma } from '../config/prisma';
 
 class CustomerRepository {
     async getAllCustomers() {
@@ -16,7 +16,7 @@ class CustomerRepository {
             where: { account_id: accountId },
         });
     };
-    
+
     async createCustomer(data) {
         return await prisma.customers.create({
             data: data,

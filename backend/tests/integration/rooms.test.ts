@@ -22,11 +22,11 @@ describe('Rooms API', () => {
         it('should get all rooms', async () => {
             const branch = await createTestBranch();
             const roomType = await createTestRoomType(branch.id);
-            for (let i = 0; i < 3; i++) 
-                await createTestRoom(branch.id, roomType.id, 
-            {
-                room_number: `10${i+1}`,
-            });
+            for (let i = 0; i < 3; i++)
+                await createTestRoom(branch.id, roomType.id,
+                    {
+                        room_number: `10${i + 1}`,
+                    });
             const response = await request(app).get('/rooms');
             expect(response.status).toBe(200);
             expect(Array.isArray(response.body)).toBe(true);
@@ -121,7 +121,7 @@ describe('Rooms API', () => {
         it('should return 400 for invalid room_type_id', async () => {
             const branch = await createTestBranch();
             const response = await request(app)
-                .post('/rooms')                .send({
+                .post('/rooms').send({
                     branch_id: branch.id,
                     room_type_id: '00000000-0000-0000-0000-000000000000',
                     room_number: '101',

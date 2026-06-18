@@ -1,5 +1,5 @@
-import branchRepository from '../repositories/branchRepo.ts';
-import { Validator, ValidationError } from '../middlewares/validateData.ts';
+import branchRepository from '../repositories/branchRepo';
+import { Validator, ValidationError } from '../middlewares/validateData';
 
 class BranchService {
     async getAllBranches() {
@@ -22,11 +22,11 @@ class BranchService {
         }
 
         const validator = new Validator();
-        
+
         // Required fields for POST
-        if(validator.isEmpty("Name", validatedData.name)) 
+        if (validator.isEmpty("Name", validatedData.name))
             throw new ValidationError("400", "Name is required");
-        if(validator.isEmpty("Address", validatedData.address)) 
+        if (validator.isEmpty("Address", validatedData.address))
             throw new ValidationError("400", "Address is required");
 
         // Type validation
@@ -34,23 +34,23 @@ class BranchService {
         validator.isString("Address", validatedData.address);
         validator.maxLength("Name", validatedData.name, 150);
         validator.maxLength("Address", validatedData.address, 255);
-        
-        if(validatedData.city) {
+
+        if (validatedData.city) {
             validator.isString("City", validatedData.city);
             validator.maxLength("City", validatedData.city, 100);
         }
 
-        if(validatedData.email) {
+        if (validatedData.email) {
             validator.validateEmail(validatedData.email);
             validator.maxLength("Email", validatedData.email, 150);
         }
 
-        if(validatedData.phone) {
+        if (validatedData.phone) {
             validator.validatePhoneNumber(validatedData.phone);
             validator.maxLength("Phone", validatedData.phone, 20);
         }
-        
-        if(validatedData.is_active !== undefined) {
+
+        if (validatedData.is_active !== undefined) {
             validator.isBoolean("Is Active", validatedData.is_active);
         }
 
@@ -88,35 +88,35 @@ class BranchService {
             ...(data.description && { description: data.description }),
             ...(data.is_active !== undefined && { is_active: data.is_active }),
         }
-        
+
         // Type validation for PUT
-        if(validatedData.name) {
+        if (validatedData.name) {
             validator.isString("Name", validatedData.name);
             validator.maxLength("Name", validatedData.name, 150);
         }
-        if(validatedData.address) {
+        if (validatedData.address) {
             validator.isString("Address", validatedData.address);
             validator.maxLength("Address", validatedData.address, 255);
         }
-        if(validatedData.city) {
+        if (validatedData.city) {
             validator.isString("City", validatedData.city);
             validator.maxLength("City", validatedData.city, 100);
         }
-        if(validatedData.description) {
+        if (validatedData.description) {
             validator.isString("Description", validatedData.description);
         }
 
-        if(validatedData.email) {
+        if (validatedData.email) {
             validator.validateEmail(validatedData.email);
             validator.maxLength("Email", validatedData.email, 150);
         }
 
-        if(validatedData.phone) {
+        if (validatedData.phone) {
             validator.validatePhoneNumber(validatedData.phone);
             validator.maxLength("Phone", validatedData.phone, 20);
         }
-        
-        if(validatedData.is_active !== undefined) {
+
+        if (validatedData.is_active !== undefined) {
             validator.isBoolean("Is Active", validatedData.is_active);
         }
 
@@ -129,7 +129,7 @@ class BranchService {
         const emailExists = validatingInfo.some(branch => branch.email === validatedData.email && branch.id !== id);
         const phoneExists = validatingInfo.some(branch => branch.phone === validatedData.phone && branch.id !== id);
 
-        if(!idExists) {
+        if (!idExists) {
             throw new ValidationError("404", "Branch not found");
         }
 

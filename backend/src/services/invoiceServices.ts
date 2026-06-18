@@ -1,9 +1,9 @@
-import InvoiceRepository from '../repositories/invoiceRepo.ts';
-import BookingRepository from '../repositories/bookingRepo.ts';
-import BookingServiceRepository from '../repositories/bookingServiceRepo.ts';
-import AccountRepository from '../repositories/accountRepo.ts'
-import { Validator, ValidationError } from '../middlewares/validateData.ts';
-import { generateInvoiceCode } from '../middlewares/generator.ts';
+import InvoiceRepository from '../repositories/invoiceRepo';
+import BookingRepository from '../repositories/bookingRepo';
+import BookingServiceRepository from '../repositories/bookingServiceRepo';
+import AccountRepository from '../repositories/accountRepo'
+import { Validator, ValidationError } from '../middlewares/validateData';
+import { generateInvoiceCode } from '../middlewares/generator';
 
 class InvoiceService {
     async getAllInvoices() {

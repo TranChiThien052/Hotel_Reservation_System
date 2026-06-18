@@ -121,7 +121,7 @@ describe('Payment API Integration Tests', () => {
         // Test case for creating a new payment with non-existent booking id
         it('should return 404 with non-existent booking id', async () => {
             const branch = await createTestBranch();
-            const account = await createTestAccount({branch_id: branch.id, role: 'staff'});
+            const account = await createTestAccount({ branch_id: branch.id, role: 'staff' });
             const staff = await createTestStaff(branch.id, account.id);
             const response = await request(app)
                 .post('/payments')

@@ -1,6 +1,6 @@
-import RoomServiceRepository from '../repositories/roomServiceRepo.ts';
-import BranchRepository from '../repositories/branchRepo.ts';
-import { Validator, ValidationError } from '../middlewares/validateData.ts';
+import RoomServiceRepository from '../repositories/roomServiceRepo';
+import BranchRepository from '../repositories/branchRepo';
+import { Validator, ValidationError } from '../middlewares/validateData';
 
 class RoomServiceService {
     async getAllServices() {
@@ -23,20 +23,20 @@ class RoomServiceService {
 
         const validator = new Validator();
 
-        if(!validator.isEmpty("Name", validatedData.name)) 
+        if (!validator.isEmpty("Name", validatedData.name))
             validator.isString("Name", validatedData.name);
-        
-        if(!validator.isEmpty("Price", validatedData.price))
+
+        if (!validator.isEmpty("Price", validatedData.price))
             validator.isDecimal("Price", validatedData.price);
 
-        if(!validator.isEmpty("Unit", validatedData.unit))
+        if (!validator.isEmpty("Unit", validatedData.unit))
             validator.isString("Unit", validatedData.unit);
-        
-        if(validatedData.description) {
+
+        if (validatedData.description) {
             validator.isString("Description", validatedData.description);
         }
-        
-        if(validatedData.is_active !== undefined) {
+
+        if (validatedData.is_active !== undefined) {
             validator.isBoolean("Is Active", validatedData.is_active);
         }
 
@@ -52,7 +52,7 @@ class RoomServiceService {
         }
 
         return await RoomServiceRepository.createService(validatedData);
-    };  
+    };
 
     async updateService(id, data) {
         const validatedData = {
@@ -66,20 +66,20 @@ class RoomServiceService {
 
         const validator = new Validator();
 
-        if(validatedData.name) {
+        if (validatedData.name) {
             validator.isString("Name", validatedData.name);
         }
-        if(validatedData.description) {
+        if (validatedData.description) {
             validator.isString("Description", validatedData.description);
         }
-        if(validatedData.price) {
+        if (validatedData.price) {
             validator.isDecimal("Price", validatedData.price);
             validator.isPositiveNumber("Price", validatedData.price);
         }
-        if(validatedData.unit) {
+        if (validatedData.unit) {
             validator.isString("Unit", validatedData.unit);
         }
-        if(validatedData.is_active !== undefined) {
+        if (validatedData.is_active !== undefined) {
             validator.isBoolean("Is Active", validatedData.is_active);
         }
 
