@@ -3,6 +3,7 @@ import HistoryTransactionController from '../controllers/historyTransactionContr
 
 const router = express.Router();
 
+router.get('/account/:id', HistoryTransactionController.getTransactionsByAccountId);
 router.get('/', HistoryTransactionController.getAllTransactions);
 router.get('/:id', HistoryTransactionController.getTransactionById);
 router.post('/', HistoryTransactionController.createTransaction);

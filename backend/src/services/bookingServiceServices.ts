@@ -12,7 +12,6 @@ class BookingServiceService {
     async getBookingServiceById(id) {
         const validator = new Validator();
         if (!validator.isUUID("Booking Service's ID", id)) {
-            console.log("Error: ", validator.error);
             throw new ValidationError('400', validator.clearError());
         }
         return await BookingServiceRepository.getBookingServiceById(id);

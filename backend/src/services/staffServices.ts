@@ -11,6 +11,14 @@ class StaffService {
         return await StaffRepository.getStaffById(id);
     };
 
+    async getStaffByBranchId(branch_id) {
+        return await StaffRepository.getStaffByBranchId(branch_id);
+    };
+
+    async getStaffByAccountId(account_id) {
+        return await StaffRepository.getStaffByAccountId(account_id);
+    };
+
     async createStaff(data) {
         const validatedData = {
             ...(data.branch_id && { branch_id: data.branch_id.trim() }),

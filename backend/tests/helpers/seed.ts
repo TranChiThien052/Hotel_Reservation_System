@@ -230,7 +230,52 @@ export async function createTestInvoice(booking_id, account_id, overrides = {}) 
   });
 }
 
+export async function createTestInvoiceFine(invoice_id, overrides = {}) {
+  return prisma.invoice_fines.create({
+    data: {
+      invoice_id: invoice_id,
+      description: 'Test invoice fine for unit tests',
+      amount: 50.00,
+    }
+  });
+}
+
+export async function createTestPayment(booking_id, overrides = {}) {
+  return prisma.payments.create({
+    data: {
+      booking_id: booking_id,
+      invoice_id: null,
+      payment_method: 'bank_transfer',
+      status: 'paid',
+      amount: 320.00,
+      is_deposit: false,
+      transaction_ref: 'TESTTRANS',
+      paid_at: new Date(),
+      processed_by: null,
+      notes: 'Test payment for unit tests',
+      ...overrides,
+    }
+  });
+};
+
+export async function createTestHistoryTransaction(account_id, overrides = {}) {
+  return prisma.history_transaction.create({
+    data: {
+      account_id: account_id,
+      action: 'Test Action',
+      target_type: 'Test Target Type',
+      target_id: null,
+      description: 'Test history transaction for unit tests',
+      metadata: {},
+      ...overrides,
+    }
+  });
+}
+
 export async function cleanDatabase() {
+  await prisma.history_transaction.deleteMany();
+  await prisma.payments.deleteMany();
+  await prisma.invoice_fines.deleteMany();
   await prisma.invoices.deleteMany();
   await prisma.fine_items.deleteMany();
   await prisma.holiday_dates.deleteMany();

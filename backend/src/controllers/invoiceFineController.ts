@@ -7,6 +7,18 @@ class InvoiceFineController {
         .catch(error => res.status(500).json({ error: error.message }));
     };
 
+    async getInvoiceFinesByInvoiceId(req, res) {
+        const { id } = req.params;
+        return await InvoiceFineService.getInvoiceFinesByInvoiceId(id)
+        .then(fines => res.status(200).json(fines))
+        .catch(error => {
+            if (typeof parseInt(error.code) === 'number') {
+                return res.status(parseInt(error.code)).json({ error: error.message });
+            }
+            res.status(500).json({ error: error.message });
+        });
+    }
+
     async getInvoiceFineById(req, res) {
         const { id } = req.params;
         return await InvoiceFineService.getInvoiceFineById(id)
@@ -16,7 +28,12 @@ class InvoiceFineController {
             }
             res.status(200).json(fine);
         })
-        .catch(error => res.status(500).json({ error: error.message }));
+        .catch(error => {
+            if (typeof parseInt(error.code) === 'number') {
+                return res.status(parseInt(error.code)).json({ error: error.message });
+            }
+            res.status(500).json({ error: error.message });
+        });
     };
 
     async createInvoiceFine(req, res) {
@@ -34,15 +51,15 @@ class InvoiceFineController {
 
     async updateInvoiceFine(req, res) {
         const { id } = req.params;
-        const { description, amount } = req.body;
-        const data = { description, amount };
+        const { fine_item_id, description, amount, added_by } = req.body;
+        const data = { fine_item_id, description, amount, added_by };
         return await InvoiceFineService.updateInvoiceFine(id, data)
         .then(fine => res.status(200).json(fine))
         .catch(error => {
             if (error.code !== 500) {
                 return res.status(parseInt(error.code)).json({ error: error.message });
             }
-            res.status(500).json({ error: error.message });
+            res.status(500).json({ error_code: error.code, error: error.message });
         });
     };
 
