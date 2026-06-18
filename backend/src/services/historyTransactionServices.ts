@@ -1,6 +1,6 @@
-import HistoryTransactionRepository from '../repositories/historyTransactionRepo.ts';
-import StaffRepository from '../repositories/staffRepo.ts';
-import { Validator, ValidationError } from '../middlewares/validateData.ts';
+import HistoryTransactionRepository from '../repositories/historyTransactionRepo';
+import StaffRepository from '../repositories/staffRepo';
+import { Validator, ValidationError } from '../middlewares/validateData';
 
 class HistoryTransactionService {
     async getAllTransactions() {
@@ -25,10 +25,10 @@ class HistoryTransactionService {
 
     async getTransactionsByAccountId(accountId) {
         const validator = new Validator();
-        if(!validator.isEmpty("Account ID", accountId)) {
-            if(validator.isUUID("Account ID", accountId)) {
+        if (!validator.isEmpty("Account ID", accountId)) {
+            if (validator.isUUID("Account ID", accountId)) {
                 const account = await StaffRepository.getStaffByAccountId(accountId);
-                if(!account) {
+                if (!account) {
                     throw new ValidationError('404', "Account ID does not exist");
                 }
             }
@@ -56,26 +56,26 @@ class HistoryTransactionService {
 
         const validator = new Validator();
 
-        if(!validator.isEmpty("Account ID", validatedData.account_id))
-            if(validator.isUUID("Account ID", validatedData.account_id)) {
+        if (!validator.isEmpty("Account ID", validatedData.account_id))
+            if (validator.isUUID("Account ID", validatedData.account_id)) {
                 const account = await StaffRepository.getStaffByAccountId(validatedData.account_id);
-                if(!account) {
+                if (!account) {
                     throw new ValidationError('404', "Account ID does not exist");
                 }
             }
 
-        if(!validator.isEmpty("Action", validatedData.action)) {
+        if (!validator.isEmpty("Action", validatedData.action)) {
             validator.isString("Action", validatedData.action);
             validator.maxLength("Action", validatedData.action, 100);
         }
-        if(validatedData.target_type) {
+        if (validatedData.target_type) {
             validator.isString("Target Type", validatedData.target_type);
             validator.maxLength("Target Type", validatedData.target_type, 100);
         }
-        if(validatedData.target_id) {
+        if (validatedData.target_id) {
             validator.isUUID("Target ID", validatedData.target_id);
         }
-        if(validatedData.description) {
+        if (validatedData.description) {
             validator.isString("Description", validatedData.description);
         }
 

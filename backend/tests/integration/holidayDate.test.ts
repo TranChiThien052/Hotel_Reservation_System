@@ -3,7 +3,7 @@ import app from '../../src/app.ts';
 import { createTestBranch, createTestHolidayDate, cleanDatabase } from '../helpers/seed.ts';
 
 describe('Holiday Date API', () => {
-    beforeAll(async () => { 
+    beforeAll(async () => {
         await cleanDatabase();
     });
 
@@ -103,7 +103,7 @@ describe('Holiday Date API', () => {
             const branch = await createTestBranch();
             await createTestHolidayDate(branch.id);
             const response = await request(app)
-                .get('/holiday-dates'); 
+                .get('/holiday-dates');
             expect(response.status).toBe(200);
             expect(Array.isArray(response.body)).toBe(true);
             expect(response.body.length).toBeGreaterThan(0);
@@ -140,7 +140,7 @@ describe('Holiday Date API', () => {
     });
     describe('PUT /holiday-dates/:id', () => {
         // Test case for updating a holiday-dates
-        it ('should update a holiday-dates', async () => {
+        it('should update a holiday-dates', async () => {
             const branch = await createTestBranch();
             const branch2 = await createTestBranch({ name: 'Second Test Branch' });
             const testHolidayDate = await createTestHolidayDate(branch.id);

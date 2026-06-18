@@ -1,5 +1,5 @@
-import CustomerRepository from '../repositories/customerRepo.ts';
-import { Validator, ValidationError } from '../middlewares/validateData.ts';
+import CustomerRepository from '../repositories/customerRepo';
+import { Validator, ValidationError } from '../middlewares/validateData';
 
 class CustomerService {
     async getAllCustomers() {
@@ -23,28 +23,28 @@ class CustomerService {
         };
 
         const validator = new Validator();
-        if(validator.isEmpty("Full Name", validatedData.full_name)) 
+        if (validator.isEmpty("Full Name", validatedData.full_name))
             throw new ValidationError('400', "Full Name is required");
 
         validator.isString("Full Name", validatedData.full_name);
-        
-        if(validatedData.email) {
+
+        if (validatedData.email) {
             validator.validateEmail(validatedData.email);
         }
-        if(validatedData.phone) {
+        if (validatedData.phone) {
             validator.validatePhoneNumber(validatedData.phone);
         }
-        if(validatedData.id_card_number) {
+        if (validatedData.id_card_number) {
             validator.isString("ID Card Number", validatedData.id_card_number);
         }
-        if(validatedData.nationality) {
+        if (validatedData.nationality) {
             validator.isString("Nationality", validatedData.nationality);
         }
-        if(validatedData.date_of_birth) {
-            if(validator.validateDate(validatedData.date_of_birth))
+        if (validatedData.date_of_birth) {
+            if (validator.validateDate(validatedData.date_of_birth))
                 validatedData.date_of_birth = new Date(validatedData.date_of_birth);
         }
-        if(validatedData.account_id) {
+        if (validatedData.account_id) {
             validator.isUUID("Account ID", validatedData.account_id);
         }
 
@@ -55,7 +55,7 @@ class CustomerService {
         // Check unique constraints
         const validatingInfo = await CustomerRepository.getValidatingInformation();
 
-        if(validatingInfo.some(customer => customer.email === validatedData.email)) {
+        if (validatingInfo.some(customer => customer.email === validatedData.email)) {
             throw new ValidationError('400', "Email already exists");
         }
         if (validatingInfo.some(customer => customer.phone === validatedData.phone)) {
@@ -89,33 +89,33 @@ class CustomerService {
                 validator.isString("Full Name", validatedData.full_name);
             }
         }
-        
-        if(validatedData.email) {
+
+        if (validatedData.email) {
             validator.validateEmail(validatedData.email);
             if (validatingInfo.find(customer => customer.email === validatedData.email && customer.id !== id)) {
                 validator.pushError("Email already exists");
             }
         }
-        if(validatedData.phone) {
+        if (validatedData.phone) {
             validator.validatePhoneNumber(validatedData.phone);
             if (validatingInfo.some(customer => customer.phone === validatedData.phone && customer.id !== id)) {
                 validator.pushError("Phone number already exists");
             }
         }
-        if(validatedData.id_card_number) {
+        if (validatedData.id_card_number) {
             validator.isString("ID Card Number", validatedData.id_card_number);
             if (validatingInfo.some(customer => customer.id_card_number === validatedData.id_card_number && customer.id !== id)) {
                 validator.pushError("ID Card Number already exists");
             }
         }
-        if(validatedData.nationality) {
+        if (validatedData.nationality) {
             validator.isString("Nationality", validatedData.nationality);
         }
-        if(validatedData.date_of_birth) {
-            if (validator.validateDate(validatedData.date_of_birth)) 
+        if (validatedData.date_of_birth) {
+            if (validator.validateDate(validatedData.date_of_birth))
                 validatedData.date_of_birth = new Date(validatedData.date_of_birth);
         }
-        if(validatedData.account_id) {
+        if (validatedData.account_id) {
             validator.isUUID("Account ID", validatedData.account_id);
         }
 

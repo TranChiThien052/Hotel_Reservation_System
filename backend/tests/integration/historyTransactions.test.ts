@@ -110,7 +110,7 @@ describe('HistoryTransaction API', () => {
             expect(Array.isArray(response.body)).toBe(true);
             expect(response.body.length).toBeGreaterThan(0);
         });
-        
+
         // Test case for getting history transactions by account ID
         it('should retrieve history transactions by account ID', async () => {
             const branch = await createTestBranch();
@@ -152,7 +152,7 @@ describe('HistoryTransaction API', () => {
             expect(response.body).toHaveProperty('error');
             expect(response.body.error).toBe('Account ID does not exist');
         });
-        
+
         // Test case for getting a specific history transaction by ID
         it('should retrieve a specific history transaction by ID', async () => {
             const branch = await createTestBranch();

@@ -1,6 +1,6 @@
 import express from 'express';
 
-import BranchController from '../controllers/branchController.ts';
+import BranchController from '../controllers/branchController';
 
 const router = express.Router();
 

@@ -1,5 +1,5 @@
 import express from 'express';
-import DiscountController from '../controllers/discountController.ts';
+import DiscountController from '../controllers/discountController';
 
 const router = express.Router();
 

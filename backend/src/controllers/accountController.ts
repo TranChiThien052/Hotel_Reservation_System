@@ -1,4 +1,4 @@
-import AccountService from '../services/accountServices.ts';
+import AccountService from '../services/accountServices';
 
 class AccountController {
     async getAllAccounts(req, res) {

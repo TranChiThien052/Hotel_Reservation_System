@@ -1,6 +1,6 @@
-import RoomTypeRepository from '../repositories/roomTypeRepo.ts';
-import { Validator, ValidationError } from '../middlewares/validateData.ts';
-import BranchRepository from '../repositories/branchRepo.ts';
+import RoomTypeRepository from '../repositories/roomTypeRepo';
+import { Validator, ValidationError } from '../middlewares/validateData';
+import BranchRepository from '../repositories/branchRepo';
 
 class RoomTypeService {
     async getAllRoomTypes() {
@@ -13,7 +13,7 @@ class RoomTypeService {
 
     async getRoomTypesByBranchId(branchId) {
         const validator = new Validator();
-        if(validator.isUUID("Branch ID", branchId)) {
+        if (validator.isUUID("Branch ID", branchId)) {
             const branchExists = await BranchRepository.getBranchById(branchId);
             if (!branchExists) {
                 throw new ValidationError('400', "Invalid branch ID");
@@ -23,7 +23,7 @@ class RoomTypeService {
         if (validator.error.length > 0) {
             throw new ValidationError('400', validator.clearError());
         }
-        
+
         return await RoomTypeRepository.getRoomTypesByBranchId(branchId);
     };
 
@@ -38,25 +38,25 @@ class RoomTypeService {
         };
 
         const validator = new Validator();
-        
-        if(!validator.isEmpty("Branch ID", validatedData.branch_id))
+
+        if (!validator.isEmpty("Branch ID", validatedData.branch_id))
             validator.isUUID("Branch ID", validatedData.branch_id);
-        if(!validator.isEmpty("Name", validatedData.name))
+        if (!validator.isEmpty("Name", validatedData.name))
             validator.isString("Name", validatedData.name);
-        
-        if(validatedData.description) {
+
+        if (validatedData.description) {
             validator.isString("Description", validatedData.description);
         }
-        
-        if(validatedData.max_guests) {
+
+        if (validatedData.max_guests) {
             validator.isPositiveNumber("Max Guests", validatedData.max_guests);
         }
-        
-        if(validatedData.images) {
+
+        if (validatedData.images) {
             validator.isArray("Images", validatedData.images);
         }
-        
-        if(validatedData.is_active !== undefined) {
+
+        if (validatedData.is_active !== undefined) {
             validator.isBoolean("Is Active", validatedData.is_active);
         }
 
@@ -84,27 +84,27 @@ class RoomTypeService {
 
         const validator = new Validator();
 
-        if(validatedData.branch_id) {
-            if(validator.isUUID("Branch ID", validatedData.branch_id)) {
+        if (validatedData.branch_id) {
+            if (validator.isUUID("Branch ID", validatedData.branch_id)) {
                 const branchExists = await BranchRepository.getBranchById(validatedData.branch_id);
                 if (!branchExists) {
                     validator.pushError("Invalid branch ID");
                 }
             }
         }
-        if(validatedData.name) {
+        if (validatedData.name) {
             validator.isString("Name", validatedData.name);
         }
-        if(validatedData.description) {
+        if (validatedData.description) {
             validator.isString("Description", validatedData.description);
         }
-        if(validatedData.max_guests) {
+        if (validatedData.max_guests) {
             validator.isPositiveNumber("Max Guests", validatedData.max_guests);
         }
-        if(validatedData.images) {
+        if (validatedData.images) {
             validator.isArray("Images", validatedData.images);
         }
-        if(validatedData.is_active !== undefined) {
+        if (validatedData.is_active !== undefined) {
             validator.isBoolean("Is Active", validatedData.is_active);
         }
 

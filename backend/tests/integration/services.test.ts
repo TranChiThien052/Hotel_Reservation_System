@@ -17,11 +17,11 @@ describe('Room Service API', () => {
         });
         // Test case for getting service by id
         it('should get service by id', async () => {
-           const branch = await createTestBranch();
-           const service = await createTestRoomService(branch.id);
-           const response = await request(app).get(`/services/${service.id}`);
-           expect(response.status).toBe(200);
-           expect(response.body).toHaveProperty('id', service.id);
+            const branch = await createTestBranch();
+            const service = await createTestRoomService(branch.id);
+            const response = await request(app).get(`/services/${service.id}`);
+            expect(response.status).toBe(200);
+            expect(response.body).toHaveProperty('id', service.id);
         });
         // Test case for getting service by non-existent id
         it('should return 404 for non-existent service id', async () => {

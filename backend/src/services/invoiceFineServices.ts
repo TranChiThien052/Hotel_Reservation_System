@@ -1,8 +1,8 @@
-import InvoiceFineRepository from '../repositories/invoiceFineRepo.ts';
-import InvoiceRepository from '../repositories/invoiceRepo.ts';
-import FineItemRepository from '../repositories/fineItemRepo.ts';
-import AccountRepository from '../repositories/accountRepo.ts';
-import { Validator, ValidationError } from '../middlewares/validateData.ts';
+import InvoiceFineRepository from '../repositories/invoiceFineRepo';
+import InvoiceRepository from '../repositories/invoiceRepo';
+import FineItemRepository from '../repositories/fineItemRepo';
+import AccountRepository from '../repositories/accountRepo';
+import { Validator, ValidationError } from '../middlewares/validateData';
 
 class InvoiceFineService {
     async getAllInvoiceFines() {
@@ -23,7 +23,7 @@ class InvoiceFineService {
     async getInvoiceFinesByInvoiceId(invoiceId) {
         const validator = new Validator();
         if (!validator.isEmpty("Invoice ID", invoiceId)) {
-            if(validator.isUUID("Invoice ID", invoiceId)) {
+            if (validator.isUUID("Invoice ID", invoiceId)) {
                 const invoice = await InvoiceRepository.getInvoiceById(invoiceId);
                 if (!invoice) {
                     throw new ValidationError('404', "Invoice not found");
@@ -99,25 +99,25 @@ class InvoiceFineService {
             ...(data.added_by && { added_by: data.added_by }),
         };
 
-        if(validatedData.description) {
+        if (validatedData.description) {
             validator.isString("Description", validatedData.description);
             validator.maxLength("Description", validatedData.description, 300);
         }
-        if(validatedData.amount) {
+        if (validatedData.amount) {
             validator.isDecimal("Amount", validatedData.amount);
             validator.isPositiveNumber("Amount", validatedData.amount);
         }
-        if(validatedData.fine_item_id) {
+        if (validatedData.fine_item_id) {
             validator.isUUID("Fine Item ID", validatedData.fine_item_id);
         }
-        if(validatedData.added_by) {
+        if (validatedData.added_by) {
             validator.isUUID("Added By", validatedData.added_by);
         }
 
         if (validator.error.length > 0) {
             throw new ValidationError('400', validator.clearError());
         }
-        
+
         const existingInvoiceFine = await InvoiceFineRepository.getInvoiceFineById(id);
         if (!existingInvoiceFine) {
             throw new ValidationError('404', "Invoice fine not found");

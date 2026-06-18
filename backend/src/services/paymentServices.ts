@@ -1,8 +1,8 @@
-import PaymentRepository from '../repositories/paymentRepo.ts';
-import BookingRepository from '../repositories/bookingRepo.ts';
-import InvoiceRepository from '../repositories/invoiceRepo.ts';
-import AccountRepository from '../repositories/accountRepo.ts';
-import { Validator, ValidationError } from '../middlewares/validateData.ts';
+import PaymentRepository from '../repositories/paymentRepo';
+import BookingRepository from '../repositories/bookingRepo';
+import InvoiceRepository from '../repositories/invoiceRepo';
+import AccountRepository from '../repositories/accountRepo';
+import { Validator, ValidationError } from '../middlewares/validateData';
 
 class PaymentService {
     async getAllPayments() {
@@ -20,12 +20,12 @@ class PaymentService {
 
     async getPaymentsByBookingId(bookingId) {
         const validator = new Validator();
-        if(!validator.isEmpty("Booking ID", bookingId)) {
+        if (!validator.isEmpty("Booking ID", bookingId)) {
             if (validator.isUUID("Booking ID", bookingId)) {
                 const booking = await BookingRepository.getBookingById(bookingId);
                 if (!booking) {
                     throw new ValidationError('404', "Booking not found");
-                } 
+                }
             }
         }
         if (validator.error.length > 0) {
@@ -36,7 +36,7 @@ class PaymentService {
 
     async getPaymentsByInvoiceId(invoiceId) {
         const validator = new Validator();
-        if(!validator.isEmpty("Invoice ID", invoiceId)) {
+        if (!validator.isEmpty("Invoice ID", invoiceId)) {
             if (validator.isUUID("Invoice ID", invoiceId)) {
                 const invoice = await InvoiceRepository.getInvoiceById(invoiceId);
                 if (!invoice) {
@@ -64,28 +64,28 @@ class PaymentService {
         };
 
         const validator = new Validator();
-        if(!validator.isEmpty("Booking ID", validatedData.booking_id)) 
+        if (!validator.isEmpty("Booking ID", validatedData.booking_id))
             validator.isUUID("Booking ID", validatedData.booking_id);
-        if(!validator.isEmpty("Payment Method", validatedData.payment_method))
+        if (!validator.isEmpty("Payment Method", validatedData.payment_method))
             validator.validatePaymentMethod(validatedData.payment_method);
-        if(!validator.isEmpty("Amount", validatedData.amount)) {
+        if (!validator.isEmpty("Amount", validatedData.amount)) {
             validator.isDecimal("Amount", validatedData.amount);
             validator.isPositiveNumber("Amount", validatedData.amount);
         }
-        
-        if(validatedData.invoice_id) {
+
+        if (validatedData.invoice_id) {
             validator.isUUID("Invoice ID", validatedData.invoice_id);
         }
-        if(validatedData.status) {
+        if (validatedData.status) {
             validator.validatePaymentStatus(validatedData.status);
         }
-        if(validatedData.is_deposit !== undefined) {
+        if (validatedData.is_deposit !== undefined) {
             validator.isBoolean("Is Deposit", validatedData.is_deposit);
         }
-        if(validatedData.processed_by) {
+        if (validatedData.processed_by) {
             validator.isUUID("Processed By", validatedData.processed_by);
         }
-        if(validatedData.transaction_ref) {
+        if (validatedData.transaction_ref) {
             validator.isString("Transaction Reference", validatedData.transaction_ref);
         }
 
@@ -140,32 +140,32 @@ class PaymentService {
             ...(data.notes && { notes: data.notes }),
         };
 
-        if(validatedData.transaction_ref) {
+        if (validatedData.transaction_ref) {
             validator.isString("Transaction Reference", validatedData.transaction_ref);
         }
-        if(validatedData.payment_method) {
+        if (validatedData.payment_method) {
             validator.validatePaymentMethod(validatedData.payment_method);
         }
-        if(validatedData.status) {
+        if (validatedData.status) {
             validator.validatePaymentStatus(validatedData.status);
         }
-        if(validatedData.amount) {
+        if (validatedData.amount) {
             validator.isDecimal("Amount", validatedData.amount);
             validator.isPositiveNumber("Amount", validatedData.amount);
         }
-        if(validatedData.is_deposit !== undefined) {
+        if (validatedData.is_deposit !== undefined) {
             validator.isBoolean("Is Deposit", validatedData.is_deposit);
         }
-        if(validatedData.processed_by) {
+        if (validatedData.processed_by) {
             validator.isUUID("Processed By", validatedData.processed_by);
         }
-        if(validatedData.paid_at) {
+        if (validatedData.paid_at) {
             validator.validateDate(validatedData.paid_at);
         }
-        if(validatedData.updated_at) {
+        if (validatedData.updated_at) {
             validator.validateDate(validatedData.updated_at);
         }
-        if(validatedData.processed_by) {
+        if (validatedData.processed_by) {
             validator.isUUID("Processed By", validatedData.processed_by);
         }
 
@@ -173,10 +173,10 @@ class PaymentService {
             throw new ValidationError('400', validator.clearError());
         }
 
-        if(validatedData.processed_by) {
+        if (validatedData.processed_by) {
             const account = await AccountRepository.getAccountById(validatedData.processed_by);
             if (!account) {
-                throw new ValidationError('404', "Processed by not found");   
+                throw new ValidationError('404', "Processed by not found");
             }
         };
 

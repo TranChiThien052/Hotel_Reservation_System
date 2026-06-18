@@ -4,10 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "prisma generate && tsc",
+    "build": "prisma generate && tsc --noEmit && tsup src/server.ts --format esm --clean",
     "start": "prisma migrate deploy && node dist/server.js",
-    "dev": "npx ts-node src/server.ts",
-    "dev:watch": "nodemon --watch src --exec ts-node src/server.ts",
+    "dev": "tsx src/server.ts",
+    "dev:watch": "tsx watch src/server.ts",
     "test": "cross-env NODE_OPTIONS=--experimental-vm-modules jest --env-file=.env.test",
     "migrate": "prisma migrate deploy"
   },
@@ -39,6 +39,8 @@
     "prisma": "^7.8.0",
     "supertest": "^7.2.2",
     "ts-jest": "^29.4.11",
-    "ts-node": "^10.9.2"
+    "ts-node": "^10.9.2",
+    "tsup": "^8.5.1",
+    "tsx": "^4.22.4"
   }
 }

@@ -1,11 +1,11 @@
-import BookingRepository from '../repositories/bookingRepo.ts';
-import { Validator, ValidationError } from '../middlewares/validateData.ts';
-import { generateBookingCode, generateDayDiff, generateDiscountAmount, generateHourDiff, generateSubtotal } from '../middlewares/generator.ts';
-import DiscountRepository from '../repositories/discountRepo.ts';
-import RoomPriceRepository from '../repositories/roomPriceRepo.ts';
-import BranchRepository from '../repositories/branchRepo.ts';
-import CustomerRepository from '../repositories/customerRepo.ts';
-import RoomTypeRepository from '../repositories/roomTypeRepo.ts';
+import BookingRepository from '../repositories/bookingRepo';
+import { Validator, ValidationError } from '../middlewares/validateData';
+import { generateBookingCode, generateDayDiff, generateDiscountAmount, generateHourDiff, generateSubtotal } from '../middlewares/generator';
+import DiscountRepository from '../repositories/discountRepo';
+import RoomPriceRepository from '../repositories/roomPriceRepo';
+import BranchRepository from '../repositories/branchRepo';
+import CustomerRepository from '../repositories/customerRepo';
+import RoomTypeRepository from '../repositories/roomTypeRepo';
 
 class BookingService {
     async getAllBookings() {
@@ -32,23 +32,23 @@ class BookingService {
         };
 
         const validator = new Validator();
-        if(!validator.isEmpty("Branch ID", validatedData.branch_id)) {
-            if(validator.isUUID("Branch ID", validatedData.branch_id)) {
+        if (!validator.isEmpty("Branch ID", validatedData.branch_id)) {
+            if (validator.isUUID("Branch ID", validatedData.branch_id)) {
                 const branch = await BranchRepository.getBranchById(validatedData.branch_id);
                 if (!branch) {
                     throw new ValidationError('400', 'Branch not found');
                 }
             }
         }
-        if(!validator.isEmpty("Customer ID", validatedData.customer_id)) {
-            if(validator.isUUID("Customer ID", validatedData.customer_id)) {
+        if (!validator.isEmpty("Customer ID", validatedData.customer_id)) {
+            if (validator.isUUID("Customer ID", validatedData.customer_id)) {
                 const customer = await CustomerRepository.getCustomerById(validatedData.customer_id);
                 if (!customer) {
                     throw new ValidationError('400', 'Customer not found');
                 }
             }
         }
-        if(!validator.isEmpty("Room Type ID", validatedData.room_type_id)) {
+        if (!validator.isEmpty("Room Type ID", validatedData.room_type_id)) {
             if (validator.isUUID("Room Type ID", validatedData.room_type_id)) {
                 const roomPrice = await RoomTypeRepository.getRoomTypeById(validatedData.room_type_id);
                 if (!roomPrice) {
@@ -56,25 +56,25 @@ class BookingService {
                 }
             }
         }
-        if(!validator.isEmpty("Booking Type", validatedData.booking_type))
+        if (!validator.isEmpty("Booking Type", validatedData.booking_type))
             validator.validateBookingType(validatedData.booking_type);
-        if(!validator.isEmpty("Checkin At", validatedData.checkin_at))
+        if (!validator.isEmpty("Checkin At", validatedData.checkin_at))
             validator.validateDate(validatedData.checkin_at);
-        if(!validator.isEmpty("Checkout At", validatedData.checkout_at))
+        if (!validator.isEmpty("Checkout At", validatedData.checkout_at))
             validator.validateDate(validatedData.checkout_at);
-        if(validatedData.created_by) {
+        if (validatedData.created_by) {
             validator.isUUID("Created By", validatedData.created_by);
         }
 
-        if(validator.validateDateOrder(validatedData.checkin_at, validatedData.checkout_at)) 
-            if(new Date(validatedData.checkin_at) < new Date())
+        if (validator.validateDateOrder(validatedData.checkin_at, validatedData.checkout_at))
+            if (new Date(validatedData.checkin_at) < new Date())
                 validator.pushError("Check-in date must be in the future");
             else {
                 validatedData.checkin_at = new Date(validatedData.checkin_at);
                 validatedData.checkout_at = new Date(validatedData.checkout_at);
             }
 
-        if(validatedData.num_guests) {
+        if (validatedData.num_guests) {
             validator.isPositiveNumber("Number of Guests", validatedData.num_guests);
         }
 
@@ -85,7 +85,7 @@ class BookingService {
         const validatingInfo = await BookingRepository.getValidatingInformation();
 
         validatedData.booking_code = generateBookingCode(8);
-        
+
         while (validatingInfo.some(booking => booking.booking_code === validatedData.booking_code)) {
             validatedData.booking_code = generateBookingCode(8);
         }
@@ -103,7 +103,7 @@ class BookingService {
         validatedData.subtotal = generateSubtotal(validatedData.room_price_snapshot, validatedData.checkin_at, validatedData.checkout_at, validatedData.booking_type);
         validatedData.total_amount = validatedData.subtotal;
 
-        if(validatedData.discount_id) {
+        if (validatedData.discount_id) {
             validator.isUUID("Discount ID", validatedData.discount_id);
             const discount = await DiscountRepository.getDiscountById(validatedData.discount_id);
             if (!discount) {
@@ -149,7 +149,7 @@ class BookingService {
         if (!existingBooking) {
             throw new ValidationError('404', 'Booking not found');
         }
-        
+
         if (validatedData.assigned_room_id) {
             validator.isUUID("Assigned Room ID", validatedData.assigned_room_id);
         }
@@ -245,13 +245,13 @@ class BookingService {
 
         validatedData.subtotal = generateSubtotal(
             validatedData.room_price_snapshot || existingBooking.room_price_snapshot,
-            validatedData.checkin_at || existingBooking.checkin_at, 
-            validatedData.checkout_at || existingBooking.checkout_at, 
+            validatedData.checkin_at || existingBooking.checkin_at,
+            validatedData.checkout_at || existingBooking.checkout_at,
             validatedData.booking_type || existingBooking.booking_type
         );
 
         validatedData.total_amount = validatedData.subtotal;
-        
+
         if (validatedData.discount_id) {
             if (validator.isUUID("Discount ID", validatedData.discount_id)) {
                 const discount = await DiscountRepository.getDiscountById(validatedData.discount_id);

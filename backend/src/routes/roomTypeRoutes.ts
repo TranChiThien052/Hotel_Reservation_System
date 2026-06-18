@@ -1,5 +1,5 @@
 import express from 'express';
-import RoomTypeController from '../controllers/roomTypeController.ts';
+import RoomTypeController from '../controllers/roomTypeController';
 
 const router = express.Router();
 
@@ -7,7 +7,7 @@ router.get('/branch/:id', RoomTypeController.getRoomTypesByBranchId);
 
 router.get('/', RoomTypeController.getAllRoomTypes);
 
-router.get ('/:id', RoomTypeController.getRoomTypeById);
+router.get('/:id', RoomTypeController.getRoomTypeById);
 
 router.post('/', RoomTypeController.createRoomType);
 

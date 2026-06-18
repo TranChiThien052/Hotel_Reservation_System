@@ -1,5 +1,5 @@
 import express from 'express';
-import HistoryTransactionController from '../controllers/historyTransactionController.ts';
+import HistoryTransactionController from '../controllers/historyTransactionController';
 
 const router = express.Router();
 

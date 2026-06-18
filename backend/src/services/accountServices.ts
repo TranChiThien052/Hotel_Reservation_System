@@ -1,6 +1,6 @@
-import AccountRepository from '../repositories/accountRepo.ts';
-import BranchRepository from '../repositories/branchRepo.ts';
-import { Validator, ValidationError } from '../middlewares/validateData.ts';
+import AccountRepository from '../repositories/accountRepo';
+import BranchRepository from '../repositories/branchRepo';
+import { Validator, ValidationError } from '../middlewares/validateData';
 import brcypt from 'bcrypt';
 
 class AccountService {
