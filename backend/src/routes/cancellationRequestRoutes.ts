@@ -1,5 +1,5 @@
 import express from 'express';
-import CancellationRequestController from '../controllers/cancellationRequestController.ts';
+import CancellationRequestController from '../controllers/cancellationRequestController';
 
 const router = express.Router();
 

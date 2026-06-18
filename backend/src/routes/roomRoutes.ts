@@ -1,5 +1,5 @@
 import express from 'express';
-import RoomController from '../controllers/roomController.ts';
+import RoomController from '../controllers/roomController';
 
 const router = express.Router();
 
@@ -7,7 +7,7 @@ router.get('/branch/:id', RoomController.getRoomsByBranchId);
 
 router.get('/', RoomController.getAllRooms);
 
-router.get ('/:id', RoomController.getRoomById);
+router.get('/:id', RoomController.getRoomById);
 
 router.post('/', RoomController.createRoom);
 

@@ -1,5 +1,5 @@
 import express from 'express';
-import BookingServiceController from '../controllers/bookingServiceController.ts';
+import BookingServiceController from '../controllers/bookingServiceController';
 
 const router = express.Router();
 

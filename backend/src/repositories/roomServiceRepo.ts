@@ -1,4 +1,4 @@
-import { prisma } from '../config/prisma.ts';
+import { prisma } from '../config/prisma';
 
 class RoomServiceRepository {
     async getAllServices() {
@@ -14,7 +14,7 @@ class RoomServiceRepository {
     };
 
     async getServiceById(id) {
-        return await prisma.services.findUnique({ 
+        return await prisma.services.findUnique({
             where: { id },
             include: {
                 branches: {

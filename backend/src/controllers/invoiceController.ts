@@ -1,4 +1,4 @@
-import InvoiceService from '../services/invoiceServices.ts';
+import InvoiceService from '../services/invoiceServices';
 
 class InvoiceController {
     async getAllInvoices(req, res) {

@@ -1,8 +1,8 @@
-import BookingServiceRepository from '../repositories/bookingServiceRepo.ts';
-import BookingRepository from '../repositories/bookingRepo.ts';
-import RoomServiceRepository from '../repositories/roomServiceRepo.ts';
-import AccountRepository from '../repositories/accountRepo.ts';
-import { Validator, ValidationError } from '../middlewares/validateData.ts';
+import BookingServiceRepository from '../repositories/bookingServiceRepo';
+import BookingRepository from '../repositories/bookingRepo';
+import RoomServiceRepository from '../repositories/roomServiceRepo';
+import AccountRepository from '../repositories/accountRepo';
+import { Validator, ValidationError } from '../middlewares/validateData';
 
 class BookingServiceService {
     async getAllBookingServices() {
@@ -92,19 +92,19 @@ class BookingServiceService {
             ...(data.added_by && { added_by: data.added_by }),
         };
 
-        if(validatedData.quantity) {
+        if (validatedData.quantity) {
             validator.isPositiveNumber("Quantity", validatedData.quantity);
         } else {
             validatedData.quantity = existingBookingService.quantity;
         }
-        if(validatedData.unit_price) {
+        if (validatedData.unit_price) {
             validator.isDecimal("Unit Price", validatedData.unit_price);
             validator.isPositiveNumber("Unit Price", validatedData.unit_price);
         } else {
             validatedData.unit_price = existingBookingService.unit_price;
         }
 
-        if(!validatedData.added_by)
+        if (!validatedData.added_by)
             validatedData.added_by = existingBookingService.added_by;
 
         if (validator.isUUID("Added_by's ID", validatedData.added_by)) {

@@ -1,4 +1,4 @@
-import { prisma } from '../config/prisma.ts';
+import { prisma } from '../config/prisma';
 
 class RoomTypeRepository {
     async getAllRoomTypes() {
@@ -40,7 +40,7 @@ class RoomTypeRepository {
     };
 
     async createRoomType(data) {
-        return await prisma.room_types .create({
+        return await prisma.room_types.create({
             data: data,
         });
     };

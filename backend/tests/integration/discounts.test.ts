@@ -3,17 +3,17 @@ import app from '../../src/app.ts';
 import { createTestBranch, createTestRoomType, createTestRoom, createTestRoomPrice, cleanDatabase, createTestDiscount } from '../helpers/seed.ts';
 
 describe('Discounts API', () => {
-   beforeAll(async () => {
-      await cleanDatabase();
-   });
+    beforeAll(async () => {
+        await cleanDatabase();
+    });
 
-   afterEach(async () => {
-      await cleanDatabase();
-   });
+    afterEach(async () => {
+        await cleanDatabase();
+    });
 
-   afterAll(async () => {
-      await cleanDatabase();
-   });
+    afterAll(async () => {
+        await cleanDatabase();
+    });
 
     describe('GET /api/discounts', () => {
         // Test case for getting all discounts
@@ -24,11 +24,11 @@ describe('Discounts API', () => {
         });
         // Test case for getting discount by id
         it('should get discount by id', async () => {
-           const branch = await createTestBranch();
-           const discount = await createTestDiscount({ branch_id: branch.id });
-           const response = await requeset(app).get(`/discounts/${discount.id}`);
-           expect(response.status).toBe(200);
-           expect(response.body).toHaveProperty('id', discount.id);
+            const branch = await createTestBranch();
+            const discount = await createTestDiscount({ branch_id: branch.id });
+            const response = await requeset(app).get(`/discounts/${discount.id}`);
+            expect(response.status).toBe(200);
+            expect(response.body).toHaveProperty('id', discount.id);
         });
         // Test case for getting discount by non-existent id
         it('should return 404 for non-existent discount id', async () => {
@@ -117,7 +117,7 @@ describe('Discounts API', () => {
                     valid_from: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
                     valid_to: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
                     is_active: 'invalid-boolean'
-                 });
+                });
             expect(response.status).toBe(400);
         });
     });
@@ -157,7 +157,7 @@ describe('Discounts API', () => {
                     valid_to: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000),
                     is_active: 'invalid-boolean'
                 });
-             expect(response.status).toBe(400);
+            expect(response.status).toBe(400);
         });
         // Test case for updating a non-existent discount
         it('should return 404 for non-existent discount id', async () => {
@@ -173,7 +173,7 @@ describe('Discounts API', () => {
                     valid_to: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000),
                     is_active: false
                 });
-             expect(response.status).toBe(404);
+            expect(response.status).toBe(404);
         });
         // Test case for updating a discount with invalid branch id
         it('should return 400 for invalid branch id', async () => {
@@ -192,7 +192,7 @@ describe('Discounts API', () => {
                     valid_to: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000),
                     is_active: false
                 });
-             expect(response.status).toBe(400);
+            expect(response.status).toBe(400);
         });
     });
 });

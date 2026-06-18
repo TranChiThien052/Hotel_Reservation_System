@@ -199,7 +199,7 @@ describe('Fine Item API Integration Tests', () => {
             expect(response.body).toHaveProperty('error');
             expect(response.body.error).toContain('Fine item not found');
         });
-        
+
         // Test case for updating a fine item with invalid branch id
         it('should return 400 an error for invalid branch_id format', async () => {
             const branch = await createTestBranch();

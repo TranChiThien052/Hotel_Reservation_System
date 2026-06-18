@@ -1,6 +1,6 @@
-import HolidayDateRepository from '../repositories/holidayDateRepo.ts';
-import BranchRepository from '../repositories/branchRepo.ts';
-import { Validator, ValidationError } from '../middlewares/validateData.ts';
+import HolidayDateRepository from '../repositories/holidayDateRepo';
+import BranchRepository from '../repositories/branchRepo';
+import { Validator, ValidationError } from '../middlewares/validateData';
 
 class HolidayDateService {
     async getAllHolidayDates() {
@@ -29,11 +29,11 @@ class HolidayDateService {
                 if (!branchExists) {
                     validator.pushError("Branch ID does not exist");
                 }
-            }    
+            }
         }
 
         if (!validator.isEmpty("Date", validatedData.date)) {
-            if(validator.validateDate(validatedData.date))
+            if (validator.validateDate(validatedData.date))
                 validatedData.date = new Date(validatedData.date);
         }
 
@@ -52,7 +52,7 @@ class HolidayDateService {
     async updateHolidayDate(id, data) {
         const validator = new Validator();
 
-        if(!validator.isEmpty("Holiday Date ID", id)) {
+        if (!validator.isEmpty("Holiday Date ID", id)) {
             if (!validator.isUUID("Holiday Date ID", id)) {
                 throw new ValidationError('400', validator.clearError());
             }
@@ -70,7 +70,7 @@ class HolidayDateService {
             ...(data.name && { name: data.name }),
         };
 
-        if(validatedData.branch_id) {
+        if (validatedData.branch_id) {
             if (validator.isUUID("Branch ID", validatedData.branch_id)) {
                 const branchExists = await BranchRepository.getBranchById(validatedData.branch_id);
                 if (!branchExists) {
@@ -79,12 +79,12 @@ class HolidayDateService {
             }
         }
 
-        if(validatedData.date) {
+        if (validatedData.date) {
             if (validator.validateDate(validatedData.date))
                 validatedData.date = new Date(validatedData.date);
         }
-        
-        if(validatedData.name) {
+
+        if (validatedData.name) {
             validator.isString("Name", validatedData.name);
             validator.maxLength("Name", validatedData.name, 150);
         }

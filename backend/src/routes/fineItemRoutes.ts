@@ -1,5 +1,5 @@
 import express from 'express';
-import FineItemController from '../controllers/fineItemController.ts';
+import FineItemController from '../controllers/fineItemController';
 
 const router = express.Router();
 

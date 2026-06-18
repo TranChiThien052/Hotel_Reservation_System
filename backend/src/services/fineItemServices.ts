@@ -1,6 +1,6 @@
-import FineItemRepository from '../repositories/fineItemRepo.ts';
-import BranchRepository from '../repositories/branchRepo.ts';
-import { Validator, ValidationError } from '../middlewares/validateData.ts';
+import FineItemRepository from '../repositories/fineItemRepo';
+import BranchRepository from '../repositories/branchRepo';
+import { Validator, ValidationError } from '../middlewares/validateData';
 
 class FineItemService {
     async getAllFineItems() {
@@ -30,7 +30,7 @@ class FineItemService {
         };
 
         const validator = new Validator();
-        
+
         if (!validator.isEmpty("Name", validatedData.name)) {
             validator.isString("Name", validatedData.name);
             validator.maxLength("Name", validatedData.name, 200);
@@ -83,16 +83,16 @@ class FineItemService {
             ...(data.price && { price: data.price }),
         };
 
-        if(validatedData.name) {
+        if (validatedData.name) {
             validator.isString("Name", validatedData.name);
             validator.maxLength("Name", validatedData.name, 200);
         }
 
-        if(validatedData.description) {
+        if (validatedData.description) {
             validator.isString("Description", validatedData.description);
         }
 
-        if(validatedData.price) {
+        if (validatedData.price) {
             validator.isDecimal("Price", validatedData.price);
             validator.isPositiveNumber("Price", validatedData.price);
         }
@@ -101,7 +101,7 @@ class FineItemService {
             throw new ValidationError('400', validator.clearError());
         }
 
-        if(validatedData.branch_id) {
+        if (validatedData.branch_id) {
             if (validator.isUUID("Branch ID", validatedData.branch_id)) {
                 const branchExists = await BranchRepository.getBranchById(validatedData.branch_id);
                 if (!branchExists) {

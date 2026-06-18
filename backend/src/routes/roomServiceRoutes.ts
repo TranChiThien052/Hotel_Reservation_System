@@ -1,11 +1,11 @@
 import express from 'express';
-import RoomServiceController from '../controllers/roomServiceController.ts';
+import RoomServiceController from '../controllers/roomServiceController';
 
 const router = express.Router();
 
 router.get('/', RoomServiceController.getAllServices);
 
-router.get ('/:id', RoomServiceController.getServiceById);
+router.get('/:id', RoomServiceController.getServiceById);
 
 router.post('/', RoomServiceController.createService);
 
