@@ -5,7 +5,7 @@ import { roomsApi } from '../api/rooms-api';
 import message from 'antd/es/message';
 import { FormModalModes } from '@/shared/types/type-form-mode';
 import { CiCirclePlus } from 'react-icons/ci';
-import { FaCaretDown, FaRegBuilding } from 'react-icons/fa6';
+import { FaRegBuilding } from 'react-icons/fa6';
 import { IoIosCheckmarkCircleOutline } from 'react-icons/io';
 import { LuWrench } from 'react-icons/lu';
 import { Button, Dropdown, Space, Table, Tag, type MenuProps, type TableProps } from 'antd';

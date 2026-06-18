@@ -41,10 +41,13 @@ const Promotions = () => {
   useEffect(() => {
     const fetchPromotions = async () => {
       try {
+        setLoading(true);
         const data = await promotionApi.getPromotions();
         setPromotionsData(data);
       } catch (error) {
         console.error("Error fetching promotions:", error);
+      } finally {
+        setLoading(false);
       }
     };
 
