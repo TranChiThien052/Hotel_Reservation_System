@@ -1,4 +1,4 @@
-import Route from './routes/route'
+import Route from './app/router/route'
 
 
 const App = () => {
