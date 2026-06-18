@@ -13,9 +13,6 @@ import FormModal from "@/app/layout/components/admin/FormModal";
 
 const defaultRoomData: RoomPriceFormData = {
     room_type_id: "",
-    room_types: {
-      name: ""
-    },
     price_per_night: 0,
     price_per_hour: 0,
     weekend_rate: 0,
@@ -44,7 +41,6 @@ const RoomPrices = () => {
         }
         fetchRoomPrices();
     }, [roomPricesData]);
-
 
     const handleSubmitForm = async (values: RoomPriceFormData) => {
         if (roomPrices.mode === FormModalModes.CREATE) {

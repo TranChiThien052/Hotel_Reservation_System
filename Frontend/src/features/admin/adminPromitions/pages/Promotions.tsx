@@ -130,8 +130,8 @@ const Promotions = () => {
     },
     {
       title: "Chi nhánh",
-      dataIndex: "branch.name",
-      key: "branch.name",
+      key: "branches",
+      render: (_, record) => <p>{record.branches?.name}</p>,
     },
     {
       title: "Ngày bắt đầu",

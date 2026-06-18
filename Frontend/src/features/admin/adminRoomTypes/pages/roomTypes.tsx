@@ -101,8 +101,8 @@ useEffect(() => {
     },
     {
       title: "Branch",
-      dataIndex: "branch_id",
-      key: "branch_id",
+      key: "branches",
+      render: (_, record) => <p>{record.branches?.name}</p>,
     },
     {
       title: "Max Guests",

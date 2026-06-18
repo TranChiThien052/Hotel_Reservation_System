@@ -41,6 +41,8 @@ const rooms = () => {
     fetchRooms();
   }, [roomsData]);
 
+  console.log("roomsData", roomsData);
+
 
   const handleStatusChange = async (roomId: string, roomData: any) => {
       setLoading(true);
@@ -100,13 +102,13 @@ const rooms = () => {
     },
     {
       title: "Loại phòng",
-      dataIndex: "room_type_id",
-      key: "room_type_id",
+      key: "room_types",
+      render: (_, record) => <p>{record.room_types?.name}</p>,
     },
     {
       title: "Chi nhánh",
-      dataIndex: "branch_id",
-      key: "branch_id",
+      key: "branches",
+      render: (_,record) => <p>{record.branches?.name}</p>,
     },
     {
       title: "Tình trạng",

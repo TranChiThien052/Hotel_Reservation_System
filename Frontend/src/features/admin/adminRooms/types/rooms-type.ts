@@ -8,8 +8,13 @@ export interface Room{
     notes?: string;
     extra?: string[];
     basic: string[];
-    // status: 'unavailable' | 'available' | 'occupied' | 'cleaning' | 'maintenance'
     status: string;
+    branches: {
+        name: string;
+    };
+    room_types: {
+        name: string;
+    };
 }
 
 export interface RoomFormData {
@@ -21,6 +26,5 @@ export interface RoomFormData {
     notes?: string;
     extra?: string[];
     basic: string[];
-    // status: 'unavailable' | 'available' | 'occupied' | 'cleaning' | 'maintenance'
     status: string;
 }
