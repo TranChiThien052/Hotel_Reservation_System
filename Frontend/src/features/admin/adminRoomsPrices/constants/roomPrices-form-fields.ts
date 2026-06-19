@@ -15,9 +15,9 @@ export const roomPricesFormFields: FormField<RoomPriceFormData>[] = [
         customData: (data: any[]) => data.map((item) => ({label: item.name, value: item.id}))
     },
     {
-        key: "price_per_night",
-        label: "Giá theo đêm",
-        placeholder: "Nhập giá theo đêm",
+        key: "price_per_day",
+        label: "Giá theo ngày",
+        placeholder: "Nhập giá theo ngày",
         type: FormFieldTypes.NUMBER,
     },
     {

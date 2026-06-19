@@ -4,7 +4,7 @@ export interface RoomPrice {
     room_types: {
         name: string;
     };
-    price_per_night: number;
+    price_per_day: number;
     price_per_hour: number;
     weekend_rate: number;
     holiday_rate: number;
@@ -14,7 +14,7 @@ export interface RoomPrice {
 
 export interface RoomPriceFormData {
     room_type_id: string;
-    price_per_night: number;
+    price_per_day: number;
     price_per_hour: number;
     weekend_rate: number;
     holiday_rate: number;

@@ -13,7 +13,7 @@ import FormModal from "@/app/layout/components/admin/FormModal";
 
 const defaultRoomData: RoomPriceFormData = {
     room_type_id: "",
-    price_per_night: 0,
+    price_per_day: 0,
     price_per_hour: 0,
     weekend_rate: 0,
     holiday_rate: 0,
@@ -41,6 +41,7 @@ const RoomPrices = () => {
         }
         fetchRoomPrices();
     }, [roomPricesData]);
+    console.log("roomPricesData", roomPricesData);
 
     const handleSubmitForm = async (values: RoomPriceFormData) => {
         if (roomPrices.mode === FormModalModes.CREATE) {
@@ -71,9 +72,9 @@ const RoomPrices = () => {
       defaultSortOrder: "ascend",
     },
     {
-      title: "Giá theo đêm",
-      dataIndex: "price_per_night",
-      key: "price_per_night",
+      title: "Giá theo ngày",
+      dataIndex: "price_per_day",
+      key: "price_per_day",
       render: (text) => <span>{text?.toLocaleString()} VND</span>,
     },
     {

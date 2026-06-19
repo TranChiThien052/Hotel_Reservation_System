@@ -36,7 +36,6 @@ const Services = () => {
   useEffect(() => {
     const fetchServices = async () => {
       try {
-        setLoading(true);
         const data = await servicesApi.getAllServices();
         setServicesData(data);
       } catch (error) {
