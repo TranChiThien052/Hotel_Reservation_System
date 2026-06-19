@@ -1,11 +1,14 @@
 import express from 'express';
+import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import routes from './routes/index';
 
 const app = express();
 
-app.use(cors({ origin: process.env.FRONTEND_URL }));
+app.use(cors({ origin: true, credentials: true }));
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 
 // Existing routes
 app.use('/branches', routes.branchRoutes);
@@ -34,5 +37,8 @@ app.use('/invoice-fines', routes.invoiceFineRoutes);
 
 // History routes
 app.use('/history-transactions', routes.historyTransactionRoutes);
+
+// Authentication routes
+app.use('/auth', routes.authRoutes);
 
 export default app;
