@@ -1,4 +1,4 @@
-import apiClient from "../../../../shared/lib/axios"
+import apiClient from "@/shared/lib/axios"
 import type { BranchFormData } from "../types/branch-type";
 
 // Branch API calls
