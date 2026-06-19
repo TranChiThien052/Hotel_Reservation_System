@@ -2,7 +2,7 @@ import type { FormField } from "@/shared/types/form-field";
 import type { PromotionFormData } from "../types/promotions-types";
 import { FormFieldTypes } from "@/shared/types/type-form-field";
 import { branchApi } from "../../adminBranch/api/admin-api";
-import { disableEndDateNotPast, disableStartDateNotPast } from "@/shared/util/validate-date";
+import { disableStartDateNotPast } from "@/shared/util/validate-date";
 import dayjs from 'dayjs';
 
 export const promotionsFormFields: FormField<PromotionFormData>[] = [

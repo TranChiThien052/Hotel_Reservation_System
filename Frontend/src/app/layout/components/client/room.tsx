@@ -32,7 +32,7 @@ interface RoomProps {
 }
 
 const room = ({ room }: RoomProps) => {
-    const {room_type, status_display, room_number} = room;
+    const {room_type} = room;
     const defaultImage = room_type.images.length > 0 ? room_type.images[0] : test;
   return (
     <div className='group rounded-xl bg-white border border-gray-300 w-full h-full hover:shadow-2xl transition-shadow duration-300 cursor-pointer'>

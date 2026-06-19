@@ -11,7 +11,7 @@ export interface Promotion {
     used_count: number;
     valid_from: string;
     valid_to: string;
-    branch: {
+    branches: {
         name: string;
     }
 }
