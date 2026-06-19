@@ -16,6 +16,7 @@ import paymentRoutes from './paymentRoutes';
 import fineItemRoutes from './fineItemRoutes';
 import invoiceFineRoutes from './invoiceFineRoutes';
 import historyTransactionRoutes from './historyTransactionRoutes';
+import authRoutes from './authRoutes';
 
 export default {
   branchRoutes,
@@ -36,4 +37,5 @@ export default {
   fineItemRoutes,
   invoiceFineRoutes,
   historyTransactionRoutes,
+  authRoutes,
 };

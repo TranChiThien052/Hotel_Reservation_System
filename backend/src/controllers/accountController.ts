@@ -1,10 +1,87 @@
+import { access } from 'node:fs';
 import AccountService from '../services/accountServices';
 
 class AccountController {
+    async login(req, res) {
+        const { username, password } = req.body;
+        return await AccountService.login(username, password)
+            .then(token => {
+                res.cookie('refresh_token', token.refresh_token, {
+                    httpOnly: true,
+                    secure: true,
+                    sameSite: 'None',
+                    path: '/auth',
+                    maxAge: 24 * 60 * 60 * 1000,
+                });
+                res.status(200).json({
+                    access_token: token.access_token,
+                    user_id: token.user_id,
+                    account_id: token.account_id,
+                    role: token.role,
+                });
+            })
+            .catch(error => {
+                if (typeof parseInt(error.code) === "number") {
+                    return res.status(parseInt(error.code)).json({ error: error.message });
+                }
+                res.status(500).json({ code: error.code, error: error.message });
+            });
+    };
+
+    async refreshToken(req, res) {
+        const refresh_token = req.cookies.refresh_token;
+        return await AccountService.refreshToken(refresh_token)
+            .then(token => {
+                res.cookie('refresh_token', token.refresh_token, {
+                    httpOnly: true,
+                    secure: true,
+                    sameSite: 'None',
+                    path: '/auth',
+                    maxAge: 24 * 60 * 60 * 1000,
+                });
+                res.status(200).json({
+                    access_token: token.access_token,
+                    user_id: token.user_id,
+                    account_id: token.account_id,
+                    role: token.role,
+                });
+            })
+            .catch(error => {
+                res.status(401).json({ error: error.message });
+            });
+    };
+
+    async logout(req, res) {
+        const refresh_token = req.cookies.refresh_token;
+        return await AccountService.logout(refresh_token)
+            .then(response => {
+                res.clearCookie('refresh_token', {
+                    httpOnly: true,
+                    secure: true,
+                    sameSite: 'None',
+                    path: '/auth',
+                });
+                res.status(200).json({ message: response.message });
+            })
+            .catch(error => {
+                if (typeof parseInt(error.code) === "number") {
+                    return res.status(parseInt(error.code)).json({ error: error.message });
+                }
+                res.status(500).json({ error: error.message });
+            });
+    };
+
+    async getAccountInformation(req, res) {
+        const token = req.headers.authorization.split(' ')[1];
+        return await AccountService.getAccountInformationFromToken(token)
+            .then(account => res.status(200).json(account))
+            .catch(error => res.status(500).json({ error: error.message }));
+    }
+
     async getAllAccounts(req, res) {
         return await AccountService.getAllAccounts()
             .then(accounts => res.status(200).json(accounts))
-            .catch(error => res.status(500).json({ error: error.message }));
+            .catch(error => res.status(500).json({ code: error.code, error: error.message }));
     };
 
     async getAccountByUsername(req, res) {

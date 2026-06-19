@@ -8,12 +8,50 @@ class AccountRepository {
     async getAccountById(id) {
         return await prisma.accounts.findUnique({
             where: { id: id },
+            include: {
+                branches: {
+                    select: {
+                        id: true,
+                        name: true,
+                    }
+                },
+                staff: {
+                    select: {
+                        id: true,
+                        full_name: true,
+                    }
+                },
+                customers: {
+                    select: {
+                        id: true,
+                        full_name: true,
+                    }
+                }
+            }
         });
     };
 
     async getAccountByUsername(username) {
         return await prisma.accounts.findUnique({
             where: { username: username },
+            include: {
+                branches: {
+                    select: {
+                        id: true,
+                        name: true,
+                    }
+                },
+                staff: {
+                    select: {
+                        id: true,
+                    }
+                },
+                customers: {
+                    select: {
+                        id: true,
+                    }
+                }
+            }
         });
     };
 
