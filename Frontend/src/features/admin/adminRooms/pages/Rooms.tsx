@@ -5,7 +5,7 @@ import { roomsApi } from '../api/rooms-api';
 import message from 'antd/es/message';
 import { FormModalModes } from '@/shared/types/type-form-mode';
 import { CiCirclePlus } from 'react-icons/ci';
-import { FaCaretDown, FaRegBuilding } from 'react-icons/fa6';
+import { FaRegBuilding } from 'react-icons/fa6';
 import { IoIosCheckmarkCircleOutline } from 'react-icons/io';
 import { LuWrench } from 'react-icons/lu';
 import { Button, Dropdown, Space, Table, Tag, type MenuProps, type TableProps } from 'antd';
@@ -40,6 +40,8 @@ const rooms = () => {
     };
     fetchRooms();
   }, [roomsData]);
+
+  console.log("roomsData", roomsData);
 
 
   const handleStatusChange = async (roomId: string, roomData: any) => {
@@ -100,13 +102,13 @@ const rooms = () => {
     },
     {
       title: "Loại phòng",
-      dataIndex: "room_type_id",
-      key: "room_type_id",
+      key: "room_types",
+      render: (_, record) => <p>{record.room_types?.name}</p>,
     },
     {
       title: "Chi nhánh",
-      dataIndex: "branch_id",
-      key: "branch_id",
+      key: "branches",
+      render: (_,record) => <p>{record.branches?.name}</p>,
     },
     {
       title: "Tình trạng",

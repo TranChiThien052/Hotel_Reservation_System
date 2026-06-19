@@ -6,6 +6,9 @@ export interface RoomType {
     max_guests: number;
     images: String[];
     is_active: boolean;
+    branches: {
+        name: string;
+    };
 }
 
 export interface RoomTypeFormData {

@@ -44,11 +44,5 @@ export const roomTypeFormFields: FormField<RoomTypeFormData>[] = [
         label: "Room Images",
         placeholder: "Upload room images",
         type: FormFieldTypes.IMAGE_UPLOAD,
-     },
-     {
-        key: "description",
-        label: "Description",
-        placeholder: "Enter description",
-        type: FormFieldTypes.TEXTAREA,
      }
 ]

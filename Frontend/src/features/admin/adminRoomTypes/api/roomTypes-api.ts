@@ -1,5 +1,5 @@
 import apiClient from "../../../../shared/lib/axios"
-import type { RoomType, RoomTypeFormData } from "../types/roomsType-type";
+import type { RoomTypeFormData } from "../types/roomsType-type";
 
 
 
