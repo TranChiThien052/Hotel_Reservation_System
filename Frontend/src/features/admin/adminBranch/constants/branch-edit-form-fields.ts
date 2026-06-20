@@ -7,7 +7,7 @@ import { branchApi } from "../api/admin-api";
 export const branchEditFormFields: FormField<BranchFormData>[] = [
     {
         key: "name",
-        label: "Branch Name",
+        label: "Tên chi nhánh",
         placeholder: "Enter branch name",
         type: FormFieldTypes.INPUT,
         rules:[
@@ -20,7 +20,7 @@ export const branchEditFormFields: FormField<BranchFormData>[] = [
     },
     {
         key: "city",
-        label: "City",
+        label: "Thành phố",
         placeholder: "Enter city",
         type: FormFieldTypes.SELECT_FETCH,
         fetchOptions: branchApi.getCityOptions,
@@ -34,7 +34,7 @@ export const branchEditFormFields: FormField<BranchFormData>[] = [
     },
     {
         key: "address",
-        label: "Address",
+        label: "Địa chỉ",
         placeholder: "Enter address",
         type: FormFieldTypes.INPUT,
         rules:[
@@ -46,7 +46,7 @@ export const branchEditFormFields: FormField<BranchFormData>[] = [
     },
     {
         key: "phone",
-        label: "Phone Number",
+        label: "Số điện thoại",
         placeholder: "Enter phone number",
         type: FormFieldTypes.INPUT,
         rules:[
@@ -61,7 +61,7 @@ export const branchEditFormFields: FormField<BranchFormData>[] = [
         key: "email",
         label: "Email",
         placeholder: "Enter email",
-        type: FormFieldTypes.INPUT,
+        type: FormFieldTypes.EMAIL,
         rules:[
             {
                 required: true,
@@ -72,13 +72,13 @@ export const branchEditFormFields: FormField<BranchFormData>[] = [
     },
     {
         key: "description",
-        label: "Description",
+        label: "Mô tả",
         placeholder: "Enter description",
         type: FormFieldTypes.TEXTAREA
     },
     {
         key: "is_active",
-        label: "Status",
+        label: "Trạng thái",
         placeholder: "Select status",
         type: FormFieldTypes.SELECT,
         options: [

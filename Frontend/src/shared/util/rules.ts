@@ -1,22 +1,12 @@
 import type { Rule } from 'antd/es/form';
+import message from 'antd/es/message';
 
 type KeyUnion = 'email' | 'phone' | 'password';
 
 export const rules: Record<KeyUnion, Rule> = {
   email: {
-    validator: (_, value) => {
-      const emailRegex = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
-
-      if (!value?.trim()) {
-        return Promise.resolve();
-      }
-
-      if (!emailRegex.test(value.trim())) {
-        return Promise.reject(new Error('Email không hợp lệ'));
-      }
-
-      return Promise.resolve();
-    },
+    pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+    message: 'Email không hợp lệ', 
   },
 
   phone: {
