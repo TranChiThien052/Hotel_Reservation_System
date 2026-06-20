@@ -1,5 +1,4 @@
 import type { Rule } from 'antd/es/form';
-import message from 'antd/es/message';
 
 type KeyUnion = 'email' | 'phone' | 'password';
 
