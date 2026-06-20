@@ -5,14 +5,31 @@ import routes from './routes/index';
 
 const app = express();
 
-app.use(cors({
-    origin: process.env.FRONTEND_URL,
+// CORS configuration - shared between middleware and preflight handler
+const corsOptions: cors.CorsOptions = {
+    origin: function (origin, callback) {
+        // Allow requests with no origin (mobile apps, curl, server-to-server)
+        if (!origin) return callback(null, true);
+        
+        const allowedOrigins = [
+            process.env.FRONTEND_URL,       // Production Vercel URL
+            'http://localhost:5173',         // Local dev
+            'http://localhost:3000',         // Alternative local dev
+        ].filter(Boolean); // Remove undefined values
+
+        if (allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true
-}));
+};
 
-app.options("*", cors());
+app.use(cors(corsOptions));
+app.options("/{*path}", cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
