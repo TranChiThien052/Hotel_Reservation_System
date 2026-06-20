@@ -15,9 +15,6 @@ class AccountController {
                 });
                 res.status(200).json({
                     access_token: token.access_token,
-                    user_id: token.user_id,
-                    account_id: token.account_id,
-                    role: token.role,
                 });
             })
             .catch(error => {
@@ -41,12 +38,12 @@ class AccountController {
                 });
                 res.status(200).json({
                     access_token: token.access_token,
-                    user_id: token.user_id,
-                    account_id: token.account_id,
-                    role: token.role,
                 });
             })
             .catch(error => {
+                if (typeof parseInt(error.code) === "number") {
+                    return res.status(parseInt(error.code)).json({ error: error.message });
+                }
                 res.status(401).json({ error: error.message });
             });
     };

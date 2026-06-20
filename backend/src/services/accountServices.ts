@@ -3,12 +3,14 @@ import BranchRepository from '../repositories/branchRepo';
 import RefreshTokenRepository from '../repositories/refreshTokenRepo';
 import { Validator, ValidationError } from '../middlewares/validateData';
 import jwt from 'jsonwebtoken';
-import brcypt from 'bcrypt';
+import bcrypt from 'bcrypt';
 
 class AccountService {
     async login(username, password) {
         const validator = new Validator();
-        validator.isString("Username", username);
+        if(!validator.isEmpty("Username", username))
+            validator.isString("Username", username);
+        if(!validator.isEmpty("Password", password))
         validator.isString("Password", password);
         if (validator.error.length > 0) {
             throw new ValidationError('400', validator.clearError());
@@ -17,46 +19,33 @@ class AccountService {
         if (!account) {
             throw new ValidationError('404', "Account not found");
         }
-        const isMatch = await brcypt.compare(password, account.password_hash);
+        const isMatch = await bcrypt.compare(password, account.password_hash);
         if (!isMatch) {
-            throw new ValidationError('400', "Invalid password");
+            throw new ValidationError('400', "Incorrect password");
         }
 
         if (account.status !== 'active') {
             throw new ValidationError('403', "Account is not active");
         }
 
-        let userId;
-
-        if (account.customers) {
-            userId = account.customers.id;
-        } else if (account.staff) {
-            userId = account.staff.id;
-        }
-
         if (!process.env.JWT_SECRET) {
             throw new ValidationError('500', "JWT_SECRET is not defined in environment variables");
         }
 
-        const access_claims = {
-            user_id: userId,
-            account_id: account.id,
-            role: account.role,
-        };
-
-        const refresh_claims = {
-            user_id: userId,
-            account_id: account.id,
-        };
-
-        const refresh_token = jwt.sign(refresh_claims, process.env.JWT_SECRET, { expiresIn: '1d' });
-
-        const hashedRefreshToken = await brcypt.hash(refresh_token, Number(process.env.SALT_ROUNDS) || 5);
+        const refresh_token = jwt.sign(
+            {
+                account_id: account.id,
+                user_id: account.customers ? account.customers?.id : account.staff?.id,
+                role: account.role,
+            }, 
+            process.env.JWT_SECRET,
+            { expiresIn: '1d' }
+        );
 
         const RefreshTokenRepo = new RefreshTokenRepository();
         const createRefreshToken = await RefreshTokenRepo.createRefreshToken({
             account_id: account.id,
-            token_hash: hashedRefreshToken,
+            token_hash: await bcrypt.hash(refresh_token, Number(process.env.SALT_ROUNDS) || 5),
             expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000),
         });
 
@@ -64,28 +53,31 @@ class AccountService {
             throw new ValidationError('500', "Failed to create refresh token");
         }
 
-        const access_token = jwt.sign(access_claims, process.env.JWT_SECRET, { expiresIn: '30m' });
+        const access_token = jwt.sign(
+            {
+                account_id: account.id,
+                user_id: account.customers ? account.customers?.id : account.staff?.id,
+                role: account.role,
+            }, 
+            process.env.JWT_SECRET, 
+            { expiresIn: '30m' }
+        );
 
         return {
             access_token,
-            refresh_token,
-            user_id: userId,
-            account_id: account.id,
-            role: account.role
+            refresh_token
         };
     }
 
     async refreshToken(oldRefreshToken) {
         const validator = new Validator();
-        validator.isString("Refresh Token", oldRefreshToken);
+        if (!validator.isEmpty("Refresh Token", oldRefreshToken)) 
+            validator.isString("Refresh Token", oldRefreshToken);
         if (validator.error.length > 0) {
             throw new ValidationError('400', validator.clearError());
         }
         const RefreshTokenRepo = new RefreshTokenRepository();
         const decoded = jwt.decode(oldRefreshToken);
-        if (!decoded || typeof decoded === 'string' || !decoded.account_id) {
-            throw new ValidationError('400', "Invalid refresh token");
-        }
         const refreshTokens = await RefreshTokenRepo.getRefreshTokenByAccountId(decoded.account_id);
         const validRefreshToken = refreshTokens.find(token => token.expires_at > new Date() && !token.is_revoked);
 
@@ -100,56 +92,54 @@ class AccountService {
         if (account.status !== 'active') {
             throw new ValidationError('403', "Account is not active");
         }
-        let userId;
 
-        if (account.customers) {
-            userId = account.customers.id;
-        } else if (account.staff) {
-            userId = account.staff.id;
-        }
         if (!process.env.JWT_SECRET) {
             throw new ValidationError('500', "JWT_SECRET is not defined in environment variables");
         }
-        const access_claims = {
-            user_id: userId,
-            account_id: account.id,
-            role: account.role,
-        };
-        const refresh_claims = {
-            user_id: userId,
-            account_id: account.id,
-        };
-        const new_refresh_token = jwt.sign(refresh_claims, process.env.JWT_SECRET, { expiresIn: '1d' });
-        const hashedRefreshToken = await brcypt.hash(new_refresh_token, Number(process.env.SALT_ROUNDS) || 5);
+
+        const refresh_token = jwt.sign(
+            {
+                account_id: account.id,
+                user_id: account.customers ? account.customers?.id : account.staff?.id
+            }, 
+            process.env.JWT_SECRET, 
+            { expiresIn: '1d' }
+        );
+        
         const createRefreshToken = await RefreshTokenRepo.createRefreshToken({
             account_id: account.id,
-            token_hash: hashedRefreshToken,
+            token_hash: await bcrypt.hash(refresh_token, Number(process.env.SALT_ROUNDS) || 5),
             expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000),
         });
+
         if (!createRefreshToken) {
             throw new ValidationError('500', "Failed to create refresh token");
         }
-        const access_token = jwt.sign(access_claims, process.env.JWT_SECRET, { expiresIn: '30m' });
+
+        const access_token = jwt.sign(
+            {
+                account_id: account.id,
+                user_id: account.customers ? account.customers?.id : account.staff?.id,
+                role: account.role,
+            }, 
+            process.env.JWT_SECRET, 
+            { expiresIn: '30m' }
+        );
         await RefreshTokenRepo.updateRefreshToken(validRefreshToken.id, { is_revoked: true });
         return {
             access_token,
-            refresh_token: new_refresh_token,
-            user_id: userId,
-            account_id: account.id,
-            role: account.role
+            refresh_token: refresh_token
         };
     }
 
     async logout(refreshToken) {
         const validator = new Validator();
-        validator.isString("Refresh Token", refreshToken);
+        if (!validator.isEmpty("Refresh Token", refreshToken)) 
+            validator.isString("Refresh Token", refreshToken);
         if (validator.error.length > 0) {
             throw new ValidationError('400', validator.clearError());
         }
         const decoded = jwt.decode(refreshToken);
-        if (!decoded || typeof decoded === 'string' || !decoded.account_id) {
-            throw new ValidationError('400', "Invalid refresh token");
-        }
         const RefreshTokenRepo = new RefreshTokenRepository();
         const refreshTokens = await RefreshTokenRepo.getRefreshTokenByAccountId(decoded.account_id);
         const validRefreshToken = refreshTokens.find(token => token.expires_at > new Date() && !token.is_revoked);
@@ -247,7 +237,7 @@ class AccountService {
             }
         }
 
-        validatedData.password_hash = await brcypt.hash(validatedData.password_hash, Number(process.env.SALT_ROUNDS) || 5);
+        validatedData.password_hash = await bcrypt.hash(validatedData.password_hash, Number(process.env.SALT_ROUNDS) || 5);
 
         return await AccountRepository.createAccount(validatedData);
     };
@@ -265,7 +255,7 @@ class AccountService {
         if (validatedData.password_hash) {
             validator.isString("Password Hash", validatedData.password_hash);
             validator.validatePassword(validatedData.password_hash);
-            validatedData.password_hash = await brcypt.hash(validatedData.password_hash, Number(process.env.SALT_ROUNDS) || 5);
+            validatedData.password_hash = await bcrypt.hash(validatedData.password_hash, Number(process.env.SALT_ROUNDS) || 5);
         }
         if (validatedData.role) {
             validator.validateAccountRole(validatedData.role);

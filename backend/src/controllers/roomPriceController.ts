@@ -13,7 +13,7 @@ class RoomPriceController {
         return await RoomPriceServices.getRoomPricesByRoomTypeId(id)
             .then(roomPrices => res.status(200).json(roomPrices))
             .catch(error => {
-                if (error.code !== 500) {
+                if (typeof parseInt(error.code) === 'number') {
                     return res.status(parseInt(error.code)).json({ error: error.message });
                 }
                 res.status(500).json({ error: error.message });
@@ -25,7 +25,7 @@ class RoomPriceController {
         return await RoomPriceServices.getRoomPriceById(id)
             .then(roomPrice => res.status(200).json(roomPrice))
             .catch(error => {
-                if (error.code !== 500) {
+                if (typeof parseInt(error.code) === 'number') {
                     return res.status(parseInt(error.code)).json({ error: error.message });
                 }
                 res.status(500).json({ error: error.message });
@@ -38,8 +38,8 @@ class RoomPriceController {
         return await RoomPriceServices.createRoomPrice(data)
             .then(createdRoomPrice => res.status(201).json(createdRoomPrice))
             .catch(error => {
-                console.error("Error creating room price:", error);
-                if (typeof error.code === 'number') {
+                console.error(error);
+                if (typeof parseInt(error.code) === 'number') {
                     return res.status(parseInt(error.code)).json({ error: error.message });
                 }
                 res.status(500).json({ error: error.message });
@@ -53,7 +53,7 @@ class RoomPriceController {
         return await RoomPriceServices.updateRoomPrice(id, data)
             .then(updatedRoomPrice => res.status(200).json(updatedRoomPrice))
             .catch(error => {
-                if (typeof error.code === 'number') {
+                if (typeof parseInt(error.code) === 'number') {
                     return res.status(parseInt(error.code)).json({ error: error.message });
                 }
                 res.status(500).json({ code: error.code, error: error.message });

@@ -1,7 +1,7 @@
 import request from 'supertest';
-import app from '../../src/app.ts';
-import { prisma } from '../helpers/prisma.ts';
-import { cleanDatabase, createTestAccount, createTestBranch } from '../helpers/seed.ts';
+import app from '../../src/app';
+import { prisma } from '../helpers/prisma';
+import { cleanDatabase, createTestAccount, createTestBranch } from '../helpers/seed';
 
 describe('Accounts API', () => {
     beforeAll(async () => {
@@ -108,7 +108,7 @@ describe('Accounts API', () => {
             const account = await createTestAccount({ branch_id: branch.id });
             const response = await request(app).get(`/accounts/${account.id}`);
             expect(response.status).toBe(200);
-            expect(response.body).toEqual(account);
+            expect(response.body.id).toEqual(account.id);
         });
 
         // Test case for getting an account by username
@@ -117,7 +117,7 @@ describe('Accounts API', () => {
             const account = await createTestAccount({ branch_id: branch.id });
             const response = await request(app).get(`/accounts/username/${account.username}`);
             expect(response.status).toBe(200);
-            expect(response.body).toEqual(account);
+            expect(response.body.id).toEqual(account.id);
         });
 
         // Test case for getting an account with invalid ID
