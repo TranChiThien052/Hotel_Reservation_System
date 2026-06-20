@@ -5,13 +5,15 @@ import { LuWrench } from "react-icons/lu";
 import { Button, Dropdown, message, Space, Table, Tag } from "antd";
 import type { MenuProps, TableProps } from "antd";
 import type { Branch, BranchFormData } from "../types/branch-type";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
-import { FormModalModes, type FormModalMode } from "@/shared/types/type-form-mode";
+import {
+  FormModalModes,
+  type FormModalMode,
+} from "@/shared/types/type-form-mode";
 import { branchEditFormFields } from "../constants/branch-edit-form-fields";
 import FormModal from "@/app/layout/components/admin/FormModal";
-import {branchApi} from "../api/admin-api";
-
+import { branchApi } from "../api/admin-api";
 
 const defaultBranchData: BranchFormData = {
   name: "",
@@ -23,38 +25,40 @@ const defaultBranchData: BranchFormData = {
   is_active: false,
 };
 
-const branch = () => {
+const Branch = () => {
   const [loading, setLoading] = useState(false);
   const [branchesData, setBranchesData] = useState<Branch[]>([]);
 
   const [isOpenModal, setIsOpenModal] = useState(false);
-  const [selectedBranch, setSelectedBranch] = useState<BranchFormData>(defaultBranchData);
-  const [modalMode, setModalMode] = useState<FormModalMode>(FormModalModes.CREATE);
-  const [editingId, setEditingId] = useState<string>('');
+  const [selectedBranch, setSelectedBranch] =
+    useState<BranchFormData>(defaultBranchData);
+  const [modalMode, setModalMode] = useState<FormModalMode>(
+    FormModalModes.CREATE,
+  );
+  const [editingId, setEditingId] = useState<string>("");
   // const navigate = useNavigate();
 
+  const fetchBranches = useCallback(async () => {
+    setLoading(true);
+    try {
+      const data = await branchApi.getBranches();
+      setBranchesData(Array.isArray(data) ? data : []);
+    } catch (error) {
+      message.error("Lấy danh sách chi nhánh thất bại");
+      console.error("Fetch error:", error);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
-    
-    const fetchBranches = async () => {
-      try {
-        const data = await branchApi.getBranches();
-        setBranchesData(data);
-      } catch (error) {
-        message.error("Lấy danh sách chi nhánh thất bại");
-        console.error("Fetch error:", error);
-      }
-    };
-
     fetchBranches();
-
-  }, [branchesData]); //tự động cập nhật khi có thay đổi về số lượng chi nhánh
+  }, [fetchBranches]);
 
   const closeModal = () => {
     setIsOpenModal(false);
     setSelectedBranch(defaultBranchData);
   };
-  
-
 
   const status: MenuProps["items"] = [
     {
@@ -82,6 +86,7 @@ const branch = () => {
         ),
       );
       message.success("Cập nhật trạng thái chi nhánh thành công");
+      await fetchBranches(); // Gọi lại fetchBranches để cập nhật danh sách chi nhánh
     } catch (error) {
       message.error("Cập nhật trạng thái chi nhánh thất bại");
       console.error("Update error:", error);
@@ -94,20 +99,18 @@ const branch = () => {
     setModalMode(mode);
     if (branch && mode === FormModalModes.UPDATE) {
       setEditingId(branch.id);
-      setSelectedBranch(
-        {
-          name: branch.name,
-          city: branch.city,
-          address: branch.address,
-          phone: branch.phone,
-          email: branch.email,
-          description: branch.description,
-          is_active: branch.is_active,
-        }
-      );
+      setSelectedBranch({
+        name: branch.name,
+        city: branch.city,
+        address: branch.address,
+        phone: branch.phone,
+        email: branch.email,
+        description: branch.description,
+        is_active: branch.is_active,
+      });
     } else {
       setSelectedBranch(defaultBranchData);
-      setEditingId('');
+      setEditingId("");
     }
     setIsOpenModal(true);
   };
@@ -118,24 +121,24 @@ const branch = () => {
       try {
         await branchApi.createBranch(formData);
         message.success("Tạo chi nhánh thành công");
+        await fetchBranches(); // Gọi lại fetchBranches để cập nhật danh sách chi nhánh
       } catch (error) {
         message.error("Tạo chi nhánh thất bại");
         console.error("Create error:", error);
       }
-
-    }
-    else if (modalMode === FormModalModes.UPDATE && selectedBranch) {
+    } else if (modalMode === FormModalModes.UPDATE && selectedBranch) {
       console.log("Updating branch with ID:", editingId, "Data:", formData);
       // Xử lý cập nhật chi nhánh
       try {
         await branchApi.updateBranch(editingId, formData);
         message.success("Cập nhật chi nhánh thành công");
+        await fetchBranches(); // Gọi lại fetchBranches để cập nhật danh sách chi nhánh
       } catch (error) {
         message.error("Cập nhật chi nhánh thất bại");
         console.error("Update error:", error);
       }
     }
-      closeModal();
+    closeModal();
   };
 
   const columns: TableProps<Branch>["columns"] = [
@@ -143,7 +146,11 @@ const branch = () => {
       title: "Tên chi nhánh",
       dataIndex: "name",
       key: "name",
-      render: (text) => <a className="text-blue-500 text-lg font-bold hover:underline">{text}</a>,
+      render: (text) => (
+        <a className="text-blue-500 text-lg font-bold hover:underline">
+          {text}
+        </a>
+      ),
       sorter: (a, b) => a.name.localeCompare(b.name),
       defaultSortOrder: "ascend",
     },
@@ -205,9 +212,11 @@ const branch = () => {
       key: "actions",
       render: (_, record) => (
         <Space size="medium">
-          <Button onClick={() => {
-            handleOpenModal(FormModalModes.UPDATE, record);
-          }}>
+          <Button
+            onClick={() => {
+              handleOpenModal(FormModalModes.UPDATE, record);
+            }}
+          >
             Edit
           </Button>
         </Space>
@@ -215,7 +224,7 @@ const branch = () => {
     },
   ];
 
-    return (
+  return (
     <div className="p-7 flex flex-col gap-5 ">
       <div className="flex items-center justify-between mt-3">
         <div className="flex flex-col gap-1">
@@ -240,7 +249,9 @@ const branch = () => {
             </span>
             <FaRegBuilding className="text-blue-500 text-2xl" />
           </div>
-          <div className="text-2xl font-bold ">{Array.isArray(branchesData) ? branchesData.length : 0}</div>
+          <div className="text-2xl font-bold ">
+            {Array.isArray(branchesData) ? branchesData.length : 0}
+          </div>
         </div>
 
         <div className="bg-white rounded-lg border border-gray-300 shadow p-5 flex flex-col gap-3">
@@ -251,7 +262,9 @@ const branch = () => {
             <IoIosCheckmarkCircleOutline className="text-green-500 text-2xl" />
           </div>
           <div className="text-2xl font-bold ">
-            {Array.isArray(branchesData) ? branchesData.filter((item: Branch) => item.is_active).length : 0}
+            {Array.isArray(branchesData)
+              ? branchesData.filter((item: Branch) => item.is_active).length
+              : 0}
           </div>
         </div>
 
@@ -263,7 +276,9 @@ const branch = () => {
             <LuWrench className="text-yellow-500 text-2xl" />
           </div>
           <div className="text-2xl font-bold">
-            {Array.isArray(branchesData) ? branchesData.filter((item: Branch) => !item.is_active).length : 0}
+            {Array.isArray(branchesData)
+              ? branchesData.filter((item: Branch) => !item.is_active).length
+              : 0}
           </div>
         </div>
       </div>
@@ -306,18 +321,21 @@ const branch = () => {
         />
       </div>
 
-        <FormModal
+      <FormModal
         isOpen={isOpenModal}
         onClose={closeModal}
         mode={modalMode}
-        title={modalMode === FormModalModes.CREATE ? "Thêm chi nhánh mới" : "Chỉnh sửa chi nhánh"}
+        title={
+          modalMode === FormModalModes.CREATE
+            ? "Thêm chi nhánh mới"
+            : "Chỉnh sửa chi nhánh"
+        }
         fields={branchEditFormFields}
         initialValues={selectedBranch || defaultBranchData}
         onSubmit={handleSubmitForm}
-        />
+      />
     </div>
   );
-
 };
 
-export default branch;
+export default Branch;

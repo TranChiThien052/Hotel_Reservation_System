@@ -1,6 +1,6 @@
 import { useFormModal } from "@/shared/hooks/useFormModal";
 import type { Promotion, PromotionFormData } from "../types/promotions-types";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { CiCirclePlus } from "react-icons/ci";
 import { FaRegBuilding } from "react-icons/fa";
 import { IoIosCheckmarkCircleOutline } from "react-icons/io";
@@ -30,7 +30,7 @@ const defaultPromotionData: PromotionFormData = {
   min_order_value: 0,
   usage_limit: 0,
   valid_from: "",
-  valid_to: ""
+  valid_to: "",
 };
 
 const Promotions = () => {
@@ -38,20 +38,21 @@ const Promotions = () => {
   const [promotionsData, setPromotionsData] = useState<Promotion[]>([]);
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    const fetchPromotions = async () => {
-      try {
-        const data = await promotionApi.getPromotions();
-        setPromotionsData(data);
-      } catch (error) {
-        console.error("Error fetching promotions:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const fetchPromotions = useCallback(async () => {
+    setLoading(true);
+    try {
+      const data = await promotionApi.getPromotions();
+      setPromotionsData(Array.isArray(data) ? data : []);
+    } catch (error) {
+      console.error("Error fetching promotions:", error);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
+  useEffect(() => {
     fetchPromotions();
-  }, [promotionsData]);
+  }, [fetchPromotions]);
 
   const handleStatusChange = async (
     id: string,
@@ -63,6 +64,7 @@ const Promotions = () => {
         updatedFields as PromotionFormData,
       );
       message.success("Cập nhật trạng thái khuyến mãi thành công!");
+      fetchPromotions();
     } catch (error) {
       message.error(
         "Có lỗi xảy ra khi cập nhật trạng thái khuyến mãi. Vui lòng thử lại.",
@@ -75,6 +77,7 @@ const Promotions = () => {
       try {
         await promotionApi.createPromotion(values);
         message.success("Thêm khuyến mãi thành công!");
+        fetchPromotions();
         promotions.close();
       } catch (error) {
         message.error("Có lỗi xảy ra khi thêm khuyến mãi. Vui lòng thử lại.");
@@ -89,6 +92,7 @@ const Promotions = () => {
           values,
         );
         message.success("Cập nhật khuyến mãi thành công!");
+        fetchPromotions();
         promotions.close();
       } catch (error) {
         message.error(
@@ -223,7 +227,10 @@ const Promotions = () => {
             <IoIosCheckmarkCircleOutline className="text-green-500 text-2xl" />
           </div>
           <div className="text-2xl font-bold ">
-            {Array.isArray(promotionsData) ? promotionsData.filter((item: Promotion) => item.is_active).length : 0}
+            {Array.isArray(promotionsData)
+              ? promotionsData.filter((item: Promotion) => item.is_active)
+                  .length
+              : 0}
           </div>
         </div>
 
@@ -235,7 +242,10 @@ const Promotions = () => {
             <LuWrench className="text-yellow-500 text-2xl" />
           </div>
           <div className="text-2xl font-bold">
-            {Array.isArray(promotionsData) ? promotionsData.filter((item: Promotion) => !item.is_active).length : 0}
+            {Array.isArray(promotionsData)
+              ? promotionsData.filter((item: Promotion) => !item.is_active)
+                  .length
+              : 0}
           </div>
         </div>
       </div>

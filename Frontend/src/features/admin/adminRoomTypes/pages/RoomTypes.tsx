@@ -3,7 +3,7 @@ import { FaRegBuilding } from "react-icons/fa6";
 import { IoIosCheckmarkCircleOutline } from "react-icons/io";
 import { LuWrench } from "react-icons/lu";
 import type { RoomType, RoomTypeFormData } from "../types/roomsType-type";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Button, Dropdown, message, Space, Table, Tag, type MenuProps, type TableProps} from "antd";
 import { useFormModal } from "@/shared/hooks/useFormModal";
 import { roomTypesApi } from "../api/roomTypes-api";
@@ -25,18 +25,24 @@ const roomTypes = () => {
   const [roomTypesData, setRoomTypesData] = useState<RoomType[]>([]);
   const [loading, setLoading] = useState(false);
 
-useEffect(() => {
-  const fetchRoomTypes = async () => {
+  const fetchRoomTypes = useCallback(async () => {
+    setLoading(true);
     try {
       const data = await roomTypesApi.getRoomTypes();
-      setRoomTypesData(data);
+      setRoomTypesData(Array.isArray(data) ? data : []);
     } catch (error) {
-      console.error("Error fetching room types:", error);
-      message.error("Lỗi khi tải danh sách loại phòng");
-    } 
-  };
-  fetchRoomTypes();
-}, [roomTypesData]);
+      console.error("Lỗi khi lấy dữ liệu loại phòng:", error);
+      message.error("Không thể tải dữ liệu loại phòng. Vui lòng thử lại sau.");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchRoomTypes();
+  }, [fetchRoomTypes]);
+
+
 
   const handleStatusChange = async (roomTypeId: string, roomTypeData: any) => {
       setLoading(true);
@@ -50,6 +56,7 @@ useEffect(() => {
           ),
         );
         message.success("Cập nhật trạng thái loại phòng thành công");
+        fetchRoomTypes(); // Tải lại dữ liệu sau khi cập nhật trạng thái
       } catch (error) {
         message.error("Cập nhật trạng thái loại phòng thất bại");
         console.error("Update error:", error);
@@ -64,6 +71,7 @@ useEffect(() => {
         try {
           await roomTypesApi.createRoomType(values);
           message.success("Tạo loại phòng mới thành công");
+          fetchRoomTypes(); // Tải lại dữ liệu sau khi tạo mới
           roomType.close();
         } catch (error) {
           message.error("Tạo loại phòng mới thất bại");
@@ -74,6 +82,7 @@ useEffect(() => {
         try {
           await roomTypesApi.updateRoomType(roomType.selectedRecord.id, values);
           message.success("Cập nhật loại phòng thành công");
+          fetchRoomTypes(); // Tải lại dữ liệu sau khi cập nhật
           roomType.close();
         } catch (error) {
           message.error("Cập nhật loại phòng thất bại");
