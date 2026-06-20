@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import type { Room, RoomFormData } from '../types/rooms-type';
 import { useFormModal } from '@/shared/hooks/useFormModal';
 import { roomsApi } from '../api/rooms-api';
@@ -23,23 +23,28 @@ const defaultRoomData: RoomFormData = {
     status: "available"
 };
 
-const rooms = () => {
+const Rooms = () => {
 
   const room = useFormModal<Room>();
   const [roomsData, setRoomsData] = React.useState<Room[]>([]);
   const [loading, setLoading] = useState(false);
+
+  const fetchRooms = useCallback(async () => {
+    setLoading(true);
+    try {
+      const data = await roomsApi.getAllRooms();
+      setRoomsData(Array.isArray(data) ? data : []);
+    } catch (error) {
+      console.error("Error fetching rooms:", error);
+      message.error("Lỗi khi tải danh sách phòng");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
-    const fetchRooms = async () => {
-      try {
-        const data = await roomsApi.getAllRooms();
-        setRoomsData(data);
-      } catch (error) {
-        console.error("Error fetching rooms:", error);
-        message.error("Lỗi khi tải danh sách phòng");
-      }
-    };
     fetchRooms();
-  }, [roomsData]);
+  }, [fetchRooms]);
 
   console.log("roomsData", roomsData);
 
@@ -56,6 +61,7 @@ const rooms = () => {
           ),
         );
         message.success("Cập nhật trạng thái phòng thành công");
+        fetchRooms(); // Gọi lại fetchRooms để cập nhật danh sách phòng sau khi thay đổi trạng thái
       } catch (error) {
         message.error("Cập nhật trạng thái phòng thất bại");
         console.error("Update error:", error);
@@ -73,6 +79,7 @@ const rooms = () => {
         try {
           await roomsApi.createRoom(values);
           message.success("Tạo phòng mới thành công");
+          fetchRooms(); // Gọi lại fetchRooms để cập nhật danh sách phòng
           room.close();
         } catch (error) {
           message.error("Tạo phòng mới thất bại");
@@ -83,6 +90,7 @@ const rooms = () => {
         try {
           await roomsApi.updateRoom(room.selectedRecord.id, values);
           message.success("Cập nhật phòng thành công");
+          fetchRooms(); // Gọi lại fetchRooms để cập nhật danh sách phòng
           room.close();
         } catch (error) {
           message.error("Cập nhật phòng thất bại");
@@ -292,4 +300,4 @@ const rooms = () => {
     );
 }
 
-export default rooms
+export default Rooms

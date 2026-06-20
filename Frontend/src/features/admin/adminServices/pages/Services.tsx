@@ -1,6 +1,6 @@
 import { useFormModal } from "@/shared/hooks/useFormModal";
 import type { Service, ServiceFormData } from "../types/services-type";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { CiCirclePlus } from "react-icons/ci";
 import { FaRegBuilding } from "react-icons/fa";
 import { IoIosCheckmarkCircleOutline } from "react-icons/io";
@@ -33,32 +33,38 @@ const Services = () => {
   const [servicesData, setServicesData] = useState<Service[]>([]);
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    const fetchServices = async () => {
-      try {
-        const data = await servicesApi.getAllServices();
-        setServicesData(data);
-      } catch (error) {
-        console.error("Error fetching services:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const fetchServices = useCallback(async () => {
+    setLoading(true);
+    try {
+      const data = await servicesApi.getAllServices();
+      setServicesData(Array.isArray(data) ? data : []);
+    } catch (error) {
+      console.error("Error fetching services:", error);
+      message.error("Không thể tải dữ liệu dịch vụ. Vui lòng thử lại sau.");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
+  useEffect(() => {
     fetchServices();
-  }, [servicesData]);
+  }, [fetchServices]);
 
   const handleStatusChange = async (
     id: string,
     updatedFields: Partial<ServiceFormData>,
   ) => {
+    setLoading(true);
     try {
       await servicesApi.updateService(id, updatedFields as ServiceFormData);
       message.success("Cập nhật trạng thái dịch vụ thành công!");
+      fetchServices(); // Tải lại dữ liệu sau khi cập nhật trạng thái
     } catch (error) {
       message.error(
         "Có lỗi xảy ra khi cập nhật trạng thái dịch vụ. Vui lòng thử lại.",
       );
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -67,6 +73,7 @@ const Services = () => {
       try {
         await servicesApi.createService(values);
         message.success("Thêm dịch vụ thành công!");
+        fetchServices(); // Tải lại dữ liệu sau khi thêm mới
         services.close();
       } catch (error) {
         message.error("Có lỗi xảy ra khi thêm dịch vụ. Vui lòng thử lại.");
@@ -78,6 +85,7 @@ const Services = () => {
       try {
         await servicesApi.updateService(services.selectedRecord.id, values);
         message.success("Cập nhật dịch vụ thành công!");
+        fetchServices(); // Tải lại dữ liệu sau khi cập nhật
         services.close();
       } catch (error) {
         message.error("Có lỗi xảy ra khi cập nhật dịch vụ. Vui lòng thử lại.");
