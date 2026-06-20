@@ -8,7 +8,7 @@ export const branchEditFormFields: FormField<BranchFormData>[] = [
     {
         key: "name",
         label: "Tên chi nhánh",
-        placeholder: "Enter branch name",
+        placeholder: "Nhập tên chi nhánh",
         type: FormFieldTypes.INPUT,
         rules:[
             {
@@ -21,7 +21,7 @@ export const branchEditFormFields: FormField<BranchFormData>[] = [
     {
         key: "city",
         label: "Thành phố",
-        placeholder: "Enter city",
+        placeholder: "Nhập thành phố",
         type: FormFieldTypes.SELECT_FETCH,
         fetchOptions: branchApi.getCityOptions,
         rules:[
@@ -35,7 +35,7 @@ export const branchEditFormFields: FormField<BranchFormData>[] = [
     {
         key: "address",
         label: "Địa chỉ",
-        placeholder: "Enter address",
+        placeholder: "Nhập địa chỉ",
         type: FormFieldTypes.INPUT,
         rules:[
             {
@@ -47,7 +47,7 @@ export const branchEditFormFields: FormField<BranchFormData>[] = [
     {
         key: "phone",
         label: "Số điện thoại",
-        placeholder: "Enter phone number",
+        placeholder: "Nhập số điện thoại",
         type: FormFieldTypes.INPUT,
         rules:[
             {
@@ -60,7 +60,7 @@ export const branchEditFormFields: FormField<BranchFormData>[] = [
     {
         key: "email",
         label: "Email",
-        placeholder: "Enter email",
+        placeholder: "Nhập email",
         type: FormFieldTypes.EMAIL,
         rules:[
             {
@@ -73,13 +73,13 @@ export const branchEditFormFields: FormField<BranchFormData>[] = [
     {
         key: "description",
         label: "Mô tả",
-        placeholder: "Enter description",
+        placeholder: "Nhập mô tả",
         type: FormFieldTypes.TEXTAREA
     },
     {
         key: "is_active",
         label: "Trạng thái",
-        placeholder: "Select status",
+        placeholder: "Chọn trạng thái",
         type: FormFieldTypes.SELECT,
         options: [
             { label: "Active", value: true },
