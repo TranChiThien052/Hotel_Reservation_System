@@ -135,16 +135,16 @@ const RoomPrices = () => {
     <div className="p-7 flex flex-col gap-5 ">
       <div className="flex items-center justify-between mt-3">
         <div className="flex flex-col gap-1">
-          <p className="text-3xl font-bold">Quản lý phòng</p>
+          <p className="text-3xl font-bold">Quản lý giá phòng</p>
           <p className="text-gray-600">
-            Danh sách các phòng trong hệ thống khách sạn Aurora
+            Danh sách các giá phòng trong hệ thống khách sạn Aurora
           </p>
         </div>
         <div
           className="flex items-center gap-2 bg-orange-400 hover:bg-orange-500 text-white px-4 py-2 rounded-lg cursor-pointer text-lg font-medium"
           onClick={() => roomPrices.openCreate()}
         >
-          <CiCirclePlus /> Thêm phòng mới
+          <CiCirclePlus /> Thêm giá phòng mới
         </div>
       </div>
 

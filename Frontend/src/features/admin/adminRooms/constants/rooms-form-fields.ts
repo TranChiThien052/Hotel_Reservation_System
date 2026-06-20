@@ -18,12 +18,24 @@ export const roomsFormFields: FormField<RoomFormData>[] = [
         label: "Floor",
         placeholder: "Enter floor number",
         type: FormFieldTypes.NUMBER,
+        rules: [
+            {
+                required: true,
+                message: "Vui lòng nhập số tầng"
+            }
+        ]
     },
     {
         key: "room_number",
         label: "Room Number",
         placeholder: "Enter room number",
         type: FormFieldTypes.INPUT,
+        rules: [
+            {
+                required: true,
+                message: "Vui lòng nhập số phòng"
+            }
+        ]
     },
     {
         key: "room_type_id",

@@ -17,6 +17,12 @@ export const roomTypeFormFields: FormField<RoomTypeFormData>[] = [
         label: "Room Type Name",
         placeholder: "Enter room type name",
         type: FormFieldTypes.INPUT,
+        rules: [
+            {
+                required: true,
+                message: "Vui lòng nhập tên loại phòng"
+            }
+        ]
     },
     {
         key: "description",
@@ -29,6 +35,12 @@ export const roomTypeFormFields: FormField<RoomTypeFormData>[] = [
         label: "Max Guests",
         placeholder: "Enter maximum number of guests",
         type: FormFieldTypes.NUMBER,
+        rules: [
+            {
+                required: true,
+                message: "Vui lòng nhập số lượng khách tối đa"
+            }
+        ]
     },
     {
         key: "is_active",

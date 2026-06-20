@@ -42,6 +42,7 @@ const Branches = () => {
     setLoading(true);
     try {
       const data = await branchApi.getBranches();
+      console.log("Fetched branches:", data);
       setBranchesData(Array.isArray(data) ? data : []);
     } catch (error) {
       message.error("Lấy danh sách chi nhánh thất bại");

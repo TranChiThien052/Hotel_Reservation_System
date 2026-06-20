@@ -1,10 +1,10 @@
-import Banner from "../../assets/images/banner.jpg";
-import demo from "../../assets/images/Deluxe.jpg";
+import Banner from "@/assets/images/banner.jpg";
+import demo from "@/assets/images/Deluxe.jpg";
 import { IoSearch } from "react-icons/io5";
-import Room from "../../app/layout/components/client/room";
-import About from "../../assets/images/about.jpg";
+import Room from "@/app/layout/components/client/room";
+import About from "@/assets/images/about.jpg";
 import { FaSearch } from "react-icons/fa";
-import {rooms} from "../../service/rooms";
+import {rooms} from "@/service/rooms";
 
 const index = () => {
   return (
