@@ -140,7 +140,7 @@ const branch = () => {
 
   const columns: TableProps<Branch>["columns"] = [
     {
-      title: "Branch Name",
+      title: "Tên chi nhánh",
       dataIndex: "name",
       key: "name",
       render: (text) => <a className="text-blue-500 text-lg font-bold hover:underline">{text}</a>,
@@ -148,17 +148,17 @@ const branch = () => {
       defaultSortOrder: "ascend",
     },
     {
-      title: "City",
+      title: "Thành phố",
       dataIndex: "city",
       key: "city",
     },
     {
-      title: "Address",
+      title: "Địa chỉ",
       dataIndex: "address",
       key: "address",
     },
     {
-      title: "Phone Number",
+      title: "Số điện thoại",
       dataIndex: "phone",
       key: "phone",
     },
@@ -168,7 +168,7 @@ const branch = () => {
       key: "email",
     },
     {
-      title: "Status",
+      title: "Trạng thái",
       key: "is_active",
       dataIndex: "is_active",
       render: (text, record: Branch) => {
@@ -201,7 +201,7 @@ const branch = () => {
     },
 
     {
-      title: "Actions",
+      title: "Hành động",
       key: "actions",
       render: (_, record) => (
         <Space size="medium">
@@ -240,7 +240,7 @@ const branch = () => {
             </span>
             <FaRegBuilding className="text-blue-500 text-2xl" />
           </div>
-          <div className="text-2xl font-bold ">{branchesData.length}</div>
+          <div className="text-2xl font-bold ">{Array.isArray(branchesData) ? branchesData.length : 0}</div>
         </div>
 
         <div className="bg-white rounded-lg border border-gray-300 shadow p-5 flex flex-col gap-3">
@@ -251,7 +251,7 @@ const branch = () => {
             <IoIosCheckmarkCircleOutline className="text-green-500 text-2xl" />
           </div>
           <div className="text-2xl font-bold ">
-            {branchesData.filter((item: Branch) => item.is_active).length}
+            {Array.isArray(branchesData) ? branchesData.filter((item: Branch) => item.is_active).length : 0}
           </div>
         </div>
 
@@ -263,7 +263,7 @@ const branch = () => {
             <LuWrench className="text-yellow-500 text-2xl" />
           </div>
           <div className="text-2xl font-bold">
-            {branchesData.filter((item: Branch) => !item.is_active).length}
+            {Array.isArray(branchesData) ? branchesData.filter((item: Branch) => !item.is_active).length : 0}
           </div>
         </div>
       </div>
@@ -294,7 +294,7 @@ const branch = () => {
           <div className="flex items-center gap-3 pr-4">
             <p className="font-lg font-bold text-gray-700">Hiển thị:</p>
             <p className="font-lg font-bold text-green-700 rounded-lg">
-              {branchesData.length}
+              {Array.isArray(branchesData) ? branchesData.length : 0}
             </p>
           </div>
         </div>

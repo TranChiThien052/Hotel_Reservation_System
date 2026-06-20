@@ -175,7 +175,7 @@ const Promotions = () => {
       },
     },
     {
-      title: "Actions",
+      title: "Hành động",
       key: "actions",
       render: (_, record) => (
         <Space size="medium">
@@ -210,7 +210,9 @@ const Promotions = () => {
             </span>
             <FaRegBuilding className="text-blue-500 text-2xl" />
           </div>
-          <div className="text-2xl font-bold ">{promotionsData.length}</div>
+          <div className="text-2xl font-bold ">
+            {Array.isArray(promotionsData) ? promotionsData.length : 0}
+          </div>
         </div>
 
         <div className="bg-white rounded-lg border border-gray-300 shadow p-5 flex flex-col gap-3">
@@ -221,7 +223,7 @@ const Promotions = () => {
             <IoIosCheckmarkCircleOutline className="text-green-500 text-2xl" />
           </div>
           <div className="text-2xl font-bold ">
-            {promotionsData.filter((item: Promotion) => item.is_active).length}
+            {Array.isArray(promotionsData) ? promotionsData.filter((item: Promotion) => item.is_active).length : 0}
           </div>
         </div>
 
@@ -233,7 +235,7 @@ const Promotions = () => {
             <LuWrench className="text-yellow-500 text-2xl" />
           </div>
           <div className="text-2xl font-bold">
-            {promotionsData.filter((item: Promotion) => !item.is_active).length}
+            {Array.isArray(promotionsData) ? promotionsData.filter((item: Promotion) => !item.is_active).length : 0}
           </div>
         </div>
       </div>
@@ -264,7 +266,7 @@ const Promotions = () => {
           <div className="flex items-center gap-3 pr-4">
             <p className="font-lg font-bold text-gray-700">Hiển thị:</p>
             <p className="font-lg font-bold text-green-700 rounded-lg">
-              {promotionsData.length}
+              {Array.isArray(promotionsData) ? promotionsData.length : 0}
             </p>
           </div>
         </div>

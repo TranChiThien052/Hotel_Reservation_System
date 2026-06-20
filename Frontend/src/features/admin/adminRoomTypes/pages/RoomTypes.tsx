@@ -92,7 +92,7 @@ useEffect(() => {
       // ),
     },
     {
-      title: "Room Type Name",
+      title: "Tên loại phòng",
       dataIndex: "name",
       key: "name",
       render: (text) => <a>{text}</a>,
@@ -100,22 +100,22 @@ useEffect(() => {
       defaultSortOrder: "ascend",
     },
     {
-      title: "Branch",
+      title: "Chi nhánh",
       key: "branches",
       render: (_, record) => <p>{record.branches?.name}</p>,
     },
     {
-      title: "Max Guests",
+      title: "Số khách tối đa",
       dataIndex: "max_guests",
       key: "max_guests",
     },
     {
-      title: "Description",
+      title: "Mô tả",
       dataIndex: "description",
       key: "description",
     },
     {
-      title: "Status",
+      title: "Trạng thái",
       key: "is_active",
       dataIndex: "is_active",
       render: (text, record: RoomType) => {
@@ -147,7 +147,7 @@ useEffect(() => {
       },
     },
     {
-      title: "Actions",
+      title: "Hành động",
       key: "actions",
       render: (_, record) => (
         <Space size="medium">
@@ -184,7 +184,9 @@ useEffect(() => {
               </span>
               <FaRegBuilding className="text-blue-500 text-2xl" />
             </div>
-            <div className="text-2xl font-bold ">{roomTypesData.length}</div>
+            <div className="text-2xl font-bold ">
+              {Array.isArray(roomTypesData) ? roomTypesData.length : 0}
+            </div>
           </div>
   
           <div className="bg-white rounded-lg border border-gray-300 shadow p-5 flex flex-col gap-3">
@@ -195,7 +197,7 @@ useEffect(() => {
               <IoIosCheckmarkCircleOutline className="text-green-500 text-2xl" />
             </div>
             <div className="text-2xl font-bold ">
-              {roomTypesData.filter((item: RoomType) => item.is_active).length}
+              {Array.isArray(roomTypesData) ? roomTypesData.filter((item: RoomType) => item.is_active).length : 0}
             </div>
           </div>
   
@@ -207,7 +209,7 @@ useEffect(() => {
               <LuWrench className="text-yellow-500 text-2xl" />
             </div>
             <div className="text-2xl font-bold">
-              {roomTypesData.filter((item: RoomType) => !item.is_active).length}
+              {Array.isArray(roomTypesData) ? roomTypesData.filter((item: RoomType) => !item.is_active).length : 0}
             </div>
           </div>
         </div>
@@ -238,7 +240,7 @@ useEffect(() => {
             <div className="flex items-center gap-3 pr-4">
               <p className="font-lg font-bold text-gray-700">Hiển thị:</p>
               <p className="font-lg font-bold text-green-700 rounded-lg">
-                {roomTypesData.length}
+                {Array.isArray(roomTypesData) ? roomTypesData.length : 0}
               </p>
             </div>
           </div>
