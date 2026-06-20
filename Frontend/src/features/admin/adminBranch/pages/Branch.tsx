@@ -25,7 +25,7 @@ const defaultBranchData: BranchFormData = {
   is_active: false,
 };
 
-const Branch = () => {
+const Branches = () => {
   const [loading, setLoading] = useState(false);
   const [branchesData, setBranchesData] = useState<Branch[]>([]);
 
@@ -338,4 +338,4 @@ const Branch = () => {
   );
 };
 
-export default Branch;
+export default Branches;
