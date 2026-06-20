@@ -273,6 +273,7 @@ export async function createTestHistoryTransaction(account_id, overrides = {}) {
 }
 
 export async function cleanDatabase() {
+  await prisma.refresh_tokens.deleteMany();
   await prisma.history_transaction.deleteMany();
   await prisma.payments.deleteMany();
   await prisma.invoice_fines.deleteMany();
