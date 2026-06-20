@@ -10,7 +10,7 @@ type DynamicFormProps<T extends object> = {
   fields: FormField<T>[];
   values: T;
   onChange: (key: keyof T, value: unknown) => void;
-  // errors?: Record<string, string>;
+  errors?: Record<string, string>;
   disabled?: boolean;
 };
 
@@ -18,7 +18,7 @@ const DynamicForm = <T extends object>({
   fields,
   values,
   onChange,
-  // errors = {},
+  errors = {},
   disabled = false,
 }: DynamicFormProps<T>) => {
   const renderField = (field: FormField<T>) => {
@@ -182,6 +182,17 @@ const DynamicForm = <T extends object>({
           />
         );
 
+      case FormFieldTypes.EMAIL:
+        return (
+          <Input
+            type="email"
+            placeholder={field.placeholder}
+            value={String(value ?? "")}
+            onChange={(e) => onChange(key, e.target.value)}
+            disabled={disabled} // Thêm disabled
+          />
+        );
+
       default:
         return null;
     }
@@ -192,13 +203,13 @@ const DynamicForm = <T extends object>({
       {fields.map((field) => (
         <div key={String(field.key)} className="flex flex-col gap-1">
           <label className="font-medium">
+          {field.rules?.some((rule) => rule.required) && <span className="text-red-500 ml-1">* </span>}
             {field.label}
-            {field.required && <span className="text-red-500 ml-1">*</span>}
           </label>
           {renderField(field)}
-          {/* {errors[String(field.key)] && (
+          {errors[String(field.key)] && (
             <div className='text-red-500 text-sm'>{errors[String(field.key)]}</div>
-          )} */}
+          )}
         </div>
       ))}
     </div>

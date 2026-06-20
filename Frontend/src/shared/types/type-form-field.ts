@@ -17,6 +17,7 @@ export const FormFieldTypes = {
     PASSWORD: "password",
     SELECT_FETCH: "select_fetch",
     ARRAY_INPUT: "array_input",
+    EMAIL: "email",
 } as const;
 
 export type FormFieldType = typeof FormFieldTypes[keyof typeof FormFieldTypes];

@@ -3,6 +3,7 @@ import { Modal, Button } from 'antd';
 import DynamicForm from '@/app/layout/components/admin/DynamicForm';
 import type { FormField } from '@/shared/types/form-field';
 import { FormModalModes, type FormModalMode } from '@/shared/types/type-form-mode';
+import validate from '@/shared/lib/validate';
 
 interface FormModalProps<T extends object> {
   isOpen: boolean;
@@ -39,7 +40,7 @@ const FormModal = <T extends object>({
 
   const isViewMode = mode === FormModalModes.VIEW;
 
-  // Xử lý thay đổi form Cha
+  // Xử lý thay đổi form 
   const handleChange = (key: string, value: unknown) => {
     setFormData((prev: any) => ({ ...prev, [key]: value }));
     // Xóa lỗi khi người dùng bắt đầu sửa
@@ -50,6 +51,16 @@ const FormModal = <T extends object>({
         return newErrors;
       });
     }
+  };
+
+  const handleSubmit = () => {
+    const newErrors = validate(formData, fields);
+    if(Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+    setErrors({});
+    onSubmit(formData);
   };
 
 
@@ -64,7 +75,7 @@ const FormModal = <T extends object>({
       footer={[
         <Button key="cancel" onClick={onClose}>{isViewMode ? 'Đóng' : 'Hủy'}</Button>,
         !isViewMode && (
-          <Button key="submit" type="primary" onClick={() => onSubmit(formData)}>
+          <Button key="submit" type="primary" onClick={handleSubmit}>
             {'Lưu lại'}
           </Button>
         ),
@@ -80,6 +91,7 @@ const FormModal = <T extends object>({
             values={formData}
             onChange={(key, val) => handleChange(key as string, val)}
             disabled={isViewMode}
+            errors={errors}
           />
         </div>
 

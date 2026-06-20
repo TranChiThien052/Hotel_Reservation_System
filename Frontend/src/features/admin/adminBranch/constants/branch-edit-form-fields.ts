@@ -7,8 +7,8 @@ import { branchApi } from "../api/admin-api";
 export const branchEditFormFields: FormField<BranchFormData>[] = [
     {
         key: "name",
-        label: "Branch Name",
-        placeholder: "Enter branch name",
+        label: "Tên chi nhánh",
+        placeholder: "Nhập tên chi nhánh",
         type: FormFieldTypes.INPUT,
         rules:[
             {
@@ -20,8 +20,8 @@ export const branchEditFormFields: FormField<BranchFormData>[] = [
     },
     {
         key: "city",
-        label: "City",
-        placeholder: "Enter city",
+        label: "Thành phố",
+        placeholder: "Nhập thành phố",
         type: FormFieldTypes.SELECT_FETCH,
         fetchOptions: branchApi.getCityOptions,
         rules:[
@@ -34,8 +34,8 @@ export const branchEditFormFields: FormField<BranchFormData>[] = [
     },
     {
         key: "address",
-        label: "Address",
-        placeholder: "Enter address",
+        label: "Địa chỉ",
+        placeholder: "Nhập địa chỉ",
         type: FormFieldTypes.INPUT,
         rules:[
             {
@@ -46,8 +46,8 @@ export const branchEditFormFields: FormField<BranchFormData>[] = [
     },
     {
         key: "phone",
-        label: "Phone Number",
-        placeholder: "Enter phone number",
+        label: "Số điện thoại",
+        placeholder: "Nhập số điện thoại",
         type: FormFieldTypes.INPUT,
         rules:[
             {
@@ -60,8 +60,8 @@ export const branchEditFormFields: FormField<BranchFormData>[] = [
     {
         key: "email",
         label: "Email",
-        placeholder: "Enter email",
-        type: FormFieldTypes.INPUT,
+        placeholder: "Nhập email",
+        type: FormFieldTypes.EMAIL,
         rules:[
             {
                 required: true,
@@ -72,14 +72,14 @@ export const branchEditFormFields: FormField<BranchFormData>[] = [
     },
     {
         key: "description",
-        label: "Description",
-        placeholder: "Enter description",
+        label: "Mô tả",
+        placeholder: "Nhập mô tả",
         type: FormFieldTypes.TEXTAREA
     },
     {
         key: "is_active",
-        label: "Status",
-        placeholder: "Select status",
+        label: "Trạng thái",
+        placeholder: "Chọn trạng thái",
         type: FormFieldTypes.SELECT,
         options: [
             { label: "Active", value: true },

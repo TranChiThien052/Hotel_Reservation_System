@@ -211,7 +211,9 @@ const rooms = () => {
               </span>
               <FaRegBuilding className="text-blue-500 text-2xl" />
             </div>
-            <div className="text-2xl font-bold ">{roomsData.length}</div>
+            <div className="text-2xl font-bold ">
+              {Array.isArray(roomsData) ? roomsData.length : 0}
+            </div>
           </div>
   
           <div className="bg-white rounded-lg border border-gray-300 shadow p-5 flex flex-col gap-3">
@@ -222,7 +224,7 @@ const rooms = () => {
               <IoIosCheckmarkCircleOutline className="text-green-500 text-2xl" />
             </div>
             <div className="text-2xl font-bold ">
-              {roomsData.filter((item: Room) => item.is_active).length}
+              {Array.isArray(roomsData) ? roomsData.filter((item: Room) => item.is_active).length : 0}
             </div>
           </div>
   
@@ -234,7 +236,7 @@ const rooms = () => {
               <LuWrench className="text-yellow-500 text-2xl" />
             </div>
             <div className="text-2xl font-bold">
-              {roomsData.filter((item: Room) => !item.is_active).length}
+              {Array.isArray(roomsData) ? roomsData.filter((item: Room) => !item.is_active).length : 0}
             </div>
           </div>
         </div>
@@ -265,7 +267,7 @@ const rooms = () => {
             <div className="flex items-center gap-3 pr-4">
               <p className="font-lg font-bold text-gray-700">Hiển thị:</p>
               <p className="font-lg font-bold text-green-700 rounded-lg">
-                {roomsData.length}
+                {Array.isArray(roomsData) ? roomsData.length : 0}
               </p>
             </div>
           </div>

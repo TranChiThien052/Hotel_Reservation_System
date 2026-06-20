@@ -110,7 +110,7 @@ const Services = () => {
       key: "unit",
     },
     {
-      title: "Status",
+      title: "Trạng thái",
       key: "is_active",
       dataIndex: "is_active",
       render: (text, record: Service) => {
@@ -142,7 +142,7 @@ const Services = () => {
       },
     },
     {
-      title: "Actions",
+      title: "Hành động",
       key: "actions",
       render: (_, record) => (
         <Space size="medium">
@@ -177,7 +177,9 @@ const Services = () => {
             </span>
             <FaRegBuilding className="text-blue-500 text-2xl" />
           </div>
-          <div className="text-2xl font-bold ">{servicesData.length}</div>
+          <div className="text-2xl font-bold ">
+            {Array.isArray(servicesData) ? servicesData.length : 0}
+          </div>
         </div>
 
         <div className="bg-white rounded-lg border border-gray-300 shadow p-5 flex flex-col gap-3">
@@ -188,7 +190,7 @@ const Services = () => {
             <IoIosCheckmarkCircleOutline className="text-green-500 text-2xl" />
           </div>
           <div className="text-2xl font-bold ">
-            {servicesData.filter((item: Service) => item.is_active).length}
+            {Array.isArray(servicesData) ? servicesData.filter((item: Service) => item.is_active).length : 0}
           </div>
         </div>
 
@@ -200,7 +202,7 @@ const Services = () => {
             <LuWrench className="text-yellow-500 text-2xl" />
           </div>
           <div className="text-2xl font-bold">
-            {servicesData.filter((item: Service) => !item.is_active).length}
+            {Array.isArray(servicesData) ? servicesData.filter((item: Service) => !item.is_active).length : 0}
           </div>
         </div>
       </div>
@@ -231,7 +233,7 @@ const Services = () => {
           <div className="flex items-center gap-3 pr-4">
             <p className="font-lg font-bold text-gray-700">Hiển thị:</p>
             <p className="font-lg font-bold text-green-700 rounded-lg">
-              {servicesData.length}
+              {Array.isArray(servicesData) ? servicesData.length : 0}
             </p>
           </div>
         </div>
