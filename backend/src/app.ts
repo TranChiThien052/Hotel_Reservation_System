@@ -10,7 +10,7 @@ const corsOptions: cors.CorsOptions = {
     origin: function (origin, callback) {
         // Allow requests with no origin (mobile apps, curl, server-to-server)
         if (!origin) return callback(null, true);
-        
+
         const allowedOrigins = [
             process.env.FRONTEND_URL,       // Production Vercel URL
             'http://localhost:5173',         // Local dev
