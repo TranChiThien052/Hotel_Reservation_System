@@ -2,7 +2,7 @@ import { useFormModal } from "@/shared/hooks/useFormModal";
 import type { RoomPrice, RoomPriceFormData } from "../types/roomPrices-type";
 import { useCallback, useEffect, useState } from "react";
 import { roomPricesApi } from "../api/roomPrices-api";
-import { Button, message, Space, Table, type TableProps } from "antd";
+import { Button, Input, message, Space, Table, type TableProps } from "antd";
 import { FormModalModes } from "@/shared/types/type-form-mode";
 import { CiCirclePlus } from "react-icons/ci";
 import { FaRegBuilding } from "react-icons/fa";
@@ -10,6 +10,7 @@ import { IoIosCheckmarkCircleOutline } from "react-icons/io";
 import { LuWrench } from "react-icons/lu";
 import { roomPricesFormFields } from "../constants/roomPrices-form-fields";
 import FormModal from "@/app/layout/components/admin/FormModal";
+import { IoSearch } from "react-icons/io5";
 
 const defaultRoomData: RoomPriceFormData = {
   room_type_id: "",
@@ -24,6 +25,7 @@ const defaultRoomData: RoomPriceFormData = {
 const RoomPrices = () => {
   const roomPrices = useFormModal<RoomPrice>();
   const [roomPricesData, setRoomPricesData] = useState<RoomPrice[]>([]);
+  const [filteredRoomPrices, setFilteredRoomPrices] = useState<RoomPrice[]>([]);
   const [loading, setLoading] = useState(false);
 
   const fetchRoomPrices = useCallback(async () => {
@@ -31,6 +33,7 @@ const RoomPrices = () => {
     try {
       const data = await roomPricesApi.getAllRoomprices();
       setRoomPricesData(Array.isArray(data) ? data : []);
+      setFilteredRoomPrices(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error("Lỗi khi lấy dữ liệu giá phòng:", error);
       message.error("Không thể tải dữ liệu giá phòng. Vui lòng thử lại sau.");
@@ -72,6 +75,11 @@ const RoomPrices = () => {
       }
     }
   };
+
+  const handleSearch = (searchTern: string) => {
+    const filteredData = roomPricesData.filter((item) => item.room_types?.name.toLowerCase().includes(searchTern.toLowerCase()));
+    setFilteredRoomPrices(filteredData);
+  }
 
   const columns: TableProps<RoomPrice>["columns"] = [
     {
@@ -187,36 +195,22 @@ const RoomPrices = () => {
       <div className="mt-5 border border-gray-300 rounded-lg">
         <div className="flex items-center gap-2 bg-gray-100 px-4 py-3 border-b border-gray-300 justify-between">
           <div className="flex items-center gap-4">
-            {/* <div className="font-lg font-bold text-gray-700 border border-gray-300 p-2 rounded-lg">Trạng thái</div> */}
-            {/* <Dropdown
-                menu={{ items: status }}
-                placement="topRight"
-                arrow={{ pointAtCenter: true }}
-              >
-                <Button>
-                  Trạng thái <FaCaretDown />
-                </Button>
-              </Dropdown>
-              <Dropdown
-                menu={{ items: status }}
-                placement="topRight"
-                arrow={{ pointAtCenter: true }}
-              >
-                <Button>
-                  Trạng thái <FaCaretDown />
-                </Button>
-              </Dropdown> */}
+            <Input
+              placeholder="Tên loại phòng..."
+              prefix={<IoSearch className="text-xl" />}
+              onChange={(e) => handleSearch(e.target.value)}
+            />
           </div>
           <div className="flex items-center gap-3 pr-4">
             <p className="font-lg font-bold text-gray-700">Hiển thị:</p>
             <p className="font-lg font-bold text-green-700 rounded-lg">
-              {Array.isArray(roomPricesData) ? roomPricesData.length : 0}
+              {Array.isArray(filteredRoomPrices) ? filteredRoomPrices.length : 0}
             </p>
           </div>
         </div>
         <Table<RoomPrice>
           columns={columns}
-          dataSource={roomPricesData}
+          dataSource={filteredRoomPrices}
           loading={loading}
           pagination={{ pageSize: 5 }}
         />

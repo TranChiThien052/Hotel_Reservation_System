@@ -1,8 +1,17 @@
 import { CiCirclePlus } from "react-icons/ci";
-import { FaCaretDown, FaRegBuilding } from "react-icons/fa";
+import { FaRegBuilding } from "react-icons/fa";
 import { IoIosCheckmarkCircleOutline } from "react-icons/io";
 import { LuWrench } from "react-icons/lu";
-import { Button, Dropdown, message, Space, Table, Tag } from "antd";
+import {
+  Button,
+  Dropdown,
+  Input,
+  message,
+  Select,
+  Space,
+  Table,
+  Tag,
+} from "antd";
 import type { MenuProps, TableProps } from "antd";
 import type { Branch, BranchFormData } from "../types/branch-type";
 import { useCallback, useEffect, useState } from "react";
@@ -14,6 +23,7 @@ import {
 import { branchEditFormFields } from "../constants/branch-edit-form-fields";
 import FormModal from "@/app/layout/components/admin/FormModal";
 import { branchApi } from "../api/admin-api";
+import { IoSearch } from "react-icons/io5";
 
 const defaultBranchData: BranchFormData = {
   name: "",
@@ -28,6 +38,7 @@ const defaultBranchData: BranchFormData = {
 const Branches = () => {
   const [loading, setLoading] = useState(false);
   const [branchesData, setBranchesData] = useState<Branch[]>([]);
+  const [filteredBranches, setFilteredBranches] = useState<Branch[]>([]);
 
   const [isOpenModal, setIsOpenModal] = useState(false);
   const [selectedBranch, setSelectedBranch] =
@@ -44,6 +55,7 @@ const Branches = () => {
       const data = await branchApi.getBranches();
       console.log("Fetched branches:", data);
       setBranchesData(Array.isArray(data) ? data : []);
+      setFilteredBranches(Array.isArray(data) ? data : []);
     } catch (error) {
       message.error("Lấy danh sách chi nhánh thất bại");
       console.error("Fetch error:", error);
@@ -60,19 +72,6 @@ const Branches = () => {
     setIsOpenModal(false);
     setSelectedBranch(defaultBranchData);
   };
-
-  const status: MenuProps["items"] = [
-    {
-      key: "active",
-      label: "Active",
-      onClick: () => {},
-    },
-    {
-      key: "inactive",
-      label: "Inactive",
-      onClick: () => {},
-    },
-  ];
 
   const handleStatusChange = async (branchId: string, branchData: any) => {
     setLoading(true);
@@ -140,6 +139,25 @@ const Branches = () => {
       }
     }
     closeModal();
+  };
+
+  const handleFilterStatus = (status: string) => {
+    if(!status) {
+      setFilteredBranches(branchesData);
+    } else {
+      setFilteredBranches(branchesData.filter((branch) => branch.is_active === (status === "active")));
+    }
+  };
+
+  const handleSearch = (searchTerm: string) => {
+    const filtered = branchesData.filter(
+      (branch) =>
+        branch.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        branch.city.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        branch.phone.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        branch.email.toLowerCase().includes(searchTerm.toLowerCase()),
+    );
+    setFilteredBranches(filtered);
   };
 
   const columns: TableProps<Branch>["columns"] = [
@@ -288,35 +306,40 @@ const Branches = () => {
         <div className="flex items-center gap-2 bg-gray-100 px-4 py-3 border-b border-gray-300 justify-between">
           <div className="flex items-center gap-4">
             {/* <div className="font-lg font-bold text-gray-700 border border-gray-300 p-2 rounded-lg">Trạng thái</div> */}
-            <Dropdown
-              menu={{ items: status }}
+            <Select
+              placeholder="Trạng thái"
               placement="topRight"
-              arrow={{ pointAtCenter: true }}
-            >
-              <Button>
-                Trạng thái <FaCaretDown />
-              </Button>
-            </Dropdown>
-            <Dropdown
-              menu={{ items: status }}
-              placement="topRight"
-              arrow={{ pointAtCenter: true }}
-            >
-              <Button>
-                Trạng thái <FaCaretDown />
-              </Button>
-            </Dropdown>
+              style={{ width: 120 }}
+              onChange={handleFilterStatus}
+              allowClear
+              options={[
+                {
+                  value: "active",
+                  label: <span className="text-green-600">Active</span>,
+                },
+                {
+                  value: "inactive",
+                  label: <span className="text-red-600">Inactive</span>,
+                },
+              ]}
+            />
+
+            <Input
+              placeholder="Tìm kiếm..."
+              prefix={<IoSearch className="text-xl" />}
+              onChange={(e) => handleSearch(e.target.value)}
+            />
           </div>
           <div className="flex items-center gap-3 pr-4">
             <p className="font-lg font-bold text-gray-700">Hiển thị:</p>
             <p className="font-lg font-bold text-green-700 rounded-lg">
-              {Array.isArray(branchesData) ? branchesData.length : 0}
+              {Array.isArray(filteredBranches) ? filteredBranches.length : 0}
             </p>
           </div>
         </div>
         <Table<Branch>
           columns={columns}
-          dataSource={branchesData}
+          dataSource={filteredBranches}
           loading={loading}
           pagination={{ pageSize: 5 }}
         />

@@ -11,7 +11,9 @@ import { servicesApi } from "../api/services-api";
 import {
   Button,
   Dropdown,
+  Input,
   message,
+  Select,
   Space,
   Tag,
   type MenuProps,
@@ -19,6 +21,7 @@ import {
 } from "antd";
 import { FormModalModes } from "@/shared/types/type-form-mode";
 import { servicesFormFields } from "../constants/services-form-fields";
+import { IoSearch } from "react-icons/io5";
 
 const defaultServiceData: ServiceFormData = {
   name: "",
@@ -31,6 +34,7 @@ const defaultServiceData: ServiceFormData = {
 const Services = () => {
   const services = useFormModal<Service>();
   const [servicesData, setServicesData] = useState<Service[]>([]);
+  const [filteredServices, setFilteredServices] = useState<Service[]>([]);
   const [loading, setLoading] = useState(false);
 
   const fetchServices = useCallback(async () => {
@@ -38,6 +42,7 @@ const Services = () => {
     try {
       const data = await servicesApi.getAllServices();
       setServicesData(Array.isArray(data) ? data : []);
+      setFilteredServices(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error("Error fetching services:", error);
       message.error("Không thể tải dữ liệu dịch vụ. Vui lòng thử lại sau.");
@@ -92,6 +97,24 @@ const Services = () => {
       }
     }
   };
+
+  const handleFilterStatus = (value: string) => {
+    if (!value) 
+    {
+      setFilteredServices(servicesData);
+    } else {
+      const isActive = value === "active";
+      setFilteredServices(servicesData.filter((item) => item.is_active === isActive));
+    }
+  }
+
+  const handleSearch = (searchTerm: string) => {
+    const filteredData = servicesData.filter((item) => 
+      item.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+      item.unit.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    setFilteredServices(filteredData);
+  }
 
   const columns: TableProps<Service>["columns"] = [
     {
@@ -218,36 +241,40 @@ const Services = () => {
       <div className="mt-5 border border-gray-300 rounded-lg">
         <div className="flex items-center gap-2 bg-gray-100 px-4 py-3 border-b border-gray-300 justify-between">
           <div className="flex items-center gap-4">
-            {/* <div className="font-lg font-bold text-gray-700 border border-gray-300 p-2 rounded-lg">Trạng thái</div> */}
-            {/* <Dropdown
-                menu={{ items: status }}
-                placement="topRight"
-                arrow={{ pointAtCenter: true }}
-              >
-                <Button>
-                  Trạng thái <FaCaretDown />
-                </Button>
-              </Dropdown>
-              <Dropdown
-                menu={{ items: status }}
-                placement="topRight"
-                arrow={{ pointAtCenter: true }}
-              >
-                <Button>
-                  Trạng thái <FaCaretDown />
-                </Button>
-              </Dropdown> */}
+            <Select
+              placeholder="Trạng thái"
+              placement="topRight"
+              style={{ width: 120 }}
+              onChange={handleFilterStatus}
+              allowClear
+              options={[
+                {
+                  value: "active",
+                  label: <span className="text-green-600">Active</span>,
+                },
+                {
+                  value: "inactive",
+                  label: <span className="text-red-600">Inactive</span>,
+                },
+              ]}
+            />
+
+            <Input
+              placeholder="Tìm kiếm..."
+              prefix={<IoSearch className="text-xl" />}
+              onChange={(e) => handleSearch(e.target.value)}
+            />
           </div>
           <div className="flex items-center gap-3 pr-4">
             <p className="font-lg font-bold text-gray-700">Hiển thị:</p>
             <p className="font-lg font-bold text-green-700 rounded-lg">
-              {Array.isArray(servicesData) ? servicesData.length : 0}
+              {Array.isArray(filteredServices) ? filteredServices.length : 0}
             </p>
           </div>
         </div>
         <Table<Service>
           columns={columns}
-          dataSource={servicesData}
+          dataSource={filteredServices}
           loading={loading}
           pagination={{ pageSize: 5 }}
         />
