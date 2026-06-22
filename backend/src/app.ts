@@ -2,6 +2,7 @@ import express from 'express';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import routes from './routes/index';
+import { swaggerUi, swaggerSpec } from './swagger';
 
 const app = express();
 
@@ -45,5 +46,7 @@ app.use('/history-transactions', routes.historyTransactionRoutes);
 
 // Authentication routes
 app.use('/auth', routes.authRoutes);
+
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 export default app;
