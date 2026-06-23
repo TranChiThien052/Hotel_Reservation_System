@@ -52,7 +52,6 @@ class CustomerService {
             throw new ValidationError('400', validator.clearError());
         }
 
-        // Check unique constraints
         const validatingInfo = await CustomerRepository.getValidatingInformation();
 
         if (validatingInfo.some(customer => customer.email === validatedData.email)) {

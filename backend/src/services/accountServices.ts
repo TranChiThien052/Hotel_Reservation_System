@@ -287,11 +287,23 @@ class AccountService {
             throw new ValidationError('400', validator.clearError());
         }
 
-        return await AccountRepository.updateAccount(id, validatedData);
+        try {
+            return await AccountRepository.updateAccount(id, validatedData);
+        } catch (error) {
+            if (error.code === 'P2025')
+                throw new ValidationError('404', "Account not found");
+            throw new ValidationError('500', "Failed to update account");
+        }
     };
 
     async deleteAccount(id) {
-        return await AccountRepository.deleteAccount(id);
+        try {
+            return await AccountRepository.deleteAccount(id);
+        } catch (error) {
+            if (error.code === 'P2025')
+                throw new ValidationError('404', "Account not found");
+            throw new ValidationError('500', "Failed to delete account");
+        }        
     };
 }
 

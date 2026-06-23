@@ -13,6 +13,29 @@ const router = express.Router();
  *     responses:
  *       200:
  *         description: Successful operation
+ *         content:
+ *            application/json:
+ *               schema:
+ *                  type: array
+ *                  items:
+ *                     type: object
+ *                     properties:
+ *                        id:
+ *                           type: string
+ *                        branch_id:
+ *                           type: string
+ *                        account_id:
+ *                           type: string
+ *                        full_name:
+ *                           type: string
+ *                        phone:
+ *                           type: string
+ *                        position:
+ *                           type: string
+ *                        created_at:
+ *                           type: string
+ *       500:
+ *         description: Internal server error
  */
 router.get('/', StaffController.getAllStaff);
 /**
@@ -31,6 +54,29 @@ router.get('/', StaffController.getAllStaff);
  *     responses:
  *       200:
  *         description: Successful operation
+ *         content:
+ *            application/json:
+ *               schema:
+ *                  type: object
+ *                  properties:
+ *                     id:
+ *                        type: string
+ *                     branch_id:
+ *                        type: string
+ *                     account_id:
+ *                        type: string
+ *                     full_name:
+ *                        type: string
+ *                     phone:
+ *                        type: string
+ *                     position:
+ *                        type: string
+ *                     created_at:
+ *                        type: string
+ *       404:
+ *         description: Staff not found
+ *       500:
+ *         description: Internal server error
  */
 router.get('/:id', StaffController.getStaffById);
 /**
@@ -45,10 +91,88 @@ router.get('/:id', StaffController.getStaffById);
  *         application/json:
  *           schema:
  *             type: object
+ *             properties:
+ *                branch_id:
+ *                   type: string
+ *                account_id:
+ *                   type: string
+ *                full_name:
+ *                   type: string
+ *                phone:
+ *                   type: string
+ *                position:
+ *                   type: string
  *     responses:
  *       201:
  *         description: Successful operation
+ *         content:
+ *            application/json:
+ *               schema:
+ *                  type: object
+ *                  properties:
+ *                     id:
+ *                        type: string
+ *                     branch_id:
+ *                        type: string
+ *                     account_id:
+ *                        type: string
+ *                     full_name:
+ *                        type: string
+ *                     phone:
+ *                        type: string
+ *                     position:
+ *                        type: string
+ *                     created_at:
+ *                        type: string
+ *       400:
+ *         description: Bad request
+ *       500:
+ *         description: Internal server error
  */
+/**
+ * @swagger
+ * /staffs/branch/{id}:
+ *   get:
+ *     summary: Get data
+ *     tags: [Staff]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The id parameter
+ *     responses:
+ *       200:
+ *         description: Successful operation
+ *         content:
+ *            application/json:
+ *               schema:
+ *                  type: array
+ *                  items:
+ *                     type: object
+ *                     properties:
+ *                        id:
+ *                           type: string
+ *                        branch_id:
+ *                           type: string
+ *                        account_id:
+ *                           type: string
+ *                        full_name:
+ *                           type: string
+ *                        phone:
+ *                           type: string
+ *                        position:
+ *                           type: string
+ *                        created_at:
+ *                           type: string
+ *       404:
+ *         description: Branch not found
+ *       500:
+ *         description: Internal server error
+ */
+router.get('/branch/:id', StaffController.getStaffByBranchId)
+
 router.post('/', StaffController.createStaff);
 /**
  * @swagger
@@ -69,9 +193,41 @@ router.post('/', StaffController.createStaff);
  *         application/json:
  *           schema:
  *             type: object
+ *             properties:
+ *                branch_id:
+ *                   type: string
+ *                full_name:
+ *                   type: string
+ *                phone:
+ *                   type: string
+ *                position:
+ *                   type: string
  *     responses:
  *       200:
  *         description: Successful operation
+ *         content:
+ *            application/json:
+ *               schema:
+ *                  type: object
+ *                  properties:
+ *                     id:
+ *                        type: string
+ *                     branch_id:
+ *                        type: string
+ *                     full_name:
+ *                        type: string
+ *                     phone:
+ *                        type: string
+ *                     position:
+ *                        type: string
+ *                     created_at:
+ *                        type: string
+ *       400:
+ *         description: Bad request
+ *       404:
+ *         description: Staff not found
+ *       500:
+ *         description: Internal server error
  */
 router.put('/:id', StaffController.updateStaff);
 /**
@@ -90,6 +246,27 @@ router.put('/:id', StaffController.updateStaff);
  *     responses:
  *       200:
  *         description: Successful operation
+ *         content:
+ *            application/json:
+ *               schema:
+ *                  type: object
+ *                  properties:
+ *                     id:
+ *                        type: string
+ *                     branch_id:
+ *                        type: string
+ *                     full_name:
+ *                        type: string
+ *                     phone:
+ *                        type: string
+ *                     position:
+ *                        type: string
+ *                     created_at:
+ *                        type: string
+ *       404:
+ *         description: Staff not found
+ *       500:
+ *         description: Internal server error
  */
 router.delete('/:id', StaffController.deleteStaff);
 

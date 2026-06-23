@@ -1,5 +1,6 @@
 import StaffRepository from '../repositories/staffRepo';
 import AccountRepository from '../repositories/accountRepo';
+import BranchRepository from '../repositories/branchRepo';
 import { Validator, ValidationError } from '../middlewares/validateData';
 
 class StaffService {
@@ -12,6 +13,14 @@ class StaffService {
     };
 
     async getStaffByBranchId(branch_id) {
+        const validator = new Validator();
+        if (!validator.isEmpty("Branch ID", branch_id))
+            validator.isUUID("Branch ID", branch_id)
+        if (validator.error.length > 0)
+            throw new ValidationError('400', validator.clearError())
+        const branch = await BranchRepository.getBranchById(branch_id)
+        if (!branch)
+            throw new ValidationError('404', "Branch not found")
         return await StaffRepository.getStaffByBranchId(branch_id);
     };
 
@@ -21,11 +30,11 @@ class StaffService {
 
     async createStaff(data) {
         const validatedData = {
-            ...(data.branch_id && { branch_id: data.branch_id.trim() }),
-            ...(data.account_id && { account_id: data.account_id.trim() }),
-            ...(data.full_name && { full_name: data.full_name.trim() }),
-            ...(data.phone && { phone: data.phone.trim() }),
-            ...(data.position && { position: data.position.trim() }),
+            ...(data.branch_id && { branch_id: data.branch_id }),
+            ...(data.account_id && { account_id: data.account_id }),
+            ...(data.full_name && { full_name: data.full_name }),
+            ...(data.phone && { phone: data.phone }),
+            ...(data.position && { position: data.position }),
         };
 
         const validator = new Validator();
@@ -64,10 +73,10 @@ class StaffService {
 
     async updateStaff(id, data) {
         const validatedData = {
-            ...(data.branch_id && { branch_id: data.branch_id.trim() }),
-            ...(data.full_name && { full_name: data.full_name.trim() }),
-            ...(data.phone && { phone: data.phone.trim() }),
-            ...(data.position && { position: data.position.trim() }),
+            ...(data.branch_id && { branch_id: data.branch_id }),
+            ...(data.full_name && { full_name: data.full_name }),
+            ...(data.phone && { phone: data.phone }),
+            ...(data.position && { position: data.position }),
         };
 
         const validator = new Validator();

@@ -19,6 +19,44 @@ const router = express.Router();
  *     responses:
  *       200:
  *         description: Successful operation
+ *         content:
+ *              application/json:
+ *                  schema:
+ *                      type: object
+ *                      properties:
+ *                          id: 
+ *                              type: string
+ *                          username: 
+ *                              type: string
+ *                          password_hash: 
+ *                              type: string
+ *                          status: 
+ *                              type: string
+ *                          role: 
+ *                              type: string
+ *                          branch_id: 
+ *                              type: string
+ *                          branches:
+ *                              type: object
+ *                              properties:
+ *                                  id: 
+ *                                      type: string
+ *                                  name: 
+ *                                      type: string
+ *                          staff: 
+ *                              type: object
+ *                              properties:
+ *                                  id: 
+ *                                      type: string
+ *                          customer:
+ *                              type: object
+ *                              properties:
+ *                                  id: 
+ *                                      type: string
+ *       400:
+ *         description: Validation error
+ *       500:
+ *         description: Internal server error
  */
 router.get('/username/:username', AccountController.getAccountByUsername)
 /**
@@ -30,6 +68,25 @@ router.get('/username/:username', AccountController.getAccountByUsername)
  *     responses:
  *       200:
  *         description: Successful operation
+ *         content:
+ *              application/json:
+ *                  schema:
+ *                      type: object
+ *                      properties:
+ *                          id: 
+ *                              type: string
+ *                          username: 
+ *                              type: string
+ *                          password_hash: 
+ *                              type: string
+ *                          status: 
+ *                              type: string
+ *                          role: 
+ *                              type: string
+ *                          branch_id: 
+ *                              type: string
+ *       500:
+ *         description: Internal server error
  */
 router.get('/', AccountController.getAllAccounts);
 /**
@@ -48,6 +105,8 @@ router.get('/', AccountController.getAllAccounts);
  *     responses:
  *       200:
  *         description: Successful operation
+ *       500:
+ *         description: Internal Server error
  */
 router.get('/:id', AccountController.getAccountById);
 /**
@@ -63,8 +122,31 @@ router.get('/:id', AccountController.getAccountById);
  *           schema:
  *             type: object
  *     responses:
- *       201:
+ *       200:
  *         description: Successful operation
+ *         content:
+ *              application/json:
+ *                  schema:
+ *                      type: object
+ *                      properties:
+ *                          id: 
+ *                              type: string
+ *                          username: 
+ *                              type: string
+ *                          password_hash: 
+ *                              type: string
+ *                          status: 
+ *                              type: string
+ *                          role: 
+ *                              type: string
+ *                          branch_id: 
+ *                              type: string
+ *       400:
+ *         description: Validation error
+ *       404:
+ *         description: Branch not found
+ *       500:
+ *         description: Internal server error
  */
 router.post('/', AccountController.createAccount);
 /**
@@ -89,6 +171,12 @@ router.post('/', AccountController.createAccount);
  *     responses:
  *       200:
  *         description: Successful operation
+ *       400:
+ *         description: Validation error
+ *       404:
+ *         description: Record or foreign key not found
+ *       500:
+ *         description: Internal server error
  */
 router.put('/:id', AccountController.updateAccount);
 /**
@@ -107,6 +195,8 @@ router.put('/:id', AccountController.updateAccount);
  *     responses:
  *       200:
  *         description: Successful operation
+ *       404:
+ *         description: Record not found
  */
 router.delete('/:id', AccountController.deleteAccount);
 

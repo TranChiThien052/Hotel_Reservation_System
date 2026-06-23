@@ -12,6 +12,33 @@ const router = express.Router();
  *     responses:
  *       200:
  *         description: Successful operation
+ *         content:
+ *              application/json:
+ *                  schema:
+ *                      type: array
+ *                      items:
+ *                          type: object
+ *                          properties:
+ *                              id: 
+ *                                  type: string
+ *                              account_id:
+ *                                  type: string
+ *                              full_name:
+ *                                  type: string
+ *                              phone:
+ *                                  type: string
+ *                              email:
+ *                                  type: string
+ *                              id_card_number:
+ *                                  type: string
+ *                              nationality:
+ *                                  type: string
+ *                              date_of_birth:
+ *                                  type: string
+ *                              address:
+ *                                  type: string
+ *       500:
+ *         description: Internal server error
  */
 router.get('/', CustomerController.getAllCustomers);
 /**
@@ -30,6 +57,33 @@ router.get('/', CustomerController.getAllCustomers);
  *     responses:
  *       200:
  *         description: Successful operation
+ *         content:
+ *             application/json:
+ *                  schema:
+ *                    type: object
+ *                    properties:
+ *                       id:
+ *                         type: string
+ *                       account_id:
+ *                          type: string
+ *                       full_name:
+ *                          type: string
+ *                       phone:
+ *                         type: string
+ *                       email:
+ *                         type: string
+ *                       id_card_number:
+ *                         type: string
+ *                       nationality:
+ *                         type: string
+ *                       date_of_birth:
+ *                         type: string
+ *                       address:
+ *                         type: string
+ *       404:
+ *         description: Customer not found
+ *       500:
+ *         description: Internal server error
  */
 router.get('/:id', CustomerController.getCustomerById);
 /**
@@ -44,9 +98,53 @@ router.get('/:id', CustomerController.getCustomerById);
  *         application/json:
  *           schema:
  *             type: object
+ *             properties:
+ *               account_id:
+ *                 type: string
+ *               full_name:
+ *                 type: string
+ *               phone:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *               id_card_number:
+ *                 type: string
+ *               nationality:
+ *                 type: string
+ *               date_of_birth:
+ *                 type: string
+ *               address:
+ *                 type: string
  *     responses:
  *       201:
  *         description: Successful operation
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: string
+ *                 account_id:
+ *                   type: string
+ *                 full_name:
+ *                   type: string
+ *                 phone:
+ *                   type: string
+ *                 email:
+ *                   type: string
+ *                 id_card_number:
+ *                   type: string
+ *                 nationality:
+ *                   type: string
+ *                 date_of_birth:
+ *                   type: string
+ *                 address:
+ *                   type: string
+ *       400:
+ *         description: Bad request
+ *       500:
+ *         description: Internal server error
  */
 router.post('/', CustomerController.createCustomer);
 /**
@@ -63,14 +161,60 @@ router.post('/', CustomerController.createCustomer);
  *           type: string
  *         description: The id parameter
  *     requestBody:
- *       required: true
+ *       required: false
  *       content:
  *         application/json:
  *           schema:
  *             type: object
+ *             properties:
+ *               account_id:
+ *                 type: string
+ *               full_name:
+ *                 type: string
+ *               phone:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *               id_card_number:
+ *                 type: string
+ *               nationality:
+ *                 type: string
+ *               date_of_birth:
+ *                 type: string
+ *               address:
+ *                 type: string
  *     responses:
  *       200:
  *         description: Successful operation
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: string
+ *                 account_id:
+ *                   type: string
+ *                 full_name:
+ *                   type: string
+ *                 phone:
+ *                   type: string
+ *                 email:
+ *                   type: string
+ *                 id_card_number:
+ *                   type: string
+ *                 nationality:
+ *                   type: string
+ *                 date_of_birth:
+ *                   type: string
+ *                 address:
+ *                   type: string
+ *       400:
+ *         description: Bad request
+ *       404:
+ *         description: Customer not found
+ *       500:
+ *         description: Internal server error
  */
 router.put('/:id', CustomerController.updateCustomer);
 /**
@@ -89,6 +233,10 @@ router.put('/:id', CustomerController.updateCustomer);
  *     responses:
  *       200:
  *         description: Successful operation
+ *       404:
+ *         description: Customer not found
+ *       500:
+ *         description: Internal server error
  */
 router.delete('/:id', CustomerController.deleteCustomer);
 

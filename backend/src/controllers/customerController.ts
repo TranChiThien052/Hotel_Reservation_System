@@ -25,7 +25,7 @@ class CustomerController {
         return await CustomerService.createCustomer(data)
             .then(customer => res.status(201).json(customer))
             .catch(error => {
-                if (error.code !== 500) {
+                if (typeof parseInt(error.code) === "number") {
                     return res.status(parseInt(error.code)).json({ error: error.message });
                 }
                 res.status(500).json({ error: error.message });
@@ -39,7 +39,7 @@ class CustomerController {
         return await CustomerService.updateCustomer(id, data)
             .then(customer => res.status(200).json(customer))
             .catch(error => {
-                if (error.code !== 500) {
+                if (typeof parseInt(error.code) === "number") {
                     return res.status(parseInt(error.code)).json({ error: error.message });
                 }
                 res.status(500).json({ error: error.message });
