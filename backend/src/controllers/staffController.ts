@@ -19,6 +19,17 @@ class StaffController {
             .catch(error => res.status(500).json({ error: error.message }));
     };
 
+    async getStaffByBranchId(req, res) {
+        const { branch_id } = req.params;
+        return await StaffService.getStaffByBranchId(branch_id)
+            .then(staff => res.status(200).json(staff))
+            .catch(error => {
+                if (typeof parseInt(error.code) === 'number')
+                    res.status(parseInt(error.code)).json({ error: error.message });
+                res.status(500).json({ error: error.message })
+            });
+    };
+
     async createStaff(req, res) {
         const { branch_id, account_id, full_name, phone, position } = req.body;
         const data = { branch_id, account_id, full_name, phone, position };
