@@ -8,10 +8,10 @@ import bcrypt from 'bcrypt';
 class AccountService {
     async login(username, password) {
         const validator = new Validator();
-        if(!validator.isEmpty("Username", username))
+        if (!validator.isEmpty("Username", username))
             validator.isString("Username", username);
-        if(!validator.isEmpty("Password", password))
-        validator.isString("Password", password);
+        if (!validator.isEmpty("Password", password))
+            validator.isString("Password", password);
         if (validator.error.length > 0) {
             throw new ValidationError('400', validator.clearError());
         }
@@ -37,7 +37,7 @@ class AccountService {
                 account_id: account.id,
                 user_id: account.customers ? account.customers?.id : account.staff?.id,
                 role: account.role,
-            }, 
+            },
             process.env.JWT_SECRET,
             { expiresIn: '1d' }
         );
@@ -58,8 +58,8 @@ class AccountService {
                 account_id: account.id,
                 user_id: account.customers ? account.customers?.id : account.staff?.id,
                 role: account.role,
-            }, 
-            process.env.JWT_SECRET, 
+            },
+            process.env.JWT_SECRET,
             { expiresIn: '30m' }
         );
 
@@ -71,7 +71,7 @@ class AccountService {
 
     async refreshToken(oldRefreshToken) {
         const validator = new Validator();
-        if (!validator.isEmpty("Refresh Token", oldRefreshToken)) 
+        if (!validator.isEmpty("Refresh Token", oldRefreshToken))
             validator.isString("Refresh Token", oldRefreshToken);
         if (validator.error.length > 0) {
             throw new ValidationError('400', validator.clearError());
@@ -101,11 +101,11 @@ class AccountService {
             {
                 account_id: account.id,
                 user_id: account.customers ? account.customers?.id : account.staff?.id
-            }, 
-            process.env.JWT_SECRET, 
+            },
+            process.env.JWT_SECRET,
             { expiresIn: '1d' }
         );
-        
+
         const createRefreshToken = await RefreshTokenRepo.createRefreshToken({
             account_id: account.id,
             token_hash: await bcrypt.hash(refresh_token, Number(process.env.SALT_ROUNDS) || 5),
@@ -121,8 +121,8 @@ class AccountService {
                 account_id: account.id,
                 user_id: account.customers ? account.customers?.id : account.staff?.id,
                 role: account.role,
-            }, 
-            process.env.JWT_SECRET, 
+            },
+            process.env.JWT_SECRET,
             { expiresIn: '30m' }
         );
         await RefreshTokenRepo.updateRefreshToken(validRefreshToken.id, { is_revoked: true });
@@ -134,7 +134,7 @@ class AccountService {
 
     async logout(refreshToken) {
         const validator = new Validator();
-        if (!validator.isEmpty("Refresh Token", refreshToken)) 
+        if (!validator.isEmpty("Refresh Token", refreshToken))
             validator.isString("Refresh Token", refreshToken);
         if (validator.error.length > 0) {
             throw new ValidationError('400', validator.clearError());
@@ -287,23 +287,11 @@ class AccountService {
             throw new ValidationError('400', validator.clearError());
         }
 
-        try {
-            return await AccountRepository.updateAccount(id, validatedData);
-        } catch (error) {
-            if (error.code === 'P2025')
-                throw new ValidationError('404', "Account not found");
-            throw new ValidationError('500', "Failed to update account");
-        }
+        return await AccountRepository.updateAccount(id, validatedData);
     };
 
     async deleteAccount(id) {
-        try {
-            return await AccountRepository.deleteAccount(id);
-        } catch (error) {
-            if (error.code === 'P2025')
-                throw new ValidationError('404', "Account not found");
-            throw new ValidationError('500', "Failed to delete account");
-        }        
+        return await AccountRepository.deleteAccount(id);
     };
 }
 
