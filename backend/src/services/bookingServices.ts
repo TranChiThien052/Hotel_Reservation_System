@@ -36,7 +36,7 @@ class BookingService {
             if (validator.isUUID("Branch ID", validatedData.branch_id)) {
                 const branch = await BranchRepository.getBranchById(validatedData.branch_id);
                 if (!branch) {
-                    throw new ValidationError('400', 'Branch not found');
+                    throw new ValidationError('404', 'Branch not found');
                 }
             }
         }
@@ -44,7 +44,7 @@ class BookingService {
             if (validator.isUUID("Customer ID", validatedData.customer_id)) {
                 const customer = await CustomerRepository.getCustomerById(validatedData.customer_id);
                 if (!customer) {
-                    throw new ValidationError('400', 'Customer not found');
+                    throw new ValidationError('404', 'Customer not found');
                 }
             }
         }
@@ -52,7 +52,7 @@ class BookingService {
             if (validator.isUUID("Room Type ID", validatedData.room_type_id)) {
                 const roomPrice = await RoomTypeRepository.getRoomTypeById(validatedData.room_type_id);
                 if (!roomPrice) {
-                    throw new ValidationError('400', 'Room type not found');
+                    throw new ValidationError('404', 'Room type not found');
                 }
             }
         }
@@ -92,7 +92,7 @@ class BookingService {
 
         const roomPrice = await RoomPriceRepository.getRoomPricesByRoomTypeId(validatedData.room_type_id);
         if (!roomPrice) {
-            throw new ValidationError('400', 'No room price found for the specified room type');
+            throw new ValidationError('404', 'No room price found for the specified room type');
         }
 
         if (validatedData.booking_type === "daily")
@@ -107,7 +107,7 @@ class BookingService {
             validator.isUUID("Discount ID", validatedData.discount_id);
             const discount = await DiscountRepository.getDiscountById(validatedData.discount_id);
             if (!discount) {
-                validator.pushError("Discount not found");
+                throw new ValidationError("404", "Discount not found");
             } else {
                 validatedData.discount_amount = generateDiscountAmount(validatedData.subtotal, discount.discount_type, Number(discount.discount_value));
                 validatedData.total_amount -= validatedData.discount_amount;

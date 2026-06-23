@@ -145,8 +145,8 @@ class AccountController {
         return await AccountService.deleteAccount(id)
             .then(account => res.status(200).json(account))
             .catch(error => {
-                if (error.code === "P2025") {
-                    return res.status(404).json({ error: error.message });
+                if (typeof parseInt(error.code) === "number") {
+                    return res.status(parseInt(error.code)).json({ error: error.message });
                 }
                 res.status(500).json({ error: error.message });
             });
