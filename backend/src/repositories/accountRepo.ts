@@ -14,12 +14,14 @@ class AccountRepository {
                     select: {
                         id: true,
                         full_name: true,
+                        phone: true,
                     }
                 },
                 customers: {
                     select: {
                         id: true,
                         full_name: true,
+                        phone: true,
                     }
                 }
             }
