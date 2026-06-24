@@ -12,14 +12,14 @@ class CustomerService {
 
     async createCustomer(data) {
         const validatedData = {
-            ...(data.account_id && { account_id: data.account_id.trim() }),
-            ...(data.full_name && { full_name: data.full_name.trim() }),
-            ...(data.phone && { phone: data.phone.trim() }),
-            ...(data.email && { email: data.email.trim() }),
-            ...(data.id_card_number && { id_card_number: data.id_card_number.trim() }),
-            ...(data.nationality && { nationality: data.nationality.trim() }),
+            ...(data.account_id && { account_id: data.account_id }),
+            ...(data.full_name && { full_name: data.full_name }),
+            ...(data.phone && { phone: data.phone }),
+            ...(data.email && { email: data.email }),
+            ...(data.id_card_number && { id_card_number: data.id_card_number }),
+            ...(data.nationality && { nationality: data.nationality }),
             ...(data.date_of_birth && { date_of_birth: data.date_of_birth }),
-            ...(data.address && { address: data.address.trim() }),
+            ...(data.address && { address: data.address }),
         };
 
         const validator = new Validator();
@@ -73,14 +73,14 @@ class CustomerService {
         const validatingInfo = await CustomerRepository.getValidatingInformation();
 
         const validatedData = {
-            ...(data.account_id && { account_id: data.account_id.trim() }),
-            ...(data.full_name && { full_name: data.full_name.trim() }),
-            ...(data.phone && { phone: data.phone.trim() }),
-            ...(data.email && { email: data.email.trim() }),
-            ...(data.id_card_number && { id_card_number: data.id_card_number.trim() }),
-            ...(data.nationality && { nationality: data.nationality.trim() }),
+            ...(data.account_id && { account_id: data.account_id }),
+            ...(data.full_name && { full_name: data.full_name }),
+            ...(data.phone && { phone: data.phone }),
+            ...(data.email && { email: data.email }),
+            ...(data.id_card_number && { id_card_number: data.id_card_number }),
+            ...(data.nationality && { nationality: data.nationality }),
             ...(data.date_of_birth && { date_of_birth: data.date_of_birth }),
-            ...(data.address && { address: data.address.trim() }),
+            ...(data.address && { address: data.address }),
         };
 
         if (validatedData.full_name) {

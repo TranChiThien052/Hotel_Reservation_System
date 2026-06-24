@@ -5,7 +5,7 @@ const router = express.Router();
 
 /**
  * @swagger
- * /auths/login:
+ * /auth/login:
  *   post:
  *     summary: Create new record
  *     tags: [Auth]
@@ -23,7 +23,7 @@ router.post('/login', AccountController.login);
 
 /**
  * @swagger
- * /auths/logout:
+ * /auth/logout:
  *   post:
  *     summary: Create new record
  *     tags: [Auth]
@@ -41,10 +41,10 @@ router.post('/logout', AccountController.logout);
 
 /**
  * @swagger
- * /auths/refresh:
+ * /auth/refresh:
  *   post:
  *     summary: Create new record
- *     tags: [Auth]
+ *     tags: [Account]
  *     requestBody:
  *       required: true
  *       content:
@@ -59,7 +59,7 @@ router.post('/refresh', AccountController.refreshToken);
 
 /**
  * @swagger
- * /auths/me:
+ * /auth/me:
  *   get:
  *     summary: Get data
  *     tags: [Auth]

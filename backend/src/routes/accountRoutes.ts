@@ -133,7 +133,7 @@ router.get('/:id', AccountController.getAccountById);
  *                              type: string
  *                          username: 
  *                              type: string
- *                          password_hash: 
+ *                          password: 
  *                              type: string
  *                          status: 
  *                              type: string
@@ -199,5 +199,99 @@ router.put('/:id', AccountController.updateAccount);
  *         description: Record not found
  */
 router.delete('/:id', AccountController.deleteAccount);
+
+
+/**
+ * @swagger
+ * /accounts/register/staff:
+ *   post:
+ *     summary: Create new staff account
+ *     tags: [Account]
+ *     security:
+ *       - bearerAuth:
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - username
+ *               - password
+ *               - full_name
+ *               - role
+ *               - status
+ *               - phone
+ *               - branch_id
+ *             properties:
+ *               username:
+ *                 type: string
+ *                 description: Account username
+ *                 example: string
+ *               password:
+ *                 type: string
+ *                 description: Account password
+ *                 example: string
+ *               full_name:
+ *                 type: string
+ *                 description: Staff full name
+ *                 example: string
+ *               role:
+ *                 type: string
+ *                 description: staff, manager or admin
+ *                 example: staff
+ *               status:
+ *                 type: string
+ *                 description: active or inactive
+ *                 example: active
+ *               phone:
+ *                 type: string
+ *                 description: Staff phone number
+ *                 example: 0912345678
+ *               branch_id:
+ *                 type: string
+ *                 description: Branch ID
+ *                 example: b0116409-3b98-4646-967d-08da6f247a9c
+ *     responses:
+ *           200:
+ *              description: Succesful operation
+ *              content:
+ *                 application/json:
+ *                    schema:
+ *                       type: object
+ *                       properties:
+ *                          created_account:
+ *                             type: object
+ *                             properties:
+ *                                id:
+ *                                   type: string
+ *                                username:
+ *                                   type: string
+ *                                role:
+ *                                   type: string
+ *                                status:
+ *                                   type: string
+ *                                branch_id:
+ *                                   type: string
+ *                          created_staff:
+ *                             type: object
+ *                             properties:
+ *                                id:
+ *                                   type: string
+ *                                branch_id:
+ *                                   type: string
+ *                                account_id:
+ *                                   type: string
+ *                                full_name:
+ *                                   type: string
+ *                                phone:
+ *                                   type: string
+ *                                position:
+ *                                   type: string
+ *                                created_at:
+ *                                   type: string
+ *                                   format: date-time
+ */
+router.post('/register/staff', AccountController.createStaffAccount);
 
 export default router;
