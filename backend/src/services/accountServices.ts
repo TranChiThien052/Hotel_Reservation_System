@@ -1,15 +1,20 @@
 import AccountRepository from '../repositories/accountRepo';
 import BranchRepository from '../repositories/branchRepo';
 import RefreshTokenRepository from '../repositories/refreshTokenRepo';
+import StaffRepo from '../repositories/staffRepo';
 import { Validator, ValidationError } from '../middlewares/validateData';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
+import accountRepo from '../repositories/accountRepo';
+import staffRepo from '../repositories/staffRepo';
 
 class AccountService {
     async login(username, password) {
         const validator = new Validator();
         if (!validator.isEmpty("Username", username))
-            validator.isString("Username", username);
+            if (validator.isString("Username", username)) {
+                username = username.toLowerCase();
+            }
         if (!validator.isEmpty("Password", password))
             validator.isString("Password", password);
         if (validator.error.length > 0) {
@@ -150,6 +155,70 @@ class AccountService {
         return { message: "Logout successful" };
     };
 
+    async registerStaffAccount(data) {
+        const validatingAccountData = await AccountRepository.getValidatingInformation();
+        const validator = new Validator();
+        const validatedData = {
+            ...(data.username && { username: data.username }),
+            ...(data.password && { password: data.password }),
+            ...(data.role && { role: data.role }),
+            ...(data.status && { status: data.status }),
+            ...(data.branch_id && { branch_id: data.branch_id }),
+            ...(data.full_name && { full_name: data.full_name }),
+            ...(data.phone && { phone: data.phone })
+        };
+        if (!validator.isEmpty("Username", validatedData.username))
+            if (validator.isString("Username", validatedData.username)) {
+                const existingAccount = validatingAccountData.find(account => account.username === validatedData.username);
+                if (existingAccount) {
+                    throw new ValidationError('409', "Account with this username already exists");
+                }
+                validatedData.username = validatedData.username.toLowerCase();
+            }
+        if (!validator.isEmpty("Password", validatedData.password))
+            validator.validatePassword(validatedData.password)
+        if (!validator.isEmpty("Role", validatedData.role))
+            validator.validateAccountRole(validatedData.role)
+        if (!validator.isEmpty("Status", validatedData.status))
+            validator.validateAccountStatus(validatedData.status)
+        if (!validator.isEmpty("Branch ID", validatedData.branch_id))
+            validator.isUUID("Branch ID", validatedData.branch_id)
+        if (!validator.isEmpty("Full Name", validatedData.full_name))
+            validator.isString("Full Name", validatedData.full_name)
+        if (!validator.isEmpty("Phone", validatedData.phone))
+            validator.validatePhoneNumber(validatedData.phone)
+        if (validator.error.length > 0)
+            throw new ValidationError("400", validator.clearError());
+        const branch = await BranchRepository.getBranchById(validatedData.branch_id);
+        if (!branch) {
+            throw new ValidationError("404", "Branch not found");
+        }
+        const existingPhoneNumber = validatingAccountData.find(account => account.staff?.phone === validatedData.phone);
+        if (existingPhoneNumber) {
+            throw new ValidationError("409", "Account with this phone number already exists");
+        }
+        validatedData.password_hash = await bcrypt.hash(validatedData.password, Number(process.env.SALT_ROUNDS) || 5);
+        const createdAccount = await accountRepo.createAccount({
+            username: validatedData.username,
+            password_hash: validatedData.password_hash,
+            role: validatedData.role,
+            status: validatedData.status,
+            branch_id: validatedData.branch_id,
+        })
+        const createdStaff = await staffRepo.createStaff({
+            branch_id: validatedData.branch_id,
+            account_id: createdAccount.id,
+            full_name: validatedData.full_name,
+            phone: validatedData.phone,
+            position: validatedData.role
+        })
+        return {
+            message: "Create staff's account successfully",
+            create_account: createdAccount,
+            create_staff: createdStaff,
+        }
+    };
+
     async getAccountInformationFromToken(token) {
         const validator = new Validator();
         validator.isString("Token", token);
@@ -193,7 +262,7 @@ class AccountService {
     async createAccount(data) {
         const validatedData = {
             ...(data.username && { username: data.username }),
-            ...(data.password && { password_hash: data.password }),
+            ...(data.password && { password: data.password }),
             ...(data.role && { role: data.role }),
             ...(data.status && { status: data.status }),
             ...(data.branch_id && { branch_id: data.branch_id }),
@@ -201,11 +270,15 @@ class AccountService {
 
         const validator = new Validator();
         if (validatedData.username) {
-            validator.isEmpty("Username", validatedData.username)
+            if (!validator.isEmpty("Username", validatedData.username)) {
+                if (validator.isString("Username", validatedData.username)) {
+                    validatedData.username = validatedData.username.toLowerCase();
+                }
+            }
         }
-        if (validatedData.password_hash) {
-            validator.isEmpty("Password", validatedData.password_hash)
-            validator.validatePassword(validatedData.password_hash);
+        if (validatedData.password) {
+            validator.isEmpty("Password", validatedData.password)
+            validator.validatePassword(validatedData.password);
         }
 
         validator.isString("Username", validatedData.username);

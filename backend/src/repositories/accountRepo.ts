@@ -2,7 +2,28 @@ import { prisma } from '../config/prisma';
 
 class AccountRepository {
     async getAllAccounts() {
-        return await prisma.accounts.findMany();
+        return await prisma.accounts.findMany({
+            include: {
+                branches: {
+                    select: {
+                        id: true,
+                        name: true,
+                    }
+                },
+                staff: {
+                    select: {
+                        id: true,
+                        full_name: true,
+                    }
+                },
+                customers: {
+                    select: {
+                        id: true,
+                        full_name: true,
+                    }
+                }
+            }
+        });
     };
 
     async getAccountById(id) {
@@ -82,9 +103,20 @@ class AccountRepository {
 
     async getValidatingInformation() {
         return await prisma.accounts.findMany({
-            select: {
-                id: true,
-                username: true,
+            include: {
+                branches: {
+                    select: {
+                        id: true,
+                        name: true,
+                    }
+                },
+                staff: {
+                    select: {
+                        id: true,
+                        full_name: true,
+                        phone: true,
+                    }
+                }
             }
         });
     }
