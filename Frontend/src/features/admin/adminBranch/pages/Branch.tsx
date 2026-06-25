@@ -234,9 +234,12 @@ const Branches = () => {
           <Button
             onClick={() => {
               handleOpenModal(FormModalModes.UPDATE, record);
-            }}
+            }} type="primary"
           >
             Edit
+          </Button>
+          <Button onClick={() => handleOpenModal(FormModalModes.VIEW, record)} type="dashed">
+            Detail
           </Button>
         </Space>
       ),

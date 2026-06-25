@@ -8,6 +8,9 @@ import Rooms from "@/features/admin/adminRooms/pages/Rooms";
 import RoomPrices from "@/features/admin/adminRoomsPrices/pages/RoomPrices";
 import Services from "@/features/admin/adminServices/pages/Services";
 import Promotions from "@/features/admin/adminPromitions/pages/Promotions";
+import Customers from "@/features/admin/adminCustomers/pages/Customers";
+import Accounts from "@/features/admin/adminAccounts/pages/accounts";
+import Employees from "@/features/admin/adminEmployees/pages/Employees";
 
 const route = () => {
   return (
@@ -24,6 +27,9 @@ const route = () => {
           <Route path="room-prices" element={<RoomPrices />} />
           <Route path="services" element={<Services />} />
           <Route path="promotions" element={<Promotions />} />
+          <Route path="customers" element={<Customers />} />
+          <Route path="accounts" element={<Accounts />} />
+          <Route path="employees" element={<Employees />} />
         </Route>
       </Routes>
     </BrowserRouter>

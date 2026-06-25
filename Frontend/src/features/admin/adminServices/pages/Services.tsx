@@ -177,7 +177,12 @@ const Services = () => {
       key: "actions",
       render: (_, record) => (
         <Space size="medium">
-          <Button onClick={() => services.openEdit(record)}>Edit</Button>
+          <Button onClick={() => services.openEdit(record)} type="primary">
+            Edit
+          </Button>
+          <Button onClick={() => services.openView(record)} type="dashed">
+            Detail
+          </Button>
         </Space>
       ),
     },

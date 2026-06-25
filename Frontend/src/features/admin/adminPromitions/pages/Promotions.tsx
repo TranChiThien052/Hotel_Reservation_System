@@ -194,7 +194,12 @@ const Promotions = () => {
       key: "actions",
       render: (_, record) => (
         <Space size="medium">
-          <Button onClick={() => promotions.openEdit(record)}>Edit</Button>
+          <Button onClick={() => promotions.openEdit(record)} type="primary">
+            Edit
+          </Button>
+          <Button onClick={() => promotions.openView(record)} type="dashed">
+            Detail
+          </Button>
         </Space>
       ),
     },

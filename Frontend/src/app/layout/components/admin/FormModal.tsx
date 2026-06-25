@@ -39,6 +39,14 @@ const FormModal = <T extends object>({
   }
 
   const isViewMode = mode === FormModalModes.VIEW;
+  const isUpdateMode = mode === FormModalModes.UPDATE;
+
+  const activeFields = fields.filter((fields) => {
+    if (isUpdateMode && fields.hideInUpdateMode) {
+      return false;
+    }
+    return true;
+  })
 
   // Xử lý thay đổi form 
   const handleChange = (key: string, value: unknown) => {
@@ -54,14 +62,24 @@ const FormModal = <T extends object>({
   };
 
   const handleSubmit = () => {
-    const newErrors = validate(formData, fields);
-    if(Object.keys(newErrors).length > 0) {
+    const newErrors = validate(formData, activeFields);
+    if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       return;
     }
     setErrors({});
-    onSubmit(formData);
+
+    // Xử lý submit dữ liệu, loại bỏ các trường bị ẩn trong chế độ UPDATE
+    const submitData = { ...formData };
+    fields.forEach((field) => {
+      if (isUpdateMode && field.hideInUpdateMode) {
+        delete submitData[field.key];
+      }
+    });
+    onSubmit(submitData);
   };
+
+  
 
 
   return (
@@ -87,7 +105,7 @@ const FormModal = <T extends object>({
         <div className={"bg-white p-4 border border-blue-200 rounded-md"}>
           <h3 className="text-lg font-bold text-blue-600 mb-4">Thông tin form</h3>
           <DynamicForm
-            fields={fields}
+            fields={activeFields}
             values={formData}
             onChange={(key, val) => handleChange(key as string, val)}
             disabled={isViewMode}

@@ -1,5 +1,5 @@
 import type { FormField } from "@/shared/types/form-field";
-import type { RoomFormData } from "../types/rooms-type";
+import type { Room, RoomFormData } from "../types/rooms-type";
 import { FormFieldTypes } from "@/shared/types/type-form-field";
 import { roomTypesApi } from "../../adminRoomTypes/api/roomTypes-api";
 import { branchApi } from "../../adminBranch/api/admin-api";
@@ -22,7 +22,14 @@ export const roomsFormFields: FormField<RoomFormData>[] = [
             {
                 required: true,
                 message: "Vui lòng nhập số tầng"
-            }
+            },
+            {
+                validator: (formValues: Room) => {
+                    const floor = formValues.floor;
+                    return floor >= 1 && floor <= 9;
+            },
+            message: "Số tầng phải nằm trong khoảng từ 1 đến 9"
+        }
         ]
     },
     {
@@ -43,7 +50,13 @@ export const roomsFormFields: FormField<RoomFormData>[] = [
         placeholder: "Select room type",
         type: FormFieldTypes.SELECT_FETCH,
         fetchOptions: roomTypesApi.getRoomTypes,
-        customData: (data: any[]) => data.map((item) => ({label: item.name, value: item.id}))
+        customData: (data: any[]) => data.map((item) => ({label: item.name, value: item.id})),
+        rules: [
+            {
+                required: true,
+                message: "Vui lòng chọn loại phòng"
+            }
+        ]
     },
     {
         key: "status",
@@ -57,6 +70,12 @@ export const roomsFormFields: FormField<RoomFormData>[] = [
             { label: "Cleaning", value: "cleaning" },
             { label: "Maintenance", value: "maintenance" },
         ],
+        rules: [
+            {
+                required: true,
+                message: "Vui lòng chọn trạng thái phòng"
+            }
+        ]
     },
     {
         key: "is_active",
@@ -65,6 +84,12 @@ export const roomsFormFields: FormField<RoomFormData>[] = [
         options: [
             { label: "Active", value: true },
             { label: "Inactive", value: false }
+        ],
+        rules: [
+            {
+                required: true,
+                message: "Vui lòng chọn trạng thái hoạt động"
+            }
         ]
     },
     {

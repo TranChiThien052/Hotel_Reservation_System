@@ -134,7 +134,12 @@ const RoomPrices = () => {
       key: "actions",
       render: (_, record) => (
         <Space size="medium">
-          <Button onClick={() => roomPrices.openEdit(record)}>Edit</Button>
+          <Button onClick={() => roomPrices.openEdit(record)} type="primary">
+            Edit
+          </Button>
+          <Button onClick={() => roomPrices.openView(record)} type="dashed">
+            Detail
+          </Button>
         </Space>
       ),
     },

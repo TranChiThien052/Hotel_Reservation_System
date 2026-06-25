@@ -266,7 +266,12 @@ const Rooms = () => {
       key: "actions",
       render: (_, record) => (
         <Space size="medium">
-          <Button onClick={() => room.openEdit(record)}>Edit</Button>
+          <Button onClick={() => room.openEdit(record)} type="primary">
+            Edit
+          </Button>
+          <Button onClick={() => room.openView(record)} type="dashed">
+            Detail
+          </Button>
         </Space>
       ),
     },
@@ -317,7 +322,7 @@ const Rooms = () => {
         <div className="bg-white rounded-lg border border-gray-300 shadow p-5 flex flex-col gap-3">
           <div className="flex items-center gap-2 justify-between">
             <span className="font-xl font-bold text-yellow-500">
-              Đang bảo trì
+              Ngưng hoạt động
             </span>
             <LuWrench className="text-yellow-500 text-2xl" />
           </div>

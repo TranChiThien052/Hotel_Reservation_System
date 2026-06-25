@@ -180,8 +180,11 @@ const roomTypes = () => {
       key: "actions",
       render: (_, record) => (
         <Space size="medium">
-          <Button onClick={() => roomType.openEdit(record)}>
+          <Button onClick={() => roomType.openEdit(record)} type="primary">
             Edit
+          </Button>
+          <Button onClick={() => roomType.openView(record)} type="dashed">
+            Detail
           </Button>
         </Space>
       ),
