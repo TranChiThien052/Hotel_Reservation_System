@@ -14,12 +14,14 @@ class AccountRepository {
                     select: {
                         id: true,
                         full_name: true,
+                        phone: true,
                     }
                 },
                 customers: {
                     select: {
                         id: true,
                         full_name: true,
+                        phone: true,
                     }
                 }
             }
@@ -40,12 +42,14 @@ class AccountRepository {
                     select: {
                         id: true,
                         full_name: true,
+                        phone: true,
                     }
                 },
                 customers: {
                     select: {
                         id: true,
                         full_name: true,
+                        phone: true,
                     }
                 }
             }
@@ -65,11 +69,15 @@ class AccountRepository {
                 staff: {
                     select: {
                         id: true,
+                        full_name: true,
+                        phone: true,
                     }
                 },
                 customers: {
                     select: {
                         id: true,
+                        full_name: true,
+                        phone: true,
                     }
                 }
             }
@@ -79,6 +87,28 @@ class AccountRepository {
     async getAccountsByBranchId(branchId) {
         return await prisma.accounts.findMany({
             where: { branch_id: branchId },
+            include: {
+                branches: {
+                    select: {
+                        id: true,
+                        name: true,
+                    }
+                },
+                staff: {
+                    select: {
+                        id: true,
+                        full_name: true,
+                        phone: true,
+                    }
+                },
+                customers: {
+                    select: {
+                        id: true,
+                        full_name: true,
+                        phone: true,
+                    }
+                }
+            }
         });
     };
 
