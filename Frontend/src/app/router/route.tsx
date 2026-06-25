@@ -9,7 +9,7 @@ import RoomPrices from "@/features/admin/adminRoomsPrices/pages/RoomPrices";
 import Services from "@/features/admin/adminServices/pages/Services";
 import Promotions from "@/features/admin/adminPromitions/pages/Promotions";
 import Customers from "@/features/admin/adminCustomers/pages/Customers";
-import Accounts from "@/features/admin/adminAccounts/pages/accounts";
+import Accounts from "@/features/admin/adminAccounts/pages/Accounts";
 import Employees from "@/features/admin/adminEmployees/pages/Employees";
 
 const route = () => {
