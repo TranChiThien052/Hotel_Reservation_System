@@ -12,7 +12,7 @@ interface FormModalProps<T extends object> {
   title: string;
   fields: FormField<any>[];
   initialValues: T;
-  onSubmit: (values: T) => void;
+  onSubmit?: (values: T) => void;
 }
 
 const FormModal = <T extends object>({
@@ -76,7 +76,7 @@ const FormModal = <T extends object>({
         delete submitData[field.key];
       }
     });
-    onSubmit(submitData);
+    onSubmit?.(submitData);
   };
 
   
