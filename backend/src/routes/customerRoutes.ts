@@ -37,6 +37,21 @@ const router = express.Router();
  *                                  type: string
  *                              address:
  *                                  type: string
+ *                              accounts:
+ *                                  type: object
+ *                                  properties:
+ *                                     id:
+ *                                         type: string
+ *                                         format: uuid
+ *                                     username:
+ *                                         type: string
+ *                                     status:
+ *                                         type: string
+ *                                         format: enum
+ *                                         enum: ['active', 'inactive']
+ *                                     branch_id:
+ *                                         type: string
+ *                                         format: uuid
  *       500:
  *         description: Internal server error
  */
@@ -80,6 +95,21 @@ router.get('/', CustomerController.getAllCustomers);
  *                         type: string
  *                       address:
  *                         type: string
+ *                       accounts:
+ *                          type: object
+ *                          properties:
+ *                             id:
+ *                                type: string
+ *                                format: uuid
+ *                             username:
+ *                                type: string
+ *                             status:
+ *                                type: string
+ *                                format: enum
+ *                                enum: ['active', 'inactive']
+ *                             branch_id:
+ *                                type: string
+ *                                format: uuid
  *       404:
  *         description: Customer not found
  *       500:
