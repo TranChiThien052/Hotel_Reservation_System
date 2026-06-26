@@ -20,6 +20,7 @@ app.use(cookieParser());
 app.use('/branches', routes.branchRoutes);
 app.use('/room-types', routes.roomTypeRoutes);
 app.use('/rooms', routes.roomRoutes);
+app.use('/rooms-availability', routes.roomAvailabilityRoutes);
 app.use('/room-prices', routes.roomPriceRoutes);
 app.use('/services', routes.roomServiceRoutes);
 app.use('/discounts', routes.discountRoutes);

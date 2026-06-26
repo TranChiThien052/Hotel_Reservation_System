@@ -11,6 +11,22 @@ class BookingRepository {
         });
     };
 
+    async getTodayCheckinCount(branch_id) {
+        const today = new Date();
+        return await prisma.bookings.findMany({
+            where: {
+                branch_id: branch_id,
+                checkin_at: {
+                    gte: new Date(today.getFullYear(), today.getMonth(), today.getDate()),
+                    lt: new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1),
+                },
+                status: {
+                    not: 'checked_in',
+                }
+            }
+        })
+    }
+
     async getBookingByCode(code) {
         return await prisma.bookings.findUnique({
             where: { booking_code: code },
@@ -42,6 +58,37 @@ class BookingRepository {
             },
         });
     };
+
+    async createBookingWithOverlapChecking(booking_data) {
+        return await prisma.$transaction(async (tx) => {
+            const booking = await tx.bookings.create({ data: booking_data });
+
+            const totalRooms = await tx.rooms.count({
+                where: {
+                    branch_id: booking_data.branch_id,
+                    room_type_id: booking_data.room_type_id,
+                    is_active: true,
+                    status: { notIn: ['maintenance', 'unavailable'] }
+                }
+            });
+
+            const bookedCount = await tx.bookings.count({
+                where: {
+                    branch_id: booking_data.branch_id,
+                    room_type_id: booking_data.room_type_id,
+                    status: { in: ['pending', 'confirmed', 'checked_in'] },
+                    checkin_at: { lt: booking_data.checkout_at },
+                    checkout_at: { gt: booking_data.checkin_at }
+                }
+            });
+
+            if (bookedCount > totalRooms) {
+                throw new Error("Overbooking detected: No rooms available for the selected dates.");
+            }
+
+            return booking;
+        })
+    }
 
     async createBooking(data) {
         return await prisma.bookings.create({
