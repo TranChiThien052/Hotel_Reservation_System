@@ -164,12 +164,12 @@ const Accounts = () => {
         const dynamicStatusItems: MenuProps["items"] = [
           {
             key: "active",
-            label: <span className="text-green-600">Active</span>,
+            label: <span className="text-green-600">Hoạt động</span>,
             onClick: () => handleStatusChange(record.id, { status: "active" }),
           },
           {
             key: "inactive",
-            label: <span className="text-red-600">Inactive</span>,
+            label: <span className="text-red-600">Ngưng hoạt động</span>,
             onClick: () => handleStatusChange(record.id, { status: "inactive" }),
           },
         ];
@@ -181,7 +181,7 @@ const Accounts = () => {
             placement="bottomLeft"
           >
             <Tag color={text === "active" ? "green" : "red"} style={{ cursor: "pointer" }}>
-              {text === "active" ? "Active" : "Inactive"}
+              {text === "active" ? "Hoạt động" : "Ngưng hoạt động"}
             </Tag>
           </Dropdown>
         );
@@ -191,6 +191,15 @@ const Accounts = () => {
       title: "Vai trò",
       dataIndex: "role",
       key: "role",
+      render: (text) => {
+        if (text === "admin") {
+          return <span>Admin</span>;
+        } else if (text === "manager") {
+          return <span>Quản lý</span>;
+        } else if (text === "staff") {
+          return <span>Nhân viên</span>;
+        }
+      }
     },
     {
       title: "Actions",
@@ -198,10 +207,10 @@ const Accounts = () => {
       render: (_, record) => (
         <Space size="medium">
           <Button onClick={() => account.openEdit(record)} type="primary">
-            Edit
+            Chỉnh sửa
           </Button>
           <Button onClick={() => account.openView(record)} type="dashed">
-            Detail
+            Chi tiết
           </Button>
         </Space>
       ),
@@ -278,11 +287,11 @@ const Accounts = () => {
               options={[
                 {
                   value: "active",
-                  label: <span className="text-green-600">Active</span>,
+                  label: <span className="text-green-600">Hoạt động</span>,
                 },
                 {
                   value: "inactive",
-                  label: <span className="text-red-600">Inactive</span>,
+                  label: <span className="text-red-600">Ngưng hoạt động</span>,
                 },
               ]}
             />
@@ -315,7 +324,9 @@ const Accounts = () => {
         title={
           account.mode === FormModalModes.CREATE
             ? "Thêm tài khoản mới"
-            : "Chỉnh sửa tài khoản"
+            : account.mode === FormModalModes.UPDATE
+            ? "Chỉnh sửa tài khoản"
+            : "Chi tiết tài khoản"
         }
         fields={accountsFormFields}
         initialValues={formatInitialValues(account.selectedRecord, defaultAccountData)}

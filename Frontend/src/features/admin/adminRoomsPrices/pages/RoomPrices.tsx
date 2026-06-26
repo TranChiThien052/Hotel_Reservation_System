@@ -135,10 +135,10 @@ const RoomPrices = () => {
       render: (_, record) => (
         <Space size="medium">
           <Button onClick={() => roomPrices.openEdit(record)} type="primary">
-            Edit
+            Chỉnh sửa
           </Button>
           <Button onClick={() => roomPrices.openView(record)} type="dashed">
-            Detail
+            Chi tiết
           </Button>
         </Space>
       ),
@@ -228,7 +228,9 @@ const RoomPrices = () => {
         title={
           roomPrices.mode === FormModalModes.CREATE
             ? "Thêm phòng mới"
-            : "Chỉnh sửa phòng"
+            : roomPrices.mode === FormModalModes.UPDATE
+              ? "Chỉnh sửa phòng"
+              : "Chi tiết phòng"
         }
         fields={roomPricesFormFields}
         initialValues={roomPrices.selectedRecord || defaultRoomData}

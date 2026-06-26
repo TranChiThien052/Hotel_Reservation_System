@@ -133,15 +133,15 @@ const Customers = () => {
       render: (_, record) => <p>{record.address}</p>,
     },
     {
-      title: "Actions",
+      title: "Hành động",
       key: "actions",
       render: (_, record) => (
         <Space size="medium">
           <Button onClick={() => customer.openEdit(record)} type="primary">
-            Edit
+            Chỉnh sửa
           </Button>
           <Button onClick={() => customer.openView(record)} type="dashed">
-            Detail
+            Chi tiết
           </Button>
         </Space>
       ),
@@ -238,7 +238,9 @@ const Customers = () => {
         title={
           customer.mode === FormModalModes.CREATE
             ? "Thêm khách hàng mới"
-            : "Chỉnh sửa khách hàng"
+            : customer.mode === FormModalModes.UPDATE
+            ? "Chỉnh sửa khách hàng"
+            : "Chi tiết khách hàng"
         }
         fields={customersFormFields}
         initialValues={customer.selectedRecord || defaultCustomerData}

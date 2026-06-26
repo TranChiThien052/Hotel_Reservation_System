@@ -152,12 +152,12 @@ const roomTypes = () => {
         const dynamicStatusItems: MenuProps["items"] = [
           {
             key: "active",
-            label: <span className="text-green-600">Active</span>,
+            label: <span className="text-green-600">Hoạt động</span>,
             onClick: () => handleStatusChange(record.id, { is_active: true }),
           },
           {
             key: "inactive",
-            label: <span className="text-red-600">Inactive</span>,
+            label: <span className="text-red-600">Ngừng hoạt động</span>,
             onClick: () => handleStatusChange(record.id, { is_active: false }),
           },
         ];
@@ -169,7 +169,7 @@ const roomTypes = () => {
             placement="bottomLeft"
           >
             <Tag color={text ? "green" : "red"} style={{ cursor: "pointer" }}>
-              {text ? "Active" : "Inactive"}
+              {text ? "Hoạt động" : "Ngừng hoạt động"}
             </Tag>
           </Dropdown>
         );
@@ -181,10 +181,10 @@ const roomTypes = () => {
       render: (_, record) => (
         <Space size="medium">
           <Button onClick={() => roomType.openEdit(record)} type="primary">
-            Edit
+            Chỉnh sửa
           </Button>
           <Button onClick={() => roomType.openView(record)} type="dashed">
-            Detail
+            Chi tiết
           </Button>
         </Space>
       ),
@@ -256,8 +256,8 @@ const roomTypes = () => {
               onChange={handleFilterStatus}
               allowClear
               options={[
-                { value: "active", label: <span className="text-green-600">Active</span> },
-                { value: "inactive", label: <span className="text-red-600">Inactive</span> },
+                { value: "active", label: <span className="text-green-600">Hoạt động</span> },
+                { value: "inactive", label: <span className="text-red-600">Ngừng hoạt động</span> },
               ]}
             />
 
@@ -281,7 +281,7 @@ const roomTypes = () => {
           isOpen={roomType.open}
           onClose={roomType.close}
           mode={roomType.mode}
-          title={roomType.mode === FormModalModes.CREATE ? "Thêm loại phòng mới" : "Chỉnh sửa loại phòng"}
+          title={roomType.mode === FormModalModes.CREATE ? "Thêm loại phòng mới" : roomType.mode === FormModalModes.UPDATE ? "Chỉnh sửa loại phòng" : "Chi tiết loại phòng"}
           fields={roomTypeFormFields}
           initialValues={roomType.selectedRecord || defaultRoomTypeData}
           onSubmit={handleSubmitForm}

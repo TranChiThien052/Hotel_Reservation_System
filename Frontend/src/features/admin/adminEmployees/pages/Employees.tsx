@@ -105,17 +105,18 @@ const employees = () => {
       title: "Vị trí",
       dataIndex: "position",
       key: "position",
+      render: (text) => <p>{text === "manager" ? "Quản lý" : text === "staff" ? "Nhân viên" : text}</p>,
     },
     {
-      title: "Actions",
+      title: "Hành động",
       key: "actions",
       render: (_, record) => (
         <Space size="medium">
           <Button onClick={() => employee.openEdit(record)} type="primary">
-            Edit
+            Chỉnh sửa
           </Button>
           <Button onClick={() => employee.openView(record)} type="dashed">
-            Detail
+            Chi tiết
           </Button>
         </Space>
       ),
@@ -212,7 +213,9 @@ const employees = () => {
         title={
           employee.mode === FormModalModes.CREATE
             ? "Thêm nhân viên mới"
-            : "Chỉnh sửa nhân viên"
+            : employee.mode === FormModalModes.UPDATE
+            ? "Chỉnh sửa nhân viên"
+            : "Chi tiết nhân viên"
         }
         fields={emplloyeesFormFields}
         initialValues={employee.selectedRecord || defaultEmployeeData}

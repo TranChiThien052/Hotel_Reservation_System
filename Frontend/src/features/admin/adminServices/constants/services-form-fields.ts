@@ -58,8 +58,8 @@ export const servicesFormFields: FormField<ServiceFormData>[] = [
         label: "Trạng thái",
         type: FormFieldTypes.SELECT,
         options: [
-            { value: true, label: "Hoạt động" },
-            { value: false, label: "Không hoạt động" }
+            { value: true, label: "Khả dụng" },
+            { value: false, label: "Không khả dụng" }
         ]
     },
     {

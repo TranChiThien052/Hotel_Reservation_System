@@ -176,25 +176,25 @@ const Rooms = () => {
         const dynamicStatusItems: MenuProps["items"] = [
           {
             key: "Available",
-            label: <span className="text-green-600">Available</span>,
+            label: <span className="text-green-600">Khả dụng</span>,
             onClick: () =>
               handleStatusChange(record.id, { status: "available" }),
           },
           {
             key: "Unavailable",
-            label: <span className="text-red-600">Unavailable</span>,
+            label: <span className="text-red-600">Không khả dụng</span>,
             onClick: () =>
               handleStatusChange(record.id, { status: "unavailable" }),
           },
           {
             key: "Occupied",
-            label: <span className="text-yellow-600">Occupied</span>,
+            label: <span className="text-yellow-600">Đang sử dụng</span>,
             onClick: () =>
               handleStatusChange(record.id, { status: "occupied" }),
           },
           {
             key: "Cleaning",
-            label: <span className="text-blue-600">Cleaning</span>,
+            label: <span className="text-blue-600">Đang dọn dẹp</span>,
             onClick: () =>
               handleStatusChange(record.id, { status: "cleaning" }),
           },
@@ -218,7 +218,13 @@ const Rooms = () => {
               }
               style={{ cursor: "pointer" }}
             >
-              {text}
+              {text === "available"
+                ? "Khả dụng"
+                : text === "unavailable"
+                  ? "Không khả dụng"
+                  : text === "occupied"
+                    ? "Đang sử dụng"
+                    : "Đang dọn dẹp"}
             </Tag>
           </Dropdown>
         );
@@ -233,12 +239,12 @@ const Rooms = () => {
         const dynamicStatusItems: MenuProps["items"] = [
           {
             key: "active",
-            label: <span className="text-green-600">Active</span>,
+            label: <span className="text-green-600">Hoạt động</span>,
             onClick: () => handleStatusChange(record.id, { is_active: true }),
           },
           {
             key: "inactive",
-            label: <span className="text-red-600">Inactive</span>,
+            label: <span className="text-red-600">Ngừng hoạt động</span>,
             onClick: () => handleStatusChange(record.id, { is_active: false }),
           },
         ];
@@ -250,7 +256,7 @@ const Rooms = () => {
             placement="bottomLeft"
           >
             <Tag color={text ? "green" : "red"} style={{ cursor: "pointer" }}>
-              {text ? "Active" : "Inactive"}
+              {text ? "Hoạt động" : "Ngừng hoạt động"}
             </Tag>
           </Dropdown>
         );
@@ -262,15 +268,15 @@ const Rooms = () => {
       key: "notes",
     },
     {
-      title: "Actions",
+      title: "Hành động",
       key: "actions",
       render: (_, record) => (
         <Space size="medium">
           <Button onClick={() => room.openEdit(record)} type="primary">
-            Edit
+            Chỉnh sửa
           </Button>
           <Button onClick={() => room.openView(record)} type="dashed">
-            Detail
+            Chi tiết
           </Button>
         </Space>
       ),
@@ -347,11 +353,11 @@ const Rooms = () => {
               options={[
                 {
                   value: "active",
-                  label: <span className="text-green-600">Active</span>,
+                  label: <span className="text-green-600">Hoạt động</span>,
                 },
                 {
                   value: "inactive",
-                  label: <span className="text-red-600">Inactive</span>,
+                  label: <span className="text-red-600">Ngừng hoạt động</span>,
                 },
               ]}
             />
@@ -366,19 +372,19 @@ const Rooms = () => {
               options={[
                 {
                   value: "available",
-                  label: <span className="text-green-600">Available</span>,
+                  label: <span className="text-green-600">Khả dụng</span>,
                 },
                 {
                   value: "occupied",
-                  label: <span className="text-yellow-600">Occupied</span>,
+                  label: <span className="text-yellow-600">Đang sử dụng</span>,
                 },
                 {
                   value: "unavailable",
-                  label: <span className="text-red-600">Unavailable</span>,
+                  label: <span className="text-red-600">Không khả dụng</span>,
                 },
                 {
                   value: "cleaning",
-                  label: <span className="text-blue-600">Cleaning</span>,
+                  label: <span className="text-blue-600">Đang dọn dẹp</span>,
                 },
               ]}
             />
@@ -411,7 +417,9 @@ const Rooms = () => {
         title={
           room.mode === FormModalModes.CREATE
             ? "Thêm phòng mới"
-            : "Chỉnh sửa phòng"
+            : room.mode === FormModalModes.UPDATE
+            ? "Chỉnh sửa phòng"
+            : "Chi tiết phòng"
         }
         fields={roomsFormFields}
         initialValues={room.selectedRecord || defaultRoomData}

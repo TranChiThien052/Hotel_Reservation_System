@@ -6,16 +6,16 @@ import { branchApi } from "../../adminBranch/api/admin-api";
 export const roomTypeFormFields: FormField<RoomTypeFormData>[] = [
     {
         key: "branch_id",
-        label: "Branch ID",
-        placeholder: "Enter branch ID",
+        label: "Chi nhánh",
+        placeholder: "Chọn chi nhánh",
         type: FormFieldTypes.SELECT_FETCH,
         fetchOptions: branchApi.getBranches,
         customData: (data: any[]) => data.map((item) => ({label: item.name, value: item.id})),
     },
     {
         key: "name",
-        label: "Room Type Name",
-        placeholder: "Enter room type name",
+        label: "Tên loại phòng",
+        placeholder: "Nhập tên loại phòng",
         type: FormFieldTypes.INPUT,
         rules: [
             {
@@ -26,14 +26,14 @@ export const roomTypeFormFields: FormField<RoomTypeFormData>[] = [
     },
     {
         key: "description",
-        label: "Description",
-        placeholder: "Enter description",
+        label: "Mô tả",
+        placeholder: "Nhập mô tả",
         type: FormFieldTypes.TEXTAREA,
     },
     {
         key: "max_guests",
-        label: "Max Guests",
-        placeholder: "Enter maximum number of guests",
+        label: "Số lượng khách tối đa",
+        placeholder: "Nhập số lượng khách tối đa",
         type: FormFieldTypes.NUMBER,
         rules: [
             {
@@ -44,17 +44,17 @@ export const roomTypeFormFields: FormField<RoomTypeFormData>[] = [
     },
     {
         key: "is_active",
-        label: "Status",
+        label: "Trạng thái",
         type: FormFieldTypes.SELECT,
         options: [
-            { label: "Active", value: true },
-            { label: "Inactive", value: false }
+            { label: "Hoạt động", value: true },
+            { label: "Ngừng hoạt động", value: false }
         ]
     },
     {
         key: "images",
-        label: "Room Images",
-        placeholder: "Upload room images",
+        label: "Hình ảnh phòng",
+        placeholder: "Tải lên hình ảnh phòng",
         type: FormFieldTypes.IMAGE_UPLOAD,
      }
 ]

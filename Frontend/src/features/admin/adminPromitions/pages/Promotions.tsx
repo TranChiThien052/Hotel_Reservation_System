@@ -141,6 +141,12 @@ const Promotions = () => {
       title: "Loại giảm giá",
       dataIndex: "discount_type",
       key: "discount_type",
+      render: (text) => {
+        if (text === "percentage") {
+          return <span>Phần trăm</span>;
+        }
+        return <span>Số tiền cố định</span>;
+      }
     },
     {
       title: "Chi nhánh",
@@ -172,12 +178,12 @@ const Promotions = () => {
         const dynamicStatusItems: MenuProps["items"] = [
           {
             key: "active",
-            label: <span className="text-green-600">Active</span>,
+            label: <span className="text-green-600">Khả dụng</span>,
             onClick: () => handleStatusChange(record.id, { is_active: true }),
           },
           {
             key: "inactive",
-            label: <span className="text-red-600">Inactive</span>,
+            label: <span className="text-red-600">Không khả dụng</span>,
             onClick: () => handleStatusChange(record.id, { is_active: false }),
           },
         ];
@@ -189,7 +195,7 @@ const Promotions = () => {
             placement="bottomLeft"
           >
             <Tag color={text ? "green" : "red"} style={{ cursor: "pointer" }}>
-              {text ? "Active" : "Inactive"}
+              {text ? "Khả dụng" : "Không khả dụng"}
             </Tag>
           </Dropdown>
         );
@@ -201,10 +207,10 @@ const Promotions = () => {
       render: (_, record) => (
         <Space size="medium">
           <Button onClick={() => promotions.openEdit(record)} type="primary">
-            Edit
+            Chỉnh sửa
           </Button>
           <Button onClick={() => promotions.openView(record)} type="dashed">
-            Detail
+            Chi tiết
           </Button>
         </Space>
       ),
@@ -215,9 +221,9 @@ const Promotions = () => {
     <div className="p-7 flex flex-col gap-5 ">
       <div className="flex items-center justify-between mt-3">
         <div className="flex flex-col gap-1">
-          <p className="text-3xl font-bold">Quản lý dịch vụ</p>
+          <p className="text-3xl font-bold">Quản lý khuyến mãi</p>
           <p className="text-gray-600">
-            Danh sách các dịch vụ trong hệ thống khách sạn Aurora
+            Danh sách các khuyến mãi trong hệ thống khách sạn Aurora
           </p>
         </div>
         <div
@@ -303,7 +309,9 @@ const Promotions = () => {
         title={
           promotions.mode === FormModalModes.CREATE
             ? "Thêm khuyến mãi mới"
-            : "Chỉnh sửa khuyến mãi"
+            : promotions.mode === FormModalModes.UPDATE
+            ? "Chỉnh sửa khuyến mãi"
+            : "Chi tiết khuyến mãi"
         }
         fields={promotionsFormFields}
         initialValues={promotions.selectedRecord || defaultPromotionData}

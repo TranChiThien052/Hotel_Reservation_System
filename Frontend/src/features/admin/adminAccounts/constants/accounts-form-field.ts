@@ -65,8 +65,8 @@ export const accountsFormFields: FormField<AccountFormData>[] = [
         type: FormFieldTypes.SELECT,
         options: [
             { label: "Admin", value: "admin" },
-            { label: "Manager", value: "manager" },
-            { label: "Staff", value: "staff" },
+            { label: "Quản lý", value: "manager" },
+            { label: "Nhân viên", value: "staff" },
         ],
         rules: [
             {

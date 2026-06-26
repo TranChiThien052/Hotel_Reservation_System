@@ -149,12 +149,12 @@ const Services = () => {
         const dynamicStatusItems: MenuProps["items"] = [
           {
             key: "active",
-            label: <span className="text-green-600">Active</span>,
+            label: <span className="text-green-600">Khả dụng</span>,
             onClick: () => handleStatusChange(record.id, { is_active: true }),
           },
           {
             key: "inactive",
-            label: <span className="text-red-600">Inactive</span>,
+            label: <span className="text-red-600">Không khả dụng</span>,
             onClick: () => handleStatusChange(record.id, { is_active: false }),
           },
         ];
@@ -166,7 +166,7 @@ const Services = () => {
             placement="bottomLeft"
           >
             <Tag color={text ? "green" : "red"} style={{ cursor: "pointer" }}>
-              {text ? "Active" : "Inactive"}
+              {text ? "Khả dụng" : "Không khả dụng"}
             </Tag>
           </Dropdown>
         );
@@ -178,10 +178,10 @@ const Services = () => {
       render: (_, record) => (
         <Space size="medium">
           <Button onClick={() => services.openEdit(record)} type="primary">
-            Edit
+            Chỉnh sửa
           </Button>
           <Button onClick={() => services.openView(record)} type="dashed">
-            Detail
+            Chi tiết
           </Button>
         </Space>
       ),
@@ -255,11 +255,11 @@ const Services = () => {
               options={[
                 {
                   value: "active",
-                  label: <span className="text-green-600">Active</span>,
+                  label: <span className="text-green-600">Khả dụng</span>,
                 },
                 {
                   value: "inactive",
-                  label: <span className="text-red-600">Inactive</span>,
+                  label: <span className="text-red-600">Không khả dụng</span>,
                 },
               ]}
             />
@@ -292,7 +292,9 @@ const Services = () => {
         title={
           services.mode === FormModalModes.CREATE
             ? "Thêm dịch vụ mới"
-            : "Chỉnh sửa dịch vụ"
+            : services.mode === FormModalModes.UPDATE
+              ? "Chỉnh sửa dịch vụ"
+              : "Chi tiết dịch vụ"
         }
         fields={servicesFormFields}
         initialValues={services.selectedRecord || defaultServiceData}

@@ -202,12 +202,12 @@ const Branches = () => {
         const dynamicStatusItems: MenuProps["items"] = [
           {
             key: "active",
-            label: <span className="text-green-600">Active</span>,
+            label: <span className="text-green-600">Hoạt động</span>,
             onClick: () => handleStatusChange(record.id, { is_active: true }),
           },
           {
             key: "inactive",
-            label: <span className="text-red-600">Inactive</span>,
+            label: <span className="text-red-600">Ngừng hoạt động</span>,
             onClick: () => handleStatusChange(record.id, { is_active: false }),
           },
         ];
@@ -219,7 +219,7 @@ const Branches = () => {
             placement="bottomLeft"
           >
             <Tag color={text ? "green" : "red"} style={{ cursor: "pointer" }}>
-              {text ? "Active" : "Inactive"}
+              {text ? "Hoạt động" : "Ngừng hoạt động"}
             </Tag>
           </Dropdown>
         );
@@ -236,10 +236,10 @@ const Branches = () => {
               handleOpenModal(FormModalModes.UPDATE, record);
             }} type="primary"
           >
-            Edit
+            Chỉnh sửa
           </Button>
           <Button onClick={() => handleOpenModal(FormModalModes.VIEW, record)} type="dashed">
-            Detail
+            Chi tiết
           </Button>
         </Space>
       ),
@@ -318,11 +318,11 @@ const Branches = () => {
               options={[
                 {
                   value: "active",
-                  label: <span className="text-green-600">Active</span>,
+                  label: <span className="text-green-600">Hoạt động</span>,
                 },
                 {
                   value: "inactive",
-                  label: <span className="text-red-600">Inactive</span>,
+                  label: <span className="text-red-600">Ngừng hoạt động</span>,
                 },
               ]}
             />
@@ -355,7 +355,7 @@ const Branches = () => {
         title={
           modalMode === FormModalModes.CREATE
             ? "Thêm chi nhánh mới"
-            : "Chỉnh sửa chi nhánh"
+            : modalMode === FormModalModes.UPDATE ? "Chỉnh sửa chi nhánh" : "Chi tiết chi nhánh"
         }
         fields={branchEditFormFields}
         initialValues={selectedBranch || defaultBranchData}

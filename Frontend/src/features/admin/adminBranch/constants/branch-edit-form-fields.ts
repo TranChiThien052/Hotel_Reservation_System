@@ -82,8 +82,8 @@ export const branchEditFormFields: FormField<BranchFormData>[] = [
         placeholder: "Chọn trạng thái",
         type: FormFieldTypes.SELECT,
         options: [
-            { label: "Active", value: true },
-            { label: "Inactive", value: false },
+            { label: "Hoạt động", value: true },
+            { label: "Ngừng hoạt động", value: false },
         ],
         rules:[
             {
