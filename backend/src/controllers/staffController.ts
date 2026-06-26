@@ -20,8 +20,8 @@ class StaffController {
     };
 
     async getStaffByBranchId(req, res) {
-        const { branch_id } = req.params;
-        return await StaffService.getStaffByBranchId(branch_id)
+        const { id } = req.params;
+        return await StaffService.getStaffByBranchId(id)
             .then(staff => res.status(200).json(staff))
             .catch(error => {
                 if (typeof parseInt(error.code) === 'number')

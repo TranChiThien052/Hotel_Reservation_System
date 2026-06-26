@@ -6,7 +6,7 @@ const router = express.Router();
 
 /**
  * @swagger
- * /staffs:
+ * /staff:
  *   get:
  *     summary: Get data
  *     tags: [Staff]
@@ -34,13 +34,27 @@ const router = express.Router();
  *                           type: string
  *                        created_at:
  *                           type: string
+ *                        accounts:
+ *                           type: object
+ *                           properties:
+ *                              id: 
+ *                                  type: string
+ *                                  format: uuid
+ *                              username:
+ *                                  type: string
+ *                              status:
+ *                                  type: enum
+ *                                  enum: ['active', 'inactive']
+ *                              branch_id:
+ *                                  type: string
+ *                                  format: uuid
  *       500:
  *         description: Internal server error
  */
 router.get('/', StaffController.getAllStaff);
 /**
  * @swagger
- * /staffs/{id}:
+ * /staff/{id}:
  *   get:
  *     summary: Get data
  *     tags: [Staff]
@@ -73,6 +87,21 @@ router.get('/', StaffController.getAllStaff);
  *                        type: string
  *                     created_at:
  *                        type: string
+ *                     accounts:
+ *                        type: object
+ *                        properties:
+ *                           id:
+ *                              type: string
+ *                              format: uuid
+ *                           username:
+ *                              type: string
+ *                           status:
+ *                              type: string
+ *                              format: enum
+ *                              enum: ['active', 'inactive']
+ *                           branch_id:
+ *                              type: string
+ *                              format: uuid
  *       404:
  *         description: Staff not found
  *       500:
@@ -81,7 +110,7 @@ router.get('/', StaffController.getAllStaff);
 router.get('/:id', StaffController.getStaffById);
 /**
  * @swagger
- * /staffs:
+ * /staff:
  *   post:
  *     summary: Create new record
  *     tags: [Staff]
@@ -129,9 +158,10 @@ router.get('/:id', StaffController.getStaffById);
  *       500:
  *         description: Internal server error
  */
+router.post('/', StaffController.createStaff);
 /**
  * @swagger
- * /staffs/branch/{id}:
+ * /staff/branches/{id}:
  *   get:
  *     summary: Get data
  *     tags: [Staff]
@@ -166,17 +196,30 @@ router.get('/:id', StaffController.getStaffById);
  *                           type: string
  *                        created_at:
  *                           type: string
+ *                        accounts:
+ *                           type: object
+ *                           properties:
+ *                              id:
+ *                                 type: string
+ *                                 format: uuid
+ *                              username:
+ *                                 type: string
+ *                              status:
+ *                                 type: string
+ *                                 format: enum
+ *                                 enum: ['active', 'inactive']
+ *                              branch_id:
+ *                                 type: string
+ *                                 format: uuid
  *       404:
  *         description: Branch not found
  *       500:
  *         description: Internal server error
  */
-router.get('/branch/:id', StaffController.getStaffByBranchId)
-
-router.post('/', StaffController.createStaff);
+router.get('/branches/:id', StaffController.getStaffByBranchId)
 /**
  * @swagger
- * /staffs/{id}:
+ * /staff/{id}:
  *   put:
  *     summary: Update record
  *     tags: [Staff]
@@ -232,7 +275,7 @@ router.post('/', StaffController.createStaff);
 router.put('/:id', StaffController.updateStaff);
 /**
  * @swagger
- * /staffs/{id}:
+ * /staff/{id}:
  *   delete:
  *     summary: Delete record
  *     tags: [Staff]
