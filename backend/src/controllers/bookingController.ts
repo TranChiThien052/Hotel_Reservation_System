@@ -19,16 +19,27 @@ class BookingController {
             .catch(error => res.status(500).json({ error: error.message }));
     };
 
+    async getTodayCheckin(req, res) {
+        const { id } = req.params;
+        return await BookingService.getTodayCheckinCount(id)
+            .then(response => {
+                res.status(200).json({ bookings: response, count: response.length })
+            })
+            .catch(error => {
+                if (typeof parseInt(error.code) === 'number')
+                    return res.status(parseInt(error.code)).json({ error: error.message });
+                res.status(500).json({ error: error.message })
+            });
+    }
+
     async createBooking(req, res) {
         const { branch_id, customer_id, room_type_id, booking_type, status, checkin_at, checkout_at, num_guests, discount_id, created_by, notes } = req.body;
         const data = { branch_id, customer_id, room_type_id, booking_type, status, checkin_at, checkout_at, num_guests, discount_id, created_by, notes };
         return await BookingService.createBooking(data)
             .then(booking => res.status(201).json(booking))
             .catch(error => {
-                if (error.code !== 500) {
+                if (typeof parseInt(error.code) === 'number')
                     return res.status(parseInt(error.code)).json({ error: error.message });
-                }
-                console.log(error);
                 res.status(500).json({ error: error.message });
             });
     };
@@ -40,9 +51,8 @@ class BookingController {
         return await BookingService.updateBooking(id, data)
             .then(booking => res.status(200).json(booking))
             .catch(error => {
-                if (error.code !== 500) {
+                if (typeof parseInt(error.code) === 'number')
                     return res.status(parseInt(error.code)).json({ error: error.message });
-                }
                 res.status(500).json({ error: error.message });
             });
     };

@@ -70,7 +70,6 @@ class AccountController {
 
     async createStaffAccount(req, res) {
         const { username, password, role, status, branch_id, full_name, phone } = req.body;
-        console.log(password);
         const data = { username, password, role, status, branch_id, full_name, phone };
         return await AccountService.registerStaffAccount(data)
             .then(response => res.status(200).json(response))

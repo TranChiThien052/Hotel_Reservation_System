@@ -6,6 +6,9 @@ import RoomPriceRepository from '../repositories/roomPriceRepo';
 import BranchRepository from '../repositories/branchRepo';
 import CustomerRepository from '../repositories/customerRepo';
 import RoomTypeRepository from '../repositories/roomTypeRepo';
+import RoomAvailabilityService from './roomAvailabilityServices';
+import HolidayDateRepository from '../repositories/holidayDateRepo';
+import { prisma } from '../config/prisma';
 
 class BookingService {
     async getAllBookings() {
@@ -16,12 +19,20 @@ class BookingService {
         return await BookingRepository.getBookingById(id);
     };
 
+    async getTodayCheckinCount(branch_id) {
+        const validator = new Validator();
+        if (!validator.isEmpty("Branch ID", branch_id))
+            validator.isUUID("Branch ID", branch_id);
+        if (validator.error.length > 0)
+            throw new ValidationError('400', validator.clearError());
+        return await BookingRepository.getTodayCheckinCount(branch_id);
+    }
+
     async createBooking(data) {
         const validatedData = {
             ...(data.branch_id && { branch_id: data.branch_id }),
             ...(data.customer_id && { customer_id: data.customer_id }),
             ...(data.room_type_id && { room_type_id: data.room_type_id }),
-            ...(data.assigned_room_id && { assigned_room_id: data.assigned_room_id }),
             ...(data.booking_type && { booking_type: data.booking_type }),
             ...(data.checkin_at && { checkin_at: data.checkin_at }),
             ...(data.checkout_at && { checkout_at: data.checkout_at }),
@@ -100,7 +111,18 @@ class BookingService {
         else
             validatedData.room_price_snapshot = roomPrice.price_per_hour;
 
-        validatedData.subtotal = generateSubtotal(validatedData.room_price_snapshot, validatedData.checkin_at, validatedData.checkout_at, validatedData.booking_type);
+        const holidays = await HolidayDateRepository.getHolidayDatesByBranchId(validatedData.branch_id);
+        const holidayDates = holidays.map((h: any) => new Date(h.date).toDateString());
+
+        validatedData.subtotal = RoomAvailabilityService.calculateDynamicPrice(
+            validatedData.checkin_at,
+            validatedData.checkout_at,
+            Number(validatedData.room_price_snapshot),
+            Number(roomPrice.weekend_rate),
+            Number(roomPrice.holiday_rate),
+            holidayDates,
+            validatedData.booking_type
+        );
         validatedData.total_amount = validatedData.subtotal;
 
         if (validatedData.discount_id) {
@@ -122,7 +144,43 @@ class BookingService {
             validatedData.status = "pending";
         validatedData.expires_at = new Date(Date.now() + 15 * 60 * 1000);
 
-        return await BookingRepository.createBooking(validatedData);
+        try {
+            return await BookingRepository.createBookingWithOverlapChecking(validatedData);
+        } catch (error: any) {
+            if (error.message.includes("Overbooking"))
+                throw new ValidationError('409', error.message);
+            else
+                throw new Error(error);
+        }
+
+        return await prisma.$transaction(async (tx) => {
+            const booking = await tx.bookings.create({ data: validatedData });
+
+            const totalRooms = await tx.rooms.count({
+                where: {
+                    branch_id: validatedData.branch_id,
+                    room_type_id: validatedData.room_type_id,
+                    is_active: true,
+                    status: { notIn: ['maintenance', 'unavailable'] }
+                }
+            });
+
+            const bookedCount = await tx.bookings.count({
+                where: {
+                    branch_id: validatedData.branch_id,
+                    room_type_id: validatedData.room_type_id,
+                    status: { in: ['pending', 'confirmed', 'checked_in'] },
+                    checkin_at: { lt: validatedData.checkout_at },
+                    checkout_at: { gt: validatedData.checkin_at }
+                }
+            });
+
+            if (bookedCount > totalRooms) {
+                throw new ValidationError("409", "Overbooking detected: No rooms available for the selected dates.");
+            }
+
+            return booking;
+        });
     };
 
     async updateBooking(id, data) {

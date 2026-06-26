@@ -163,9 +163,6 @@ router.get('/:id', BookingController.getBookingById);
  *           schema:
  *             type: object
  *             properties:
- *                booking_code:
- *                   type: string
- *                   required: true
  *                branch_id:
  *                   type: string
  *                   required: true
@@ -173,9 +170,6 @@ router.get('/:id', BookingController.getBookingById);
  *                   type: string
  *                   required: true
  *                room_type_id:
- *                   type: string
- *                   required: true
- *                assigned_room_id:
  *                   type: string
  *                   required: true
  *                booking_type:
@@ -196,20 +190,8 @@ router.get('/:id', BookingController.getBookingById);
  *                num_guests:
  *                   type: integer
  *                   required: true
- *                room_price_snapshot:
- *                   type: number
- *                   format: double
- *                   required: true
  *                discount_id:
  *                   type: string
- *                   required: false
- *                discount_amount:
- *                   type: number
- *                   format: double
- *                   required: false
- *                deposit_amount:
- *                   type: number
- *                   format: double
  *                   required: false
  *                created_by:
  *                   type: string
@@ -307,28 +289,12 @@ router.post('/', BookingController.createBooking);
  *           type: string
  *         description: The id parameter
  *     requestBody:
- *       required: true
+ *       required: false
  *       content:
  *         application/json:
  *           schema:
  *             type: object
  *             properties:
- *                id:
- *                   type: string
- *                   required: true
- *                   format: uuid
- *                booking_code:
- *                   type: string
- *                   required: false
- *                   example: BOOK-001
- *                branch_id:
- *                   type: string
- *                   required: false
- *                   format: uuid
- *                customer_id:
- *                   type: string
- *                   required: false
- *                   format: uuid
  *                room_type_id:
  *                   type: string
  *                   required: false
@@ -337,9 +303,6 @@ router.post('/', BookingController.createBooking);
  *                   type: string
  *                   required: false
  *                   format: uuid
- *                booking_type:
- *                   type: string
- *                   required: false
  *                status:
  *                   type: string
  *                   required: false
@@ -351,13 +314,15 @@ router.post('/', BookingController.createBooking);
  *                   type: string
  *                   required: false
  *                   format: date-time
+ *                actual_checkin_at:
+ *                   type: string
+ *                   format: date-time
+ *                actual_checkout_at:
+ *                   type: string
+ *                   format: date-time
  *                num_guests:
  *                   type: integer
  *                   required: false
- *                room_price_snapshot:
- *                   type: number
- *                   required: false
- *                   format: double
  *                discount_id:
  *                   type: string
  *                   required: false
@@ -366,26 +331,9 @@ router.post('/', BookingController.createBooking);
  *                   type: number
  *                   required: false
  *                   format: double
- *                subtotal:
- *                   type: number
- *                   required: false
- *                   format: double
- *                total_amount:
- *                   type: number
- *                   required: false
- *                   format: double
- *                deposit_amount:
- *                   type: number
- *                   required: false
- *                   format: double
- *                deposit_paid_at:
+ *                discount_paid_at:
  *                   type: string
- *                   required: false
  *                   format: date-time
- *                created_by:
- *                   type: string
- *                   required: false
- *                   format: uuid
  *                notes:
  *                   type: string
  *                   required: false
@@ -507,5 +455,124 @@ router.put('/:id', BookingController.updateBooking);
  *         description: Successful operation
  */
 router.delete('/:id', BookingController.deleteBooking);
-
+/**
+ * @swagger
+ * /bookings/today/{branch_id}:
+ *    get:
+ *       summary: Get today checkin count
+ *       tags: [Booking]
+ *       parameters:
+ *          - in: path
+ *            name: branch_id
+ *            required: true
+ *            schema:
+ *               type: string
+ *            description: The branch id parameter
+ *       responses:
+ *          200:
+ *             description: Successful operation
+ *             content:
+ *                application/json:
+ *                   schema:
+ *                      type: object
+ *                      properties:
+ *                         bookings:
+ *                            type: array
+ *                            items:
+ *                               type: object
+ *                               properties:
+ *                                  id:
+ *                                     type: string
+ *                                     required: true
+ *                                     format: uuid
+ *                                  booking_code:
+ *                                     type: string
+ *                                     required: false
+ *                                     example: BOOK-001
+ *                                  branch_id:
+ *                                     type: string
+ *                                     required: false
+ *                                     format: uuid
+ *                                  customer_id:
+ *                                     type: string
+ *                                     required: false
+ *                                     format: uuid
+ *                                  room_type_id:
+ *                                     type: string
+ *                                     required: false
+ *                                     format: uuid
+ *                                  assigned_room_id:
+ *                                     type: string
+ *                                     required: false
+ *                                     format: uuid
+ *                                  booking_type:
+ *                                     type: string
+ *                                     required: false
+ *                                  status:
+ *                                     type: string
+ *                                     required: false
+ *                                  checkin_at:
+ *                                     type: string
+ *                                     required: false
+ *                                     format: date-time
+ *                                  checkout_at:
+ *                                     type: string
+ *                                     required: false
+ *                                     format: date-time
+ *                                  num_guests:
+ *                                     type: integer
+ *                                     required: false
+ *                                  room_price_snapshot:
+ *                                     type: number
+ *                                     required: false
+ *                                     format: double
+ *                                  discount_id:
+ *                                     type: string
+ *                                     required: false
+ *                                     format: uuid
+ *                                  discount_amount:
+ *                                     type: number
+ *                                     required: false
+ *                                     format: double
+ *                                  subtotal:
+ *                                     type: number
+ *                                     required: false
+ *                                     format: double
+ *                                  total_amount:
+ *                                     type: number
+ *                                     required: false
+ *                                     format: double
+ *                                  deposit_amount:
+ *                                     type: number
+ *                                     required: false
+ *                                     format: double
+ *                                  deposit_paid_at:
+ *                                     type: string
+ *                                     required: false
+ *                                     format: date-time
+ *                                  created_by:
+ *                                     type: string
+ *                                     required: false
+ *                                     format: uuid
+ *                                  notes:
+ *                                     type: string
+ *                                     required: false
+ *                                  created_at:
+ *                                     type: string
+ *                                     required: false
+ *                                     format: date-time
+ *                                  updated_at:
+ *                                     type: string
+ *                                     required: false
+ *                                     format: date-time
+ *                         count:
+ *                            type: integer
+ *          400:
+ *             description: Bad request
+ *          404:
+ *             description: Data not found
+ *          500:
+ *             description: Internal server error
+ */
+router.get('/today/:id', BookingController.getTodayCheckin);
 export default router;
