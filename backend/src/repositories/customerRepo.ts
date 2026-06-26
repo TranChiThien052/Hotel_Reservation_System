@@ -2,18 +2,49 @@ import { prisma } from '../config/prisma';
 
 class CustomerRepository {
     async getAllCustomers() {
-        return await prisma.customers.findMany();
+        return await prisma.customers.findMany({
+            include: {
+                accounts: {
+                    select: {
+                        id: true,
+                        username: true,
+                        status: true,
+                        branch_id: true,
+                    },
+                },
+            },
+        });
     };
 
     async getCustomerById(id) {
         return await prisma.customers.findUnique({
             where: { id: id },
+            include: {
+                accounts: {
+                    select: {
+                        id: true,
+                        username: true,
+                        status: true,
+                        branch_id: true,
+                    },
+                },
+            },
         });
     };
 
     async getCustomerByAccountId(accountId) {
         return await prisma.customers.findUnique({
             where: { account_id: accountId },
+            include: {
+                accounts: {
+                    select: {
+                        id: true,
+                        username: true,
+                        status: true,
+                        branch_id: true,
+                    },
+                },
+            },
         });
     };
 
