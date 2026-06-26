@@ -288,9 +288,14 @@ router.delete('/:id', AccountController.deleteAccount);
  *                                   type: string
  *                                position:
  *                                   type: string
- *                                created_at:
- *                                   type: string
- *                                   format: date-time
+ *           400:
+ *              description: Bad request
+ *           404:
+ *              description: Branch not found           
+ *           409:
+ *              description: Phone number or username already exists
+ *           500:
+ *              description: Internal server error
  */
 router.post('/register/staff', AccountController.createStaffAccount);
 

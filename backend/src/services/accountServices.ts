@@ -3,6 +3,7 @@ import BranchRepository from '../repositories/branchRepo';
 import RefreshTokenRepository from '../repositories/refreshTokenRepo';
 import StaffRepo from '../repositories/staffRepo';
 import { Validator, ValidationError } from '../middlewares/validateData';
+import { prisma } from '../config/prisma';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 import accountRepo from '../repositories/accountRepo';
@@ -198,25 +199,60 @@ class AccountService {
             throw new ValidationError("409", "Account with this phone number already exists");
         }
         validatedData.password_hash = await bcrypt.hash(validatedData.password, Number(process.env.SALT_ROUNDS) || 5);
-        const createdAccount = await accountRepo.createAccount({
-            username: validatedData.username,
-            password_hash: validatedData.password_hash,
-            role: validatedData.role,
-            status: validatedData.status,
-            branch_id: validatedData.branch_id,
+
+        const result = prisma.$transaction(async (tx) => {
+            const account = await tx.accounts.create({
+                data: {
+                    username: validatedData.username,
+                    password_hash: validatedData.password_hash,
+                    role: validatedData.role,
+                    status: validatedData.status,
+                    branch_id: validatedData.branch_id,
+                }
+            })
+            if (!account) {
+                throw new ValidationError("500", "Fail to create account");
+            }
+            const staff = await tx.staff.create({
+                data: {
+                    account_id: account.id,
+                    branch_id: validatedData.branch_id,
+                    full_name: validatedData.full_name,
+                    phone: validatedData.phone,
+                    position: validatedData.role
+                }
+            })
+            if (!staff) {
+                throw new ValidationError("500", "Fail to create staff");
+            }
+            return {
+                message: "Create staff's account successfully",
+                created_account: account,
+                created_staff: staff
+            }
         })
-        const createdStaff = await staffRepo.createStaff({
-            branch_id: validatedData.branch_id,
-            account_id: createdAccount.id,
-            full_name: validatedData.full_name,
-            phone: validatedData.phone,
-            position: validatedData.role
-        })
-        return {
-            message: "Create staff's account successfully",
-            create_account: createdAccount,
-            create_staff: createdStaff,
-        }
+
+        return result;
+
+        // const createdAccount = await accountRepo.createAccount({
+        //     username: validatedData.username,
+        //     password_hash: validatedData.password_hash,
+        //     role: validatedData.role,
+        //     status: validatedData.status,
+        //     branch_id: validatedData.branch_id,
+        // })
+        // const createdStaff = await staffRepo.createStaff({
+        //     branch_id: validatedData.branch_id,
+        //     account_id: createdAccount.id,
+        //     full_name: validatedData.full_name,
+        //     phone: validatedData.phone,
+        //     position: validatedData.role
+        // })
+        // return {
+        //     message: "Create staff's account successfully",
+        //     create_account: createdAccount,
+        //     create_staff: createdStaff,
+        // }
     };
 
     async getAccountInformationFromToken(token) {
