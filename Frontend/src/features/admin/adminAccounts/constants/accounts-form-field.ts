@@ -15,7 +15,8 @@ export const accountsFormFields: FormField<AccountFormData>[] = [
                 required: true,
                 message: "Vui lòng nhập tên đăng nhập"
             }
-        ]
+        ],
+        hideInUpdateMode: true
     },
     {
         key: "password",
@@ -41,7 +42,8 @@ export const accountsFormFields: FormField<AccountFormData>[] = [
                 required: true,
                 message: "Vui lòng nhập họ và tên"
             }
-        ]
+        ],
+        hideInUpdateMode: true
     },
     {
         key: "phone",
@@ -53,7 +55,8 @@ export const accountsFormFields: FormField<AccountFormData>[] = [
                 required: true,
                 message: "Vui lòng nhập số điện thoại"
             }
-        ]
+        ],
+        hideInUpdateMode: true
     },
     {
         key: "role",

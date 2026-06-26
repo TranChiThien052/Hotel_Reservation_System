@@ -14,10 +14,12 @@ export interface Account {
     staff?: {
         id: string;
         full_name: string;
+        phone: string;
     };
     customers?: {
         id: string;
         full_name: string;
+        phone: string;
     };
 }
 

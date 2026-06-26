@@ -50,7 +50,6 @@ const Accounts = () => {
     fetchAccounts();
   }, [fetchAccounts]);
 
-  console.log("accountsData:", accountsData);
 
   const handleStatusChange = async (id: string, data: any) => {
     setLoading(true);
@@ -59,11 +58,11 @@ const Accounts = () => {
       await accountApi.updateAccount(id, data);
       setAccountsData((prev) =>
         prev.map((account) =>
-          account.id === id ? { ...account, status: data.is_active  } : account,
+          account.id === id ? { ...account, status: data.status } : account,
         ),
       );
       message.success("Cập nhật trạng thái tài khoản thành công.");
-      fetchAccounts(); // Tải lại danh sách tài khoản sau khi cập nhật trạng thái
+      fetchAccounts(); 
     } catch (error) {
       console.error("Error updating account status:", error);
       message.error(
@@ -80,19 +79,16 @@ const Accounts = () => {
   ): AccountFormData => {
     if (!record) return defaultData;
 
-    // Lấy full_name từ staff hoặc customers nếu có
-    const fullName =
-      record.staff?.full_name || record.customers?.full_name || "";
+    const fullName = record.staff?.full_name || record.customers?.full_name || "";
 
-    // Lưu ý: Interface Account của bạn không có trường phone.
-    // Nếu sau này bạn cập nhật API có trường phone trong record, hãy map nó ở đây.
-    const phone = "";
+
+    const phone = record.staff?.phone || record.customers?.phone || "";
 
     return {
       username: record.username,
       password: record.password,
       full_name: fullName,
-      phone: phone, // Hoặc (record as any).phone nếu thực tế API có trả về mà type chưa cập nhật
+      phone: phone, 
       role: record.role,
       status: record.status,
       branch_id: record.branch_id,
@@ -116,8 +112,8 @@ const Accounts = () => {
       account.selectedRecord
     ) {
       try {
-        const {password, ...updateData} = values; // Loại bỏ password nếu không muốn cập nhật
-        await accountApi.updateAccount(account.selectedRecord.id, updateData);
+        await accountApi.updateAccount(account.selectedRecord.id, values);
+        console.log("Updated account:", values);
         message.success("Tài khoản đã được cập nhật thành công.");
         account.close();
         fetchAccounts();
@@ -169,12 +165,12 @@ const Accounts = () => {
           {
             key: "active",
             label: <span className="text-green-600">Active</span>,
-            onClick: () => handleStatusChange(record.id, { is_active: "active" }),
+            onClick: () => handleStatusChange(record.id, { status: "active" }),
           },
           {
             key: "inactive",
             label: <span className="text-red-600">Inactive</span>,
-            onClick: () => handleStatusChange(record.id, { is_active: "inactive" }),
+            onClick: () => handleStatusChange(record.id, { status: "inactive" }),
           },
         ];
 
@@ -184,8 +180,8 @@ const Accounts = () => {
             trigger={["click"]} //Click để hiển thị
             placement="bottomLeft"
           >
-            <Tag color={text ? "green" : "red"} style={{ cursor: "pointer" }}>
-              {text ? "Active" : "Inactive"}
+            <Tag color={text === "active" ? "green" : "red"} style={{ cursor: "pointer" }}>
+              {text === "active" ? "Active" : "Inactive"}
             </Tag>
           </Dropdown>
         );
@@ -201,7 +197,12 @@ const Accounts = () => {
       key: "actions",
       render: (_, record) => (
         <Space size="medium">
-          <Button onClick={() => account.openEdit(record)}>Edit</Button>
+          <Button onClick={() => account.openEdit(record)} type="primary">
+            Edit
+          </Button>
+          <Button onClick={() => account.openView(record)} type="dashed">
+            Detail
+          </Button>
         </Space>
       ),
     },
@@ -253,7 +254,7 @@ const Accounts = () => {
         <div className="bg-white rounded-lg border border-gray-300 shadow p-5 flex flex-col gap-3">
           <div className="flex items-center gap-2 justify-between">
             <span className="font-xl font-bold text-yellow-500">
-              Đang bị khóa
+              Dừng hoạt động
             </span>
             <LuWrench className="text-yellow-500 text-2xl" />
           </div>
@@ -287,7 +288,7 @@ const Accounts = () => {
             />
 
             <Input
-              placeholder="Tìm kiếm..."
+              placeholder="Username..."
               prefix={<IoSearch className="text-xl" />}
               onChange={(e) => handleSearch(e.target.value)}
             />
