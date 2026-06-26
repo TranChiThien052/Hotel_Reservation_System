@@ -151,11 +151,17 @@ const Promotions = () => {
       title: "Ngày bắt đầu",
       dataIndex: "valid_from",
       key: "valid_from",
+      render: (text) => (
+        <span>{text ? new Date(text).toLocaleDateString() : "-"}</span>
+      )
     },
     {
       title: "Ngày kết thúc",
       dataIndex: "valid_to",
       key: "valid_to",
+      render: (text) => (
+        <span>{text ? new Date(text).toLocaleDateString() : "-"}</span>
+      )
     },
     {
       title: "Trạng thái",

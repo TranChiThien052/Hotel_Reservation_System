@@ -89,7 +89,7 @@ const FormModal = <T extends object>({
       onCancel={onClose}
       destroyOnClose
       centered
-      width={520}
+      width={700}
       footer={[
         <Button key="cancel" onClick={onClose}>{isViewMode ? 'Đóng' : 'Hủy'}</Button>,
         !isViewMode && (

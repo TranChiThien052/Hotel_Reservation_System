@@ -122,7 +122,10 @@ const Customers = () => {
     {
       title: "Ngày sinh",
       key: "date_of_birth",
-      render: (_, record) => <p>{record.date_of_birth}</p>,
+      dataIndex: "date_of_birth",
+      render: (text) => (
+        <span>{text ? new Date(text).toLocaleDateString() : "-"}</span>
+      )
     },
     {
       title: "Địa chỉ",
