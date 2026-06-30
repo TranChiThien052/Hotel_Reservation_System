@@ -69,4 +69,8 @@ router.post('/refresh', AccountController.refreshToken);
  */
 router.get('/me', AccountController.getAccountInformation);
 
+router.post('/request-password-reset', AccountController.requestResetPassword);
+
+router.post('/reset-password', AccountController.resetPassword);
+
 export default router;

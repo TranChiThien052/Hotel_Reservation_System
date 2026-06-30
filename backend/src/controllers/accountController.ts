@@ -1,7 +1,32 @@
-import { access } from 'node:fs';
 import AccountService from '../services/accountServices';
 
 class AccountController {
+    async resetPassword(req, res) {
+        const { newPassword } = req.body;
+        const token = req.query.token;
+        return await AccountService.resetPassword(newPassword, token)
+            .then(response => res.status(200).json(response))
+            .catch(error => {
+                if (typeof parseInt(error.code) === "number") {
+                    return res.status(parseInt(error.code)).json({ error: error.message });
+                }
+                res.status(500).json({ error: error.message });
+            });
+    };
+
+    async requestResetPassword(req, res) {
+        const { email } = req.body;
+        return await AccountService.requestPasswordReset(email)
+            .then(response => res.status(200).json(response))
+            .catch(error => {
+                console.log(error);
+                if (typeof parseInt(error.code) === "number") {
+                    return res.status(parseInt(error.code)).json({ error: error.message });
+                }
+                res.status(500).json({ error: error.message });
+            });
+    };
+
     async login(req, res) {
         const { username, password } = req.body;
         return await AccountService.login(username, password)
