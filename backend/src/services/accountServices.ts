@@ -1,15 +1,49 @@
 import AccountRepository from '../repositories/accountRepo';
 import BranchRepository from '../repositories/branchRepo';
 import RefreshTokenRepository from '../repositories/refreshTokenRepo';
-import StaffRepo from '../repositories/staffRepo';
 import { Validator, ValidationError } from '../middlewares/validateData';
 import { prisma } from '../config/prisma';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 import accountRepo from '../repositories/accountRepo';
-import staffRepo from '../repositories/staffRepo';
+import { generateToken, hashToken } from '../middlewares/generator';
+import ResetPasswordTokenRepo from '../repositories/resetPasswordTokenRepo';
+import { sendPasswordResetEmail } from '../services/emailServices'
 
 class AccountService {
+    async requestPasswordReset(email) {
+        const user = await accountRepo.getAccountByEmail(email);
+        if (!user)
+            throw new ValidationError('404', "Account not found");
+        const token = generateToken();
+        await ResetPasswordTokenRepo.createResetPasswordToken({
+            account_id: user.accounts?.id,
+            token_hash: hashToken(token),
+            expires_at: new Date(Date.now() + 30 * 60 * 1000),
+            is_used: false,
+        })
+        await sendPasswordResetEmail(email, user.full_name, token);
+    }
+
+    async resetPassword(newPassword, token) {
+        const validToken = await ResetPasswordTokenRepo.getResetPasswordToken(hashToken(token));
+        if (!validToken)
+            throw new ValidationError('404', 'Token not found');
+        if (validToken.is_used || validToken.expires_at < new Date())
+            throw new ValidationError('400', 'Token is not valid');
+        await prisma.$transaction(async () => {
+            const hashedPassword = await bcrypt.hash(newPassword, Number(process.env.SALT_ROUNDS) || 5);
+            await accountRepo.updateAccount(validToken.account_id, { password_hash: hashedPassword });
+            await ResetPasswordTokenRepo.updateResetPasswordToken(validToken.token_hash, { is_used: true });
+        }).catch(error => {
+            console.log(error);
+            throw new ValidationError('500', error.message);
+        })
+        return {
+            message: 'Password changed successfully',
+        };
+    }
+
     async login(username, password) {
         const validator = new Validator();
         if (!validator.isEmpty("Username", username))
@@ -233,26 +267,6 @@ class AccountService {
         })
 
         return result;
-
-        // const createdAccount = await accountRepo.createAccount({
-        //     username: validatedData.username,
-        //     password_hash: validatedData.password_hash,
-        //     role: validatedData.role,
-        //     status: validatedData.status,
-        //     branch_id: validatedData.branch_id,
-        // })
-        // const createdStaff = await staffRepo.createStaff({
-        //     branch_id: validatedData.branch_id,
-        //     account_id: createdAccount.id,
-        //     full_name: validatedData.full_name,
-        //     phone: validatedData.phone,
-        //     position: validatedData.role
-        // })
-        // return {
-        //     message: "Create staff's account successfully",
-        //     create_account: createdAccount,
-        //     create_staff: createdStaff,
-        // }
     };
 
     async getAccountInformationFromToken(token) {

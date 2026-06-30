@@ -28,6 +28,17 @@ class AccountRepository {
         });
     };
 
+    async getAccountByEmail(email) {
+        return await prisma.customers.findUnique({
+            where: {
+                email: email,
+            },
+            include: {
+                accounts: true,
+            }
+        });
+    }
+
     async getAccountById(id) {
         return await prisma.accounts.findUnique({
             where: { id: id },

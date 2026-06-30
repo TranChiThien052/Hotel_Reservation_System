@@ -9,6 +9,7 @@ import RoomTypeRepository from '../repositories/roomTypeRepo';
 import RoomAvailabilityService from './roomAvailabilityServices';
 import HolidayDateRepository from '../repositories/holidayDateRepo';
 import { prisma } from '../config/prisma';
+import accountServices from './accountServices';
 
 class BookingService {
     async getAllBookings() {
@@ -34,6 +35,7 @@ class BookingService {
             ...(data.customer_id && { customer_id: data.customer_id }),
             ...(data.room_type_id && { room_type_id: data.room_type_id }),
             ...(data.booking_type && { booking_type: data.booking_type }),
+            ...(data.status && { status: data.status }),
             ...(data.checkin_at && { checkin_at: data.checkin_at }),
             ...(data.checkout_at && { checkout_at: data.checkout_at }),
             ...(data.num_guests && { num_guests: data.num_guests }),
@@ -74,7 +76,11 @@ class BookingService {
         if (!validator.isEmpty("Checkout At", validatedData.checkout_at))
             validator.validateDate(validatedData.checkout_at);
         if (validatedData.created_by) {
-            validator.isUUID("Created By", validatedData.created_by);
+            if (validator.isUUID("Created By", validatedData.created_by)) {
+                const staff = await accountServices.getAccountById(validatedData.created_by);
+                if (!staff)
+                    throw new ValidationError('404', "Staff not found");
+            }
         }
 
         if (validator.validateDateOrder(validatedData.checkin_at, validatedData.checkout_at))
@@ -152,35 +158,6 @@ class BookingService {
             else
                 throw new Error(error);
         }
-
-        return await prisma.$transaction(async (tx) => {
-            const booking = await tx.bookings.create({ data: validatedData });
-
-            const totalRooms = await tx.rooms.count({
-                where: {
-                    branch_id: validatedData.branch_id,
-                    room_type_id: validatedData.room_type_id,
-                    is_active: true,
-                    status: { notIn: ['maintenance', 'unavailable'] }
-                }
-            });
-
-            const bookedCount = await tx.bookings.count({
-                where: {
-                    branch_id: validatedData.branch_id,
-                    room_type_id: validatedData.room_type_id,
-                    status: { in: ['pending', 'confirmed', 'checked_in'] },
-                    checkin_at: { lt: validatedData.checkout_at },
-                    checkout_at: { gt: validatedData.checkin_at }
-                }
-            });
-
-            if (bookedCount > totalRooms) {
-                throw new ValidationError("409", "Overbooking detected: No rooms available for the selected dates.");
-            }
-
-            return booking;
-        });
     };
 
     async updateBooking(id, data) {
