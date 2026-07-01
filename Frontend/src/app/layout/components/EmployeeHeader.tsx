@@ -1,12 +1,8 @@
 import { useAppDispatch, useAppSelector } from "@/app/store/hooks";
-import { Button, Dropdown, Space, type MenuProps } from "antd";
+import { Dropdown} from "antd";
 import { LogoutOutlined} from "@ant-design/icons";
 import { logout } from "@/features/auth/store/auth-slice";
 import { SlArrowDown, SlUser } from "react-icons/sl";
-
-
-
-
 
 const EmployeeHeader = () => {
   const user = useAppSelector((state) => state.auth.user);

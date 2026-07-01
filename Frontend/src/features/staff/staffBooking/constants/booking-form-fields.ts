@@ -5,7 +5,6 @@ import { branchApi } from "@/features/admin/adminBranch/api/admin-api";
 import { customersApi } from "@/features/admin/adminCustomers/api/customers-api";
 import { roomTypesApi } from "@/features/admin/adminRoomTypes/api/roomTypes-api";
 import { promotionApi } from "@/features/admin/adminPromitions/api/promotion-api";
-import { employeesApi } from "@/features/admin/adminEmployees/api/employees-api";
 import { accountApi } from "@/features/admin/adminAccounts/api/accounts-api";
 
 export const bookingFormFields: FormField<BookingFormData>[] = [
