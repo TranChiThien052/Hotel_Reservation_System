@@ -19,3 +19,15 @@
 .custom-antd-input-dark .ant-input-suffix .anticon {
   color: #9ca3af !important;
 }
+
+.custom-antd-button-logout 
+{
+  height: 100%;
+  border-radius: 0%;
+  border: none;
+}
+
+.custom-antd-button-logout:hover {
+  border-color: transparent !important; /* Hoặc màu border mặc định bạn muốn giữ nguyên */
+  color: inherit !important;
+}

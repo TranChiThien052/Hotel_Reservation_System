@@ -4,12 +4,28 @@ export interface LoginPayload {
 }
 
 export interface LoginResponse {
-  accessToken: string;
-  refreshToken: string;
-  user: {
-    id: number;
-    username: string;
-    email: string;
-    role: string;
-  };
+  access_token: string;
+}
+
+export interface AuthUser {
+  id: string;
+  username: string;
+  password: string;
+  role: string;
+  status: string;
+  branch_id?: string;
+  branches?: {
+    id: string;
+    name: string;
+  },
+  staff?: {
+    id: string;
+    full_name: string;
+    phone: string;
+  },
+  customers?: {
+    id: string;
+    full_name: string;
+    phone: string;
+  }
 }

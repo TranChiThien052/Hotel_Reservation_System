@@ -1,8 +1,8 @@
 
 import { NavLink, Outlet } from 'react-router-dom'
-import AdminHeader from '@/app/layout/components/admin/AdminHeader';
 import AdminFooter from '@/app/layout/components/admin/AdminFooter';
 import {sideBarItems} from '@/service/admin/sideBar';
+import EmployeeHeader from './components/EmployeeHeader';
 
 
 const adminLayout = () => {
@@ -27,7 +27,7 @@ const adminLayout = () => {
             </nav>
         </aside>
         <main className='flex-1 bg-gray-100 overflow-y-auto'>
-            <AdminHeader />
+            <EmployeeHeader />
             <Outlet/>
             <AdminFooter />
         </main>

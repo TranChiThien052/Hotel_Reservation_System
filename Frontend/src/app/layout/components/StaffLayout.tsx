@@ -2,6 +2,7 @@ import { staffSideBarItems } from "@/service/staff/staffSideBar"
 import { NavLink, Outlet } from "react-router-dom"
 // import AdminHeader from "./admin/AdminHeader"
 import AdminFooter from "./admin/AdminFooter"
+import EmployeeHeader from "./EmployeeHeader"
 
 
 const StaffLayout = () => {
@@ -26,7 +27,7 @@ const StaffLayout = () => {
             </nav>
         </aside>
         <main className='flex-1 bg-gray-100 overflow-y-auto'>
-            {/* <AdminHeader /> */}
+            <EmployeeHeader />
             <Outlet/>
             <AdminFooter />
         </main>
