@@ -5,7 +5,7 @@ class AccountController {
         const { newPassword } = req.body;
         const token = req.query.token;
         return await AccountService.resetPassword(newPassword, token)
-            .then(response => res.status(200).json(response))
+            .then(response => res.status(201).json(response))
             .catch(error => {
                 if (typeof parseInt(error.code) === "number") {
                     return res.status(parseInt(error.code)).json({ error: error.message });
@@ -17,9 +17,8 @@ class AccountController {
     async requestResetPassword(req, res) {
         const { email } = req.body;
         return await AccountService.requestPasswordReset(email)
-            .then(response => res.status(200).json(response))
+            .then(response => res.status(201).json(response))
             .catch(error => {
-                console.log(error);
                 if (typeof parseInt(error.code) === "number") {
                     return res.status(parseInt(error.code)).json({ error: error.message });
                 }
