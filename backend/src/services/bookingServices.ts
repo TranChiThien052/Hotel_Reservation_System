@@ -79,7 +79,7 @@ class BookingService {
             if (validator.isUUID("Created By", validatedData.created_by)) {
                 const staff = await accountServices.getAccountById(validatedData.created_by);
                 if (!staff)
-                    throw new ValidationError('404', "Staff not found");
+                    throw new ValidationError('404', "Staff's account not found");
             }
         }
 

@@ -23,6 +23,9 @@ class AccountService {
             is_used: false,
         })
         await sendPasswordResetEmail(email, user.full_name, token);
+        return {
+            message: 'Password reset email sent successfully',
+        };
     }
 
     async resetPassword(newPassword, token) {
