@@ -16,16 +16,16 @@ export interface SideBarItem {
 }
 
 export const sideBarItems: SideBarItem[] = [
-  { name: "Branch", path: "branches", icon: FaRegBuilding },
-  { name: "Room Types", path: "room-types", icon: MdOutlineBed  },
-  { name: "Rooms", path: "rooms", icon: LuDoorClosed  },
-  { name: "Room Prices", path: "room-prices", icon: PiMoneyWavy },
-  { name: "Services", path: "services", icon: RiServiceBellLine  },
-  {name: "Promotions", path: "promotions", icon: GoTag  },
-  {name: "Accounts", path: "accounts", icon: LuUserCog  },
-  {name: "Customers", path: "customers", icon: HiMiniUsers },
-  {name: "Employees", path: "employees", icon: FaRegIdCard  },
-  {name: "Audit Logs", path: "audit-logs", icon: FaClockRotateLeft  },
-  {name: "Reviews", path: "reviews", icon: GoCodeReview  },
-  {name: "Penalties", path: "penalties", icon: ImHammer2  },
+  { name: "Chi nhánh", path: "branches", icon: FaRegBuilding },
+  { name: "Loại phòng", path: "room-types", icon: MdOutlineBed  },
+  { name: "Phòng", path: "rooms", icon: LuDoorClosed  },
+  { name: "Giá phòng", path: "room-prices", icon: PiMoneyWavy },
+  { name: "Dịch vụ", path: "services", icon: RiServiceBellLine  },
+  {name: "Khuyến mãi", path: "promotions", icon: GoTag  },
+  {name: "Tài khoản", path: "accounts", icon: LuUserCog  },
+  {name: "Khách hàng", path: "customers", icon: HiMiniUsers },
+  {name: "Nhân viên", path: "employees", icon: FaRegIdCard  },
+  {name: "Nhật ký kiểm duyệt", path: "audit-logs", icon: FaClockRotateLeft  },
+  {name: "Đánh giá", path: "reviews", icon: GoCodeReview  },
+  {name: "Hình phạt", path: "penalties", icon: ImHammer2  },
 ];

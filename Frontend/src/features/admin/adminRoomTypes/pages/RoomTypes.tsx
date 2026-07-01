@@ -4,12 +4,13 @@ import { IoIosCheckmarkCircleOutline } from "react-icons/io";
 import { LuWrench } from "react-icons/lu";
 import type { RoomType, RoomTypeFormData } from "../types/roomsType-type";
 import { useCallback, useEffect, useState } from "react";
-import { Button, Dropdown, message, Space, Table, Tag, type MenuProps, type TableProps} from "antd";
+import { Button, Dropdown, Input, message, Select, Space, Table, Tag, type MenuProps, type TableProps} from "antd";
 import { useFormModal } from "@/shared/hooks/useFormModal";
 import { roomTypesApi } from "../api/roomTypes-api";
 import { FormModalModes } from "@/shared/types/type-form-mode";
 import FormModal from "@/app/layout/components/admin/FormModal";
 import { roomTypeFormFields } from "../constants/roomType-form-fields";
+import { IoSearch } from "react-icons/io5";
 
 const defaultRoomTypeData: RoomTypeFormData = {
   name: "",
@@ -23,6 +24,7 @@ const defaultRoomTypeData: RoomTypeFormData = {
 const roomTypes = () => {
   const roomType = useFormModal<RoomType>();
   const [roomTypesData, setRoomTypesData] = useState<RoomType[]>([]);
+  const [filteredRoomTypes, setFilteredRoomTypes] = useState<RoomType[]>([]);
   const [loading, setLoading] = useState(false);
 
   const fetchRoomTypes = useCallback(async () => {
@@ -30,6 +32,7 @@ const roomTypes = () => {
     try {
       const data = await roomTypesApi.getRoomTypes();
       setRoomTypesData(Array.isArray(data) ? data : []);
+      setFilteredRoomTypes(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error("Lỗi khi lấy dữ liệu loại phòng:", error);
       message.error("Không thể tải dữ liệu loại phòng. Vui lòng thử lại sau.");
@@ -91,6 +94,23 @@ const roomTypes = () => {
       }
     };
 
+    const handleFilterStatus = (status: string) => {
+    if (!status) {
+      setFilteredRoomTypes(roomTypesData);
+    } else {
+      const isActive = status === "active";
+      setFilteredRoomTypes(roomTypesData.filter((roomType) => roomType.is_active === isActive));
+    }
+  };
+
+  const handleSearch = (searchTerm: string) => {
+    const filtered = roomTypesData.filter((roomType) =>
+      roomType.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+      roomType.branches.name.toLowerCase().includes(searchTerm.toLowerCase()), 
+    );
+    setFilteredRoomTypes(filtered);
+  }
+
   const columns: TableProps<RoomType>["columns"] = [
     {
       title: "",
@@ -132,12 +152,12 @@ const roomTypes = () => {
         const dynamicStatusItems: MenuProps["items"] = [
           {
             key: "active",
-            label: <span className="text-green-600">Active</span>,
+            label: <span className="text-green-600">Hoạt động</span>,
             onClick: () => handleStatusChange(record.id, { is_active: true }),
           },
           {
             key: "inactive",
-            label: <span className="text-red-600">Inactive</span>,
+            label: <span className="text-red-600">Ngừng hoạt động</span>,
             onClick: () => handleStatusChange(record.id, { is_active: false }),
           },
         ];
@@ -149,7 +169,7 @@ const roomTypes = () => {
             placement="bottomLeft"
           >
             <Tag color={text ? "green" : "red"} style={{ cursor: "pointer" }}>
-              {text ? "Active" : "Inactive"}
+              {text ? "Hoạt động" : "Ngừng hoạt động"}
             </Tag>
           </Dropdown>
         );
@@ -160,8 +180,11 @@ const roomTypes = () => {
       key: "actions",
       render: (_, record) => (
         <Space size="medium">
-          <Button onClick={() => roomType.openEdit(record)}>
-            Edit
+          <Button onClick={() => roomType.openEdit(record)} type="primary">
+            Chỉnh sửa
+          </Button>
+          <Button onClick={() => roomType.openView(record)} type="dashed">
+            Chi tiết
           </Button>
         </Space>
       ),
@@ -226,37 +249,31 @@ const roomTypes = () => {
         <div className="mt-5 border border-gray-300 rounded-lg">
           <div className="flex items-center gap-2 bg-gray-100 px-4 py-3 border-b border-gray-300 justify-between">
             <div className="flex items-center gap-4">
-              {/* <div className="font-lg font-bold text-gray-700 border border-gray-300 p-2 rounded-lg">Trạng thái</div> */}
-              {/* <Dropdown
-                menu={{ items: status }}
-                placement="topRight"
-                arrow={{ pointAtCenter: true }}
-              >
-                <Button>
-                  Trạng thái <FaCaretDown />
-                </Button>
-              </Dropdown>
-              <Dropdown
-                menu={{ items: status }}
-                placement="topRight"
-                arrow={{ pointAtCenter: true }}
-              >
-                <Button>
-                  Trạng thái <FaCaretDown />
-                </Button>
-              </Dropdown> */}
+              <Select
+              placeholder="Trạng thái"
+              placement="topRight"
+              style={{ width: 120 }}
+              onChange={handleFilterStatus}
+              allowClear
+              options={[
+                { value: "active", label: <span className="text-green-600">Hoạt động</span> },
+                { value: "inactive", label: <span className="text-red-600">Ngừng hoạt động</span> },
+              ]}
+            />
+
+            <Input placeholder="Tìm kiếm..." prefix={<IoSearch className="text-xl" />} onChange={(e) => handleSearch(e.target.value)} />
             </div>
             <div className="flex items-center gap-3 pr-4">
               <p className="font-lg font-bold text-gray-700">Hiển thị:</p>
               <p className="font-lg font-bold text-green-700 rounded-lg">
-                {Array.isArray(roomTypesData) ? roomTypesData.length : 0}
+                {Array.isArray(filteredRoomTypes) ? filteredRoomTypes.length : 0}
               </p>
             </div>
           </div>
           <Table<RoomType>
             columns={columns}
             pagination={{ pageSize: 5 }}
-            dataSource={roomTypesData}
+            dataSource={filteredRoomTypes}
             loading={loading}
           />
         </div>
@@ -264,7 +281,7 @@ const roomTypes = () => {
           isOpen={roomType.open}
           onClose={roomType.close}
           mode={roomType.mode}
-          title={roomType.mode === FormModalModes.CREATE ? "Thêm loại phòng mới" : "Chỉnh sửa loại phòng"}
+          title={roomType.mode === FormModalModes.CREATE ? "Thêm loại phòng mới" : roomType.mode === FormModalModes.UPDATE ? "Chỉnh sửa loại phòng" : "Chi tiết loại phòng"}
           fields={roomTypeFormFields}
           initialValues={roomType.selectedRecord || defaultRoomTypeData}
           onSubmit={handleSubmitForm}

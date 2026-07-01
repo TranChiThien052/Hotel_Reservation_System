@@ -29,8 +29,8 @@ export const promotionsFormFields: FormField<PromotionFormData>[] = [
     label: "Loại giảm giá",
     type: FormFieldTypes.SELECT,
     options: [
-      { value: "percentage", label: "Percentage" },
-      { value: "fixed", label: "Fixed Amount" },
+      { value: "percentage", label: "Phần trăm" },
+      { value: "fixed", label: "Số tiền cố định" },
     ],
   },
   {
@@ -52,16 +52,16 @@ export const promotionsFormFields: FormField<PromotionFormData>[] = [
   },
   {
     key: "is_active",
-    label: "Is Active",
+    label: "Trạng thái",
     type: FormFieldTypes.SELECT,
     options: [
-      { value: true, label: "Active" },
-      { value: false, label: "Inactive" },
+      { value: true, label: "Khả dụng" },
+      { value: false, label: "Không khả dụng" },
     ],
   },
   {
     key: "branch_id",
-    label: "Branch",
+    label: "Chi nhánh",
     type: FormFieldTypes.SELECT_FETCH,
     fetchOptions: branchApi.getBranches,
     customData: (data: any[]) =>

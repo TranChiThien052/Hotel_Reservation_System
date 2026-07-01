@@ -1,1 +1,33 @@
 @import "tailwindcss";
+
+/* Triệt tiêu màu nền tự động điền của trình duyệt */
+.custom-antd-input-dark input:-webkit-autofill,
+.custom-antd-input-dark input:-webkit-autofill:hover, 
+.custom-antd-input-dark input:-webkit-autofill:focus {
+  -webkit-text-fill-color: #030712 !important;
+  transition: background-color 5000s ease-in-out 0s; /* Giữ nền trong suốt */
+}
+
+/* Đảm bảo text và padding của input nội bộ Antd chuẩn chỉnh */
+.custom-antd-input-dark input {
+  background-color: transparent !important;
+  color: #030712 !important;
+  padding: 6px 4px !important;
+}
+
+/* Đổi màu icon khi hover/focus */
+.custom-antd-input-dark .ant-input-suffix .anticon {
+  color: #9ca3af !important;
+}
+
+.custom-antd-button-logout 
+{
+  height: 100%;
+  border-radius: 0%;
+  border: none;
+}
+
+.custom-antd-button-logout:hover {
+  border-color: transparent !important; /* Hoặc màu border mặc định bạn muốn giữ nguyên */
+  color: inherit !important;
+}

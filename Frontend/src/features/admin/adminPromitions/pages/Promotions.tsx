@@ -14,11 +14,13 @@ import message from "antd/es/message";
 import {
   Button,
   Dropdown,
+  Input,
   Space,
   Tag,
   type MenuProps,
   type TableProps,
 } from "antd";
+import { IoSearch } from "react-icons/io5";
 
 const defaultPromotionData: PromotionFormData = {
   code: "",
@@ -36,6 +38,7 @@ const defaultPromotionData: PromotionFormData = {
 const Promotions = () => {
   const promotions = useFormModal<Promotion>();
   const [promotionsData, setPromotionsData] = useState<Promotion[]>([]);
+  const [filteredPromotions, setFilteredPromotions] = useState<Promotion[]>([]);
   const [loading, setLoading] = useState(false);
 
   const fetchPromotions = useCallback(async () => {
@@ -43,6 +46,7 @@ const Promotions = () => {
     try {
       const data = await promotionApi.getPromotions();
       setPromotionsData(Array.isArray(data) ? data : []);
+      setFilteredPromotions(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error("Error fetching promotions:", error);
     } finally {
@@ -102,6 +106,13 @@ const Promotions = () => {
     }
   };
 
+  const handleSearch = (searchTerm: string) => {
+    const filteres = promotionsData.filter((item) => 
+      item.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.branches.name.toLowerCase().includes(searchTerm.toLowerCase()));
+    setFilteredPromotions(filteres);
+  }
+
   const columns: TableProps<Promotion>["columns"] = [
     {
       title: "Mã khuyến mãi",
@@ -130,6 +141,12 @@ const Promotions = () => {
       title: "Loại giảm giá",
       dataIndex: "discount_type",
       key: "discount_type",
+      render: (text) => {
+        if (text === "percentage") {
+          return <span>Phần trăm</span>;
+        }
+        return <span>Số tiền cố định</span>;
+      }
     },
     {
       title: "Chi nhánh",
@@ -140,11 +157,17 @@ const Promotions = () => {
       title: "Ngày bắt đầu",
       dataIndex: "valid_from",
       key: "valid_from",
+      render: (text) => (
+        <span>{text ? new Date(text).toLocaleDateString() : "-"}</span>
+      )
     },
     {
       title: "Ngày kết thúc",
       dataIndex: "valid_to",
       key: "valid_to",
+      render: (text) => (
+        <span>{text ? new Date(text).toLocaleDateString() : "-"}</span>
+      )
     },
     {
       title: "Trạng thái",
@@ -155,12 +178,12 @@ const Promotions = () => {
         const dynamicStatusItems: MenuProps["items"] = [
           {
             key: "active",
-            label: <span className="text-green-600">Active</span>,
+            label: <span className="text-green-600">Khả dụng</span>,
             onClick: () => handleStatusChange(record.id, { is_active: true }),
           },
           {
             key: "inactive",
-            label: <span className="text-red-600">Inactive</span>,
+            label: <span className="text-red-600">Không khả dụng</span>,
             onClick: () => handleStatusChange(record.id, { is_active: false }),
           },
         ];
@@ -172,7 +195,7 @@ const Promotions = () => {
             placement="bottomLeft"
           >
             <Tag color={text ? "green" : "red"} style={{ cursor: "pointer" }}>
-              {text ? "Active" : "Inactive"}
+              {text ? "Khả dụng" : "Không khả dụng"}
             </Tag>
           </Dropdown>
         );
@@ -183,7 +206,12 @@ const Promotions = () => {
       key: "actions",
       render: (_, record) => (
         <Space size="medium">
-          <Button onClick={() => promotions.openEdit(record)}>Edit</Button>
+          <Button onClick={() => promotions.openEdit(record)} type="primary">
+            Chỉnh sửa
+          </Button>
+          <Button onClick={() => promotions.openView(record)} type="dashed">
+            Chi tiết
+          </Button>
         </Space>
       ),
     },
@@ -193,9 +221,9 @@ const Promotions = () => {
     <div className="p-7 flex flex-col gap-5 ">
       <div className="flex items-center justify-between mt-3">
         <div className="flex flex-col gap-1">
-          <p className="text-3xl font-bold">Quản lý dịch vụ</p>
+          <p className="text-3xl font-bold">Quản lý khuyến mãi</p>
           <p className="text-gray-600">
-            Danh sách các dịch vụ trong hệ thống khách sạn Aurora
+            Danh sách các khuyến mãi trong hệ thống khách sạn Aurora
           </p>
         </div>
         <div
@@ -253,36 +281,22 @@ const Promotions = () => {
       <div className="mt-5 border border-gray-300 rounded-lg">
         <div className="flex items-center gap-2 bg-gray-100 px-4 py-3 border-b border-gray-300 justify-between">
           <div className="flex items-center gap-4">
-            {/* <div className="font-lg font-bold text-gray-700 border border-gray-300 p-2 rounded-lg">Trạng thái</div> */}
-            {/* <Dropdown
-                menu={{ items: status }}
-                placement="topRight"
-                arrow={{ pointAtCenter: true }}
-              >
-                <Button>
-                  Trạng thái <FaCaretDown />
-                </Button>
-              </Dropdown>
-              <Dropdown
-                menu={{ items: status }}
-                placement="topRight"
-                arrow={{ pointAtCenter: true }}
-              >
-                <Button>
-                  Trạng thái <FaCaretDown />
-                </Button>
-              </Dropdown> */}
+            <Input
+              placeholder="Tìm kiếm..."
+              prefix={<IoSearch className="text-xl" />}
+              onChange={(e) => handleSearch(e.target.value)}
+            />
           </div>
           <div className="flex items-center gap-3 pr-4">
             <p className="font-lg font-bold text-gray-700">Hiển thị:</p>
             <p className="font-lg font-bold text-green-700 rounded-lg">
-              {Array.isArray(promotionsData) ? promotionsData.length : 0}
+              {Array.isArray(filteredPromotions) ? filteredPromotions.length : 0}
             </p>
           </div>
         </div>
         <Table<Promotion>
           columns={columns}
-          dataSource={promotionsData}
+          dataSource={filteredPromotions}
           loading={loading}
           pagination={{ pageSize: 5 }}
         />
@@ -295,7 +309,9 @@ const Promotions = () => {
         title={
           promotions.mode === FormModalModes.CREATE
             ? "Thêm khuyến mãi mới"
-            : "Chỉnh sửa khuyến mãi"
+            : promotions.mode === FormModalModes.UPDATE
+            ? "Chỉnh sửa khuyến mãi"
+            : "Chi tiết khuyến mãi"
         }
         fields={promotionsFormFields}
         initialValues={promotions.selectedRecord || defaultPromotionData}
