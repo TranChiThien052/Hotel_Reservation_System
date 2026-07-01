@@ -32,9 +32,16 @@ class RoomTypeController {
     };
 
     async createRoomType(req, res) {
-        const { branch_id, name, description, max_guests, images, is_active } = req.body;
-        const data = { branch_id, name, description, max_guests, images, is_active };
-        return await RoomTypeServices.createRoomType(data)
+        const { branch_id, name, description, max_guests, is_active } = req.body;
+        const data = {
+            branch_id,
+            name,
+            description,
+            max_guests: max_guests ? parseInt(max_guests) : undefined,
+            is_active: is_active !== undefined ? is_active === 'true' : undefined
+        };
+        const files = req.files;
+        return await RoomTypeServices.createRoomType(data, files)
             .then(createdRoomType => res.status(201).json(createdRoomType))
             .catch(error => {
                 if (error.code !== 500) {

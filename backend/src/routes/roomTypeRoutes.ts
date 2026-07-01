@@ -1,5 +1,6 @@
 import express from 'express';
 import RoomTypeController from '../controllers/roomTypeController';
+import { upload } from '../middlewares/uploader';
 
 const router = express.Router();
 
@@ -70,7 +71,7 @@ router.get('/:id', RoomTypeController.getRoomTypeById);
  *       201:
  *         description: Successful operation
  */
-router.post('/', RoomTypeController.createRoomType);
+router.post('/', upload.array("images", 5), RoomTypeController.createRoomType);
 
 /**
  * @swagger
