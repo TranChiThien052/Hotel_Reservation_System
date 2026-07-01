@@ -30,6 +30,25 @@ const options = {
       { name: "HistoryTransaction", description: "Quản lý giao dịch lịch sử" },
       { name: "Auth", description: "Quản lý xác thực" },
     ],
+    components: {
+      securitySchemes: {
+        refresh_token: {
+          type: 'token',
+          in: 'cookie',
+          name: 'refresh_token',
+        },
+        bearerAuth: {
+          type: "http",
+          scheme: "bearer",
+          bearerFormat: "JWT",
+          description: "JWT token"
+        }
+      }
+    },
+    security: [
+      { refresh_token: [] },
+      { bearerAuth: [] }
+    ]
   },
   apis: ['./src/app.ts', './src/routes/*.ts'],
 }
