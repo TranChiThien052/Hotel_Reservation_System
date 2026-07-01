@@ -128,4 +128,6 @@ router.put('/:id', PaymentController.updatePayment);
  */
 router.delete('/:id', PaymentController.deletePayment);
 
+router.post('/momo-gateway', PaymentController.createMomoPayments);
+
 export default router;

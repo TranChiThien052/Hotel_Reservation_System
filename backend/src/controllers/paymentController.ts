@@ -1,6 +1,12 @@
 import PaymentService from '../services/paymentServices';
 
 class PaymentController {
+    async createMomoPayments(req, res) {
+        return await PaymentService.createMomoPayment(req.body)
+            .then(payment => res.status(200).json(payment))
+            .catch(error => res.status(500).json({ error: error.message }));
+    }
+
     async getAllPayments(req, res) {
         return await PaymentService.getAllPayments()
             .then(payments => res.status(200).json(payments))
