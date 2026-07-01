@@ -1,6 +1,8 @@
 import RoomTypeRepository from '../repositories/roomTypeRepo';
 import { Validator, ValidationError } from '../middlewares/validateData';
 import BranchRepository from '../repositories/branchRepo';
+import RoomImageRepository from '../repositories/roomImageRepo';
+import { uploadImage } from '../middlewares/uploader';
 
 class RoomTypeService {
     async getAllRoomTypes() {
@@ -27,13 +29,12 @@ class RoomTypeService {
         return await RoomTypeRepository.getRoomTypesByBranchId(branchId);
     };
 
-    async createRoomType(data) {
+    async createRoomType(data, files) {
         const validatedData = {
             ...(data.branch_id && { branch_id: data.branch_id }),
             ...(data.name && { name: data.name }),
             ...(data.description && { description: data.description }),
             ...(data.max_guests && { max_guests: data.max_guests }),
-            ...(data.images && { images: data.images }),
             ...(data.is_active && { is_active: data.is_active }),
         };
 
@@ -52,10 +53,6 @@ class RoomTypeService {
             validator.isPositiveNumber("Max Guests", validatedData.max_guests);
         }
 
-        if (validatedData.images) {
-            validator.isArray("Images", validatedData.images);
-        }
-
         if (validatedData.is_active !== undefined) {
             validator.isBoolean("Is Active", validatedData.is_active);
         }
@@ -69,7 +66,14 @@ class RoomTypeService {
             throw new ValidationError('400', "Invalid branch ID");
         }
 
-        return await RoomTypeRepository.createRoomType(validatedData);
+        const result = await RoomTypeRepository.createRoomType(validatedData);
+
+        if (files && files.length > 0) {
+            const uploadedFiles = await uploadImage(files);
+            await RoomImageRepository.createRoomImages(result.id, uploadedFiles);
+        }
+
+        return result;
     };
 
     async updateRoomType(id, data) {
@@ -78,7 +82,6 @@ class RoomTypeService {
             ...(data.name && { name: data.name }),
             ...(data.description && { description: data.description }),
             ...(data.max_guests && { max_guests: data.max_guests }),
-            ...(data.images && { images: data.images }),
             ...(data.is_active !== undefined && { is_active: data.is_active }),
         };
 
@@ -100,9 +103,6 @@ class RoomTypeService {
         }
         if (validatedData.max_guests) {
             validator.isPositiveNumber("Max Guests", validatedData.max_guests);
-        }
-        if (validatedData.images) {
-            validator.isArray("Images", validatedData.images);
         }
         if (validatedData.is_active !== undefined) {
             validator.isBoolean("Is Active", validatedData.is_active);
