@@ -103,7 +103,7 @@ const FormModal = <T extends object>({
         
 
         <div className={"bg-white p-4 border border-blue-200 rounded-md"}>
-          <h3 className="text-lg font-bold text-blue-600 mb-4">Thông tin form</h3>
+          <h3 className="text-lg font-bold text-blue-600 mb-4">Thông tin</h3>
           <DynamicForm
             fields={activeFields}
             values={formData}

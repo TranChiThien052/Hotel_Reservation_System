@@ -9,4 +9,5 @@ export interface StaffSideBarItem {
 
 export const staffSideBarItems: StaffSideBarItem[] = [
     {name: "Quản lý phòng", path: "rooms", icon: LuDoorClosed},
+    {name: "Quản lý đặt phòng", path: "bookings", icon: LuDoorClosed},
 ];

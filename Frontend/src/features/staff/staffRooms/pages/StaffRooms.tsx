@@ -136,25 +136,25 @@ const columns: TableProps<Room>["columns"] = [
         const dynamicStatusItems: MenuProps["items"] = [
           {
             key: "Available",
-            label: <span className="text-green-600">Available</span>,
+            label: <span className="text-green-600">Khả dụng</span>,
             onClick: () =>
               handleStatusChange(record.id, { status: "available" }),
           },
           {
             key: "Unavailable",
-            label: <span className="text-red-600">Unavailable</span>,
+            label: <span className="text-red-600">Không khả dụng</span>,
             onClick: () =>
               handleStatusChange(record.id, { status: "unavailable" }),
           },
           {
             key: "Occupied",
-            label: <span className="text-yellow-600">Occupied</span>,
+            label: <span className="text-yellow-600">Đang sử dụng</span>,
             onClick: () =>
               handleStatusChange(record.id, { status: "occupied" }),
           },
           {
             key: "Cleaning",
-            label: <span className="text-blue-600">Cleaning</span>,
+            label: <span className="text-blue-600">Đang dọn dẹp</span>,
             onClick: () =>
               handleStatusChange(record.id, { status: "cleaning" }),
           },
@@ -178,7 +178,13 @@ const columns: TableProps<Room>["columns"] = [
               }
               style={{ cursor: "pointer" }}
             >
-              {text}
+              {text === "available"
+                ? "Khả dụng"
+                : text === "unavailable"
+                  ? "Không khả dụng"
+                  : text === "occupied"
+                    ? "Đang sử dụng"
+                    : "Đang dọn dẹp"}
             </Tag>
           </Dropdown>
         );
@@ -193,12 +199,12 @@ const columns: TableProps<Room>["columns"] = [
         const dynamicStatusItems: MenuProps["items"] = [
           {
             key: "active",
-            label: <span className="text-green-600">Active</span>,
+            label: <span className="text-green-600">Đang hoạt động</span>,
             onClick: () => handleStatusChange(record.id, { is_active: true }),
           },
           {
             key: "inactive",
-            label: <span className="text-red-600">Inactive</span>,
+            label: <span className="text-red-600">Không hoạt động</span>,
             onClick: () => handleStatusChange(record.id, { is_active: false }),
           },
         ];
@@ -210,7 +216,7 @@ const columns: TableProps<Room>["columns"] = [
             placement="bottomLeft"
           >
             <Tag color={text ? "green" : "red"} style={{ cursor: "pointer" }}>
-              {text ? "Active" : "Inactive"}
+              {text ? "Đang hoạt động" : "Không hoạt động"}
             </Tag>
           </Dropdown>
         );
@@ -222,12 +228,12 @@ const columns: TableProps<Room>["columns"] = [
       key: "notes",
     },
     {
-      title: "Actions",
+      title: "Hành động",
       key: "actions",
       render: (_, record) => (
         <Space size="medium">
           <Button onClick={() => staffRooms.openView(record)} type="dashed">
-            Detail
+            Chi tiết
           </Button>
         </Space>
       ),

@@ -13,11 +13,15 @@ import Accounts from "@/features/admin/adminAccounts/pages/Accounts";
 import Employees from "@/features/admin/adminEmployees/pages/Employees";
 import StaffLayout from "../layout/components/StaffLayout";
 import StaffRooms from "@/features/staff/staffRooms/pages/StaffRooms";
+import StaffBooking from "@/features/staff/staffBooking/pages/StaffBooking";
+import ManagerRooms from "@/features/manager/managerRooms/pages/ManagerRooms";
+import Login from "@/features/auth/pages/Login";
 
 const route = () => {
   return (
     <BrowserRouter>
       <Routes>
+        <Route path="/login" element={<Login />} />
         <Route path="/" element={<ClientLayout />}>
             <Route index element={<Index />} />
         </Route>
@@ -36,6 +40,11 @@ const route = () => {
         <Route path="/staff" element={<StaffLayout />}>
           <Route index element={<StaffRooms/>} />
           <Route path="rooms" element={<StaffRooms />} />
+          <Route path="bookings" element={<StaffBooking />} />
+        </Route>
+        <Route path="/manager" element={<StaffLayout />}>
+          <Route index element={<ManagerRooms/>} />
+          <Route path="rooms" element={<ManagerRooms />} />
         </Route>
       </Routes>
     </BrowserRouter>
