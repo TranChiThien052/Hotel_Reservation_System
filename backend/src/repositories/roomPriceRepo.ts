@@ -52,17 +52,13 @@ class RoomPriceRepository {
 
     async getValidatingInformation() {
         return await prisma.room_prices.findMany({
-            select: {
-                id: true,
-                room_type_id: true,
-                include: {
-                    room_types: {
-                        select: {
-                            name: true,
-                        }
+            include: {
+                room_types: {
+                    select: {
+                        name: true,
                     }
                 }
-            },
+            }
         });
     };
 }
