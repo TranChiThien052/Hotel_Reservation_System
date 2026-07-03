@@ -2,7 +2,8 @@ import RoomTypeRepository from '../repositories/roomTypeRepo';
 import { Validator, ValidationError } from '../middlewares/validateData';
 import BranchRepository from '../repositories/branchRepo';
 import RoomImageRepository from '../repositories/roomImageRepo';
-import { uploadImage } from '../middlewares/uploader';
+import { deleteImage, uploadImage } from '../middlewares/uploader';
+import { prisma } from '../config/prisma';
 
 class RoomTypeService {
     async getAllRoomTypes() {
@@ -118,6 +119,18 @@ class RoomTypeService {
         }
 
         return await RoomTypeRepository.updateRoomType(id, validatedData);
+    };
+
+    async deleteRoomTypeImage(img_url, public_id) {
+        try {
+            const result = await prisma.$transaction(async () => {
+                await deleteImage(public_id);
+                await RoomImageRepository.deleteRoomTypeImage(img_url);
+            })
+            return result;
+        } catch (error) {
+            throw new ValidationError('500', 'Internal server error');
+        }
     };
 
     async deleteRoomType(id) {

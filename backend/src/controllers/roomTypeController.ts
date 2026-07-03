@@ -76,6 +76,18 @@ class RoomTypeController {
                 res.status(500).json({ error: error.message });
             });
     };
+
+    async deleteRoomTypeImage(req, res) {
+        const { img_url, public_id } = req.body;
+        return await RoomTypeServices.deleteRoomTypeImage(img_url, public_id)
+            .then(deletedRoomTypeImage => res.status(200).json("Deleted image successfully"))
+            .catch(error => {
+                if (typeof parseInt(error.code) === 'number') {
+                    return res.status(parseInt(error.code)).json({ error: error.message });
+                }
+                res.status(500).json({ error: error.message });
+            });
+    }
 }
 
 export default new RoomTypeController();
