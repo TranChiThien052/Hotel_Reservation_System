@@ -22,4 +22,8 @@ const uploadImage = (files) => {
     return files as Express.Multer.File & { path: string; filename: string }[];
 }
 
-export { upload, uploadImage };
+const deleteImage = async (public_id) => {
+    return await cloudinary.uploader.destroy(public_id);
+}
+
+export { upload, uploadImage, deleteImage };

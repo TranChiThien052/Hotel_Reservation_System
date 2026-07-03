@@ -9,7 +9,15 @@ class RoomImageRepository {
                 image_public_id: image.filename,
             }))
         })
-    }
+    };
+
+    async deleteRoomTypeImage(img_url) {
+        return await prisma.room_image.delete({
+            where: {
+                image_url: img_url
+            }
+        })
+    };
 }
 
 export default new RoomImageRepository();

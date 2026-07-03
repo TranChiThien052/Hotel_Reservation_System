@@ -9,6 +9,12 @@ class RoomTypeRepository {
                         name: true,
                     }
                 },
+                roomImages: {
+                    select: {
+                        image_url: true,
+                        image_public_id: true,
+                    }
+                }
             }
         });
     };
@@ -22,6 +28,12 @@ class RoomTypeRepository {
                         name: true,
                     }
                 },
+                roomImages: {
+                    select: {
+                        image_url: true,
+                        image_public_id: true,
+                    }
+                }
             }
         });
     };
@@ -35,6 +47,12 @@ class RoomTypeRepository {
                         name: true,
                     }
                 },
+                roomImages: {
+                    select: {
+                        image_url: true,
+                        image_public_id: true,
+                    }
+                }
             }
         });
     };

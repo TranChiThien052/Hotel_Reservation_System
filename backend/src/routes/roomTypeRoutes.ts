@@ -75,6 +75,48 @@ router.post('/', upload.array("images", 5), RoomTypeController.createRoomType);
 
 /**
  * @swagger
+ * /room-types/images:
+ *   delete:
+ *     summary: Delete image
+ *     tags: [RoomType]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               img_url:
+ *                 type: string
+ *               public_id:
+ *                 type: string 
+ *     responses:
+ *       200:
+ *         description: Successful operation
+ */
+router.delete('/images', RoomTypeController.deleteRoomTypeImage);
+
+/**
+ * @swagger
+ * /room-types/{id}:
+ *   delete:
+ *     summary: Delete record
+ *     tags: [RoomType]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The id parameter
+ *     responses:
+ *       200:
+ *         description: Successful operation
+ */
+router.delete('/:id', RoomTypeController.deleteRoomType);
+
+/**
+ * @swagger
  * /room-types/{id}:
  *   put:
  *     summary: Update record
@@ -97,24 +139,5 @@ router.post('/', upload.array("images", 5), RoomTypeController.createRoomType);
  *         description: Successful operation
  */
 router.put('/:id', RoomTypeController.updateRoomType);
-
-/**
- * @swagger
- * /room-types/{id}:
- *   delete:
- *     summary: Delete record
- *     tags: [RoomType]
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *         description: The id parameter
- *     responses:
- *       200:
- *         description: Successful operation
- */
-router.delete('/:id', RoomTypeController.deleteRoomType);
 
 export default router;
