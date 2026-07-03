@@ -2,12 +2,41 @@ import { prisma } from '../config/prisma';
 
 class BookingRepository {
     async getAllBookings() {
-        return await prisma.bookings.findMany();
+        return await prisma.bookings.findMany({
+            include: {
+                customers: true,
+                room_types: {
+                    select: {
+                        id: true,
+                        name: true,
+                    }
+                },
+                branches: {
+                    select: {
+                        name: true,
+                    }
+                }
+            }
+        });
     };
 
     async getBookingById(id) {
         return await prisma.bookings.findUnique({
             where: { id: id },
+            include: {
+                customers: true,
+                room_types: {
+                    select: {
+                        id: true,
+                        name: true,
+                    }
+                },
+                branches: {
+                    select: {
+                        name: true,
+                    }
+                }
+            }
         });
     };
 
@@ -30,24 +59,80 @@ class BookingRepository {
     async getBookingByCode(code) {
         return await prisma.bookings.findUnique({
             where: { booking_code: code },
+            include: {
+                customers: true,
+                room_types: {
+                    select: {
+                        id: true,
+                        name: true,
+                    }
+                },
+                branches: {
+                    select: {
+                        name: true,
+                    }
+                }
+            }
         });
     };
 
     async getBookingsByBranchId(branchId) {
         return await prisma.bookings.findMany({
             where: { branch_id: branchId },
+            include: {
+                customers: true,
+                room_types: {
+                    select: {
+                        id: true,
+                        name: true,
+                    }
+                },
+                branches: {
+                    select: {
+                        name: true,
+                    }
+                }
+            }
         });
     };
 
     async getBookingsByCustomerId(customerId) {
         return await prisma.bookings.findMany({
             where: { customer_id: customerId },
+            include: {
+                customers: true,
+                room_types: {
+                    select: {
+                        id: true,
+                        name: true,
+                    }
+                },
+                branches: {
+                    select: {
+                        name: true,
+                    }
+                }
+            }
         });
     };
 
     async getBookingsByStatus(status) {
         return await prisma.bookings.findMany({
             where: { status: status },
+            include: {
+                customers: true,
+                room_types: {
+                    select: {
+                        id: true,
+                        name: true,
+                    }
+                },
+                branches: {
+                    select: {
+                        name: true,
+                    }
+                }
+            }
         });
     };
 
