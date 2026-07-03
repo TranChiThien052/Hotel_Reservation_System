@@ -57,6 +57,41 @@ router.get('/:id', RoomTypeController.getRoomTypeById);
 
 /**
  * @swagger
+ * /room-types/images/{id}:
+ *   post:
+ *     summary: Add room type image
+ *     tags: [RoomType]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The id parameter
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               images:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                   format: binary
+ *                 description: Image files
+ *     responses:
+ *       201:
+ *         description: Successful operation
+ *       500:
+ *         description: Internal server error
+ */
+
+router.post('/images/id', upload.array("images", 5), RoomTypeController.addRoomTypeImage);
+
+/**
+ * @swagger
  * /room-types:
  *   post:
  *     summary: Create new record
