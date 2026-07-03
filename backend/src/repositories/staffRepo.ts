@@ -12,6 +12,12 @@ class StaffRepository {
                         branch_id: true,
                     },
                 },
+                branches: {
+                    select: {
+                        id: true,
+                        name: true,
+                    }
+                }
             },
         });
     };
@@ -28,6 +34,12 @@ class StaffRepository {
                         branch_id: true,
                     },
                 },
+                branches: {
+                    select: {
+                        id: true,
+                        name: true,
+                    }
+                }
             },
         });
     };
@@ -44,6 +56,12 @@ class StaffRepository {
                         branch_id: true,
                     },
                 },
+                branches: {
+                    select: {
+                        id: true,
+                        name: true,
+                    }
+                }
             },
         });
     };
@@ -60,6 +78,12 @@ class StaffRepository {
                         branch_id: true,
                     },
                 },
+                branches: {
+                    select: {
+                        id: true,
+                        name: true,
+                    }
+                }
             },
         });
     };
