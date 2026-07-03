@@ -4,12 +4,12 @@ import { FormFieldTypes } from "@/shared/types/type-form-field";
 import { rules } from "@/shared/util/rules";
 
 export const customersFormFields: FormField<CustomerFormData>[] = [
-    {
-        key: "account_id",
-        label: "Account ID",
-        placeholder: "Enter account ID",
-        type: FormFieldTypes.INPUT,
-    },
+    // {
+    //     key: "account_id",
+    //     label: "Account ID",
+    //     placeholder: "Enter account ID",
+    //     type: FormFieldTypes.INPUT,
+    // },
     {
         key: "full_name",
         label: "Họ và tên",

@@ -10,6 +10,7 @@ import FormModal from '@/app/layout/components/admin/FormModal';
 import { FormModalModes } from '@/shared/types/type-form-mode';
 import { CiCirclePlus } from 'react-icons/ci';
 import { bookingFormFields } from '../constants/booking-form-fields';
+import { useAppSelector } from '@/app/store/hooks';
 
 const defaultBookingData: BookingFormData = {
     branch_id: "",
@@ -29,6 +30,7 @@ const StaffBooking = () => {
     const [bookingsData, setBookingsData] = useState<Booking[]>([]);
     const [filteredBookings, setFilteredBookings] = useState<Booking[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
+    const user = useAppSelector((state) => state.auth.user);
 
     const fetchBookings = useCallback(async () => {
         setLoading(true);
@@ -65,6 +67,7 @@ const StaffBooking = () => {
 
     const handleSubmitForm = async (values: BookingFormData) => {
       if (booking.mode === FormModalModes.CREATE) {
+        values.created_by = user?.staff?.id || ""; // Gán giá trị created_by từ user.staff.id
         try {
           await bookingApi.createBooking(values);
           message.success("Đặt phòng thành công!");
@@ -109,12 +112,12 @@ const StaffBooking = () => {
     {
       title: "Ngày nhận phòng",
       key: "checkin_at",
-      render: (_, record) => <p>{record.checkin_at}</p>,
+      render: (_, record) => <p>{record.checkin_at ? new Date(record.checkin_at).toLocaleDateString() : "-"}</p>,
     },
     {
       title: "Ngày trả phòng",
       key: "checkout_at",
-      render: (_, record) => <p>{record.checkout_at}</p>,
+      render: (_, record) => <p>{record.checkout_at ? new Date(record.checkout_at).toLocaleDateString() : "-"}</p>,
     },
     {
       title: "Trạng thái",

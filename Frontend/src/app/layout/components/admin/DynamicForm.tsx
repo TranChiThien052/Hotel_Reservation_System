@@ -59,7 +59,7 @@ const DynamicForm = <T extends object>({
         return (
           <Select
             placeholder={field.placeholder}
-            value={value}
+            value={(value as any) || undefined}
             options={field.options}
             onChange={(value) => onChange(key, value)}
             allowClear
@@ -165,7 +165,7 @@ const DynamicForm = <T extends object>({
           <SelectFetchCustom
             placeholder={field.placeholder}
             fetchOptions={field.fetchOptions}
-            value={value}
+            value={(value as any) || undefined}
             onChange={(value) => onChange(key, value)}
             disabled={disabled} // Thêm disabled
             customData={field.customData}

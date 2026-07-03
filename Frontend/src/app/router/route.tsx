@@ -17,6 +17,8 @@ import StaffBooking from "@/features/staff/staffBooking/pages/StaffBooking";
 import ManagerRooms from "@/features/manager/managerRooms/pages/ManagerRooms";
 import Login from "@/features/auth/pages/Login";
 import ProtectedRoute from "./ProtectedRoute";
+import ManagementEmployees from "@/features/manager/managementEmployees/pages/managementEmployees";
+import ManagerLayout from "../layout/components/ManagerLayout";
 
 const route = () => {
   return (
@@ -58,9 +60,11 @@ const route = () => {
         </Route>
 
         <Route element={<ProtectedRoute allowedRoles={["manager"]} />}>
-          <Route path="/manager" element={<StaffLayout />}>
+          <Route path="/manager" element={<ManagerLayout />}>
             <Route index element={<ManagerRooms />} />
             <Route path="rooms" element={<ManagerRooms />} />
+            <Route path="bookings" element={<StaffBooking />} />
+            <Route path="management-employees" element={<ManagementEmployees />} />
           </Route>
         </Route>
       </Routes>
