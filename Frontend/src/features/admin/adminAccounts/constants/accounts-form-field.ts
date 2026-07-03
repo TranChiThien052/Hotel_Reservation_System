@@ -73,7 +73,8 @@ export const accountsFormFields: FormField<AccountFormData>[] = [
                 required: true, 
                 message: "Vui lòng chọn vai trò"
             }
-        ]
+        ],
+        hideInUpdateMode: true
     },
     {
         key: "status",

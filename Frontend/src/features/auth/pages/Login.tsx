@@ -34,6 +34,11 @@ const Login = () => {
       console.error("Login failed:", error);
     }
   };
+
+  const handleBackToHomePage = () => {
+    navigate("/", {replace: true});
+  }
+
   // return (
   //   <div
   //     className="relative bg-cover bg-center h-screen w-screen flex items-center justify-center font-sans"
@@ -119,7 +124,7 @@ const Login = () => {
 
         <div className="w-full space-y-7">
           {error ? (
-            <Alert type="error" showIcon message={error} />
+            <Alert type="error" showIcon message={"Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin."} />
           ) : null}
 
           <div className="border-b border-gray-300 pb-1 transition-colors duration-300 focus-within:border-gray-900">
@@ -174,6 +179,9 @@ const Login = () => {
           >
             Đăng nhập
           </Button>
+          <div onClick={handleBackToHomePage} className="cursor-pointer text-center text-gray-500 hover:text-blue-700">
+            Quay về trang chủ
+          </div>
 
           <div className="flex items-center justify-between pt-4 text-center text-sm">
             <span className="text-gray-500">Chưa có tài khoản?</span>

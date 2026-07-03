@@ -33,7 +33,10 @@ export const bookingFormFields: FormField<BookingFormData>[] = [
                 required: true,
                 message: "Vui lòng chọn khách hàng"
             }
-        ]
+        ],
+        componentProps: {
+            allowAddCustomer: true, // Thêm thuộc tính này để cho phép thêm khách hàng mới
+        }
     },
     {
         key: "room_type_id",

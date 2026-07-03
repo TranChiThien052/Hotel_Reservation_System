@@ -4,7 +4,7 @@ export interface RoomType {
     name: string;
     description: string;
     max_guests: number;
-    images: String[];
+    roomImages:File[];
     is_active: boolean;
     branches: {
         name: string;
@@ -16,6 +16,6 @@ export interface RoomTypeFormData {
     name: string;
     description?: string;
     max_guests: number;
-    images?: String[];
+    roomImages?: File[];
     is_active: boolean;
 }

@@ -17,7 +17,7 @@ const defaultRoomTypeData: RoomTypeFormData = {
   branch_id: "",
   description: "",
   max_guests: 0,
-  images: [],
+  roomImages: [],
   is_active: true,
 };
 
@@ -110,15 +110,19 @@ const roomTypes = () => {
     );
     setFilteredRoomTypes(filtered);
   }
+  console.log(" Room Types:", roomTypesData);
 
   const columns: TableProps<RoomType>["columns"] = [
     {
       title: "",
-      dataIndex: "images",
       key: "images",
-      // render: (images: String[]) => (
-      //   <img src={images[0]} alt="Room" style={{ width: 50, height: 50, objectFit: "cover", borderRadius: "4px" }} />
-      // ),
+      render: (_, record) => (
+        <img
+          src={record.roomImages && record.roomImages.length > 0 ? record.roomImages[0].image_url : "/default-room-image.jpg"}
+          alt={record.name}
+          style={{ width: 80, height: 60, objectFit: "cover", borderRadius: "4px" }}
+        />
+      ),
     },
     {
       title: "Tên loại phòng",

@@ -5,6 +5,7 @@ import type { FormField } from "@/shared/types/form-field";
 import { FormFieldTypes } from "@/shared/types/type-form-field";
 import { Checkbox, DatePicker, Input, Select } from "antd";
 import dayjs, { Dayjs } from "dayjs";
+import CustomerSelectWithAdd from "@/shared/components/input/CustomerSelectWithAdd";
 
 type DynamicFormProps<T extends object> = {
   fields: FormField<T>[];
@@ -39,9 +40,10 @@ const DynamicForm = <T extends object>({
       case FormFieldTypes.IMAGE_UPLOAD:
         return (
           <UploadImageCustom
-            value={String(value ?? "")}
-            onChange={(url) => onChange(key, url)}
-            disabled={disabled} // Thêm disabled
+            value={[]}
+            onChange={(files) => onChange(key, files)}
+            disabled={disabled}
+            maxCount={5}
           />
         );
 
@@ -161,6 +163,16 @@ const DynamicForm = <T extends object>({
         );
 
       case FormFieldTypes.SELECT_FETCH:
+        if (field.componentProps?.allowAddCustomer) {
+          return (
+            <CustomerSelectWithAdd
+              value={(value as any) || undefined}
+              onChange={(val) => onChange(key, val)}
+              disabled={disabled}
+              placeholder={field.placeholder}
+            />
+          );
+        }
         return (
           <SelectFetchCustom
             placeholder={field.placeholder}
@@ -203,12 +215,16 @@ const DynamicForm = <T extends object>({
       {fields.map((field) => (
         <div key={String(field.key)} className="flex flex-col gap-1">
           <label className="font-medium">
-          {field.rules?.some((rule) => rule.required) && <span className="text-red-500 ml-1">* </span>}
+            {field.rules?.some((rule) => rule.required) && (
+              <span className="text-red-500 ml-1">* </span>
+            )}
             {field.label}
           </label>
           {renderField(field)}
           {errors[String(field.key)] && (
-            <div className='text-red-500 text-sm'>{errors[String(field.key)]}</div>
+            <div className="text-red-500 text-sm">
+              {errors[String(field.key)]}
+            </div>
           )}
         </div>
       ))}

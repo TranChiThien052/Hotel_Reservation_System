@@ -31,6 +31,7 @@ const StaffBooking = () => {
     const [filteredBookings, setFilteredBookings] = useState<Booking[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
     const user = useAppSelector((state) => state.auth.user);
+    console.log("user", user?.staff?.id);
 
     const fetchBookings = useCallback(async () => {
         setLoading(true);
@@ -51,6 +52,8 @@ const StaffBooking = () => {
 
     const handleStatusChange = async (id: string, updatedData: any) => {
         setLoading(true);
+        console.log("Booking data", bookingsData)
+        console.log("Updating booking ID:", id, "with data:", updatedData);
         try {
             await bookingApi.updateBooking(id, updatedData);
             setBookingsData((prevData) =>
@@ -61,21 +64,29 @@ const StaffBooking = () => {
         } catch (error) {
             console.error("Error updating booking status:", error);
         } finally {
+            fetchBookings(); // Refresh the bookings after updating the status
             setLoading(false);
         }
     };
 
     const handleSubmitForm = async (values: BookingFormData) => {
       if (booking.mode === FormModalModes.CREATE) {
-        values.created_by = user?.staff?.id || ""; // Gán giá trị created_by từ user.staff.id
+        values.created_by = user?.id|| ""; // Gán giá trị created_by từ user.staff.id
         try {
           await bookingApi.createBooking(values);
           message.success("Đặt phòng thành công!");
           fetchBookings();
           booking.close();
-        } catch (error) {
+        } catch (error: any) {
           console.error("Error creating booking:", error);
           message.error("Có lỗi xảy ra khi tạo đặt phòng.");
+
+          const errorData = error.response?.data; 
+      console.log("JSON Error từ Server:", errorData);
+
+      // 2. Tận dụng thông báo lỗi cụ thể từ backend (nếu có)
+      const errorMsg = errorData?.message || "Có lỗi xảy ra khi tạo đặt phòng.";
+      message.error(errorMsg);
         }
       } else if (booking.mode === FormModalModes.UPDATE && booking.selectedRecord) {
         try {
@@ -128,39 +139,39 @@ const StaffBooking = () => {
         const dynamicStatusItems: MenuProps["items"] = [
           {
             key: "Pending",
-            label: <span className="text-green-600">Đang chờ</span>,
+            label: <span className="text-amber-600">Đang chờ</span>,
             onClick: () =>
               handleStatusChange(record.id, { status: "pending" }),
           },
           {
             key: "Confirmed",
-            label: <span className="text-red-600">Đã xác nhận</span>,
+            label: <span className="text-blue-600">Đã xác nhận</span>,
             onClick: () =>
               handleStatusChange(record.id, { status: "confirmed" }),
           },
           {
             key: "Completed",
-            label: <span className="text-yellow-600">Hoàn thành</span>,
+            label: <span className="text-green-600">Hoàn thành</span>,
             onClick: () =>
               handleStatusChange(record.id, { status: "completed" }),
           },
           {
             key: "Cancelled",
-            label: <span className="text-blue-600">Đã hủy</span>,
+            label: <span className="text-red-600">Đã hủy</span>,
             onClick: () =>
               handleStatusChange(record.id, { status: "cancelled" }),
           },
           {
             key: "Checked-in",
-            label: <span className="text-blue-600">Đã nhận phòng</span>,
+            label: <span className="text-cyan-600">Đã nhận phòng</span>,
             onClick: () =>
-              handleStatusChange(record.id, { status: "checked-in" }),
+              handleStatusChange(record.id, { status: "checked_in" }),
           },
           {
             key: "Checked-out",
-            label: <span className="text-blue-600">Đã trả phòng</span>,
+            label: <span className="text-purple-600">Đã trả phòng</span>,
             onClick: () =>
-              handleStatusChange(record.id, { status: "checked-out" }),
+              handleStatusChange(record.id, { status: "checked_out" }),
           },
         ];
 
@@ -180,9 +191,9 @@ const StaffBooking = () => {
                       ? "green"
                       : text?.toLowerCase() === "cancelled"
                         ? "red"
-                        : text?.toLowerCase() === "checked-in"
+                        : text?.toLowerCase() === "checked_in"
                             ? "cyan"
-                            : text?.toLowerCase() === "checked-out"
+                            : text?.toLowerCase() === "checked_out"
                                 ? "purple"
                                 : "default"
                 }
@@ -196,9 +207,9 @@ const StaffBooking = () => {
                     ? "Hoàn thành"
                     : text === "cancelled"
                       ? "Đã hủy"
-                      : text === "checked-in"
+                      : text === "checked_in"
                         ? "Đã nhận phòng"
-                        : text === "checked-out"
+                        : text === "checked_out"
                           ? "Đã trả phòng"
                           : "Đang dọn dẹp"}
             </Tag>
@@ -216,6 +227,12 @@ const StaffBooking = () => {
       key: "actions",
       render: (_, record) => (
         <Space size="medium">
+          <Button
+            type="primary"
+            onClick={() => booking.openEdit(record)}
+          >
+            Chỉnh sửa
+          </Button>
           <Button onClick={() => booking.openView(record)} type="dashed">
             Chi tiết
           </Button>
