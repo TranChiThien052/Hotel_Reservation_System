@@ -121,6 +121,14 @@ class RoomTypeService {
         return await RoomTypeRepository.updateRoomType(id, validatedData);
     };
 
+    async addRoomTypeImage(id, files) {
+        if (!files || files.length === 0) {
+            throw new ValidationError('400', "No image files provided");
+        }
+        const uploadedFiles = await uploadImage(files);
+        await RoomImageRepository.createRoomImages(id, uploadedFiles);
+    }
+
     async deleteRoomTypeImage(img_url, public_id) {
         try {
             const result = await prisma.$transaction(async () => {

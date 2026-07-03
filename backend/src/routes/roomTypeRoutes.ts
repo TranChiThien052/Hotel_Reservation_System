@@ -88,7 +88,7 @@ router.get('/:id', RoomTypeController.getRoomTypeById);
  *         description: Internal server error
  */
 
-router.post('/images/id', upload.array("images", 5), RoomTypeController.addRoomTypeImage);
+router.post('/images/:id', upload.array("images", 5), RoomTypeController.addRoomTypeImage);
 
 /**
  * @swagger
