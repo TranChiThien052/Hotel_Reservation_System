@@ -15,11 +15,15 @@ const storage = new CloudinaryStorage({
 
 const upload = multer({
     storage,
-    limits: { fileSize: 5 * 1024 * 1024 },
+    limits: { fileSize: 2 * 1024 * 1024 * 1024 },
 });
 
 const uploadImage = (files) => {
     return files as Express.Multer.File & { path: string; filename: string }[];
 }
 
-export { upload, uploadImage };
+const deleteImage = async (public_id) => {
+    return await cloudinary.uploader.destroy(public_id);
+}
+
+export { upload, uploadImage, deleteImage };
