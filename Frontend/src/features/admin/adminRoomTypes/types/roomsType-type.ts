@@ -1,10 +1,15 @@
+
+export interface RoomImage {
+    image_url:       string;
+    image_public_id: string;
+}
 export interface RoomType {
     id: string;
     branch_id: string;
     name: string;
     description: string;
     max_guests: number;
-    roomImages:File[];
+    roomImages:RoomImage[];
     is_active: boolean;
     branches: {
         name: string;
@@ -16,6 +21,6 @@ export interface RoomTypeFormData {
     name: string;
     description?: string;
     max_guests: number;
-    roomImages?: File[];
+    roomImages?: File[] | RoomImage[];
     is_active: boolean;
 }

@@ -114,17 +114,6 @@ const roomTypes = () => {
 
   const columns: TableProps<RoomType>["columns"] = [
     {
-      title: "",
-      key: "images",
-      render: (_, record) => (
-        <img
-          src={record.roomImages && record.roomImages.length > 0 ? record.roomImages[0].image_url : "/default-room-image.jpg"}
-          alt={record.name}
-          style={{ width: 80, height: 60, objectFit: "cover", borderRadius: "4px" }}
-        />
-      ),
-    },
-    {
       title: "Tên loại phòng",
       dataIndex: "name",
       key: "name",

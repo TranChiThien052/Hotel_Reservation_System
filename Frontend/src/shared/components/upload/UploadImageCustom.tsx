@@ -23,13 +23,13 @@ const UploadMultiImageCustom = ({
 }: UploadMultiImageCustomProps) => {
   // Khởi tạo fileList từ các URL ảnh đã có (khi mở form Edit)
   const [fileList, setFileList] = useState<UploadFile[]>(() =>
-    value.map((url, i) => ({
-      uid: `existing-${i}`,
-      name: `image-${i + 1}.png`,
-      status: "done",
-      url, // ← Ant Design dùng url để hiển thị preview
-    })),
-  );
+  (value ?? []).map((url, i) => ({
+    uid:    `existing-${i}`,
+    name:   `image-${i + 1}.png`,
+    status: 'done' as const,
+    url,
+  }))
+);
 
   // ─── 1. Validate trước khi upload ────────────────────────────────────────
   const beforeUpload = (file: FileType) => {
@@ -54,7 +54,7 @@ const UploadMultiImageCustom = ({
   };
 
   // ─── 2. Custom request (không cần server thật) ───────────────────────────
-  // Khi backend upload ảnh sẵn sàng, thay đoạn này bằng API call thực
+
   const customRequest: UploadProps["customRequest"] = async (options) => {
     options.onSuccess?.({});
   };
@@ -64,9 +64,9 @@ const UploadMultiImageCustom = ({
     setFileList(newList);
     // Lấy File object thật từ originFileObj
     const files = newList
-      .filter((f) => f.status === "done" && f.originFileObj)
-      .map((f) => f.originFileObj as File);
-    onChange?.(files); // ← Trả File[] về cho form state
+    .filter((f) => f.originFileObj)           // chỉ cần có file thật
+    .map((f) => f.originFileObj as File);
+  onChange?.(files); // ← Trả File[] về cho form state
   };
 
   return (

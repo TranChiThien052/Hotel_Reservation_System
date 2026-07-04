@@ -38,9 +38,17 @@ const DynamicForm = <T extends object>({
         );
 
       case FormFieldTypes.IMAGE_UPLOAD:
+        // Cần lấy ra mảng URL string để hiển thị preview
+        const existingUrls = Array.isArray(value)
+          ? value
+              .map(
+                (img: any) => (typeof img === "string" ? img : img.image_url), // ← xử lý RoomImage[]
+              )
+              .filter(Boolean)
+          : [];
         return (
           <UploadImageCustom
-            value={[]}
+            value={existingUrls} // ← truyền URL ảnh cũ
             onChange={(files) => onChange(key, files)}
             disabled={disabled}
             maxCount={5}
