@@ -8,7 +8,7 @@ class Validator {
     pushError(message) {
         this.error.push(message);
     }
-    
+
     clearError() {
         let result = this.error.length + " validation error(s): " + this.error.join("; ");
         this.error = [];
@@ -33,25 +33,25 @@ class Validator {
 
     validateEmail(data) {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if(!emailRegex.test(data)) {
+        if (!emailRegex.test(data)) {
             this.error.push("Invalid email format");
             return false;
         }
         return true;
     };
-    
+
     validatePhoneNumber(data) {
         const phoneRegex = /^0+\d{9}$/;
-        if(!phoneRegex.test(data)) {
+        if (!phoneRegex.test(data)) {
             this.error.push("Invalid phone number format");
             return false;
         }
         return true;
     };
-    
+
     validateDate(data) {
         const date = new Date(data);
-        if(isNaN(date.getTime())){
+        if (isNaN(date.getTime())) {
             this.error.push("Invalid date format");
             return false;
         }
@@ -60,7 +60,7 @@ class Validator {
 
     validatePassword(data) {
         const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-        if(!passwordRegex.test(data)) {
+        if (!passwordRegex.test(data)) {
             this.error.push("Invalid password format");
             return false;
         }
@@ -69,16 +69,16 @@ class Validator {
 
     validateDiscountType(data) {
         const validTypes = ["percentage", "fixed_amount"];
-        if(!validTypes.includes(data)) {
+        if (!validTypes.includes(data)) {
             this.error.push("Invalid discount type");
             return false;
-        }        
+        }
         return true;
     };
 
     validateRoomStatus(data) {
         const validStatuses = ["available", "unavailable", "occupied", "cleaning", "maintenance"];
-        if(!validStatuses.includes(data)) {
+        if (!validStatuses.includes(data)) {
             this.error.push("Invalid room status");
             return false;
         }
@@ -98,20 +98,20 @@ class Validator {
                     this.error.push("Invalid date format");
                 }
 
-                if (start >= end) {
+                if (start.getTime() >= end.getTime()) {
                     this.error.push("Start date must be before end date");
                 }
 
                 return true;
             }
-            
+
             const start = new Date();
-            
+
             if (isNaN(end.getTime())) {
                 this.error.push("Invalid date format");
             }
 
-            if (start >= end) {
+            if (start.getTime() >= end.getTime()) {
                 this.error.push("Start date must be before end date");
             }
 
