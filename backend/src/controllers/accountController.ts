@@ -156,7 +156,8 @@ class AccountController {
         return await AccountService.createAccount(data)
             .then(account => res.status(201).json(account))
             .catch(error => {
-                if (error.code !== 500) {
+                console.log(error)
+                if (typeof parseInt(error.code) === 'number') {
                     return res.status(parseInt(error.code)).json({ error: error.message });
                 }
                 res.status(500).json({ error: error.message });
