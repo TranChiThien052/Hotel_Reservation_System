@@ -87,11 +87,10 @@ class RoomAvailabilityService {
         };
     }
 
-    calculateDynamicPrice(checkin: Date, checkout: Date, basePrice: number, weekendRate: number, holidayRate: number, holidayDates: string[], bookingType: string): number {
+    calculateDynamicPrice(checkin, checkout, basePrice, weekendRate, holidayRate, holidayDates, bookingType) {
         let total = 0;
 
         if (bookingType === 'hourly') {
-            // For hourly, we just apply the rate of the checkin day
             const hours = Math.ceil(Math.abs(checkout.getTime() - checkin.getTime()) / (1000 * 60 * 60));
             const checkinDateStr = checkin.toDateString();
             const dayOfWeek = checkin.getDay();
