@@ -1,11 +1,97 @@
 import { Router } from 'express';
 import RoomAvailabilityController from '../controllers/roomAvailabilityController';
 
-
 const router = Router();
 
-router.get('/available-rooms', RoomAvailabilityController.getAvailableRoomCount);
+/**
+ * @swagger
+ * /rooms-availability/available:
+ *   get:
+ *     summary: Get available room count
+ *     tags: [RoomAvailability]
+ *     parameters:
+ *       - in: query
+ *         name: branch_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The id parameter
+ *       - in: query
+ *         name: checkin_at
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The checkin_at parameter
+ *       - in: query
+ *         name: checkout_at
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The checkout_at parameter
+ *       - in: query
+ *         name: room_type_id
+ *         required: false
+ *         schema:
+ *           type: string
+ *         description: The room_type_id parameter
+ *     responses:
+ *       200:
+ *         description: Successful operation
+ *       400:
+ *         description: Invalid data
+ *       500:
+ *         description: Internal server error
+ */
 router.get("/available", RoomAvailabilityController.getAvailableRoomCount);
+/**
+ * @swagger
+ * /rooms-availability/search:
+ *   get:
+ *     summary: Search available rooms
+ *     tags: [RoomAvailability]
+ *     parameters:
+ *       - in: query
+ *         name: branch_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The id parameter
+ *       - in: query
+ *         name: checkin_at
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The checkin_at parameter
+ *       - in: query
+ *         name: checkout_at
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The checkout_at parameter
+ *       - in: query
+ *         name: room_type_id
+ *         required: false
+ *         schema:
+ *           type: string
+ *         description: The room_type_id parameter
+ *       - in: query
+ *         name: num_guests
+ *         required: false
+ *         schema:
+ *           type: number
+ *         description: The num_guests parameter
+ *       - in: query
+ *         name: booking_type
+ *         required: false
+ *         schema:
+ *           type: string
+ *         description: The booking_type parameter
+ *     responses:
+ *       200:
+ *         description: Successful operation
+ *       500:
+ *         description: Internal server error
+ */
 router.get("/search", RoomAvailabilityController.searchAvailableRooms);
 
 export default router;
