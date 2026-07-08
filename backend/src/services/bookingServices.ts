@@ -1,6 +1,6 @@
 import BookingRepository from '../repositories/bookingRepo';
 import { Validator, ValidationError } from '../middlewares/validateData';
-import { generateBookingCode, generateDayDiff, generateDiscountAmount, generateHourDiff, generateSubtotal } from '../middlewares/generator';
+import { generateBookingCode, generateDiscountAmount, generateSubtotal } from '../middlewares/generator';
 import DiscountRepository from '../repositories/discountRepo';
 import RoomPriceRepository from '../repositories/roomPriceRepo';
 import BranchRepository from '../repositories/branchRepo';
@@ -8,7 +8,6 @@ import CustomerRepository from '../repositories/customerRepo';
 import RoomTypeRepository from '../repositories/roomTypeRepo';
 import RoomAvailabilityService from './roomAvailabilityServices';
 import HolidayDateRepository from '../repositories/holidayDateRepo';
-import { prisma } from '../config/prisma';
 import accountServices from './accountServices';
 
 class BookingService {

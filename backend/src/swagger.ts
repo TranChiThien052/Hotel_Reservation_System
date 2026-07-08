@@ -29,6 +29,7 @@ const options = {
       { name: "InvoiceFine", description: "Quản lý các khoản phạt trong hóa đơn" },
       { name: "HistoryTransaction", description: "Quản lý giao dịch lịch sử" },
       { name: "Auth", description: "Quản lý xác thực" },
+      { name: "RoomAvailability", description: "Tìm phòng trống" }
     ],
     components: {
       securitySchemes: {
