@@ -363,7 +363,8 @@ class AccountService {
             }
         }
 
-        validatedData.password_hash = await bcrypt.hash(validatedData.password_hash, Number(process.env.SALT_ROUNDS) || 5);
+        validatedData.password_hash = await bcrypt.hash(validatedData.password, Number(process.env.SALT_ROUNDS) || 5);
+        delete validatedData.password;
 
         return await AccountRepository.createAccount(validatedData);
     };
