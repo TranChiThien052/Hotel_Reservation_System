@@ -1,5 +1,5 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import Index from "@/features/client/index";
+import Index from "@/features/client/home/index";
 import ClientLayout from "@/app/layout/ClientLayout";
 import AdminLayout from "@/app/layout/AdminLayout";
 import Branches from "@/features/admin/adminBranch/pages/Branch";
@@ -19,6 +19,9 @@ import Login from "@/features/auth/pages/Login";
 import ProtectedRoute from "./ProtectedRoute";
 import ManagementEmployees from "@/features/manager/managementEmployees/pages/managementEmployees";
 import ManagerLayout from "../layout/components/ManagerLayout";
+import ClientRooms from "@/features/client/rooms/pages/ClientRooms";
+import ClientRoomDetail from "@/features/client/rooms/pages/ClientRoomDetail";
+import ClientBooking from "@/features/client/booking/pages/ClientBooking";
 
 const route = () => {
   return (
@@ -32,6 +35,9 @@ const route = () => {
         {/* Trang public cho khách */}
         <Route path="/" element={<ClientLayout />}>
           <Route index element={<Index />} />
+          <Route path="rooms" element={<ClientRooms />} />
+          <Route path="rooms/:id" element={<ClientRoomDetail />} />
+          <Route path="booking/:id" element={<ClientBooking />} />
         </Route>
 
         {/* Chỉ admin mới vào được khu vực admin */}

@@ -11,7 +11,7 @@ export const roomTypesApi = {
     const res = await apiClient.get(`/room-types/${id}`);
     return res.data;
   },
-  updateRoomType: async (id: string, roomTypeData: RoomTypeFormData) => {
+  updateRoomType: async (id: string, roomTypeData: Omit<RoomTypeFormData, 'roomImages'>) => {
     const res = await apiClient.put(`/room-types/${id}`, roomTypeData);
     return res.data;
   },

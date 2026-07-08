@@ -25,6 +25,7 @@ class CustomerController {
         return await CustomerService.createCustomer(data)
             .then(customer => res.status(201).json(customer))
             .catch(error => {
+                console.error("Error creating customer:", error);
                 if (typeof parseInt(error.code) === "number") {
                     return res.status(parseInt(error.code)).json({ error: error.message });
                 }

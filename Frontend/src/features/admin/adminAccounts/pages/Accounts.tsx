@@ -153,7 +153,9 @@ const Accounts = () => {
     {
       title: "Chi nhánh",
       key: "branches",
-      render: (_, record) => <p>{record.branches.name}</p>,
+      render: (_, record) => {
+        return record.branches ? record.branches.name : "Không có chi nhánh";
+      },
     },
     {
       title: "Trạng thái",
@@ -198,6 +200,8 @@ const Accounts = () => {
           return <span>Quản lý</span>;
         } else if (text === "staff") {
           return <span>Nhân viên</span>;
+        } else if (text === "customer") {
+          return <span>Khách hàng</span>;
         }
       }
     },

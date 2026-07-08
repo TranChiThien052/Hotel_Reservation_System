@@ -83,7 +83,14 @@ const roomTypes = () => {
       } else if (roomType.mode === FormModalModes.UPDATE && roomType.selectedRecord) {
         // Xử lý cập nhật loại phòng
         try {
-          await roomTypesApi.updateRoomType(roomType.selectedRecord.id, values);
+          const {roomImages, ...textData} = values; // Tách roomImages ra khỏi textData
+          await roomTypesApi.updateRoomType(roomType.selectedRecord.id, textData as RoomTypeFormData);
+
+          const newFiles = (roomImages ?? []).filter((img): img is File => img instanceof File); // Lọc ra các file mới (File thật)\
+
+          if (newFiles.length > 0) {
+            await roomTypesApi.addRoomTypeImage(roomType.selectedRecord.id, newFiles);
+          }
           message.success("Cập nhật loại phòng thành công");
           fetchRoomTypes(); // Tải lại dữ liệu sau khi cập nhật
           roomType.close();

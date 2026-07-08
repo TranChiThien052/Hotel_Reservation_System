@@ -1,19 +1,60 @@
-import { useAppDispatch } from '@/app/store/hooks';
+import { useAppDispatch, useAppSelector } from '@/app/store/hooks';
 import Logo from '../../../../assets/icons/Logo.png'
 import { NavLink, useNavigate } from "react-router";
 import { logout } from '@/features/auth/store/auth-slice';
+import {LogoutOutlined} from "@ant-design/icons";
+import { FaRegUser } from 'react-icons/fa';
+import { Dropdown } from 'antd';
+import { SlArrowDown } from 'react-icons/sl';
+import { CgProfile } from 'react-icons/cg';
+
+const navLinkClass = ({ isActive }: { isActive: boolean }) =>
+    `p-2 rounded-xl transition-colors hover:bg-gray-100 ${
+        isActive
+            ? 'text-amber-600 bg-amber-50 font-semibold'
+            : 'text-gray-600'
+    }`;
+
 const header = () => {
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
+    const {user, initialized} = useAppSelector(state => state.auth);
+    const isAuthenticated = !!user;
 
-    const handleLogin = () => {
+    const handleLoginRedirect = () => {
         navigate("/login", {replace: true});
+    }
+
+    const handleLogout = () => {
         dispatch(logout());
+        navigate("/", {replace: true});
+    }
+
+    const handleProfileRedirect = () => {
+        navigate("/profile", {replace: true});
     }
 
     const handleBackToHomePage = () => {
         navigate("/", {replace: true});
     }
+
+      const menuItems = [
+    {
+      key: 'index',
+      icon: <CgProfile  />,
+      label: 'Trang cá nhân',
+      onClick: handleProfileRedirect,
+    },
+    {
+      key: 'logout',
+      icon: <LogoutOutlined />,
+      label: 'Đăng xuất',
+      danger: true,
+      onClick: () => dispatch(logout()),
+    },
+  ];
+
+    console.log("user", user);
 
   return (
     <header className='sticky top-0 z-50 bg-white shadow-md'>
@@ -24,14 +65,59 @@ const header = () => {
                 <p className="text-3xl font-bold">Aurora </p>
                 <p className="text-3xl text-orange-400">Hotel</p>
             </div>
-            <div className='flex gap-8 absolute left-1/2 -translate-x-1/2 text-lg text-gray-600 font-medium'>
-                <NavLink className="focus:text-amber-600 focus:bg-amber-50 hover:bg-gray-200 p-2 rounded-xl" to="#">Trang chủ</NavLink>
-                <NavLink className="focus:text-amber-600 focus:bg-amber-50 hover:bg-gray-200 p-2 rounded-xl" to="#">Phòng nghỉ</NavLink>
-                <NavLink className="focus:text-amber-600 focus:bg-amber-50 hover:bg-gray-200 p-2 rounded-xl" to="#">Đặt phòng của tôi</NavLink>
+            <div className='flex gap-8 absolute left-1/2 -translate-x-1/2 text-lg font-medium'>
+                <NavLink className={navLinkClass} to="/" end>Trang chủ</NavLink>
+                <NavLink className={navLinkClass} to="/rooms">Phòng nghỉ</NavLink>
+                <NavLink className={navLinkClass} to="/my-bookings">Đặt phòng của tôi</NavLink>
             </div>
-            <div onClick={handleLogin} className='bg-orange-400 hover:bg-orange-500 text-white px-4 py-2 rounded-lg cursor-pointer text-lg font-medium flex items-center gap-2'>
-                Đăng nhập
-            </div>
+            <div className="flex items-center min-w-30 justify-end">
+                        {!initialized ? (
+                            
+                            <div className="h-6 w-6 border-2 border-orange-400 border-t-transparent rounded-full animate-spin" />
+                        ) : isAuthenticated ? (
+                            
+                            // <div className="flex items-center gap-4">
+                            //     <span className="text-sm font-medium text-gray-700 hidden md:inline">
+                            //         Xin chào, {user?.customers?.full_name || "User"}
+                            //     </span>
+                            //     <FaRegUser 
+                            //         onClick={handleProfileRedirect} 
+                            //         className='cursor-pointer text-xl text-orange-500 hover:scale-110 transition-transform' 
+                            //         title="Trang cá nhân"
+                            //     />
+                            //     <button 
+                            //         onClick={handleLogout}
+                            //         className="text-sm text-gray-400 hover:text-red-500 transition-colors cursor-pointer"
+                            //     >
+                            //         Đăng xuất
+                            //     </button>
+                            // </div>
+                            <div className="flex items-center gap-4 h-full">
+                                      <FaRegUser className="text-orange-500 text-4xl" />
+                                      <Dropdown menu={{ items: menuItems }} placement="bottomRight">
+                                      <div className="flex items-center gap-2 cursor-pointer">
+                                        {/* <UserAvatar size={46} /> */}
+                            
+                                        <div className="flex flex-col leading-tight">
+                                          <span className="text-orange-500 text-xl font-medium">
+                                            {user?.staff?.full_name || user?.customers?.full_name || "Admin"}
+                                          </span>
+                                          <span className="text-sm text-right text-gray-400">{user?.role}</span>
+                                        </div>
+                                        <SlArrowDown className="text-orange-500" />
+                                      </div>
+                                    </Dropdown>
+                                  
+                                    </div>
+                        ) : (
+                            <button 
+                                onClick={handleLoginRedirect} 
+                                className='bg-orange-400 hover:bg-orange-500 text-white px-4 py-2 rounded-lg cursor-pointer text-base font-medium flex items-center gap-2 transition-colors border-none'
+                            >
+                                Đăng nhập
+                            </button>
+                        )}
+                    </div>
         </div>
     </div>
     </header>

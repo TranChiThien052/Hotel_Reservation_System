@@ -67,6 +67,7 @@ export const accountsFormFields: FormField<AccountFormData>[] = [
             { label: "Admin", value: "admin" },
             { label: "Quản lý", value: "manager" },
             { label: "Nhân viên", value: "staff" },
+            { label: "Khách hàng", value: "customer" },
         ],
         rules: [
             {
@@ -97,13 +98,8 @@ export const accountsFormFields: FormField<AccountFormData>[] = [
         label: "Chi nhánh",
         placeholder: "Chọn chi nhánh",
         type: FormFieldTypes.SELECT_FETCH,
+        defaultValue: "",
         fetchOptions: branchApi.getBranches,
-        customData: (data: any[]) => data.map((item) => ({label: item.name, value: item.id})),
-        rules: [
-            {
-                required: true,
-                message: "Vui lòng chọn chi nhánh"
-            }
-        ]
+        customData: (data: any[]) => data.map((item) => ({label: item.name, value: item.id}))
     }
 ]
