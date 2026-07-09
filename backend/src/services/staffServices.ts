@@ -116,8 +116,13 @@ class StaffService {
 
         const result = await StaffRepository.updateStaff(id, validatedData);
 
-        if (result && validatedData.position)
-            await AccountRepository.updateAccount(result.account_id, { role: validatedData.position });
+        if (result) {
+            let updateData = {
+                ...(validatedData.position && { role: validatedData.position }),
+                ...(validatedData.branch_id && { branch_id: validatedData.branch_id }),
+            };
+            await AccountRepository.updateAccount(result.account_id, updateData);
+        }
 
         return result;
     };

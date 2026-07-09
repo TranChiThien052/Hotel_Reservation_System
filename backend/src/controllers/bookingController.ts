@@ -30,6 +30,17 @@ class BookingController {
             })
     }
 
+    async getBookingByCustomerId(req, res) {
+        const { id } = req.params;
+        return await BookingService.getBookingByCustomerId(id)
+            .then(bookings => res.status(200).json(bookings))
+            .catch(error => {
+                if (typeof parseInt(error.code) === 'number')
+                    return res.status(parseInt(error.code)).json({ error: error.message });
+                res.status(500).json({ error: error })
+            })
+    }
+
     async getTodayCheckin(req, res) {
         const { id } = req.params;
         return await BookingService.getTodayCheckinCount(id)

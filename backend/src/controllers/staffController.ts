@@ -50,10 +50,11 @@ class StaffController {
         return await StaffService.updateStaff(id, data)
             .then(staff => res.status(200).json(staff))
             .catch(error => {
+                console.log(error);
                 if (error.code !== 500) {
                     return res.status(parseInt(error.code)).json({ error: error.message });
                 }
-                res.status(500).json({ error: error.message });
+                res.status(500).json({ error: error });
             });
     };
 

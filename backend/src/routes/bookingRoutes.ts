@@ -5,6 +5,84 @@ const router = express.Router();
 
 /**
  * @swagger
+ * /bookings/customer/{id}:
+ *   get:
+ *     summary: Get data by customer id
+ *     tags: [Booking]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The id parameter
+ *     responses:
+ *       200:
+ *         description: Successful operation
+ *         content:
+ *            application/json:
+ *               schema:
+ *                  type: array
+ *                  items:
+ *                     type: object
+ *                     properties:
+ *                        id:
+ *                           type: string
+ *                        booking_code:
+ *                           type: string
+ *                        branch_id:
+ *                           type: string
+ *                        customer_id:
+ *                           type: string
+ *                        room_type_id:
+ *                           type: string
+ *                        assigned_room_id:
+ *                           type: string
+ *                        booking_type:
+ *                           type: string
+ *                        status:
+ *                           type: string
+ *                        checkin_at:
+ *                           type: string
+ *                        checkout_at:
+ *                           type: string
+ *                        actual_checkin_at:
+ *                           type: string
+ *                        actual_checkout_at:
+ *                           type: string
+ *                        num_guests:
+ *                           type: string
+ *                        room_price_snapshot:
+ *                           type: string
+ *                        discount_id:
+ *                           type: string
+ *                        discount_amount:
+ *                           type: string
+ *                        subtotal:
+ *                           type: string
+ *                        total_amount:
+ *                           type: string
+ *                        deposit_amount:
+ *                           type: string
+ *                        deposit_paid_at:
+ *                           type: string
+ *                        expires_at:
+ *                           type: string
+ *                        created_by:
+ *                           type: string
+ *                        notes:
+ *                           type: string
+ *                        created_at:
+ *                           type: string
+ *                        updated_at:
+ *                           type: string
+ *       500:
+ *         description: Internal server error
+ */
+router.get('/customer/:id', BookingController.getBookingByCustomerId);
+
+/**
+ * @swagger
  * /bookings/branch/{id}:
  *   get:
  *     summary: Get data by branch id
