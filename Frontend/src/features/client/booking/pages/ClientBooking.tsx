@@ -112,12 +112,21 @@ const ClientBooking = () => {
 
     const [num_guests, setNumGuests] = useState(1);
 
-    // Tính checkin/checkout ISO string cho hourly
+    // Tính checkin/checkout
     const hourlyCheckin = `${bookingDate}T${startTime}:00`;
     const hourlyCheckout = (() => {
-        const d = new Date(`${bookingDate}T${startTime}:00`);
-        d.setHours(d.getHours() + durationHours);
-        return d.toISOString().replace('Z', '');
+      const d = new Date(`${bookingDate}T${startTime}:00`);
+      d.setHours(d.getHours() + durationHours);
+      const pad = (num: number) => String(num).padStart(2, "0");
+
+      const year = d.getFullYear();
+      const month = pad(d.getMonth() + 1);
+      const date = pad(d.getDate());
+      const hours = pad(d.getHours());
+      const minutes = pad(d.getMinutes());
+      const seconds = pad(d.getSeconds());
+
+      return `${year}-${month}-${date}T${hours}:${minutes}:${seconds}.000`;
     })();
     console.log("authUser", authUser);
 
@@ -278,6 +287,9 @@ const ClientBooking = () => {
     };
 
     console.log('booked:', booked);
+    console.log('finalCheckin:', booking_type === 'daily' ? checkin_at : hourlyCheckin);
+    console.log('finalCheckout:', booking_type === 'daily' ? checkout_at : hourlyCheckout);
+    console.log('branch_id:', room?.branch_id);
 
   
     
@@ -299,10 +311,10 @@ const ClientBooking = () => {
                     Đăng nhập ngay
                 </button>
                 <button
-                    onClick={() => navigate(`/rooms/${id}`)}
+                    onClick={() => navigate('/rooms')}
                     className="text-sm text-gray-400 hover:text-gray-600 underline"
                 >
-                    Quay lại chi tiết phòng
+                    Quay lại danh sách phòng
                 </button>
             </div>
         </div>
@@ -321,7 +333,7 @@ const ClientBooking = () => {
         <div className="min-h-screen flex items-center justify-center bg-gray-50">
             <div className="text-center">
                 <p className="text-2xl font-bold text-gray-700 mb-2">Không tìm thấy phòng</p>
-                <button onClick={() => navigate('/rooms')} className="mt-4 text-amber-600 underline">
+                <button onClick={() => navigate('/rooms')} className="mt-4 text-amber-600 underline cursor-pointer">
                     Quay lại danh sách phòng
                 </button>
             </div>
@@ -368,13 +380,13 @@ const ClientBooking = () => {
                 </div>
                 <button
                     onClick={() => navigate('/rooms')}
-                    className="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-3 rounded-xl transition-colors"
+                    className="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-3 rounded-xl transition-colors cursor-pointer"
                 >
                     Khám phá thêm phòng
                 </button>
                 <button
                     onClick={() => navigate('/')}
-                    className="text-sm text-gray-400 hover:text-gray-600 underline"
+                    className="text-sm text-gray-400 hover:text-gray-600 underline cursor-pointer"
                 >
                     Về trang chủ
                 </button>
@@ -389,11 +401,11 @@ console.log('nights:', nights);
 
                 
                 <button
-                    onClick={() => navigate(`/rooms/${id}`)}
+                    onClick={() => navigate('/rooms')}
                     className="flex items-center gap-2 text-gray-500 hover:text-amber-600 transition-colors mb-6 group"
                 >
                     <IoArrowBack className="group-hover:-translate-x-1 transition-transform" />
-                    <span className="text-sm font-medium">Quay lại chi tiết phòng</span>
+                    <span className="text-sm font-medium cursor-pointer">Quay lại danh sách phòng</span>
                 </button>
 
                 <h1 className="text-2xl font-bold text-gray-900 mb-6">Đặt phòng</h1>

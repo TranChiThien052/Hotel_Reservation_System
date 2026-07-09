@@ -20,15 +20,12 @@ const header = () => {
     const navigate = useNavigate();
     const {user, initialized} = useAppSelector(state => state.auth);
     const isAuthenticated = !!user;
+    console.log("header user", user);
 
     const handleLoginRedirect = () => {
         navigate("/login", {replace: true});
     }
 
-    const handleLogout = () => {
-        dispatch(logout());
-        navigate("/", {replace: true});
-    }
 
     const handleProfileRedirect = () => {
         navigate("/profile", {replace: true});
@@ -38,13 +35,24 @@ const header = () => {
         navigate("/", {replace: true});
     }
 
+    const handleStaffManagementRedirect = () => {
+        navigate("/staff", {replace: true});
+    }
+
       const menuItems = [
-    {
-      key: 'index',
+    ...(user?.role === "customer" ? [{
+      key: 'profile',
       icon: <CgProfile  />,
       label: 'Trang cá nhân',
       onClick: handleProfileRedirect,
-    },
+    }] : []),
+    ...(user?.role !== "customer" ? [{
+        key: 'staff-management',
+        icon: <CgProfile  />,
+        label: 'Trang quản lý',
+        onClick: handleStaffManagementRedirect,
+    }] : []),
+
     {
       key: 'logout',
       icon: <LogoutOutlined />,

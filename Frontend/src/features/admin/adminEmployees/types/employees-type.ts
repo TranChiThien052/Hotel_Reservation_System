@@ -6,6 +6,16 @@ export interface Employee {
     branch_id: string;
     position: string;
     created_at?: string;
+    account?: {
+        id: string;
+        branch_id: string;
+        status: string;
+        username: string;
+    };
+    branches?: {
+        id: string;
+        name: string;
+    };
 }
 
 export interface EmployeeFormData {

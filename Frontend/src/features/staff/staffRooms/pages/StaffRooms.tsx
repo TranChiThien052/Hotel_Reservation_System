@@ -1,4 +1,5 @@
 import FormModal from "@/app/layout/components/admin/FormModal";
+import { useAppSelector } from "@/app/store/hooks";
 import { roomsApi } from "@/features/admin/adminRooms/api/rooms-api";
 import { roomsFormFields } from "@/features/admin/adminRooms/constants/rooms-form-fields";
 import type { Room, RoomFormData } from "@/features/admin/adminRooms/types/rooms-type";
@@ -36,10 +37,14 @@ const StaffRooms = () => {
     const [statusValue, setStatusValue] = useState<string | undefined>(undefined);
     const [roomStatusValue, setRoomStatusValue] = useState<string | undefined>(undefined);
 
+    const user = useAppSelector((state) => state.auth.user);
+    console.log("user", user);
+
     const fetchRooms = useCallback(async () => {
     setLoading(true);
     try {
-        const data = await roomsApi.getAllRooms();
+        const data = await roomsApi.getRoomsByBranchId(user?.branch_id || "");
+        console.log("roomsData", data); 
         setRoomsData(Array.isArray(data) ? data : []);
         setFilteredRooms(Array.isArray(data) ? data : []);
     } catch (error) {
@@ -158,6 +163,12 @@ const columns: TableProps<Room>["columns"] = [
             onClick: () =>
               handleStatusChange(record.id, { status: "cleaning" }),
           },
+          {
+            key: "Maintenance",
+            label: <span className="text-purple-600">Đang bảo trì</span>,
+            onClick: () =>
+              handleStatusChange(record.id, { status: "maintenance" }),
+          }
         ];
 
         return (
@@ -174,6 +185,10 @@ const columns: TableProps<Room>["columns"] = [
                     ? "green"
                     : text?.toLowerCase() === "unavailable"
                       ? "red"
+                      : text?.toLowerCase() === "cleaning"
+                        ? "blue"
+                        : text?.toLowerCase() === "maintenance"
+                          ? "purple"
                       : "blue"
               }
               style={{ cursor: "pointer" }}
@@ -184,6 +199,8 @@ const columns: TableProps<Room>["columns"] = [
                   ? "Không khả dụng"
                   : text === "occupied"
                     ? "Đang sử dụng"
+                    : text === "maintenance"
+                      ? "Đang bảo trì"
                     : "Đang dọn dẹp"}
             </Tag>
           </Dropdown>

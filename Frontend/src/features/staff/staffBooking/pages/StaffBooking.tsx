@@ -49,6 +49,7 @@ const StaffBooking = () => {
     useEffect(() => {
         fetchBookings();
     }, [fetchBookings]);
+    console.log("bookingsData", bookingsData);
 
     const handleStatusChange = async (id: string, updatedData: any) => {
         setLoading(true);
@@ -84,7 +85,7 @@ const StaffBooking = () => {
           const errorData = error.response?.data; 
       console.log("JSON Error từ Server:", errorData);
 
-      // 2. Tận dụng thông báo lỗi cụ thể từ backend (nếu có)
+      
       const errorMsg = errorData?.message || "Có lỗi xảy ra khi tạo đặt phòng.";
       message.error(errorMsg);
         }
@@ -113,12 +114,12 @@ const StaffBooking = () => {
     {
       title: "Tên khách hàng",
       key: "customer_id",
-      render: (_, record) => <p>{record.customer_id}</p>,
+      render: (_, record) => <p>{record.customers?.full_name}</p>,
     },
     {
       title: "Loại phòng",
       key: "room_type_id",
-      render: (_, record) => <p>{record.room_type_id}</p>,
+      render: (_, record) => <p>{record.room_types?.name}</p>,
     },
     {
       title: "Ngày nhận phòng",

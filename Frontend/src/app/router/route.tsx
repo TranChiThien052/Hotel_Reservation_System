@@ -20,27 +20,31 @@ import ProtectedRoute from "./ProtectedRoute";
 import ManagementEmployees from "@/features/manager/managementEmployees/pages/managementEmployees";
 import ManagerLayout from "../layout/components/ManagerLayout";
 import ClientRooms from "@/features/client/rooms/pages/ClientRooms";
-import ClientRoomDetail from "@/features/client/rooms/pages/ClientRoomDetail";
+
+import ClientRoomTypeDetail from "@/features/client/rooms/pages/ClientRoomTypeDetail";
 import ClientBooking from "@/features/client/booking/pages/ClientBooking";
+
 
 const route = () => {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Trang login chỉ dành cho guest. Nếu đã đăng nhập thì tự redirect theo role. */}
+        
         <Route element={<ProtectedRoute requireAuth={false} />}>
           <Route path="/login" element={<Login />} />
         </Route>
 
-        {/* Trang public cho khách */}
+        
         <Route path="/" element={<ClientLayout />}>
           <Route index element={<Index />} />
           <Route path="rooms" element={<ClientRooms />} />
-          <Route path="rooms/:id" element={<ClientRoomDetail />} />
+          <Route path="rooms/type/:typeId" element={<ClientRoomTypeDetail />} />
+
           <Route path="booking/:id" element={<ClientBooking />} />
+
         </Route>
 
-        {/* Chỉ admin mới vào được khu vực admin */}
+        
         <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
           <Route path="/admin" element={<AdminLayout />}>
             <Route index element={<Branches />} />
@@ -56,7 +60,7 @@ const route = () => {
           </Route>
         </Route>
 
-        {/* Staff và manager có khu riêng */}
+        
         <Route element={<ProtectedRoute allowedRoles={["staff"]} />}>
           <Route path="/staff" element={<StaffLayout />}>
             <Route index element={<StaffRooms />} />

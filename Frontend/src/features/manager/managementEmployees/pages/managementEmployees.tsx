@@ -96,8 +96,8 @@ const managementEmployees = () => {
     },
     {
       title: "Chi nhánh",
-      dataIndex: "branch_id",
       key: "branch_id",
+      render: (_, record) => <p>{record.branches?.name}</p>,
     },
     {
       title: "Số điện thoại",
