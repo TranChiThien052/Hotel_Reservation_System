@@ -5,7 +5,7 @@ class RoomAvailabilityRepository {
         const roomCondition: any = {
             branch_id: branch_id,
             status: {
-                notIn: ['maintenance', 'unavailable']
+                in: ['available']
             }
         }
         if (room_type_id) {
@@ -44,7 +44,7 @@ class RoomAvailabilityRepository {
             branch_id: branch_id,
             is_active: true,
             status: {
-                notIn: ['maintenance', 'unavailable']
+                in: ['available']
             }
         };
 
@@ -63,7 +63,7 @@ class RoomAvailabilityRepository {
         const whereClause: any = {
             branch_id: branchId,
             status: {
-                in: ['pending', 'confirmed', 'checked_in']
+                notIn: ['cancelled', 'completed']
             },
             // overlap condition: booking.checkin_at < requested_checkout AND booking.checkout_at > requested_checkin
             checkin_at: {

@@ -19,7 +19,7 @@ class PaymentService {
         var redirectUrl = "https://momo.vn/return";
         var ipnUrl = "https://callback.url/notify";
         // var ipnUrl = redirectUrl = "https://webhook.site/454e7b77-f177-4ece-8236-ddf1c26ba7f8";
-        var amount = "50000";
+        var amount = data.amount;
         var requestType = "captureWallet"
         var extraData = ""; //pass empty value if your merchant does not have stores
 
@@ -44,6 +44,7 @@ class PaymentService {
             amount: amount,
             orderId: orderId,
             orderInfo: orderInfo,
+            orderExpireTime: 30,
             redirectUrl: redirectUrl,
             ipnUrl: ipnUrl,
             extraData: extraData,
