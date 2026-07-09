@@ -1,8 +1,12 @@
 import PaymentService from '../services/paymentServices';
+import BookingService from '../services/bookingServices';
+import { ValidationError } from '../middlewares/validateData';
 
 class PaymentController {
     async createMomoPayments(req, res) {
-        return await PaymentService.createMomoPayment(req.body)
+        const { booking_id, invoice_id, payment_method, status, amount, is_deposit, transaction_ref, processed_by, notes } = req.body;
+        const data = { booking_id, invoice_id, payment_method, status, amount, is_deposit, transaction_ref, processed_by, notes };
+        return await PaymentService.createMomoPayment(data)
             .then(payment => res.status(200).json(payment))
             .catch(error => res.status(500).json({ error: error.message }));
     }
@@ -58,7 +62,16 @@ class PaymentController {
         const { booking_id, invoice_id, payment_method, status, amount, is_deposit, transaction_ref, processed_by, notes } = req.body;
         const data = { booking_id, invoice_id, payment_method, status, amount, is_deposit, transaction_ref, processed_by, notes };
         return await PaymentService.createPayment(data)
-            .then(payment => res.status(201).json(payment))
+            .then(async payment => {
+                try {
+                    if (is_deposit == true || is_deposit == 'true') {
+                        await BookingService.updateBooking(booking_id, { deposit_amount: amount, deposit_paid_at: new Date(), status: "confirmed" });
+                    }
+                    res.status(201).json(payment);
+                } catch (error) {
+                    console.log(error);
+                }
+            })
             .catch(error => {
                 if (typeof parseInt(error.code) === 'number') {
                     return res.status(parseInt(error.code)).json({ error: error.message });
@@ -72,7 +85,12 @@ class PaymentController {
         const { payment_method, status, amount, is_deposit, transaction_ref, paid_at, processed_by, notes, updated_at } = req.body;
         const data = { payment_method, status, amount, is_deposit, transaction_ref, paid_at, processed_by, notes, updated_at };
         return await PaymentService.updatePayment(id, data)
-            .then(payment => res.status(200).json(payment))
+            .then(async payment => {
+                if (is_deposit == true || is_deposit == 'true') {
+                    await BookingService.updateBooking(payment.booking_id, { deposit_amount: amount, deposit_paid_at: new Date(), status: "confirmed" });
+                }
+                res.status(200).json(payment)
+            })
             .catch(error => {
                 if (error.code !== 500) {
                     return res.status(parseInt(error.code)).json({ error: error.message });

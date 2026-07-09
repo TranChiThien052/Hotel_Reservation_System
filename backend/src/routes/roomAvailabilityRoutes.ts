@@ -17,17 +17,17 @@ const router = Router();
  *           type: string
  *         description: The id parameter
  *       - in: query
- *         name: checkin_at
+ *         name: checkin
  *         required: true
  *         schema:
  *           type: string
- *         description: The checkin_at parameter
+ *         description: The checkin parameter
  *       - in: query
- *         name: checkout_at
+ *         name: checkout
  *         required: true
  *         schema:
  *           type: string
- *         description: The checkout_at parameter
+ *         description: The checkout parameter
  *       - in: query
  *         name: room_type_id
  *         required: false
@@ -57,13 +57,13 @@ router.get("/available", RoomAvailabilityController.getAvailableRoomCount);
  *           type: string
  *         description: The id parameter
  *       - in: query
- *         name: checkin_at
+ *         name: checkin
  *         required: true
  *         schema:
  *           type: string
  *         description: The checkin_at parameter
  *       - in: query
- *         name: checkout_at
+ *         name: checkout
  *         required: true
  *         schema:
  *           type: string

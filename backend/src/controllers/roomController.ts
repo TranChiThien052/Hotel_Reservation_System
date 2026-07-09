@@ -8,8 +8,8 @@ class RoomController {
     };
 
     async getRoomsByBranchId(req, res) {
-        const { branchId } = req.params;
-        return await RoomServices.getRoomsByBranchId(branchId)
+        const { id } = req.params;
+        return await RoomServices.getRoomsByBranchId(id)
             .then(rooms => res.status(200).json(rooms))
             .catch(error => res.status(500).json({ error: error.message }));
     };
