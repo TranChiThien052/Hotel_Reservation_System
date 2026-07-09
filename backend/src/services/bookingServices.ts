@@ -27,6 +27,14 @@ class BookingService {
         return await BookingRepository.getBookingsByBranchId(id);
     }
 
+    async getBookingByCustomerId(id) {
+        const validator = new Validator();
+        validator.isUUID("Customer ID", id);
+        if (validator.error.length > 0)
+            throw new ValidationError('400', validator.clearError());
+        return await BookingRepository.getBookingsByCustomerId(id);
+    }
+
     async getTodayCheckinCount(branch_id) {
         const validator = new Validator();
         if (!validator.isEmpty("Branch ID", branch_id))
