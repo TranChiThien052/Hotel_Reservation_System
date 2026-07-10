@@ -9,6 +9,7 @@ import accountRepo from '../repositories/accountRepo';
 import { generateToken, hashToken } from '../middlewares/generator';
 import ResetPasswordTokenRepo from '../repositories/resetPasswordTokenRepo';
 import { sendPasswordResetEmail } from '../services/emailServices'
+import CustomerRepository from '../repositories/customerRepo';
 
 class AccountService {
     async requestPasswordReset(email) {
@@ -271,6 +272,68 @@ class AccountService {
 
         return result;
     };
+
+    async registerCustomerAccount(data) {
+        const validatingAccountData = await AccountRepository.getValidatingInformation();
+        const validatingCustomerData = await CustomerRepository.getValidatingInformation();
+        const validator = new Validator();
+        const validatedData = {
+            ...(data.full_name && { full_name: data.full_name }),
+            ...(data.phone && { phone: data.phone }),
+            ...(data.email && { email: data.email }),
+            ...(data.password && { password: data.password })
+        };
+        if (!validator.isEmpty("Full Name", validatedData.full_name))
+            validator.isString("Full Name", validatedData.full_name)
+        if (!validator.isEmpty("Phone", validatedData.phone))
+            validator.validatePhoneNumber(validatedData.phone)
+        if (!validator.isEmpty("Email", validatedData.email))
+            validator.validateEmail(validatedData.email)
+        if (!validator.isEmpty("Password", validatedData.password))
+            validator.validatePassword(validatedData.password)
+        if (validator.error.length > 0)
+            throw new ValidationError("400", validator.clearError());
+        const usernameExist = validatingAccountData.find(account => account.username === validatedData.username);
+        if (usernameExist)
+            throw new ValidationError("409", "Username already exist");
+        const emailExist = validatingCustomerData.find(customer => customer.email === validatedData.email);
+        if (emailExist)
+            throw new ValidationError("409", "Email already exist");
+        const phoneExist = validatingCustomerData.find(customer => customer.phone === validatedData.phone);
+        if (phoneExist)
+            throw new ValidationError("409", "Phone already exist");
+        validatedData.password_hash = await bcrypt.hash(validatedData.password, Number(process.env.SALT_ROUNDS) || 5);
+
+        const result = await prisma.$transaction(async (tx) => {
+            const account = await tx.accounts.create({
+                data: {
+                    username: validatedData.email,
+                    password_hash: validatedData.password_hash,
+                    role: "customer",
+                    status: "active"
+                }
+            });
+            if (!account)
+                throw new ValidationError("500", "Failed to create account");
+            const customer = await tx.customers.create({
+                data: {
+                    account_id: account.id,
+                    full_name: validatedData.full_name,
+                    phone: validatedData.phone,
+                    email: validatedData.email
+                }
+            });
+            if (!customer)
+                throw new ValidationError("500", "Failed to create customer");
+            return {
+                message: "Account created successfully",
+                created_account: account,
+                created_customer: customer
+            };
+        });
+
+        return result;
+    }
 
     async getAccountInformationFromToken(token) {
         const validator = new Validator();

@@ -1,5 +1,6 @@
 import express from 'express';
 import AccountController from '../controllers/accountController';
+import { authorize } from '../middlewares/authorizer';
 
 const router = express.Router();
 
@@ -58,7 +59,9 @@ const router = express.Router();
  *       500:
  *         description: Internal server error
  */
-router.get('/username/:username', AccountController.getAccountByUsername)
+router.get('/username/:username', async (req, res) => {
+    await authorize(req, res, ["manager", "admin"], () => AccountController.getAccountByUsername(req, res))
+})
 /**
  * @swagger
  * /accounts:
@@ -88,7 +91,9 @@ router.get('/username/:username', AccountController.getAccountByUsername)
  *       500:
  *         description: Internal server error
  */
-router.get('/', AccountController.getAllAccounts);
+router.get('/', async (req, res) => {
+    await authorize(req, res, ["manager", "admin"], () => AccountController.getAllAccounts(req, res))
+});
 /**
  * @swagger
  * /accounts/{id}:
@@ -108,7 +113,9 @@ router.get('/', AccountController.getAllAccounts);
  *       500:
  *         description: Internal Server error
  */
-router.get('/:id', AccountController.getAccountById);
+router.get('/:id', async (req, res) => {
+    await authorize(req, res, ["manager", "admin"], () => AccountController.getAccountById(req, res))
+});
 /**
  * @swagger
  * /accounts:
@@ -148,7 +155,9 @@ router.get('/:id', AccountController.getAccountById);
  *       500:
  *         description: Internal server error
  */
-router.post('/', AccountController.createAccount);
+router.post('/', async (req, res) => {
+    await authorize(req, res, ["customer", "staff", "manager", "admin"], () => AccountController.createAccount(req, res))
+});
 /**
  * @swagger
  * /accounts/{id}:
@@ -297,6 +306,96 @@ router.delete('/:id', AccountController.deleteAccount);
  *           500:
  *              description: Internal server error
  */
-router.post('/register/staff', AccountController.createStaffAccount);
+router.post('/register/staff', (req, res) => {
+    authorize(req, res, ["manager", "admin"], () => AccountController.createStaffAccount(req, res))
+});
+
+/**
+ * @swagger
+/accounts/register/staff:
+ *   post:
+ *     summary: Create new staff account
+ *     tags: [Account]
+ *     security:
+ *       - bearerAuth:
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - full_name
+ *               - phone
+ *               - email
+ *               - password
+ *             properties:
+ *               full_name:
+ *                 type: string
+ *                 description: Customer full name
+ *                 example: John Doe
+ *               password:
+ *                 type: string
+ *                 description: Account password
+ *                 example: string
+ *               phone:
+ *                 type: string
+ *                 description: Customer phone number
+ *                 example: 0912345678
+ *               email:
+ *                 type: string
+ *                 description: Customer email address
+ *                 example: customer@abc.com
+ *     responses:
+ *           200:
+ *              description: Succesful operation
+ *              content:
+ *                 application/json:
+ *                    schema:
+ *                       type: object
+ *                       properties:
+ *                          created_account:
+ *                             type: object
+ *                             properties:
+ *                                id:
+ *                                   type: string
+ *                                username:
+ *                                   type: string
+ *                                role:
+ *                                   type: string
+ *                                status:
+ *                                   type: string
+ *                                branch_id:
+ *                                   type: string
+ *                          created_customer:
+ *                             type: object
+ *                             properties:
+ *                                id:
+ *                                   type: string
+ *                                account_id:
+ *                                   type: string
+ *                                full_name:
+ *                                   type: string
+ *                                phone:
+ *                                   type: string
+ *                                email:
+ *                                   type: string
+ *                                id_card_number:
+ *                                   type: string
+ *                                nationality:
+ *                                   type: string
+ *                                date_of_birth:
+ *                                   type: string
+ *                                   format: date
+ *                                address:
+ *                                   type: string
+ *           400:
+ *              description: Bad request
+ *           409:
+ *              description: Phone number or username already exists
+ *           500:
+ *              description: Internal server error
+ */
+router.post('/register/customer', AccountController.createCustomerAccount);
 
 export default router;

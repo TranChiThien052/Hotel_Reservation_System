@@ -111,12 +111,6 @@ class DiscountServices {
             validator.isBoolean("Is Active", validatedData.is_active);
         }
 
-        if (validator.validateDateOrder(validatedData.valid_from, validatedData.valid_to)) {
-            if (new Date(validatedData.valid_from).getTime() < new Date().getTime()) {
-                validator.pushError("Valid From date cannot be in the past");
-            }
-        }
-
         if (validator.error.length > 0) {
             throw new ValidationError('400', validator.clearError());
         }
