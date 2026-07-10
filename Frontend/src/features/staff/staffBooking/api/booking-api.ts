@@ -21,5 +21,9 @@ export const bookingApi = {
     deleteBooking: async (id: string) => {
         const res = await apiClient.delete(`/bookings/${id}`);
         return res.data;
+    },
+    getBookingsByBranchId: async (branchId: string) => {
+        const res = await apiClient.get(`/bookings/branch/${branchId}`);
+        return res.data;
     }
 }

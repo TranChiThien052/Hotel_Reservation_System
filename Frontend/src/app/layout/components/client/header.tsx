@@ -83,32 +83,14 @@ const header = () => {
                             
                             <div className="h-6 w-6 border-2 border-orange-400 border-t-transparent rounded-full animate-spin" />
                         ) : isAuthenticated ? (
-                            
-                            // <div className="flex items-center gap-4">
-                            //     <span className="text-sm font-medium text-gray-700 hidden md:inline">
-                            //         Xin chào, {user?.customers?.full_name || "User"}
-                            //     </span>
-                            //     <FaRegUser 
-                            //         onClick={handleProfileRedirect} 
-                            //         className='cursor-pointer text-xl text-orange-500 hover:scale-110 transition-transform' 
-                            //         title="Trang cá nhân"
-                            //     />
-                            //     <button 
-                            //         onClick={handleLogout}
-                            //         className="text-sm text-gray-400 hover:text-red-500 transition-colors cursor-pointer"
-                            //     >
-                            //         Đăng xuất
-                            //     </button>
-                            // </div>
                             <div className="flex items-center gap-4 h-full">
                                       <FaRegUser className="text-orange-500 text-4xl" />
                                       <Dropdown menu={{ items: menuItems }} placement="bottomRight">
                                       <div className="flex items-center gap-2 cursor-pointer">
-                                        {/* <UserAvatar size={46} /> */}
                             
                                         <div className="flex flex-col leading-tight">
                                           <span className="text-orange-500 text-xl font-medium">
-                                            {user?.staff?.full_name || user?.customers?.full_name || "Admin"}
+                                            {user?.staff?.full_name || user?.customers?.full_name || "Chưa có tên"}
                                           </span>
                                           <span className="text-sm text-right text-gray-400">{user?.role}</span>
                                         </div>

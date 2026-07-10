@@ -64,7 +64,6 @@ export const accountsFormFields: FormField<AccountFormData>[] = [
         placeholder: "Chọn vai trò",
         type: FormFieldTypes.SELECT,
         options: [
-            { label: "Admin", value: "admin" },
             { label: "Quản lý", value: "manager" },
             { label: "Nhân viên", value: "staff" },
             { label: "Khách hàng", value: "customer" },

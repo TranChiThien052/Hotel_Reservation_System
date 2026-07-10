@@ -36,7 +36,7 @@ const StaffBooking = () => {
     const fetchBookings = useCallback(async () => {
         setLoading(true);
         try {
-            const data = await bookingApi.getAllBooking();
+            const data = await bookingApi.getBookingsByBranchId(user?.branch_id || "");
             setBookingsData(data);
             setFilteredBookings(data);
         } catch (error) {
