@@ -96,13 +96,25 @@ class AccountController {
         const { username, password, role, status, branch_id, full_name, phone } = req.body;
         const data = { username, password, role, status, branch_id, full_name, phone };
         return await AccountService.registerStaffAccount(data)
-            .then(response => res.status(200).json(response))
+            .then(response => res.status(201).json(response))
             .catch(error => {
                 if (typeof parseInt(error.code) === "number") {
                     return res.status(parseInt(error.code)).json({ error: error.message });
                 }
                 res.status(500).json({ error: error.message });
             });
+    }
+
+    async createCustomerAccount(req, res) {
+        const { full_name, phone, email, password } = req.body;
+        const data = { full_name, phone, email, password };
+        return await AccountService.registerCustomerAccount(data)
+            .then(response => res.status(201).json(response))
+            .catch(error => {
+                if (typeof parseInt(error.code) === 'number')
+                    return res.status(parseInt(error.code)).json({ error: error.message });
+                res.status(500).json({ error })
+            })
     }
 
     async getAccountInformation(req, res) {
