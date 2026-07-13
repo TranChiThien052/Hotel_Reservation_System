@@ -114,7 +114,7 @@ router.get('/', async (req, res) => {
  *         description: Internal Server error
  */
 router.get('/:id', async (req, res) => {
-    await authorize(req, res, ["manager", "admin"], () => AccountController.getAccountById(req, res))
+    await authorize(req, res, ["staff", "manager", "admin"], () => AccountController.getAccountById(req, res))
 });
 /**
  * @swagger
@@ -156,7 +156,7 @@ router.get('/:id', async (req, res) => {
  *         description: Internal server error
  */
 router.post('/', async (req, res) => {
-    await authorize(req, res, ["customer", "staff", "manager", "admin"], () => AccountController.createAccount(req, res))
+    await authorize(req, res, ["staff", "manager", "admin"], () => AccountController.createAccount(req, res))
 });
 /**
  * @swagger
@@ -187,7 +187,9 @@ router.post('/', async (req, res) => {
  *       500:
  *         description: Internal server error
  */
-router.put('/:id', AccountController.updateAccount);
+router.put('/:id', (req, res) => {
+    authorize(req, res, ["customer", "staff", "manager", "admin"], () => AccountController.updateAccount(req, res))
+});
 /**
  * @swagger
  * /accounts/{id}:
@@ -207,8 +209,9 @@ router.put('/:id', AccountController.updateAccount);
  *       404:
  *         description: Record not found
  */
-router.delete('/:id', AccountController.deleteAccount);
-
+router.delete('/:id', (req, res) => {
+    authorize(req, res, ["manager", "admin"], () => AccountController.deleteAccount(req, res))
+});
 
 /**
  * @swagger

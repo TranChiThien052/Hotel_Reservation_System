@@ -108,12 +108,55 @@ router.get('/vnpay/check-payment', (req, res) => {
     console.log(req.query);
 })
 
+/**
+ * @swagger
+ * /payments/zalopay/create:
+ *   post:
+ *     summary: Create new record
+ *     tags: [Payment]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               booking_id:
+ *                  type: string
+ *                  format: uuid
+ *               amount:
+ *                  type: integer
+ *               is_deposit:
+ *                  type: boolean
+ *     responses:
+ *       201:
+ *         description: Successful operation
+ *         content:
+ *            application/json:
+ *               schema:
+ *                  type: object
+ *                  properties:
+ *                     return_code:
+ *                        type: integer
+ *                     return_message:
+ *                        type: string
+ *                     order_url:
+ *                        type: string
+ *                     sub_return_code:
+ *                        type: integer
+ *                     sub_return_message:
+ *                        type: string
+ *                     zp_trans_token:
+ *                        type: string
+ *                     order_token:
+ *                        type: string
+ */
 router.post('/zalopay/create', async (req, res) => {
     const { amount, is_deposit, booking_id, booking_code } = req.body;
     try {
         const newPayment = await paymentServices.createPayment({
             booking_id,
-            payment_method: 'bank_transfer',
+            payment_method: payment_method.bank_transfer,
             status: 'pending',
             amount,
             is_deposit: is_deposit
@@ -121,6 +164,7 @@ router.post('/zalopay/create', async (req, res) => {
         console.log(newPayment);
         const zalopay = new ZalopayService();
         const result = await zalopay.createPayment(amount, booking_code, newPayment.id);
+        console.log(result.data);
         res.status(201).json(result.data);
     }
     catch (error) {

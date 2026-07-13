@@ -7,7 +7,7 @@ class ZalopayService {
     async createPayment(amount, booking_code, payment_id) {
         const embed_data = {
             //sau khi hoàn tất thanh toán sẽ đi vào link này (thường là link web thanh toán thành công của mình)
-            redirecturl: 'http://localhost:3000/api-docs',
+            redirecturl: process.env.FRONTEND_URL + '/booking/success',
             payment_id
         };
 
@@ -23,8 +23,8 @@ class ZalopayService {
             embed_data: JSON.stringify(embed_data),
             amount: amount,
             //khi thanh toán xong, zalopay server sẽ POST đến url này để thông báo cho server của mình
-            callback_url: 'https://probable-thesis-variety.ngrok-free.dev/payments/zalopay/callback',
-            description: `Testing - Payment for the booking ${booking_code} - #${transID}`,
+            callback_url: '/zalopay/callback',
+            description: `Payment for the booking ${booking_code} - #${transID}`,
             bank_code: '',
             mac: '',
         };
