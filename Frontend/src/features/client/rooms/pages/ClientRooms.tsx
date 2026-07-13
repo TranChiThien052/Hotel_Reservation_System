@@ -3,6 +3,8 @@ import { IoSearch } from "react-icons/io5";
 import { roomTypesApi } from "@/features/admin/adminRoomTypes/api/roomTypes-api";
 import { roomPricesApi } from "@/features/admin/adminRoomsPrices/api/roomPrices-api";
 import Room, { type RoomTypeWithPrice } from "@/app/layout/components/client/room";
+import { branchApi } from "@/features/admin/adminBranch/api/admin-api";
+import type { Branch } from "@/features/admin/adminBranch/types/branch-type";
 
 // ── Constants ────────────────────────────────────────────────────────────────
 const GUEST_OPTIONS = ["Tất cả", "1", "2", "3", "4+"];
@@ -15,7 +17,7 @@ const PRICE_RANGES = [
 ];
 
 
-// ── Main page ─────────────────────────────────────────────────────────────────
+
 
 const ClientRooms = () => {
   const [roomTypes, setRoomTypes] = useState<RoomTypeWithPrice[]>([]);
@@ -25,19 +27,24 @@ const ClientRooms = () => {
   // Filter states
   const [search, setSearch] = useState("");
   const [selectedType, setSelectedType] = useState("Tất cả");
+  const [selectedBranch, setSelectedBranch] = useState("Tất cả");
   const [selectedGuests, setSelectedGuests] = useState("Tất cả");
   const [selectedPrice, setSelectedPrice] = useState(0);
+  const [branchData, setBranchData] = useState<Branch[]>([]);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      const [rtData, rpData] = await Promise.all([
+      const [rtData, rpData, branchData] = await Promise.all([
         roomTypesApi.getRoomTypes(),
         roomPricesApi.getAllRoomprices(),
+        branchApi.getBranches(),
       ]);
 
       const rtList: any[] = Array.isArray(rtData) ? rtData : [];
       const rpList: any[] = Array.isArray(rpData) ? rpData : [];
+      const branchList: Branch[] = Array.isArray(branchData) ? branchData : [];
+      setBranchData(branchList);
 
       // Lấy danh sách tên loại phòng duy nhất để làm filter
       const uniqueNames = ["Tất cả", ...Array.from(new Set<string>(rtList.map((rt) => rt.name)))];
@@ -63,17 +70,23 @@ const ClientRooms = () => {
     fetchData();
   }, [fetchData]);
 
+  console.log("roomTypes:", roomTypes);
+
   const handleReset = () => {
     setSearch("");
     setSelectedType("Tất cả");
+    setSelectedBranch("Tất cả");
     setSelectedGuests("Tất cả");
     setSelectedPrice(0);
   };
 
-  // ── Filter logic ──────────────────────────────────────────────────────────
+  
   const filtered = roomTypes.filter((rt) => {
     // Search
     if (search && !rt.name.toLowerCase().includes(search.toLowerCase())) return false;
+
+    // Branch
+    if (selectedBranch !== "Tất cả" && rt.branches?.name !== selectedBranch) return false;
 
     // Type
     if (selectedType !== "Tất cả" && rt.name !== selectedType) return false;
@@ -133,6 +146,22 @@ const ClientRooms = () => {
                   className="w-full pl-9 pr-4 py-2 rounded-lg border border-gray-200 bg-gray-50 text-sm focus:outline-none focus:ring-2 focus:ring-orange-300 transition"
                 />
               </div>
+            </div>
+
+            <div className="mb-6">
+              <p className="text-sm font-semibold text-gray-700 mb-2">Chi nhánh</p>
+              <select
+                value={selectedBranch}
+                onChange={(e) => setSelectedBranch(e.target.value)}
+                className="w-full px-3 py-2 rounded-lg border border-gray-200 bg-gray-50 text-sm focus:outline-none focus:ring-2 focus:ring-orange-300 transition"
+              >
+                <option value="Tất cả">Tất cả</option>
+                {branchData?.map((branch) => (
+                  <option key={branch.id} value={branch.name}>
+                    {branch.name}
+                  </option>
+                ))}
+              </select>
             </div>
 
             {/* Room Type */}

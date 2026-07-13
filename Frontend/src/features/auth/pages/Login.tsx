@@ -4,6 +4,7 @@ import {
   EyeInvisibleOutlined,
   EyeOutlined,
   UserOutlined,
+  MailOutlined,
 } from "@ant-design/icons";
 import { useState, useEffect } from "react";
 import { useAppDispatch, useAppSelector } from "@/app/store/hooks";
@@ -11,6 +12,7 @@ import { useNavigate } from "react-router-dom";
 import type { LoginPayload } from "../types/auth-type";
 import { getMeThunk, loginThunk } from "../store/auth-thunk";
 import { accountApi } from "@/features/admin/adminAccounts/api/accounts-api";
+import { authApi } from "../api/auth-api";
 
 interface RegisterForm {
   username: string;
@@ -24,20 +26,17 @@ const Login = () => {
 
   const { loading, error } = useAppSelector((state) => state.auth);
 
-  // mode hiện tại đang hiển thị
-  const [mode, setMode] = useState<"login" | "register">("login");
-  // content đang render (thay đổi sau khi fade-out xong)
-  const [displayed, setDisplayed] = useState<"login" | "register">("login");
-  // trạng thái animation: 'idle' | 'out' | 'in'
+  // mode: login | register | forgot
+  const [mode, setMode] = useState<"login" | "register" | "forgot">("login");
+  const [displayed, setDisplayed] = useState<"login" | "register" | "forgot">("login");
   const [anim, setAnim] = useState<"idle" | "out" | "in">("idle");
-  // hướng slide: 'left' = sang đăng ký, 'right' = quay về
   const [dir, setDir] = useState<"left" | "right">("left");
 
-  // Login state
+  // Login
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
-  // Register state
+  // Register
   const [regForm, setRegForm] = useState<RegisterForm>({
     username: "",
     password: "",
@@ -47,21 +46,31 @@ const Login = () => {
   const [regError, setRegError] = useState("");
   const [regSuccess, setRegSuccess] = useState(false);
 
-  // Switch với animation
-  const switchMode = (next: "login" | "register") => {
+  // Forgot password
+  const [forgotEmail, setForgotEmail] = useState("");
+  const [forgotLoading, setForgotLoading] = useState(false);
+  const [forgotError, setForgotError] = useState("");
+  const [forgotSuccess, setForgotSuccess] = useState(false);
+
+  const switchMode = (next: "login" | "register" | "forgot") => {
     if (anim !== "idle" || mode === next) return;
-    setDir(next === "register" ? "left" : "right");
+    // Xác định hướng animation
+    if (next === "register") setDir("left");
+    else if (next === "forgot") setDir("left");
+    else setDir("right");
     setAnim("out");
     setMode(next);
   };
 
   useEffect(() => {
     if (anim === "out") {
-      // sau 260ms fade+slide out → đổi content → fade in
       const t1 = setTimeout(() => {
         setDisplayed(mode);
         setRegError("");
         setRegSuccess(false);
+        setForgotError("");
+        setForgotSuccess(false);
+        setForgotEmail("");
         setAnim("in");
       }, 260);
       return () => clearTimeout(t1);
@@ -72,7 +81,6 @@ const Login = () => {
     }
   }, [anim, mode]);
 
-  // Classes cho animation của content
   const contentCls = (() => {
     if (anim === "out") {
       return dir === "left"
@@ -133,10 +141,41 @@ const Login = () => {
       setRegLoading(false);
     }
   };
-  console.log("regForm:", regForm);
+
+  const handleForgotPassword = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setForgotError("");
+    if (!forgotEmail.trim()) {
+      setForgotError("Vui lòng nhập địa chỉ email.");
+      return;
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(forgotEmail)) {
+      setForgotError("Địa chỉ email không hợp lệ.");
+      return;
+    }
+    setForgotLoading(true);
+    try {
+      await authApi.requestPasswordReset(forgotEmail);
+      setForgotSuccess(true);
+    } catch (err: any) {
+      const msg = err?.response?.data?.error ?? err?.message;
+      if (msg?.toLowerCase().includes("not found") || err?.response?.status === 404) {
+        setForgotError("Không tìm thấy tài khoản với email này.");
+      } else {
+        setForgotError("Gửi yêu cầu thất bại. Vui lòng thử lại.");
+      }
+    } finally {
+      setForgotLoading(false);
+    }
+  };
 
   const fieldCls =
     "border-b border-gray-300 pb-1 transition-colors duration-300 focus-within:border-gray-900";
+
+  // Chiều rộng card tùy mode
+  const cardWidth =
+    displayed === "login" ? "max-w-md" : "max-w-lg";
 
   return (
     <div
@@ -145,17 +184,15 @@ const Login = () => {
     >
       <div className="absolute inset-0 z-0 bg-black/50" />
 
-      {/* Card — tự động giãn theo nội dung, animate max-w */}
+      {/* Card */}
       <div
-        className={`relative z-10 w-full overflow-hidden rounded-3xl bg-white shadow-2xl transition-all duration-500 ${
-          displayed === "login" ? "max-w-md" : "max-w-lg"
-        }`}
+        className={`relative z-10 w-full overflow-hidden rounded-3xl bg-white shadow-2xl transition-all duration-500 ${cardWidth}`}
       >
-        {/* Content wrapper — animate slide + fade */}
+        {/* Content wrapper */}
         <div
           className={`transition-all duration-300 ease-in-out ${contentCls}`}
         >
-          {/* ── ĐĂNG NHẬP ─────────────────────────────────────────────── */}
+          {/* ── ĐĂNG NHẬP ────────────────────────────────────────────── */}
           {displayed === "login" && (
             <div className="px-12 py-10">
               <h2 className="mb-10 text-center text-3xl font-bold tracking-wider text-gray-950">
@@ -204,12 +241,13 @@ const Login = () => {
                     className="custom-antd-input-dark w-full text-base text-gray-950"
                   />
                   <div className="absolute right-0 -bottom-6">
-                    <a
-                      href="#"
-                      className="text-xs text-gray-500 hover:text-gray-950 transition-colors"
+                    <button
+                      type="button"
+                      onClick={() => switchMode("forgot")}
+                      className="text-xs text-gray-500 hover:text-gray-950 transition-colors cursor-pointer"
                     >
                       Quên mật khẩu?
-                    </a>
+                    </button>
                   </div>
                 </div>
 
@@ -244,7 +282,7 @@ const Login = () => {
             </div>
           )}
 
-          {/* ── ĐĂNG KÝ ───────────────────────────────────────────────── */}
+          {/* ── ĐĂNG KÝ ──────────────────────────────────────────────── */}
           {displayed === "register" && (
             <div className="px-12 py-10">
               <h2 className="mb-8 text-center text-3xl font-bold tracking-wider text-gray-950">
@@ -252,7 +290,6 @@ const Login = () => {
               </h2>
 
               <form onSubmit={handleRegister} className="w-full">
-                {/* Alerts */}
                 {regSuccess && (
                   <div className="mb-5">
                     <Alert
@@ -268,9 +305,7 @@ const Login = () => {
                   </div>
                 )}
 
-                {/* 2-column grid cho form register */}
                 <div className="grid grid-cols-1 sm:grid-cols-1 gap-x-6 gap-y-5">
-                  {/* Tên đăng nhập */}
                   <div className={fieldCls}>
                     <label className="mb-1 block pl-1 text-sm font-semibold text-gray-900">
                       Tên đăng nhập <span className="text-red-500">*</span>
@@ -289,7 +324,6 @@ const Login = () => {
                     />
                   </div>
 
-                  {/* Mật khẩu */}
                   <div className={fieldCls}>
                     <label className="mb-1 block pl-1 text-sm font-semibold text-gray-900">
                       Mật khẩu <span className="text-red-500">*</span>
@@ -312,7 +346,6 @@ const Login = () => {
                     />
                   </div>
 
-                  {/* Xác nhận mật khẩu */}
                   <div className={fieldCls}>
                     <label className="mb-1 block pl-1 text-sm font-semibold text-gray-900">
                       Xác nhận mật khẩu <span className="text-red-500">*</span>
@@ -360,6 +393,86 @@ const Login = () => {
                     ← Đăng nhập
                   </button>
                 </div>
+              </form>
+            </div>
+          )}
+
+          {/* ── QUÊN MẬT KHẨU ──────────────────────────────────────── */}
+          {displayed === "forgot" && (
+            <div className="px-12 py-10">
+              <h2 className="mb-3 text-center text-3xl font-bold tracking-wider text-gray-950">
+                QUÊN MẬT KHẨU
+              </h2>
+              <p className="mb-8 text-center text-sm text-gray-500">
+                Nhập email liên kết với tài khoản của bạn.<br />
+                Chúng tôi sẽ gửi link đặt lại mật khẩu.
+              </p>
+
+              <form onSubmit={handleForgotPassword} className="w-full space-y-6">
+                {forgotSuccess ? (
+                  <div className="space-y-4">
+                    <Alert
+                      type="success"
+                      showIcon
+                      message="Email đã được gửi!"
+                      description={
+                        <span>
+                          Vui lòng kiểm tra hộp thư của{" "}
+                          <strong>{forgotEmail}</strong> và nhấn vào link để
+                          đặt lại mật khẩu. Kiểm tra cả thư mục spam nếu không thấy.
+                        </span>
+                      }
+                    />
+                    <button
+                      type="button"
+                      onClick={() => switchMode("login")}
+                      className="w-full text-center text-sm text-gray-500 hover:text-gray-900 transition-colors cursor-pointer"
+                    >
+                      ← Quay lại đăng nhập
+                    </button>
+                  </div>
+                ) : (
+                  <>
+                    {forgotError && (
+                      <Alert type="error" showIcon message={forgotError} />
+                    )}
+
+                    <div className={fieldCls}>
+                      <label className="mb-1 block pl-1 text-sm font-semibold text-gray-900">
+                        Địa chỉ Email
+                      </label>
+                      <Input
+                        value={forgotEmail}
+                        onChange={(e) => setForgotEmail(e.target.value)}
+                        placeholder="example@email.com"
+                        type="email"
+                        variant="borderless"
+                        suffix={<MailOutlined className="text-lg text-gray-400" />}
+                        className="custom-antd-input-dark w-full text-base text-gray-950"
+                      />
+                    </div>
+
+                    <Button
+                      type="primary"
+                      htmlType="submit"
+                      loading={forgotLoading}
+                      style={{ backgroundColor: "#030712" }}
+                      className="h-12 w-full rounded-xl border-none font-bold text-white shadow-md hover:bg-gray-800!"
+                    >
+                      Gửi link đặt lại mật khẩu
+                    </Button>
+
+                    <div className="flex items-center justify-between text-sm">
+                      <button
+                        type="button"
+                        onClick={() => switchMode("login")}
+                        className="cursor-pointer font-bold text-gray-950 hover:text-amber-600 hover:underline underline-offset-2 transition-colors"
+                      >
+                        ← Đăng nhập
+                      </button>
+                    </div>
+                  </>
+                )}
               </form>
             </div>
           )}

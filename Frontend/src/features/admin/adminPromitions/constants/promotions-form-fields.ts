@@ -30,7 +30,7 @@ export const promotionsFormFields: FormField<PromotionFormData>[] = [
     type: FormFieldTypes.SELECT,
     options: [
       { value: "percentage", label: "Phần trăm" },
-      { value: "fixed", label: "Số tiền cố định" },
+      { value: "fixed_amount", label: "Số tiền cố định" },
     ],
   },
   {

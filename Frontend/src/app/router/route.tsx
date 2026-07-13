@@ -16,14 +16,17 @@ import StaffRooms from "@/features/staff/staffRooms/pages/StaffRooms";
 import StaffBooking from "@/features/staff/staffBooking/pages/StaffBooking";
 import ManagerRooms from "@/features/manager/managerRooms/pages/ManagerRooms";
 import Login from "@/features/auth/pages/Login";
+import ResetPassword from "@/features/auth/pages/ResetPassword";
 import ProtectedRoute from "./ProtectedRoute";
 import ManagementEmployees from "@/features/manager/managementEmployees/pages/managementEmployees";
 import ManagerLayout from "../layout/components/ManagerLayout";
 import ClientRooms from "@/features/client/rooms/pages/ClientRooms";
-
 import ClientRoomTypeDetail from "@/features/client/rooms/pages/ClientRoomTypeDetail";
 import ClientBooking from "@/features/client/booking/pages/ClientBooking";
-
+import BookingSuccess from "@/features/client/booking/pages/BookingSuccess";
+import BookingHistory from "@/features/client/profile/pages/bookingHistory";
+import BookingDetails from "@/features/client/profile/pages/bookingDetails";
+import UserProfile from "@/features/client/profile/pages/userProfile";
 
 const route = () => {
   return (
@@ -32,6 +35,7 @@ const route = () => {
         
         <Route element={<ProtectedRoute requireAuth={false} />}>
           <Route path="/login" element={<Login />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
         </Route>
 
         
@@ -41,8 +45,14 @@ const route = () => {
           <Route path="rooms/type/:typeId" element={<ClientRoomTypeDetail />} />
 
           <Route path="booking/:id" element={<ClientBooking />} />
+          <Route path="booking/success" element={<BookingSuccess />} />
 
+          
+          <Route path="profile" element={<UserProfile />} />
+          <Route path="my-bookings" element={<BookingHistory />} />
+          <Route path="my-bookings/:id" element={<BookingDetails />} />
         </Route>
+
 
         
         <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>

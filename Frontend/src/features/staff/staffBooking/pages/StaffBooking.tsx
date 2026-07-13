@@ -1,4 +1,4 @@
-import { Button, Dropdown, message, Space, Table, Tag, type MenuProps, type TableProps } from 'antd';
+import { Button, Dropdown, Input, message, Select, Space, Table, Tag, type MenuProps, type TableProps } from 'antd';
 import type { Booking, BookingFormData } from '../types/booking-type';
 import { useFormModal } from '@/shared/hooks/useFormModal';
 import { useCallback, useEffect, useState } from 'react';
@@ -11,6 +11,7 @@ import { FormModalModes } from '@/shared/types/type-form-mode';
 import { CiCirclePlus } from 'react-icons/ci';
 import { bookingFormFields } from '../constants/booking-form-fields';
 import { useAppSelector } from '@/app/store/hooks';
+import { IoSearch } from 'react-icons/io5';
 
 const defaultBookingData: BookingFormData = {
     branch_id: "",
@@ -102,6 +103,26 @@ const StaffBooking = () => {
       }
     };
 
+    const filterRoomStatus = (value: string) => {
+      if (!value) {
+        setFilteredBookings(bookingsData);
+        return;
+      }
+      const filtered = bookingsData.filter((booking) => booking.status === value);
+      setFilteredBookings(filtered);
+    };
+
+    const handleSearch = (searchTerm: string) => {
+      if (!searchTerm) {
+        setFilteredBookings(bookingsData);
+        return;
+      }
+      const filtered = bookingsData.filter((booking) =>
+        booking.booking_code.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+      setFilteredBookings(filtered);
+    };
+
     const columns: TableProps<Booking>["columns"] = [
     {
       title: "Mã đặt phòng",
@@ -125,6 +146,13 @@ const StaffBooking = () => {
       title: "Ngày nhận phòng",
       key: "checkin_at",
       render: (_, record) => <p>{record.checkin_at ? new Date(record.checkin_at).toLocaleDateString() : "-"}</p>,
+      sorter: (a, b) => {
+        const dateA = a.checkin_at ? new Date(a.checkin_at).getTime() : 0;
+        const dateB = b.checkin_at ? new Date(b.checkin_at).getTime() : 0;
+        return dateA - dateB;
+      },
+      defaultSortOrder: "descend",
+
     },
     {
       title: "Ngày trả phòng",
@@ -306,59 +334,50 @@ const StaffBooking = () => {
 
       <div className="mt-5 border border-gray-300 rounded-lg">
         <div className="flex items-center gap-2 bg-gray-100 px-4 py-3 border-b border-gray-300 justify-between">
-          {/* <div className="flex items-center gap-4">
-            <Select
-              placeholder="Trạng thái"
-              placement="topRight"
-              style={{ width: 120 }}
-              onChange={filterStatus}
-              allowClear
-              value={statusValue}
-              options={[
-                {
-                  value: "active",
-                  label: <span className="text-green-600">Active</span>,
-                },
-                {
-                  value: "inactive",
-                  label: <span className="text-red-600">Inactive</span>,
-                },
-              ]}
-            />
-
-            <Select
-              placeholder="Tình trạng"
-              placement="topRight"
-              style={{ width: 120 }}
-              onChange={filterRoomStatus}
-              allowClear
-              value={roomStatusValue}
-              options={[
-                {
-                  value: "available",
-                  label: <span className="text-green-600">Available</span>,
-                },
-                {
-                  value: "occupied",
-                  label: <span className="text-yellow-600">Occupied</span>,
-                },
-                {
-                  value: "unavailable",
-                  label: <span className="text-red-600">Unavailable</span>,
-                },
-                {
-                  value: "cleaning",
-                  label: <span className="text-blue-600">Cleaning</span>,
-                },
-              ]}
-            />
+          <div className="flex items-center gap-4">
 
             <Input
               placeholder="Tìm kiếm..."
               prefix={<IoSearch className="text-xl" />}
               onChange={(e) => handleSearch(e.target.value)}
             />
-          </div> */}
+
+            <Select
+              placeholder="Trạng thái phòng"
+              placement="topRight"
+              style={{ width: 150 }}
+              onChange={filterRoomStatus}
+              allowClear
+              options={[
+                {
+                  value: "pending",
+                  label: <span className="text-amber-600">Đang chờ</span>,
+                },
+                {
+                  value: "confirmed",
+                  label: <span className="text-blue-600">Đã xác nhận</span>,
+                },
+                {
+                  value: "cancelled",
+                  label: <span className="text-red-600">Đã hủy</span>,
+                },
+                {
+                  value: "completed",
+                  label: <span className="text-green-600">Đã hoàn thành</span>,
+                },
+                {
+                  value: "checked-in",
+                  label: <span className="text-cyan-600">Đã nhận phòng</span>,
+                },
+                {
+                  value: "checked-out",
+                  label: <span className="text-purple-600">Đã trả phòng</span>,
+                },
+              ]}
+            />
+
+            
+          </div>
           <div className="flex items-center gap-3 pr-4">
             <p className="font-lg font-bold text-gray-700">Hiển thị:</p>
             <p className="font-lg font-bold text-green-700 rounded-lg">
