@@ -7,7 +7,9 @@ import { swaggerUi, swaggerSpec } from './swagger';
 const app = express();
 
 app.use(cors({
-    origin: "*",
+    origin: (origin, callback) => {
+        callback(null, origin || true);
+    },
     methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true
