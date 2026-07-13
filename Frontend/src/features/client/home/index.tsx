@@ -8,8 +8,8 @@ import { roomPricesApi } from "@/features/admin/adminRoomsPrices/api/roomPrices-
 import { roomTypesApi } from "@/features/admin/adminRoomTypes/api/roomTypes-api";
 import { useNavigate } from "react-router-dom";
 import Wifi from "@/assets/images/WiFi.jpg";
-import Restaurant from "@/assets/images/Restaurant.jpg";
-import Pool from "@/assets/images/Pool.jpg";
+import Restaurant from "@/assets/images/restaurant.jpg";
+import Pool from "@/assets/images/pool.jpg";
 import Spa from "@/assets/images/Spa.jpg";
 
 const index = () => {
