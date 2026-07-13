@@ -95,13 +95,13 @@ class RoomAvailabilityService {
             const checkinDateStr = checkin.toDateString();
             const dayOfWeek = checkin.getDay();
 
-            let rate = 1.0;
+            let rate = 0;
             if (holidayDates.includes(checkinDateStr)) {
                 rate = holidayRate;
             } else if (dayOfWeek === 0 || dayOfWeek === 6) {
                 rate = weekendRate;
             }
-            return basePrice * rate * hours;
+            return (basePrice + basePrice * (rate / 100)) * hours;
         }
 
         let currentDate = new Date(checkin);
@@ -109,14 +109,14 @@ class RoomAvailabilityService {
             const dateStr = currentDate.toDateString();
             const dayOfWeek = currentDate.getDay();
 
-            let rate = 1.0;
+            let rate = 0;
             if (holidayDates.includes(dateStr)) {
                 rate = holidayRate;
             } else if (dayOfWeek === 0 || dayOfWeek === 6) {
                 rate = weekendRate;
             }
 
-            total += basePrice * rate;
+            total += basePrice + basePrice * (rate / 100);
 
             currentDate.setDate(currentDate.getDate() + 1);
         }
