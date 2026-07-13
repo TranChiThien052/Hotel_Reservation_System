@@ -5,8 +5,9 @@ class RoomAvailabilityRepository {
         const roomCondition: any = {
             branch_id: branch_id,
             status: {
-                in: ['available']
-            }
+                notIn: ['unavailable', 'maintenance']
+            },
+            is_active: true
         }
         if (room_type_id) {
             roomCondition.room_type_id = room_type_id;
