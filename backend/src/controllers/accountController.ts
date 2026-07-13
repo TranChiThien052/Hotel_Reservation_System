@@ -66,8 +66,20 @@ class AccountController {
             })
             .catch(error => {
                 if (typeof parseInt(error.code) === "number") {
+                    res.clearCookie("refresh_token", {
+                        httpOnly: true,
+                        secure: true,
+                        sameSite: "None",
+                        path: "/auth",
+                    });
                     return res.status(parseInt(error.code)).json({ error: error.message });
                 }
+                res.clearCookie("refresh_token", {
+                    httpOnly: true,
+                    secure: true,
+                    sameSite: "None",
+                    path: "/auth",
+                });
                 res.status(401).json({ error: error.message });
             });
     };
