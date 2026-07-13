@@ -45,6 +45,7 @@ const index = () => {
   }, []);
 
   useEffect(() => {
+    loading;
     fetchData();
   }, [fetchData]);
 

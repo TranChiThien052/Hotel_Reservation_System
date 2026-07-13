@@ -247,9 +247,9 @@ const ClientBooking = () => {
     const pricePerNight = room?.room_price?.price_per_day ? Number(room.room_price.price_per_day) : 0;
     const pricePerHour = room?.room_price?.price_per_hour ? Number(room.room_price.price_per_hour) : 0;
 
-    const calculateSubtotal = () => {
+    // const calculateSubtotal = () => {
       
-    }
+    // }
 
     const subtotal = booking_type === 'daily'
         ? pricePerNight * nights

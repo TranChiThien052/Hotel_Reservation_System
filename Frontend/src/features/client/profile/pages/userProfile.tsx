@@ -222,7 +222,7 @@ const UserProfile = () => {
         <div className="min-h-screen bg-gray-50">
             <div className="max-w-3xl mx-auto px-4 py-8">
                 {/* Profile header banner */}
-                <div className="bg-gradient-to-br from-amber-500 to-orange-500 rounded-2xl p-6 mb-6 shadow-lg">
+                <div className="bg-linear-to-br from-amber-500 to-orange-500 rounded-2xl p-6 mb-6 shadow-lg">
                     <div className="flex items-center gap-4">
                         <div className="w-18 h-18 bg-white/20 rounded-full flex items-center justify-center border-3 border-white/40 shadow-md p-4">
                             <FaRegUser className="text-white text-4xl" />

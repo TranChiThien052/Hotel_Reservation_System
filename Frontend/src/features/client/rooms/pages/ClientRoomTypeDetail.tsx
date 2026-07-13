@@ -7,7 +7,7 @@ import type { RoomType } from '@/features/admin/adminRoomTypes/types/roomsType-t
 import type { RoomItem } from '@/app/layout/components/client/room';
 import { MdStar, MdStarHalf, MdStarBorder } from 'react-icons/md';
 import { FaRegUser, FaChevronLeft, FaChevronRight } from 'react-icons/fa6';
-import { IoArrowBack, IoCheckmarkCircle } from 'react-icons/io5';
+import { IoArrowBack } from 'react-icons/io5';
 import fallbackImg from '@/assets/images/Deluxe.jpg';
 
 const RATING = 4.5;
