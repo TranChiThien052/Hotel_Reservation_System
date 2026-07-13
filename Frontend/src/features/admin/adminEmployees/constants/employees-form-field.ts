@@ -40,7 +40,6 @@ export const emplloyeesFormFields: FormField<EmployeeFormData>[] = [
         options: [
             { label: "Quản lý", value: "manager" },
             { label: "Nhân viên", value: "staff" },
-            { label: "Admin", value: "admin" },
         ],
     }
 ]

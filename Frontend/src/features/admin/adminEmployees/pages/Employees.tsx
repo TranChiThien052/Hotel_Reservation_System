@@ -44,6 +44,7 @@ const employees = () => {
   useEffect(() => {
     fetchEmployees();
   }, [fetchEmployees]);
+  console.log("employeesData", employeesData);
 
   const handleSubmitForm = async (values: EmployeeFormData) => {
     if (employee.mode === FormModalModes.CREATE) {
@@ -93,8 +94,8 @@ const employees = () => {
     },
     {
       title: "Chi nhánh",
-      dataIndex: "branch_id",
       key: "branch_id",
+      render: (_, record) => <p>{record.branches?.name}</p>,
     },
     {
       title: "Số điện thoại",

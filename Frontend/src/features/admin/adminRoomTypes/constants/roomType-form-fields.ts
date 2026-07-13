@@ -52,7 +52,7 @@ export const roomTypeFormFields: FormField<RoomTypeFormData>[] = [
         ]
     },
     {
-        key: "images",
+        key: "roomImages",
         label: "Hình ảnh phòng",
         placeholder: "Tải lên hình ảnh phòng",
         type: FormFieldTypes.IMAGE_UPLOAD,

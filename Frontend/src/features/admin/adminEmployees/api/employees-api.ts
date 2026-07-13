@@ -23,7 +23,7 @@ export const employeesApi = {
         return res.data;
     },
     getEmployeesByBranchId: async (branchId: string) => {
-        const res = await apiClient.get(`/staff/branch/${branchId}`);
+        const res = await apiClient.get(`/staff/branches/${branchId}`);
         return res.data;
     }
 };

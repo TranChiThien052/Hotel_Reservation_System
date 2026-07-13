@@ -1,4 +1,4 @@
-import { Button, Dropdown, message, Space, Table, Tag, type MenuProps, type TableProps } from 'antd';
+import { Button, Dropdown, Input, message, Select, Space, Table, Tag, type MenuProps, type TableProps } from 'antd';
 import type { Booking, BookingFormData } from '../types/booking-type';
 import { useFormModal } from '@/shared/hooks/useFormModal';
 import { useCallback, useEffect, useState } from 'react';
@@ -10,6 +10,8 @@ import FormModal from '@/app/layout/components/admin/FormModal';
 import { FormModalModes } from '@/shared/types/type-form-mode';
 import { CiCirclePlus } from 'react-icons/ci';
 import { bookingFormFields } from '../constants/booking-form-fields';
+import { useAppSelector } from '@/app/store/hooks';
+import { IoSearch } from 'react-icons/io5';
 
 const defaultBookingData: BookingFormData = {
     branch_id: "",
@@ -29,11 +31,13 @@ const StaffBooking = () => {
     const [bookingsData, setBookingsData] = useState<Booking[]>([]);
     const [filteredBookings, setFilteredBookings] = useState<Booking[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
+    const user = useAppSelector((state) => state.auth.user);
+    console.log("user", user?.staff?.id);
 
     const fetchBookings = useCallback(async () => {
         setLoading(true);
         try {
-            const data = await bookingApi.getAllBooking();
+            const data = await bookingApi.getBookingsByBranchId(user?.branch_id || "");
             setBookingsData(data);
             setFilteredBookings(data);
         } catch (error) {
@@ -46,9 +50,12 @@ const StaffBooking = () => {
     useEffect(() => {
         fetchBookings();
     }, [fetchBookings]);
+    console.log("bookingsData", bookingsData);
 
     const handleStatusChange = async (id: string, updatedData: any) => {
         setLoading(true);
+        console.log("Booking data", bookingsData)
+        console.log("Updating booking ID:", id, "with data:", updatedData);
         try {
             await bookingApi.updateBooking(id, updatedData);
             setBookingsData((prevData) =>
@@ -59,20 +66,29 @@ const StaffBooking = () => {
         } catch (error) {
             console.error("Error updating booking status:", error);
         } finally {
+            fetchBookings(); // Refresh the bookings after updating the status
             setLoading(false);
         }
     };
 
     const handleSubmitForm = async (values: BookingFormData) => {
       if (booking.mode === FormModalModes.CREATE) {
+        values.created_by = user?.id|| ""; // Gán giá trị created_by từ user.staff.id
         try {
           await bookingApi.createBooking(values);
           message.success("Đặt phòng thành công!");
           fetchBookings();
           booking.close();
-        } catch (error) {
+        } catch (error: any) {
           console.error("Error creating booking:", error);
           message.error("Có lỗi xảy ra khi tạo đặt phòng.");
+
+          const errorData = error.response?.data; 
+      console.log("JSON Error từ Server:", errorData);
+
+      
+      const errorMsg = errorData?.message || "Có lỗi xảy ra khi tạo đặt phòng.";
+      message.error(errorMsg);
         }
       } else if (booking.mode === FormModalModes.UPDATE && booking.selectedRecord) {
         try {
@@ -87,6 +103,26 @@ const StaffBooking = () => {
       }
     };
 
+    const filterRoomStatus = (value: string) => {
+      if (!value) {
+        setFilteredBookings(bookingsData);
+        return;
+      }
+      const filtered = bookingsData.filter((booking) => booking.status === value);
+      setFilteredBookings(filtered);
+    };
+
+    const handleSearch = (searchTerm: string) => {
+      if (!searchTerm) {
+        setFilteredBookings(bookingsData);
+        return;
+      }
+      const filtered = bookingsData.filter((booking) =>
+        booking.booking_code.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+      setFilteredBookings(filtered);
+    };
+
     const columns: TableProps<Booking>["columns"] = [
     {
       title: "Mã đặt phòng",
@@ -99,22 +135,29 @@ const StaffBooking = () => {
     {
       title: "Tên khách hàng",
       key: "customer_id",
-      render: (_, record) => <p>{record.customer_id}</p>,
+      render: (_, record) => <p>{record.customers?.full_name}</p>,
     },
     {
       title: "Loại phòng",
       key: "room_type_id",
-      render: (_, record) => <p>{record.room_type_id}</p>,
+      render: (_, record) => <p>{record.room_types?.name}</p>,
     },
     {
       title: "Ngày nhận phòng",
       key: "checkin_at",
-      render: (_, record) => <p>{record.checkin_at}</p>,
+      render: (_, record) => <p>{record.checkin_at ? new Date(record.checkin_at).toLocaleDateString() : "-"}</p>,
+      sorter: (a, b) => {
+        const dateA = a.checkin_at ? new Date(a.checkin_at).getTime() : 0;
+        const dateB = b.checkin_at ? new Date(b.checkin_at).getTime() : 0;
+        return dateA - dateB;
+      },
+      defaultSortOrder: "descend",
+
     },
     {
       title: "Ngày trả phòng",
       key: "checkout_at",
-      render: (_, record) => <p>{record.checkout_at}</p>,
+      render: (_, record) => <p>{record.checkout_at ? new Date(record.checkout_at).toLocaleDateString() : "-"}</p>,
     },
     {
       title: "Trạng thái",
@@ -125,39 +168,39 @@ const StaffBooking = () => {
         const dynamicStatusItems: MenuProps["items"] = [
           {
             key: "Pending",
-            label: <span className="text-green-600">Đang chờ</span>,
+            label: <span className="text-amber-600">Đang chờ</span>,
             onClick: () =>
               handleStatusChange(record.id, { status: "pending" }),
           },
           {
             key: "Confirmed",
-            label: <span className="text-red-600">Đã xác nhận</span>,
+            label: <span className="text-blue-600">Đã xác nhận</span>,
             onClick: () =>
               handleStatusChange(record.id, { status: "confirmed" }),
           },
           {
             key: "Completed",
-            label: <span className="text-yellow-600">Hoàn thành</span>,
+            label: <span className="text-green-600">Hoàn thành</span>,
             onClick: () =>
               handleStatusChange(record.id, { status: "completed" }),
           },
           {
             key: "Cancelled",
-            label: <span className="text-blue-600">Đã hủy</span>,
+            label: <span className="text-red-600">Đã hủy</span>,
             onClick: () =>
               handleStatusChange(record.id, { status: "cancelled" }),
           },
           {
             key: "Checked-in",
-            label: <span className="text-blue-600">Đã nhận phòng</span>,
+            label: <span className="text-cyan-600">Đã nhận phòng</span>,
             onClick: () =>
-              handleStatusChange(record.id, { status: "checked-in" }),
+              handleStatusChange(record.id, { status: "checked_in" }),
           },
           {
             key: "Checked-out",
-            label: <span className="text-blue-600">Đã trả phòng</span>,
+            label: <span className="text-purple-600">Đã trả phòng</span>,
             onClick: () =>
-              handleStatusChange(record.id, { status: "checked-out" }),
+              handleStatusChange(record.id, { status: "checked_out" }),
           },
         ];
 
@@ -177,9 +220,9 @@ const StaffBooking = () => {
                       ? "green"
                       : text?.toLowerCase() === "cancelled"
                         ? "red"
-                        : text?.toLowerCase() === "checked-in"
+                        : text?.toLowerCase() === "checked_in"
                             ? "cyan"
-                            : text?.toLowerCase() === "checked-out"
+                            : text?.toLowerCase() === "checked_out"
                                 ? "purple"
                                 : "default"
                 }
@@ -193,9 +236,9 @@ const StaffBooking = () => {
                     ? "Hoàn thành"
                     : text === "cancelled"
                       ? "Đã hủy"
-                      : text === "checked-in"
+                      : text === "checked_in"
                         ? "Đã nhận phòng"
-                        : text === "checked-out"
+                        : text === "checked_out"
                           ? "Đã trả phòng"
                           : "Đang dọn dẹp"}
             </Tag>
@@ -213,6 +256,12 @@ const StaffBooking = () => {
       key: "actions",
       render: (_, record) => (
         <Space size="medium">
+          <Button
+            type="primary"
+            onClick={() => booking.openEdit(record)}
+          >
+            Chỉnh sửa
+          </Button>
           <Button onClick={() => booking.openView(record)} type="dashed">
             Chi tiết
           </Button>
@@ -285,59 +334,50 @@ const StaffBooking = () => {
 
       <div className="mt-5 border border-gray-300 rounded-lg">
         <div className="flex items-center gap-2 bg-gray-100 px-4 py-3 border-b border-gray-300 justify-between">
-          {/* <div className="flex items-center gap-4">
-            <Select
-              placeholder="Trạng thái"
-              placement="topRight"
-              style={{ width: 120 }}
-              onChange={filterStatus}
-              allowClear
-              value={statusValue}
-              options={[
-                {
-                  value: "active",
-                  label: <span className="text-green-600">Active</span>,
-                },
-                {
-                  value: "inactive",
-                  label: <span className="text-red-600">Inactive</span>,
-                },
-              ]}
-            />
-
-            <Select
-              placeholder="Tình trạng"
-              placement="topRight"
-              style={{ width: 120 }}
-              onChange={filterRoomStatus}
-              allowClear
-              value={roomStatusValue}
-              options={[
-                {
-                  value: "available",
-                  label: <span className="text-green-600">Available</span>,
-                },
-                {
-                  value: "occupied",
-                  label: <span className="text-yellow-600">Occupied</span>,
-                },
-                {
-                  value: "unavailable",
-                  label: <span className="text-red-600">Unavailable</span>,
-                },
-                {
-                  value: "cleaning",
-                  label: <span className="text-blue-600">Cleaning</span>,
-                },
-              ]}
-            />
+          <div className="flex items-center gap-4">
 
             <Input
               placeholder="Tìm kiếm..."
               prefix={<IoSearch className="text-xl" />}
               onChange={(e) => handleSearch(e.target.value)}
             />
-          </div> */}
+
+            <Select
+              placeholder="Trạng thái phòng"
+              placement="topRight"
+              style={{ width: 150 }}
+              onChange={filterRoomStatus}
+              allowClear
+              options={[
+                {
+                  value: "pending",
+                  label: <span className="text-amber-600">Đang chờ</span>,
+                },
+                {
+                  value: "confirmed",
+                  label: <span className="text-blue-600">Đã xác nhận</span>,
+                },
+                {
+                  value: "cancelled",
+                  label: <span className="text-red-600">Đã hủy</span>,
+                },
+                {
+                  value: "completed",
+                  label: <span className="text-green-600">Đã hoàn thành</span>,
+                },
+                {
+                  value: "checked-in",
+                  label: <span className="text-cyan-600">Đã nhận phòng</span>,
+                },
+                {
+                  value: "checked-out",
+                  label: <span className="text-purple-600">Đã trả phòng</span>,
+                },
+              ]}
+            />
+
+            
+          </div>
           <div className="flex items-center gap-3 pr-4">
             <p className="font-lg font-bold text-gray-700">Hiển thị:</p>
             <p className="font-lg font-bold text-green-700 rounded-lg">

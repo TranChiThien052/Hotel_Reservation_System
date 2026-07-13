@@ -70,7 +70,7 @@ const ManagerRooms = () => {
         ),
       );
       message.success("Cập nhật trạng thái phòng thành công");
-      fetchRooms(); // Gọi lại fetchRooms để cập nhật danh sách phòng sau khi thay đổi trạng thái
+      fetchRooms(); 
     } catch (error) {
       message.error("Cập nhật trạng thái phòng thất bại");
       console.error("Update error:", error);
@@ -81,23 +81,23 @@ const ManagerRooms = () => {
 
   const handleSubmitForm = async (values: RoomFormData) => {
     if (room.mode === FormModalModes.CREATE) {
-      // Xử lý tạo mới phòng
+      
 
       try {
         await roomsApi.createRoom(values);
         message.success("Tạo phòng mới thành công");
-        fetchRooms(); // Gọi lại fetchRooms để cập nhật danh sách phòng
+        fetchRooms(); 
         room.close();
       } catch (error) {
         message.error("Tạo phòng mới thất bại");
         console.error("Create error:", error);
       }
     } else if (room.mode === FormModalModes.UPDATE && room.selectedRecord) {
-      // Xử lý cập nhật phòng
+      
       try {
         await roomsApi.updateRoom(room.selectedRecord.id, values);
         message.success("Cập nhật phòng thành công");
-        fetchRooms(); // Gọi lại fetchRooms để cập nhật danh sách phòng
+        fetchRooms(); 
         room.close();
       } catch (error) {
         message.error("Cập nhật phòng thất bại");
@@ -165,7 +165,7 @@ const ManagerRooms = () => {
       dataIndex: "status",
       key: "status",
       render: (text, record: Room) => {
-        // Tạo items động với onClick cho từng branch
+        
         const dynamicStatusItems: MenuProps["items"] = [
           {
             key: "Available",
@@ -191,6 +191,12 @@ const ManagerRooms = () => {
             onClick: () =>
               handleStatusChange(record.id, { status: "cleaning" }),
           },
+          {
+            key: "Maintenance",
+            label: <span className="text-purple-600">Đang bảo trì</span>,
+            onClick: () =>
+              handleStatusChange(record.id, { status: "maintenance" }),
+          }
         ];
 
         return (
@@ -207,6 +213,8 @@ const ManagerRooms = () => {
                     ? "green"
                     : text?.toLowerCase() === "unavailable"
                       ? "red"
+                      : text?.toLowerCase() === "cleaning"
+                        ? "blue"
                       : "blue"
               }
               style={{ cursor: "pointer" }}
@@ -217,6 +225,8 @@ const ManagerRooms = () => {
                   ? "Không khả dụng"
                   : text === "occupied"
                     ? "Đang sử dụng"
+                    : text === "maintenance"
+                      ? "Đang bảo trì"
                     : "Đang dọn dẹp"}
             </Tag>
           </Dropdown>

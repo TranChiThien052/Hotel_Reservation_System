@@ -1,5 +1,5 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import Index from "@/features/client/index";
+import Index from "@/features/client/home/index";
 import ClientLayout from "@/app/layout/ClientLayout";
 import AdminLayout from "@/app/layout/AdminLayout";
 import Branches from "@/features/admin/adminBranch/pages/Branch";
@@ -16,23 +16,45 @@ import StaffRooms from "@/features/staff/staffRooms/pages/StaffRooms";
 import StaffBooking from "@/features/staff/staffBooking/pages/StaffBooking";
 import ManagerRooms from "@/features/manager/managerRooms/pages/ManagerRooms";
 import Login from "@/features/auth/pages/Login";
+import ResetPassword from "@/features/auth/pages/ResetPassword";
 import ProtectedRoute from "./ProtectedRoute";
+import ManagementEmployees from "@/features/manager/managementEmployees/pages/managementEmployees";
+import ManagerLayout from "../layout/components/ManagerLayout";
+import ClientRooms from "@/features/client/rooms/pages/ClientRooms";
+import ClientRoomTypeDetail from "@/features/client/rooms/pages/ClientRoomTypeDetail";
+import ClientBooking from "@/features/client/booking/pages/ClientBooking";
+import BookingSuccess from "@/features/client/booking/pages/BookingSuccess";
+import BookingHistory from "@/features/client/profile/pages/bookingHistory";
+import BookingDetails from "@/features/client/profile/pages/bookingDetails";
+import UserProfile from "@/features/client/profile/pages/userProfile";
 
 const route = () => {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Trang login chỉ dành cho guest. Nếu đã đăng nhập thì tự redirect theo role. */}
+        
         <Route element={<ProtectedRoute requireAuth={false} />}>
           <Route path="/login" element={<Login />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
         </Route>
 
-        {/* Trang public cho khách */}
+        
         <Route path="/" element={<ClientLayout />}>
           <Route index element={<Index />} />
+          <Route path="rooms" element={<ClientRooms />} />
+          <Route path="rooms/type/:typeId" element={<ClientRoomTypeDetail />} />
+
+          <Route path="booking/:id" element={<ClientBooking />} />
+          <Route path="booking/success" element={<BookingSuccess />} />
+
+          
+          <Route path="profile" element={<UserProfile />} />
+          <Route path="my-bookings" element={<BookingHistory />} />
+          <Route path="my-bookings/:id" element={<BookingDetails />} />
         </Route>
 
-        {/* Chỉ admin mới vào được khu vực admin */}
+
+        
         <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
           <Route path="/admin" element={<AdminLayout />}>
             <Route index element={<Branches />} />
@@ -48,7 +70,7 @@ const route = () => {
           </Route>
         </Route>
 
-        {/* Staff và manager có khu riêng */}
+        
         <Route element={<ProtectedRoute allowedRoles={["staff"]} />}>
           <Route path="/staff" element={<StaffLayout />}>
             <Route index element={<StaffRooms />} />
@@ -58,9 +80,11 @@ const route = () => {
         </Route>
 
         <Route element={<ProtectedRoute allowedRoles={["manager"]} />}>
-          <Route path="/manager" element={<StaffLayout />}>
+          <Route path="/manager" element={<ManagerLayout />}>
             <Route index element={<ManagerRooms />} />
             <Route path="rooms" element={<ManagerRooms />} />
+            <Route path="bookings" element={<StaffBooking />} />
+            <Route path="management-employees" element={<ManagementEmployees />} />
           </Route>
         </Route>
       </Routes>

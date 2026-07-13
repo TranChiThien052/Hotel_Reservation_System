@@ -198,6 +198,12 @@ const Rooms = () => {
             onClick: () =>
               handleStatusChange(record.id, { status: "cleaning" }),
           },
+          {
+            key: "Maintenance",
+            label: <span className="text-purple-600">Đang bảo trì</span>,
+            onClick: () =>
+              handleStatusChange(record.id, { status: "maintenance" }),
+          }
         ];
 
         return (
@@ -214,6 +220,10 @@ const Rooms = () => {
                     ? "green"
                     : text?.toLowerCase() === "unavailable"
                       ? "red"
+                      : text?.toLowerCase() === "cleaning"
+                        ? "blue"
+                        : text?.toLowerCase() === "maintenance"
+                          ? "purple"
                       : "blue"
               }
               style={{ cursor: "pointer" }}
@@ -224,6 +234,8 @@ const Rooms = () => {
                   ? "Không khả dụng"
                   : text === "occupied"
                     ? "Đang sử dụng"
+                    : text === "maintenance"
+                      ? "Đang bảo trì"
                     : "Đang dọn dẹp"}
             </Tag>
           </Dropdown>

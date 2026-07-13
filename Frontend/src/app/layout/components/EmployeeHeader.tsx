@@ -1,14 +1,27 @@
 import { useAppDispatch, useAppSelector } from "@/app/store/hooks";
 import { Dropdown} from "antd";
-import { LogoutOutlined} from "@ant-design/icons";
+import { HomeOutlined, LogoutOutlined} from "@ant-design/icons";
 import { logout } from "@/features/auth/store/auth-slice";
 import { SlArrowDown, SlUser } from "react-icons/sl";
+import { useNavigate } from "react-router-dom";
 
 const EmployeeHeader = () => {
   const user = useAppSelector((state) => state.auth.user);
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+
+
+  const handleBackToHomePage = () => {
+    navigate("/", {replace: true});
+  }
 
   const menuItems = [
+    {
+      key: 'index',
+      icon: <HomeOutlined />,
+      label: 'Về trang chủ',
+      onClick: handleBackToHomePage,
+    },
     {
       key: 'logout',
       icon: <LogoutOutlined />,

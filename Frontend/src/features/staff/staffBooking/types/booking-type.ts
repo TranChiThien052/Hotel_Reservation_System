@@ -24,6 +24,25 @@ export interface Booking {
     notes?: string,
     created_at: string,
     updated_at: string
+    customers?: {
+        account_id: string,
+        address: string,
+        created_at: string,
+        date_of_birth: string,
+        email: string,
+        full_name: string,
+        id: string,
+        id_card_number: string,
+        nationality: string,
+        phone: string,
+    }
+    branches?: {
+        name: string,
+    }
+    room_types?: {
+        id: string,
+        name: string,
+    }
 }
 
 export interface BookingFormData {

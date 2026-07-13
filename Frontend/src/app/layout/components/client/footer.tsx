@@ -5,6 +5,7 @@ import { GrLocation } from "react-icons/gr";
 import { FiPhone } from "react-icons/fi";
 import { CgMail } from "react-icons/cg";
 import {  FaXTwitter } from "react-icons/fa6";
+import { NavLink } from "react-router-dom";
 const footer = () => {
   return (
     <footer className="bg-gray-950 text-white mt-10 h-100">
@@ -12,11 +13,6 @@ const footer = () => {
         <div className="grid grid-cols-4 gap-10 px-7 pt-10 pb-5 pl-20">
           <div className="flex flex-col gap-4">
             <div className="flex items-center gap-2 cursor-pointer">
-              {/* <img
-                className="h-7 rounded-full"
-                src={Logo}
-                alt="Aurora Hotel Logo"
-              /> */}
               <p className="text-xl font-bold">Aurora </p>
               <p className="text-xl text-orange-400">Hotel</p>
             </div>
@@ -41,29 +37,29 @@ const footer = () => {
 
           <div className="flex flex-col gap-4">
             <div className="font-bold text-xl">Liên kết nhanh</div>
-            <div className="cursor-pointer hover:text-orange-400">
+            <NavLink to="/" className="cursor-pointer w-fit hover:text-orange-400">
               Trang chủ
-            </div>
-            <div className="cursor-pointer hover:text-orange-400">
+            </NavLink>
+            <NavLink to="/rooms" className="cursor-pointer w-fit hover:text-orange-400">
               Phòng nghỉ
-            </div>
-            <div className="cursor-pointer hover:text-orange-400">
+            </NavLink>
+            <NavLink to="/my-bookings" className="cursor-pointer w-fit hover:text-orange-400">
               Đặt phòng của tôi
-            </div>
+            </NavLink>
           </div>
 
           <div className="flex flex-col gap-4">
             <div className="font-bold text-xl">Dịch vụ</div>
-            <div className="cursor-pointer hover:text-orange-400">
+            <div className="cursor-pointer w-fit hover:text-orange-400">
               Nhà hàng & Bar
             </div>
-            <div className="cursor-pointer hover:text-orange-400">
+            <div className="cursor-pointer w-fit hover:text-orange-400">
               Spa & Wellness
             </div>
-            <div className="cursor-pointer hover:text-orange-400">
+            <div className="cursor-pointer w-fit hover:text-orange-400">
               Hồ bơi & Gym
             </div>
-            <div className="cursor-pointer hover:text-orange-400">
+            <div className="cursor-pointer w-fit hover:text-orange-400">
               Hội nghị & Sự kiện
             </div>
           </div>

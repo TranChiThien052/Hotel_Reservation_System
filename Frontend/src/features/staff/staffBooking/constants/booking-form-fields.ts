@@ -5,7 +5,6 @@ import { branchApi } from "@/features/admin/adminBranch/api/admin-api";
 import { customersApi } from "@/features/admin/adminCustomers/api/customers-api";
 import { roomTypesApi } from "@/features/admin/adminRoomTypes/api/roomTypes-api";
 import { promotionApi } from "@/features/admin/adminPromitions/api/promotion-api";
-import { accountApi } from "@/features/admin/adminAccounts/api/accounts-api";
 
 export const bookingFormFields: FormField<BookingFormData>[] = [
     {
@@ -14,7 +13,13 @@ export const bookingFormFields: FormField<BookingFormData>[] = [
         placeholder: "Chọn chi nhánh",
         type: FormFieldTypes.SELECT_FETCH,
         fetchOptions: branchApi.getBranches,
-        customData: (data: any[]) => data.map((item) => ({label: item.name, value: item.id}))  
+        customData: (data: any[]) => data.map((item) => ({label: item.name, value: item.id})),
+        rules: [
+            {
+                required: true,
+                message: "Vui lòng chọn chi nhánh"
+            }
+        ]
     },
     {
         key: "customer_id",
@@ -22,7 +27,16 @@ export const bookingFormFields: FormField<BookingFormData>[] = [
         placeholder: "Chọn khách hàng",
         type: FormFieldTypes.SELECT_FETCH,
         fetchOptions: customersApi.getAllCustomers,
-        customData: (data: any[]) => data.map((item) => ({label: item.name, value: item.id}))
+        customData: (data: any[]) => data.map((item) => ({label: item.full_name, value: item.id})),
+        rules: [
+            {
+                required: true,
+                message: "Vui lòng chọn khách hàng"
+            }
+        ],
+        componentProps: {
+            allowAddCustomer: true, // Thêm thuộc tính này để cho phép thêm khách hàng mới
+        }
     },
     {
         key: "room_type_id",
@@ -30,7 +44,13 @@ export const bookingFormFields: FormField<BookingFormData>[] = [
         placeholder: "Chọn loại phòng",
         type: FormFieldTypes.SELECT_FETCH,
         fetchOptions: roomTypesApi.getRoomTypes,
-        customData: (data: any[]) => data.map((item) => ({label: item.name, value: item.id}))
+        customData: (data: any[]) => data.map((item) => ({label: item.name, value: item.id})),
+        rules: [
+            {
+                required: true,
+                message: "Vui lòng chọn loại phòng"
+            }
+        ]
     },
     {
         key: "booking_type",
@@ -40,6 +60,12 @@ export const bookingFormFields: FormField<BookingFormData>[] = [
         options: [
             { label: "Theo giờ", value: "hourly" },
             { label: "Theo ngày", value: "daily" },
+        ],
+        rules: [
+            {
+                required: true,
+                message: "Vui lòng chọn loại đặt phòng"
+            }
         ]
     },
     {   
@@ -54,6 +80,12 @@ export const bookingFormFields: FormField<BookingFormData>[] = [
             { label: "Đã hoàn tất", value: "completed" },
             { label: " Đã nhận phòng", value: "checked-in" },
             { label: "Đã trả phòng", value: "checked-out" },
+        ],
+        rules: [
+            {
+                required: true,
+                message: "Vui lòng chọn trạng thái"
+            }
         ]
     },
     {
@@ -61,12 +93,24 @@ export const bookingFormFields: FormField<BookingFormData>[] = [
         label: "Ngày nhận phòng",
         placeholder: "Chọn ngày nhận phòng",
         type: FormFieldTypes.DATE_PICKER,
+        rules: [
+            {
+                required: true,
+                message: "Vui lòng chọn trạng thái"
+            }
+        ]
     },
     {
         key: "checkout_at",
         label: "Ngày trả phòng",
         placeholder: "Chọn ngày trả phòng",
         type: FormFieldTypes.DATE_PICKER,
+        rules: [
+            {
+                required: true,
+                message: "Vui lòng chọn trạng thái"
+            }
+        ]
     },
     {
         key: "num_guests",
@@ -88,20 +132,6 @@ export const bookingFormFields: FormField<BookingFormData>[] = [
         type: FormFieldTypes.SELECT_FETCH,
         fetchOptions: promotionApi.getPromotions,
         customData: (data: any[]) => data.map((item) => ({label: item.code, value: item.id}))
-    },
-    {
-        key: "created_by",
-        label: "Người tạo",
-        placeholder: "Chọn người tạo",
-        type: FormFieldTypes.SELECT_FETCH,
-        fetchOptions: accountApi.getAllAccounts,
-        customData: (data: any[]) => data.map((item) => ({label: item.username, value: item.id})),
-        rules: [
-            {
-                required: true,
-                message: "Vui lòng chọn người tạo"
-            }
-        ]
     },
     {
         key: "notes",

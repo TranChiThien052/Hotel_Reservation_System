@@ -7,7 +7,7 @@ export interface Account {
     role: UserRole;
     status: string;
     branch_id: string;
-    branches: {
+    branches?: {
         id: string;
         name: string;
     };
@@ -26,9 +26,9 @@ export interface Account {
 export interface AccountFormData {
     username: string;
     password?: string;
-    full_name: string;
-    phone: string;
+    full_name?: string;
+    phone?: string;
     role: UserRole;
     status: string;
-    branch_id: string;
+    branch_id?: string;
 }

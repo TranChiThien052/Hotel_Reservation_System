@@ -1,126 +1,97 @@
-import { useState } from 'react';
+import { useState } from "react";
+import { PlusOutlined } from "@ant-design/icons";
+import { message, Upload } from "antd";
+import type { GetProp, UploadFile, UploadProps } from "antd";
 
-// import { uploadApi } from '@/features/upload/api/upload-api';
+// Lấy kiểu FileType từ Ant Design
+type FileType = Parameters<GetProp<UploadProps, "beforeUpload">>[0];
 
-import { LoadingOutlined, PlusOutlined } from '@ant-design/icons';
-
-import { Upload } from 'antd';
-
-import type { UploadFile, UploadProps } from 'antd';
-
-export interface UploadImageCustomProps {
-  value?: string;
-
-  onChange?: (value?: string) => void;
-
+// ─── Props ─────────────────────────────────────────────────────────────────
+export interface UploadMultiImageCustomProps {
+  value?: string[]; // Mảng URL ảnh hiện tại
+  onChange?: (file: File[]) => void; // Callback trả mảng URL về Form
   disabled?: boolean;
-
-  type?: 'avatar' | 'banner';
+  maxCount?: number; // Mặc định 5
 }
 
-const UploadImageCustom = ({
-  value,
+// ─── Component ─────────────────────────────────────────────────────────────
+const UploadMultiImageCustom = ({
+  value = [],
   onChange,
-  disabled,
-  type = 'avatar',
-}: UploadImageCustomProps) => {
-  const [loading, setLoading] = useState(false);
+  disabled = false,
+  maxCount = 5,
+}: UploadMultiImageCustomProps) => {
+  // Khởi tạo fileList từ các URL ảnh đã có (khi mở form Edit)
+  const [fileList, setFileList] = useState<UploadFile[]>(() =>
+  (value ?? []).map((url, i) => ({
+    uid:    `existing-${i}`,
+    name:   `image-${i + 1}.png`,
+    status: 'done' as const,
+    url,
+  }))
+);
 
-  const handleUpload: UploadProps['customRequest'] = async (options) => {
-    try {
-      setLoading(true);
-
-      const formData = new FormData();
-
-      formData.append('file', options.file as File);
-
-      // const res = await uploadApi.uploadImage(formData);
-
-      // const imageUrl = res.data.url;
-
-      // onChange?.(imageUrl);
-
-      // options.onSuccess?.(res);
-    } catch (error) {
-      options.onError?.(error as Error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const beforeUpload: UploadProps['beforeUpload'] = (file) => {
-    const isImage = file.type.startsWith('image/');
-
+  // ─── 1. Validate trước khi upload ────────────────────────────────────────
+  const beforeUpload = (file: FileType) => {
+    const isImage = file.type.startsWith("image/");
     if (!isImage) {
+      message.error("Chỉ được tải lên file hình ảnh!");
+      return Upload.LIST_IGNORE; // Bỏ qua file này, không thêm vào list
+    }
+
+    const isLt5M = file.size / 1024 / 1024 < 5;
+    if (!isLt5M) {
+      message.error("Kích thước ảnh phải nhỏ hơn 5MB!");
       return Upload.LIST_IGNORE;
     }
 
-    const isLt2M = file.size / 1024 / 1024 < 2;
-
-    if (!isLt2M) {
+    if (fileList.length >= maxCount) {
+      message.warning(`Chỉ được tải lên tối đa ${maxCount} ảnh!`);
       return Upload.LIST_IGNORE;
     }
 
-    return true;
+    return true; // Cho phép upload
   };
 
-  const fileList: UploadFile[] = value
-    ? [
-        {
-          uid: '-1',
-          name: 'avatar.png',
-          status: 'done',
-          url: value,
-        },
-      ]
-    : [];
+  // ─── 2. Custom request (không cần server thật) ───────────────────────────
+
+  const customRequest: UploadProps["customRequest"] = async (options) => {
+    options.onSuccess?.({});
+  };
+
+  // ─── 3. Xử lý sau khi danh sách file thay đổi ───────────────────────────
+  const handleChange: UploadProps["onChange"] = ({ fileList: newList }) => {
+    setFileList(newList);
+    // Lấy File object thật từ originFileObj
+    const files = newList
+    .filter((f) => f.originFileObj)           // chỉ cần có file thật
+    .map((f) => f.originFileObj as File);
+  onChange?.(files); // ← Trả File[] về cho form state
+  };
 
   return (
     <Upload
       accept="image/*"
-      listType={type === 'avatar' ? 'picture-circle' : 'picture-card'}
-      maxCount={1}
-      customRequest={handleUpload}
+      listType="picture-card" // Hiển thị dạng lưới ảnh thumbnail
+      multiple // Cho phép chọn nhiều file cùng lúc
+      maxCount={maxCount}
+      fileList={fileList}
       beforeUpload={beforeUpload}
-      fileList={type === 'avatar' ? fileList : []}
-      disabled={disabled || loading}
-      onRemove={() => {
-        onChange?.(undefined);
-        return true;
-      }}
-      showUploadList={type === 'avatar'}
-      className={type === 'avatar' ? '' : 'upload-banner'}
+      customRequest={customRequest}
+      onChange={handleChange}
+      disabled={disabled}
     >
-      {type === 'avatar' ? (
-        !value && (
-          <div className="flex flex-col items-center justify-center">
-            {loading ? <LoadingOutlined /> : <PlusOutlined />}
-            <div className="mt-2 text-sm">{loading ? 'Đang tải...' : 'Tải ảnh'}</div>
+      {/* Ẩn nút "+" khi đã đủ số lượng hoặc bị disable */}
+      {fileList.length < maxCount && !disabled && (
+        <button style={{ border: 0, background: "none" }} type="button">
+          <PlusOutlined />
+          <div style={{ marginTop: 8, fontSize: 12 }}>
+            Tải ảnh ({fileList.length}/{maxCount})
           </div>
-        )
-      ) : (
-        <div className="w-full">
-          <div className="relative w-full overflow-hidden rounded-xl">
-            {value ? (
-              <>
-                <img src={value} alt="banner" className="h-full w-full object-cover" />
-
-                <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition hover:opacity-100">
-                  <div className="text-white">{loading ? 'Đang tải...' : 'Đổi banner'}</div>
-                </div>
-              </>
-            ) : (
-              <div className="flex h-full flex-col items-center justify-center">
-                {loading ? <LoadingOutlined /> : <PlusOutlined />}
-
-                <div className="mt-2 text-sm">{loading ? 'Đang tải...' : 'Tải banner'}</div>
-              </div>
-            )}
-          </div>
-        </div>
+        </button>
       )}
     </Upload>
   );
 };
 
-export default UploadImageCustom;
+export default UploadMultiImageCustom;

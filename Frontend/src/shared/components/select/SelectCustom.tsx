@@ -9,7 +9,7 @@ const SelectCustom: React.FC<SelectCustomProps> = ({ loading, ...props }) => {
     <Select
       showSearch
       allowClear
-      placeholder=" "
+      // placeholder=" "
       className="w-full min-h-10"
       notFoundContent={loading ? <Spin size="small" /> : 'Không có dữ liệu'}
       {...props}

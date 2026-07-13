@@ -21,5 +21,13 @@ export const bookingApi = {
     deleteBooking: async (id: string) => {
         const res = await apiClient.delete(`/bookings/${id}`);
         return res.data;
+    },
+    getBookingsByBranchId: async (branchId: string) => {
+        const res = await apiClient.get(`/bookings/branch/${branchId}`);
+        return res.data;
+    },
+    getBookingsByCustomerId: async (customerId: string) => {
+        const res = await apiClient.get(`/bookings/customer/${customerId}`);
+        return res.data;
     }
 }
