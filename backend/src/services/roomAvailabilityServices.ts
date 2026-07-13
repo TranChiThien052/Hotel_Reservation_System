@@ -116,7 +116,7 @@ class RoomAvailabilityService {
                 rate = weekendRate;
             }
 
-            total += basePrice * rate;
+            total += basePrice + basePrice * rate;
 
             currentDate.setDate(currentDate.getDate() + 1);
         }
