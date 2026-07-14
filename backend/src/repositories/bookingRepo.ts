@@ -35,6 +35,15 @@ class BookingRepository {
                     select: {
                         name: true,
                     }
+                },
+                payments: {
+                    select: {
+                        amount: true,
+                        paid_at: true,
+                    },
+                    where: {
+                        status: 'paid',
+                    }
                 }
             }
         });
