@@ -311,6 +311,8 @@ router.get('/', BookingController.getAllBookings);
  *                                 type: string
  *                              is_deposit:
  *                                 type: boolean
+ *                              transaction_ref:
+ *                                 type: string
  *       404:
  *         description: Booking not found
  *       500:
