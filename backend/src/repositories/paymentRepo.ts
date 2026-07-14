@@ -47,6 +47,12 @@ class PaymentRepository {
             where: { id: id },
         });
     };
+
+    async getPaymentByTransactionRef(transactionRef) {
+        return await prisma.payments.findFirst({
+            where: { transaction_ref: transactionRef },
+        });
+    };
 }
 
 export default new PaymentRepository();

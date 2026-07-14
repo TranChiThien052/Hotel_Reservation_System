@@ -254,6 +254,10 @@ class PaymentService {
     async deletePayment(id) {
         return await PaymentRepository.deletePayment(id);
     };
+
+    async getPaymentByTransactionRef(transactionRef) {
+        return await PaymentRepository.getPaymentByTransactionRef(transactionRef);
+    }
 }
 
 export default new PaymentService();

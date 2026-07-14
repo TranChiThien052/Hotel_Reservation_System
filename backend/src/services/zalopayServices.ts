@@ -23,7 +23,7 @@ class ZalopayService {
             embed_data: JSON.stringify(embed_data),
             amount: amount,
             //khi thanh toán xong, zalopay server sẽ POST đến url này để thông báo cho server của mình
-            callback_url: '/zalopay/callback',
+            callback_url: 'https://probable-thesis-variety.ngrok-free.dev/payments/zalopay/callback',
             description: `Payment for the booking ${booking_code} - #${transID}`,
             bank_code: '',
             mac: '',
