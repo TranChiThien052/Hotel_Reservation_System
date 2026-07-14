@@ -267,6 +267,12 @@ router.post('/zalopay/callback', async (req, res) => {
  *         schema:
  *           type: string
  *         description: The status parameter
+ *       - in: query
+ *         name: checksum
+ *         require: true
+ *         schema:
+ *           type: string
+ *         description: The checksum parameter
  *     responses:
  *       200:
  *         description: Successful operation
