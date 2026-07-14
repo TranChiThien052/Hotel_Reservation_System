@@ -156,6 +156,7 @@ class BookingService {
                 validatedData.total_amount -= validatedData.discount_amount;
             }
         }
+        validatedData.deposit_amount = Math.ceil((validatedData.total_amount * 0.3) / 1000) * 1000;
 
         if (validator.error.length > 0) {
             throw new ValidationError('400', validator.clearError());

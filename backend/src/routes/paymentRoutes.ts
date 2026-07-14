@@ -161,10 +161,8 @@ router.post('/zalopay/create', async (req, res) => {
             amount,
             is_deposit: is_deposit
         });
-        console.log(newPayment);
         const zalopay = new ZalopayService();
         const result = await zalopay.createPayment(amount, booking_code, newPayment.id);
-        console.log(result.data);
         res.status(201).json(result.data);
     }
     catch (error) {
@@ -174,8 +172,7 @@ router.post('/zalopay/create', async (req, res) => {
 });
 
 router.post('/zalopay/callback', async (req, res) => {
-    let result: { return_code?: number; return_message?: string } = {};
-    console.log(req.body);
+    let result: { return_code?; return_message?} = {};
     try {
         let dataStr = req.body.data;
         let reqMac = req.body.mac;
@@ -194,8 +191,6 @@ router.post('/zalopay/callback', async (req, res) => {
             let dataJson = JSON.parse(dataStr);
             const paymentData = JSON.parse(dataJson.embed_data);
             const payment_id = paymentData['payment_id'];
-            console.log(dataJson);
-            console.log(paymentData);
             const updatedPayment = await paymentServices.updatePayment(payment_id, {
                 status: 'paid',
                 paid_at: new Date(),
@@ -205,9 +200,6 @@ router.post('/zalopay/callback', async (req, res) => {
             if (updatedPayment.is_deposit) {
                 await bookingServices.updateBooking(updatedPayment.booking_id, {
                     status: 'confirmed',
-                    deposit_amount: {
-                        increment: dataJson['amount']
-                    },
                     deposit_paid_at: updatedPayment.updated_at,
                     updated_at: new Date()
                 });
@@ -223,8 +215,166 @@ router.post('/zalopay/callback', async (req, res) => {
     }
 
     // thông báo kết quả cho ZaloPay server
-    res.json(result);
+    return res.json(result);
 });
+
+/**
+ * @swagger
+ * /payments/zalopay/payment_result:
+ *   get:
+ *     summary: Get data
+ *     tags: [Payment]
+ *     parameters:
+ *       - in: query
+ *         name: appid
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: The appid parameter
+ *       - in: query
+ *         name: apptransid
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The apptransid parameter
+ *       - in: query
+ *         name: pmcid
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The pmcid parameter
+ *       - in: query
+ *         name: bankcode
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The bankcode parameter
+ *       - in: query
+ *         name: amount
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: The amount parameter
+ *       - in: query
+ *         name: discountamount
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: The discountamount parameter
+ *       - in: query
+ *         name: status
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The status parameter
+ *     responses:
+ *       200:
+ *         description: Successful operation
+ *         content:
+ *            application/json:
+ *               schema:
+ *                  type: object
+ *                  properties:
+ *                      result_code:
+ *                         type: integer
+ *                         description: The result_code parameter
+ *                      result_message:
+ *                         type: string
+ *                         description: The result_message parameter
+ *                      payments:
+ *                         type: object
+ *                         description: The payments parameter
+ *                         properties:
+ *                            id:
+ *                               type: string
+ *                               description: The id parameter
+ *                               format: uuid
+ *                            booking_id:
+ *                               type: string
+ *                               description: The booking_id parameter
+ *                               format: uuid
+ *                            payment_method:
+ *                               type: string
+ *                               description: The payment_method parameter
+ *                            status:
+ *                               type: string
+ *                               description: The status parameter
+ *                            amount:
+ *                               type: number
+ *                               description: The amount parameter
+ *                            is_deposit:
+ *                               type: boolean
+ *                               description: The is_deposit parameter
+ *                            paid_at:
+ *                               type: string
+ *                               description: The paid_at parameter
+ *                            transaction_ref:
+ *                               type: string
+ *                               description: The transaction_ref parameter
+ *                            updated_at:
+ *                               type: string
+ *                               description: The updated_at parameter
+ *       404:
+ *         description: Payment not found
+ *         content:
+ *            application/json:
+ *               schema:
+ *                  type: object
+ *                  properties:
+ *                      result_code:
+ *                         type: integer
+ *                         description: The result_code parameter
+ *                      result_message:
+ *                         type: string
+ *                         description: The result_message parameter     
+ *       400:
+ *         description: Payment failed or pending
+ *         content:
+ *            application/json:
+ *               schema:
+ *                  type: object
+ *                  properties:
+ *                      result_code:
+ *                         type: integer
+ *                         description: The result_code parameter
+ *                      result_message:
+ *                         type: string
+ *                         description: The result_message parameter
+ */
+router.get('/zalopay/payment_result', async (req, res) => {
+    const data = req.query;
+    const checksumData = `${data.appid}|${data.apptransid}|${data.pmcid}|${data.bankcode}|${data.amount}|${data.discountamount}|${data.status}`;
+    const checksum = crypto.createHmac('sha256', String(ZLPconfig.key2)).update(checksumData).digest('hex');
+
+    if (checksum !== data.checksum) {
+        return res.redirect(`${process.env.FRONTEND_URL}/booking/failed?reason=invalid_checksum`);
+    }
+
+    let payments = await paymentServices.getPaymentByTransactionRef(data.apptransid);
+
+    if (!payments) {
+        const result = {
+            result_code: 2,
+            message: 'callback failed, no order found'
+        }
+        return res.status(404).json(result);
+    } else if (payments.transaction_ref === data.apptransid) {
+        if (payments.status === 'paid') {
+            const result = {
+                result_code: 1,
+                message: 'payment updated successfully',
+                payments
+            }
+            return res.status(200).json(result);
+        } else {
+            const result = {
+                result_code: 2,
+                message: 'payment failed or pending'
+            }
+            return res.status(400).json(result);
+        }
+    }
+})
 
 /**
  * @swagger
