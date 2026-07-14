@@ -41,6 +41,7 @@ class BookingRepository {
                         amount: true,
                         paid_at: true,
                         is_deposit: true,
+                        transaction_ref: true,
                     },
                     where: {
                         status: 'paid',
