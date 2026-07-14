@@ -300,6 +300,17 @@ router.get('/', BookingController.getAllBookings);
  *                        type: string
  *                     updated_at:
  *                        type: string
+ *                     payments:
+ *                        type: array
+ *                        items:
+ *                           type: object
+ *                           properties:
+ *                              amount:
+ *                                 type: string
+ *                              paid_at:
+ *                                 type: string
+ *                              is_deposit:
+ *                                 type: boolean
  *       404:
  *         description: Booking not found
  *       500:
