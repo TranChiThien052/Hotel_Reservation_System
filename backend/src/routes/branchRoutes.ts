@@ -1,6 +1,6 @@
 import express from 'express';
-
 import BranchController from '../controllers/branchController';
+import { authorize } from '../middlewares/authorizer';
 
 const router = express.Router();
 
@@ -14,7 +14,9 @@ const router = express.Router();
  *       200:
  *         description: Danh sách chi nhánh
  */
-router.get('/', BranchController.getAllBranches);
+router.get('/', (req, res) => {
+    authorize(req, res, ["customer", "staff", "manager", "admin"], () => BranchController.getAllBranches(req, res))
+});
 
 /**
  * @swagger
@@ -32,7 +34,9 @@ router.get('/', BranchController.getAllBranches);
  *       200:
  *         description: Thông tin chi nhánh
  */
-router.get('/:id', BranchController.getBranchById);
+router.get('/:id', (req, res) => {
+    authorize(req, res, ["customer", "staff", "manager", "admin"], () => BranchController.getBranchById(req, res))
+});
 
 /**
  * @swagger
@@ -55,7 +59,9 @@ router.get('/:id', BranchController.getBranchById);
  *       201:
  *         description: Chi nhánh được tạo thành công
  */
-router.post('/', BranchController.createBranch);
+router.post('/', (req, res) => {
+    authorize(req, res, ["admin"], () => BranchController.createBranch(req, res))
+});
 
 /**
  * @swagger
@@ -73,7 +79,9 @@ router.post('/', BranchController.createBranch);
  *       200:
  *         description: Chi nhánh được cập nhật thành công
  */
-router.put('/:id', BranchController.updateBranch);
+router.put('/:id', (req, res) => {
+    authorize(req, res, ["admin"], () => BranchController.updateBranch(req, res))
+});
 /**
  * @swagger
  * /branches/{id}:
@@ -90,6 +98,8 @@ router.put('/:id', BranchController.updateBranch);
  *       200:
  *         description: Chi nhánh được xóa thành công
  */
-router.delete('/:id', BranchController.deleteBranch);
+router.delete('/:id', (req, res) => {
+    authorize(req, res, ["admin"], () => BranchController.deleteBranch(req, res))
+});
 
 export default router;

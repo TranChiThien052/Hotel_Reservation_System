@@ -1,5 +1,6 @@
 import express from 'express';
 import HolidayDateController from '../controllers/holidayDateController';
+import { authorize } from '../middlewares/authorizer';
 
 const router = express.Router();
 
@@ -13,7 +14,9 @@ const router = express.Router();
  *       200:
  *         description: Successful operation
  */
-router.get('/', HolidayDateController.getAllHolidayDates);
+router.get('/', (req, res) => {
+    authorize(req, res, ["staff", "manager", "admin"], HolidayDateController.getAllHolidayDates(req, res))
+});
 /**
  * @swagger
  * /holiday-dates/{id}:
@@ -31,7 +34,9 @@ router.get('/', HolidayDateController.getAllHolidayDates);
  *       200:
  *         description: Successful operation
  */
-router.get('/:id', HolidayDateController.getHolidayDateById);
+router.get('/:id', (req, res) => {
+    authorize(req, res, ["staff", "manager", "admin"], HolidayDateController.getHolidayDateById(req, res))
+});
 /**
  * @swagger
  * /holiday-dates:
@@ -48,7 +53,9 @@ router.get('/:id', HolidayDateController.getHolidayDateById);
  *       201:
  *         description: Successful operation
  */
-router.post('/', HolidayDateController.createHolidayDate);
+router.post('/', (req, res) => {
+    authorize(req, res, ["manager", "admin"], HolidayDateController.createHolidayDate(req, res))
+});
 /**
  * @swagger
  * /holiday-dates/{id}:
@@ -72,7 +79,9 @@ router.post('/', HolidayDateController.createHolidayDate);
  *       200:
  *         description: Successful operation
  */
-router.put('/:id', HolidayDateController.updateHolidayDate);
+router.put('/:id', (req, res) => {
+    authorize(req, res, ["manager", "admin"], HolidayDateController.updateHolidayDate(req, res))
+});
 /**
  * @swagger
  * /holiday-dates/{id}:
@@ -90,6 +99,8 @@ router.put('/:id', HolidayDateController.updateHolidayDate);
  *       200:
  *         description: Successful operation
  */
-router.delete('/:id', HolidayDateController.deleteHolidayDate);
+router.delete('/:id', (req, res) => {
+    authorize(req, res, ["manager", "admin"], HolidayDateController.deleteHolidayDate(req, res))
+});
 
 export default router;

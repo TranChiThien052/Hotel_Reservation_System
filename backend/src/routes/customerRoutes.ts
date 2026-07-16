@@ -1,5 +1,6 @@
 import express from 'express';
 import CustomerController from '../controllers/customerController';
+import { authorize } from '../middlewares/authorizer';
 
 const router = express.Router();
 
@@ -55,7 +56,9 @@ const router = express.Router();
  *       500:
  *         description: Internal server error
  */
-router.get('/', CustomerController.getAllCustomers);
+router.get('/', (req, res) => {
+    authorize(req, res, ["staff", "admin", "manager"], () => CustomerController.getAllCustomers(res, req))
+});
 /**
  * @swagger
  * /customers/{id}:
@@ -115,7 +118,9 @@ router.get('/', CustomerController.getAllCustomers);
  *       500:
  *         description: Internal server error
  */
-router.get('/:id', CustomerController.getCustomerById);
+router.get('/:id', (req, res) => {
+    authorize(req, res, ["customer", "staff", "admin", "manager"], () => CustomerController.getCustomerById(req, res))
+});
 /**
  * @swagger
  * /customers:
@@ -176,7 +181,9 @@ router.get('/:id', CustomerController.getCustomerById);
  *       500:
  *         description: Internal server error
  */
-router.post('/', CustomerController.createCustomer);
+router.post('/', (req, res) => {
+    authorize(req, res, ["staff", "admin", "manager"], () => CustomerController.createCustomer(req, res))
+});
 /**
  * @swagger
  * /customers/{id}:
@@ -246,7 +253,9 @@ router.post('/', CustomerController.createCustomer);
  *       500:
  *         description: Internal server error
  */
-router.put('/:id', CustomerController.updateCustomer);
+router.put('/:id', (req, res) => {
+    authorize(req, res, ["customer", "staff", "manager", "admin"], () => CustomerController.updateCustomer(req, res))
+});
 /**
  * @swagger
  * /customers/{id}:
@@ -268,6 +277,8 @@ router.put('/:id', CustomerController.updateCustomer);
  *       500:
  *         description: Internal server error
  */
-router.delete('/:id', CustomerController.deleteCustomer);
+router.delete('/:id', (req, res) => {
+    authorize(req, res, ["staff", "manager", "admin"], () => CustomerController.deleteCustomer(req, res))
+});
 
 export default router;

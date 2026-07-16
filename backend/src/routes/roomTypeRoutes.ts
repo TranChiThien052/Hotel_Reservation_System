@@ -1,6 +1,7 @@
 import express from 'express';
 import RoomTypeController from '../controllers/roomTypeController';
 import { upload } from '../middlewares/uploader';
+import { authorize } from '../middlewares/authorizer';
 
 const router = express.Router();
 
@@ -22,7 +23,9 @@ const router = express.Router();
  *         description: Successful operation
  */
 
-router.get('/branch/:id', RoomTypeController.getRoomTypesByBranchId);
+router.get('/branch/:id', (req, res) => {
+    authorize(req, res, ["customer", "staff", "manager", "admin"], () => RoomTypeController.getRoomTypesByBranchId(req, res))
+});
 
 /**
  * @swagger
@@ -34,7 +37,9 @@ router.get('/branch/:id', RoomTypeController.getRoomTypesByBranchId);
  *       200:
  *         description: Successful operation
  */
-router.get('/', RoomTypeController.getAllRoomTypes);
+router.get('/', (req, res) => {
+    authorize(req, res, ["customer", "staff", "manager", "admin"], () => RoomTypeController.getAllRoomTypes(req, res))
+});
 
 /**
  * @swagger
@@ -53,7 +58,9 @@ router.get('/', RoomTypeController.getAllRoomTypes);
  *       200:
  *         description: Successful operation
  */
-router.get('/:id', RoomTypeController.getRoomTypeById);
+router.get('/:id', (req, res) => {
+    authorize(req, res, ["customer", "staff", "manager", "admin"], () => RoomTypeController.getRoomTypeById(req, res))
+});
 
 /**
  * @swagger
@@ -88,7 +95,9 @@ router.get('/:id', RoomTypeController.getRoomTypeById);
  *         description: Internal server error
  */
 
-router.post('/images/:id', upload.array("images", 5), RoomTypeController.addRoomTypeImage);
+router.post('/images/:id', upload.array("images", 5), (req, res) => {
+    authorize(req, res, ["manager", "admin"], () => RoomTypeController.addRoomTypeImage(req, res))
+});
 
 /**
  * @swagger
@@ -106,7 +115,9 @@ router.post('/images/:id', upload.array("images", 5), RoomTypeController.addRoom
  *       201:
  *         description: Successful operation
  */
-router.post('/', upload.array("images", 5), RoomTypeController.createRoomType);
+router.post('/', upload.array("images", 5), (req, res) => {
+    authorize(req, res, ["manager", "admin"], () => RoomTypeController.createRoomType(req, res))
+});
 
 /**
  * @swagger
@@ -129,7 +140,9 @@ router.post('/', upload.array("images", 5), RoomTypeController.createRoomType);
  *       200:
  *         description: Successful operation
  */
-router.delete('/images', RoomTypeController.deleteRoomTypeImage);
+router.delete('/images', (req, res) => {
+    authorize(req, res, ["manager", "admin"], () => RoomTypeController.deleteRoomTypeImage(req, res))
+});
 
 /**
  * @swagger
@@ -148,7 +161,9 @@ router.delete('/images', RoomTypeController.deleteRoomTypeImage);
  *       200:
  *         description: Successful operation
  */
-router.delete('/:id', RoomTypeController.deleteRoomType);
+router.delete('/:id', (req, res) => {
+    authorize(req, res, ["manager", "admin"], () => RoomTypeController.deleteRoomType(req, res))
+});
 
 /**
  * @swagger
@@ -173,6 +188,8 @@ router.delete('/:id', RoomTypeController.deleteRoomType);
  *       200:
  *         description: Successful operation
  */
-router.put('/:id', RoomTypeController.updateRoomType);
+router.put('/:id', (req, res) => {
+    authorize(req, res, ["manager", "admin"], () => RoomTypeController.updateRoomType(req, res))
+});
 
 export default router;

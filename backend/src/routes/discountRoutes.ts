@@ -1,5 +1,6 @@
 import express from 'express';
 import DiscountController from '../controllers/discountController';
+import { authorize } from '../middlewares/authorizer';
 
 const router = express.Router();
 
@@ -13,7 +14,9 @@ const router = express.Router();
  *       200:
  *         description: Successful operation
  */
-router.get('/', DiscountController.getAllDiscounts);
+router.get('/', (req, res) => {
+    authorize(req, res, ["customer", "staff", "manager", "admin"], () => DiscountController.getAllDiscounts(req, res))
+});
 
 /**
  * @swagger
@@ -32,7 +35,9 @@ router.get('/', DiscountController.getAllDiscounts);
  *       200:
  *         description: Successful operation
  */
-router.get('/:id', DiscountController.getDiscountById);
+router.get('/:id', (req, res) => {
+    authorize(req, res, ["customer", "staff", "manager", "admin"], DiscountController.getDiscountById(req, res))
+});
 
 /**
  * @swagger
@@ -50,7 +55,9 @@ router.get('/:id', DiscountController.getDiscountById);
  *       201:
  *         description: Successful operation
  */
-router.post('/', DiscountController.createDiscount);
+router.post('/', (req, res) => {
+    authorize(req, res, ["manager", "admin"], DiscountController.createDiscount(req, res))
+});
 
 /**
  * @swagger
@@ -75,7 +82,9 @@ router.post('/', DiscountController.createDiscount);
  *       200:
  *         description: Successful operation
  */
-router.put('/:id', DiscountController.updateDiscount);
+router.put('/:id', (req, res) => {
+    authorize(req, res, ["manager", "admin"], DiscountController.updateDiscount(req, res))
+});
 
 /**
  * @swagger
@@ -94,6 +103,8 @@ router.put('/:id', DiscountController.updateDiscount);
  *       200:
  *         description: Successful operation
  */
-router.delete('/:id', DiscountController.deleteDiscount);
+router.delete('/:id', (req, res) => {
+    authorize(req, res, ["manager", "admin"], DiscountController.deleteDiscount(req, res))
+});
 
 export default router;

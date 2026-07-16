@@ -201,7 +201,8 @@ router.post('/zalopay/callback', async (req, res) => {
                 await bookingServices.updateBooking(updatedPayment.booking_id, {
                     status: 'confirmed',
                     deposit_paid_at: updatedPayment.updated_at,
-                    updated_at: new Date()
+                    updated_at: new Date(),
+                    expires_at: null,
                 });
             }
 

@@ -1,5 +1,6 @@
 import express from 'express';
 import InvoiceController from '../controllers/invoiceController';
+import { authorize } from '../middlewares/authorizer';
 
 const router = express.Router();
 
@@ -13,7 +14,9 @@ const router = express.Router();
  *       200:
  *         description: Successful operation
  */
-router.get('/', InvoiceController.getAllInvoices);
+router.get('/', (req, res) => {
+    authorize(req, res, ["staff", "manager", "admin"], () => InvoiceController.getAllInvoices(req, res))
+});
 /**
  * @swagger
  * /invoices/{id}:
@@ -31,7 +34,9 @@ router.get('/', InvoiceController.getAllInvoices);
  *       200:
  *         description: Successful operation
  */
-router.get('/:id', InvoiceController.getInvoiceById);
+router.get('/:id', (req, res) => {
+    authorize(req, res, ["customer", "staff", "manager", "admin"], () => InvoiceController.getInvoiceById(req, res))
+});
 /**
  * @swagger
  * /invoices:
@@ -48,7 +53,9 @@ router.get('/:id', InvoiceController.getInvoiceById);
  *       201:
  *         description: Successful operation
  */
-router.post('/', InvoiceController.createInvoice);
+router.post('/', (req, res) => {
+    authorize(req, res, ["staff", "manager", "admin"], () => InvoiceController.createInvoice(req, res))
+});
 /**
  * @swagger
  * /invoices/{id}:
@@ -72,7 +79,9 @@ router.post('/', InvoiceController.createInvoice);
  *       200:
  *         description: Successful operation
  */
-router.put('/:id', InvoiceController.updateInvoice);
+router.put('/:id', (req, res) => {
+    authorize(req, res, ["staff", "manager", "admin"], () => InvoiceController.updateInvoice(req, res))
+});
 /**
  * @swagger
  * /invoices/{id}:
@@ -90,6 +99,8 @@ router.put('/:id', InvoiceController.updateInvoice);
  *       200:
  *         description: Successful operation
  */
-router.delete('/:id', InvoiceController.deleteInvoice);
+router.delete('/:id', (req, res) => {
+    authorize(req, res, ["manager", "admin"], () => InvoiceController.deleteInvoice(req, res))
+});
 
 export default router;

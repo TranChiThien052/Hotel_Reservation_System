@@ -1,5 +1,6 @@
 import express from 'express';
 import HistoryTransactionController from '../controllers/historyTransactionController';
+import { authorize } from '../middlewares/authorizer';
 
 const router = express.Router();
 
@@ -20,7 +21,9 @@ const router = express.Router();
  *       200:
  *         description: Successful operation
  */
-router.get('/account/:id', HistoryTransactionController.getTransactionsByAccountId);
+router.get('/account/:id', (req, res) => {
+    authorize(req, res, ["manager", "admin"], () => HistoryTransactionController.getTransactionsByAccountId(req, res))
+});
 /**
  * @swagger
  * /history-transactions:
@@ -31,7 +34,9 @@ router.get('/account/:id', HistoryTransactionController.getTransactionsByAccount
  *       200:
  *         description: Successful operation
  */
-router.get('/', HistoryTransactionController.getAllTransactions);
+router.get('/', (req, res) => {
+    authorize(req, res, ["manager", "admin"], () => HistoryTransactionController.getAllTransactions(req, res))
+});
 /**
  * @swagger
  * /history-transactions/{id}:
@@ -49,7 +54,9 @@ router.get('/', HistoryTransactionController.getAllTransactions);
  *       200:
  *         description: Successful operation
  */
-router.get('/:id', HistoryTransactionController.getTransactionById);
+router.get('/:id', (req, res) => {
+    authorize(req, res, ["manager", "admin"], () => HistoryTransactionController.getTransactionById(req, res))
+});
 /**
  * @swagger
  * /history-transactions:
@@ -84,6 +91,8 @@ router.post('/', HistoryTransactionController.createTransaction);
  *       200:
  *         description: Successful operation
  */
-router.delete('/:id', HistoryTransactionController.deleteTransaction);
+router.delete('/:id', (req, res) => {
+    authorize(req, res, ["manager", "admin"], () => HistoryTransactionController.deleteTransaction(req, res))
+});
 
 export default router;

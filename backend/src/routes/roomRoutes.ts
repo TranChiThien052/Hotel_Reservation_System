@@ -1,5 +1,6 @@
 import express from 'express';
 import RoomController from '../controllers/roomController';
+import { authorize } from '../middlewares/authorizer';
 
 const router = express.Router();
 
@@ -20,7 +21,9 @@ const router = express.Router();
  *       200:
  *         description: Successful operation
  */
-router.get('/branch/:id', RoomController.getRoomsByBranchId);
+router.get('/branch/:id', (req, res) => {
+    authorize(req, res, ["staff", "manager", "admin"], () => RoomController.getRoomsByBranchId(req, res))
+});
 
 /**
  * @swagger
@@ -32,7 +35,9 @@ router.get('/branch/:id', RoomController.getRoomsByBranchId);
  *       200:
  *         description: Successful operation
  */
-router.get('/', RoomController.getAllRooms);
+router.get('/', (req, res) => {
+    authorize(req, res, ["admin"], () => RoomController.getAllRooms(req, res))
+});
 
 /**
  * @swagger
@@ -51,7 +56,9 @@ router.get('/', RoomController.getAllRooms);
  *       200:
  *         description: Successful operation
  */
-router.get('/:id', RoomController.getRoomById);
+router.get('/:id', (req, res) => {
+    authorize(req, res, ["staff", "manager", "admin"], () => RoomController.getRoomById(req, res))
+});
 
 /**
  * @swagger
@@ -69,7 +76,9 @@ router.get('/:id', RoomController.getRoomById);
  *       201:
  *         description: Successful operation
  */
-router.post('/', RoomController.createRoom);
+router.post('/', (req, res) => {
+    authorize(req, res, ["manager", "admin"], () => RoomController.createRoom(req, res))
+});
 
 /**
  * @swagger
@@ -94,7 +103,9 @@ router.post('/', RoomController.createRoom);
  *       200:
  *         description: Successful operation
  */
-router.put('/:id', RoomController.updateRoom);
+router.put('/:id', (req, res) => {
+    authorize(req, res, ["manager", "admin"], () => RoomController.updateRoom(req, res))
+});
 
 /**
  * @swagger
@@ -113,6 +124,8 @@ router.put('/:id', RoomController.updateRoom);
  *       200:
  *         description: Successful operation
  */
-router.delete('/:id', RoomController.deleteRoom);
+router.delete('/:id', (req, res) => {
+    authorize(req, res, ["manager", "admin"], () => RoomController.deleteRoom(req, res))
+});
 
 export default router;

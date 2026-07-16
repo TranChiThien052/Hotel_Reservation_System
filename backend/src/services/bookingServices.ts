@@ -280,16 +280,6 @@ class BookingService {
             }
         }
 
-        if (validatedData.expires_at) {
-            if (validator.validateDate(validatedData.expires_at)) {
-                if (new Date(validatedData.expires_at) < new Date()) {
-                    validator.pushError("Expiration date must be in the future");
-                }
-            } else {
-                validatedData.expires_at = new Date(validatedData.expires_at);
-            }
-        }
-
         if (validator.error.length > 0) {
             throw new ValidationError('400', validator.clearError());
         }

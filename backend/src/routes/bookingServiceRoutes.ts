@@ -1,5 +1,6 @@
 import express from 'express';
 import BookingServiceController from '../controllers/bookingServiceController';
+import { authorize } from '../middlewares/authorizer';
 
 const router = express.Router();
 
@@ -20,7 +21,9 @@ const router = express.Router();
  *       200:
  *         description: Successful operation
  */
-router.get('/bookings/:id', BookingServiceController.getBookingServicesByBookingId);
+router.get('/bookings/:id', (req, res) => {
+    authorize(req, res, ["customer", "staff", "manager", "admin"], BookingServiceController.getBookingServicesByBookingId(req, res))
+});
 /**
  * @swagger
  * /booking-services:
@@ -31,7 +34,9 @@ router.get('/bookings/:id', BookingServiceController.getBookingServicesByBooking
  *       200:
  *         description: Successful operation
  */
-router.get('/', BookingServiceController.getAllBookingServices);
+router.get('/', (req, res) => {
+    authorize(req, res, ["staff", "manager", "admin"], BookingServiceController.getAllBookingServices(req, res))
+});
 /**
  * @swagger
  * /booking-services/{id}:
@@ -49,7 +54,9 @@ router.get('/', BookingServiceController.getAllBookingServices);
  *       200:
  *         description: Successful operation
  */
-router.get('/:id', BookingServiceController.getBookingServiceById);
+router.get('/:id', (req, res) => {
+    authorize(req, res, ["staff", "manager", "admin"], BookingServiceController.getBookingServiceById(req, res))
+});
 /**
  * @swagger
  * /booking-services:
@@ -66,7 +73,9 @@ router.get('/:id', BookingServiceController.getBookingServiceById);
  *       201:
  *         description: Successful operation
  */
-router.post('/', BookingServiceController.createBookingService);
+router.post('/', (req, res) => {
+    authorize(req, res, ["customer", "staff", "manager", "admin"], BookingServiceController.createBookingService(req, res))
+});
 /**
  * @swagger
  * /booking-services/{id}:
@@ -90,7 +99,9 @@ router.post('/', BookingServiceController.createBookingService);
  *       200:
  *         description: Successful operation
  */
-router.put('/:id', BookingServiceController.updateBookingService);
+router.put('/:id', (req, res) => {
+    authorize(req, res, ["staff", "manager", "admin"], BookingServiceController.updateBookingService(req, res))
+});
 /**
  * @swagger
  * /booking-services/{id}:
@@ -108,6 +119,8 @@ router.put('/:id', BookingServiceController.updateBookingService);
  *       200:
  *         description: Successful operation
  */
-router.delete('/:id', BookingServiceController.deleteBookingService);
+router.delete('/:id', (req, res) => {
+    authorize(req, res, ["staff", "manager", "admin"], BookingServiceController.deleteBookingService(req, res))
+});
 
 export default router;

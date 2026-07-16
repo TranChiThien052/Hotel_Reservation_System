@@ -1,5 +1,6 @@
 import express from 'express';
 import FineItemController from '../controllers/fineItemController';
+import { authorize } from '../middlewares/authorizer';
 
 const router = express.Router();
 
@@ -20,7 +21,9 @@ const router = express.Router();
  *       200:
  *         description: Successful operation
  */
-router.get('/branch/:id', FineItemController.getFineItemsByBranchId);
+router.get('/branch/:id', (req, res) => {
+    authorize(req, res, ["staff", "manager", "admin"], FineItemController.getFineItemsByBranchId(req, res))
+});
 /**
  * @swagger
  * /fine-items:
@@ -31,7 +34,9 @@ router.get('/branch/:id', FineItemController.getFineItemsByBranchId);
  *       200:
  *         description: Successful operation
  */
-router.get('/', FineItemController.getAllFineItems);
+router.get('/', (req, res) => {
+    authorize(req, res, ["staff", "manager", "admin"], FineItemController.getAllFineItems(req, res))
+});
 /**
  * @swagger
  * /fine-items/{id}:
@@ -49,7 +54,9 @@ router.get('/', FineItemController.getAllFineItems);
  *       200:
  *         description: Successful operation
  */
-router.get('/:id', FineItemController.getFineItemById);
+router.get('/:id', (req, res) => {
+    authorize(req, res, ["staff", "manager", "admin"], FineItemController.getFineItemById(req, res))
+});
 /**
  * @swagger
  * /fine-items:
@@ -66,7 +73,9 @@ router.get('/:id', FineItemController.getFineItemById);
  *       201:
  *         description: Successful operation
  */
-router.post('/', FineItemController.createFineItem);
+router.post('/', (req, res) => {
+    authorize(req, res, ["manager", "admin"], FineItemController.createFineItem(req, res))
+});
 /**
  * @swagger
  * /fine-items/{id}:
@@ -90,7 +99,9 @@ router.post('/', FineItemController.createFineItem);
  *       200:
  *         description: Successful operation
  */
-router.put('/:id', FineItemController.updateFineItem);
+router.put('/:id', (req, res) => {
+    authorize(req, res, ["manager", "admin"], FineItemController.updateFineItem(req, res))
+});
 /**
  * @swagger
  * /fine-items/{id}:
@@ -108,6 +119,8 @@ router.put('/:id', FineItemController.updateFineItem);
  *       200:
  *         description: Successful operation
  */
-router.delete('/:id', FineItemController.deleteFineItem);
+router.delete('/:id', (req, res) => {
+    authorize(req, res, ["manager", "admin"], FineItemController.deleteFineItem(req, res))
+});
 
 export default router;
