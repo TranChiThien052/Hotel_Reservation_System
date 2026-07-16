@@ -24,6 +24,18 @@ class InvoiceController {
             });
     };
 
+    async getInvoiceByBookingId(req, res) {
+        const { id } = req.params;
+        return await InvoiceService.getInvoiceByBookingId(id)
+            .then(invoices => res.status(200).json(invoices))
+            .catch(error => {
+                if (typeof parseInt(error) === "number") {
+                    return res.status(parseInt(error.code)).json({ error: error.message });
+                }
+                res.status(500).json({ error: error.message });
+            })
+    }
+
     async createInvoice(req, res) {
         const { booking_id, issued_by, notes } = req.body;
         const data = { booking_id, issued_by, notes };

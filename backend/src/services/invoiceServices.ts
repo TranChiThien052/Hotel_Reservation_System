@@ -23,6 +23,16 @@ class InvoiceService {
         return await InvoiceRepository.getInvoiceById(id);
     };
 
+    async getInvoiceByBookingId(id) {
+        const validator = new Validator();
+        if (!validator.isEmpty("Invoice ID", id)) {
+            validator.isUUID("Invoice ID", id);
+        }
+        if (validator.error.length > 0)
+            throw new ValidationError('400', validator.clearError());
+        return await InvoiceRepository.getInvoicesByBookingId(id);
+    }
+
     async createInvoice(data) {
         const validatedData = {
             ...(data.booking_id && { booking_id: data.booking_id }),
