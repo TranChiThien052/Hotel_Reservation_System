@@ -1,5 +1,6 @@
 import express from 'express';
 import RoomServiceController from '../controllers/roomServiceController';
+import { authorize } from '../middlewares/authorizer';
 
 const router = express.Router();
 
@@ -13,7 +14,9 @@ const router = express.Router();
  *       200:
  *         description: Successful operation
  */
-router.get('/', RoomServiceController.getAllServices);
+router.get('/', (req, res) => {
+    authorize(req, res, ["customer", "staff", "manager", "admin"], () => RoomServiceController.getAllServices(req, res))
+});
 
 /**
  * @swagger
@@ -32,7 +35,9 @@ router.get('/', RoomServiceController.getAllServices);
  *       200:
  *         description: Successful operation
  */
-router.get('/:id', RoomServiceController.getServiceById);
+router.get('/:id', (req, res) => {
+    authorize(req, res, ["customer", "staff", "manager", "admin"], () => RoomServiceController.getServiceById(req, res))
+});
 
 /**
  * @swagger
@@ -50,7 +55,9 @@ router.get('/:id', RoomServiceController.getServiceById);
  *       201:
  *         description: Successful operation
  */
-router.post('/', RoomServiceController.createService);
+router.post('/', (req, res) => {
+    authorize(req, res, ["manager", "admin"], () => RoomServiceController.createService(req, res))
+});
 
 /**
  * @swagger
@@ -75,7 +82,9 @@ router.post('/', RoomServiceController.createService);
  *       200:
  *         description: Successful operation
  */
-router.put('/:id', RoomServiceController.updateService);
+router.put('/:id', (req, res) => {
+    authorize(req, res, ["manager", "admin"], () => RoomServiceController.updateService(req, res))
+});
 
 /**
  * @swagger
@@ -94,6 +103,8 @@ router.put('/:id', RoomServiceController.updateService);
  *       200:
  *         description: Successful operation
  */
-router.delete('/:id', RoomServiceController.deleteService);
+router.delete('/:id', (req, res) => {
+    authorize(req, res, ["manager", "admin"], () => RoomServiceController.deleteService(req, res))
+});
 
 export default router;

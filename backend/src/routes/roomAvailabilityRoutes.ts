@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import RoomAvailabilityController from '../controllers/roomAvailabilityController';
+import { authorize } from '../middlewares/authorizer';
 
 const router = Router();
 
@@ -42,7 +43,9 @@ const router = Router();
  *       500:
  *         description: Internal server error
  */
-router.get("/available", RoomAvailabilityController.getAvailableRoomCount);
+router.get("/available", (req, res) => {
+    authorize(req, res, ["customer", "staff", "manager", "admin"], () => RoomAvailabilityController.getAvailableRoomCount(req, res))
+});
 /**
  * @swagger
  * /rooms-availability/search:
@@ -92,6 +95,8 @@ router.get("/available", RoomAvailabilityController.getAvailableRoomCount);
  *       500:
  *         description: Internal server error
  */
-router.get("/search", RoomAvailabilityController.searchAvailableRooms);
+router.get("/search", (req, res) => {
+    authorize(req, res, ["customer", "staff", "manager", "admin"], () => RoomAvailabilityController.searchAvailableRooms(req, res))
+});
 
 export default router;

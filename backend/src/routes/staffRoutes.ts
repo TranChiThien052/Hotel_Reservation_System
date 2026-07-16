@@ -1,5 +1,6 @@
 import express from 'express';
 import StaffController from '../controllers/staffController';
+import { authorize } from '../middlewares/authorizer';
 
 
 const router = express.Router();
@@ -51,7 +52,9 @@ const router = express.Router();
  *       500:
  *         description: Internal server error
  */
-router.get('/', StaffController.getAllStaff);
+router.get('/', (req, res) => {
+    authorize(req, res, ["admin"], () => StaffController.getAllStaff(req, res))
+});
 /**
  * @swagger
  * /staff/{id}:
@@ -107,7 +110,9 @@ router.get('/', StaffController.getAllStaff);
  *       500:
  *         description: Internal server error
  */
-router.get('/:id', StaffController.getStaffById);
+router.get('/:id', (req, res) => {
+    authorize(req, res, ["staff", "manager", "admin"], () => StaffController.getStaffById(req, res))
+});
 /**
  * @swagger
  * /staff:
@@ -158,7 +163,9 @@ router.get('/:id', StaffController.getStaffById);
  *       500:
  *         description: Internal server error
  */
-router.post('/', StaffController.createStaff);
+router.post('/', (req, res) => {
+    authorize(req, res, ["manager", "admin"], () => StaffController.createStaff(req, res))
+});
 /**
  * @swagger
  * /staff/branches/{id}:
@@ -216,7 +223,9 @@ router.post('/', StaffController.createStaff);
  *       500:
  *         description: Internal server error
  */
-router.get('/branches/:id', StaffController.getStaffByBranchId)
+router.get('/branches/:id', (req, res) => {
+    authorize(req, res, ["manager", "admin"], () => StaffController.getStaffByBranchId(req, res))
+})
 /**
  * @swagger
  * /staff/{id}:
@@ -272,7 +281,9 @@ router.get('/branches/:id', StaffController.getStaffByBranchId)
  *       500:
  *         description: Internal server error
  */
-router.put('/:id', StaffController.updateStaff);
+router.put('/:id', (req, res) => {
+    authorize(req, res, ["staff", "manager", "admin"], () => StaffController.updateStaff(req, res))
+});
 /**
  * @swagger
  * /staff/{id}:
@@ -311,6 +322,8 @@ router.put('/:id', StaffController.updateStaff);
  *       500:
  *         description: Internal server error
  */
-router.delete('/:id', StaffController.deleteStaff);
+router.delete('/:id', (req, res) => {
+    authorize(req, res, ["manager", "admin"], () => StaffController.deleteStaff(req, res))
+});
 
 export default router;

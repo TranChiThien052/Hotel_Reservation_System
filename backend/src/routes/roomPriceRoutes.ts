@@ -1,5 +1,6 @@
 import express from 'express';
 import RoomPriceController from '../controllers/roomPriceController';
+import { authorize } from '../middlewares/authorizer';
 
 const router = express.Router();
 
@@ -20,7 +21,9 @@ const router = express.Router();
  *       200:
  *         description: Successful operation
  */
-router.get('/room-type/:id', RoomPriceController.getRoomPricesByRoomTypeId);
+router.get('/room-type/:id', (req, res) => {
+    authorize(req, res, ["manager", "admin"], () => RoomPriceController.getRoomPricesByRoomTypeId(req, res))
+});
 
 /**
  * @swagger
@@ -32,7 +35,9 @@ router.get('/room-type/:id', RoomPriceController.getRoomPricesByRoomTypeId);
  *       200:
  *         description: Successful operation
  */
-router.get('/', RoomPriceController.getAllRoomPrices);
+router.get('/', (req, res) => {
+    authorize(req, res, ["staff", "manager", "admin"], () => RoomPriceController.getAllRoomPrices(req, res))
+});
 
 /**
  * @swagger
@@ -51,7 +56,9 @@ router.get('/', RoomPriceController.getAllRoomPrices);
  *       200:
  *         description: Successful operation
  */
-router.get('/:id', RoomPriceController.getRoomPriceById);
+router.get('/:id', (req, res) => {
+    authorize(req, res, ["staff", "manager", "admin"], () => RoomPriceController.getRoomPriceById(req, res))
+});
 
 /**
  * @swagger
@@ -69,7 +76,9 @@ router.get('/:id', RoomPriceController.getRoomPriceById);
  *       201:
  *         description: Successful operation
  */
-router.post('/', RoomPriceController.createRoomPrice);
+router.post('/', (req, res) => {
+    authorize(req, res, ["manager", "admin"], () => RoomPriceController.createRoomPrice(req, res))
+});
 
 /**
  * @swagger
@@ -94,7 +103,9 @@ router.post('/', RoomPriceController.createRoomPrice);
  *       200:
  *         description: Successful operation
  */
-router.put('/:id', RoomPriceController.updateRoomPrice);
+router.put('/:id', (req, res) => {
+    authorize(req, res, ["manager", "admin"], () => RoomPriceController.updateRoomPrice(req, res))
+});
 
 /**
  * @swagger
@@ -113,6 +124,8 @@ router.put('/:id', RoomPriceController.updateRoomPrice);
  *       200:
  *         description: Successful operation
  */
-router.delete('/:id', RoomPriceController.deleteRoomPrice);
+router.delete('/:id', (req, res) => {
+    authorize(req, res, ["manager", "admin"], () => RoomPriceController.deleteRoomPrice(req, res))
+});
 
 export default router;

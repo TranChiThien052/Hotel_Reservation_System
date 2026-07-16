@@ -1,5 +1,6 @@
 import express from 'express';
 import BookingController from '../controllers/bookingController';
+import { authorize } from '../middlewares/authorizer';
 
 const router = express.Router();
 
@@ -79,7 +80,9 @@ const router = express.Router();
  *       500:
  *         description: Internal server error
  */
-router.get('/customer/:id', BookingController.getBookingByCustomerId);
+router.get('/customer/:id', (req, res) => {
+    authorize(req, res, ["customer", "staff", "manager", "admin"], () => BookingController.getBookingById(req, res))
+});
 
 /**
  * @swagger
@@ -157,7 +160,9 @@ router.get('/customer/:id', BookingController.getBookingByCustomerId);
  *       500:
  *         description: Internal server error
  */
-router.get('/branch/:id', BookingController.getBookingByBranchId);
+router.get('/branch/:id', (res, req) => {
+    authorize(req, res, ["staff", "manager", "admin"], () => BookingController.getBookingByBranchId(res, req))
+});
 
 /**
  * @swagger
@@ -228,7 +233,9 @@ router.get('/branch/:id', BookingController.getBookingByBranchId);
  *       500:
  *         description: Internal server error
  */
-router.get('/', BookingController.getAllBookings);
+router.get('/', (req, res) => {
+    authorize(req, res, ["staff", "manager", "admin"], () => BookingController.getAllBookings(req, res))
+});
 /**
  * @swagger
  * /bookings/{id}:
@@ -318,7 +325,9 @@ router.get('/', BookingController.getAllBookings);
  *       500:
  *         description: Internal server error
  */
-router.get('/:id', BookingController.getBookingById);
+router.get('/:id', (req, res) => {
+    authorize(req, res, ["customer", "staff", "manager", "admin"], () => BookingController.getBookingById(req, res))
+});
 /**
  * @swagger
  * /bookings:
@@ -443,7 +452,9 @@ router.get('/:id', BookingController.getBookingById);
  *       500:
  *         description: Internal server error
  */
-router.post('/', BookingController.createBooking);
+router.post('/', (req, res) => {
+    authorize(req, res, ["customer", "staff", "manager", "admin"], () => BookingController.createBooking(req, res))
+});
 /**
  * @swagger
  * /bookings/{id}:
@@ -605,7 +616,9 @@ router.post('/', BookingController.createBooking);
  *       500:
  *         description: Internal server error
  */
-router.put('/:id', BookingController.updateBooking);
+router.put('/:id', (req, res) => {
+    authorize(req, res, ["customer", "staff", "manager", "admin"], () => BookingController.updateBooking(req, res))
+});
 /**
  * @swagger
  * /bookings/{id}:
@@ -623,7 +636,9 @@ router.put('/:id', BookingController.updateBooking);
  *       200:
  *         description: Successful operation
  */
-router.delete('/:id', BookingController.deleteBooking);
+router.delete('/:id', (req, res) => {
+    authorize(res, req, ["admin"], BookingController.deleteBooking(req, res))
+});
 /**
  * @swagger
  * /bookings/today/{branch_id}:
@@ -743,5 +758,7 @@ router.delete('/:id', BookingController.deleteBooking);
  *          500:
  *             description: Internal server error
  */
-router.get('/today/:id', BookingController.getTodayCheckin);
+router.get('/today/:id', (req, res) => {
+    authorize(req, res, ["staff", "manager", "admin"], BookingController.getTodayCheckin(req, res))
+});
 export default router;
