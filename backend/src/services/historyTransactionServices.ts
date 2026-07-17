@@ -4,7 +4,14 @@ import { Validator, ValidationError } from '../middlewares/validateData';
 
 class HistoryTransactionService {
     async getAllTransactions() {
-        return await HistoryTransactionRepository.getAllTransactions();
+        const result = await HistoryTransactionRepository.getAllTransactions();
+        const response = result.map(r => {
+            return {
+                ...r,
+                id: r.id.toString(),
+            }
+        })
+        return response;
     };
 
     async getTransactionById(id) {
@@ -12,7 +19,11 @@ class HistoryTransactionService {
         if (!result) {
             throw new ValidationError('404', 'Transaction not found');
         }
-        return result;
+        const response = {
+            ...result,
+            id: result.id.toString(),
+        }
+        return response;
     };
 
     async getTransactionsByAccountId(accountId) {
@@ -28,19 +39,38 @@ class HistoryTransactionService {
         if (validator.error.length > 0) {
             throw new ValidationError('400', validator.clearError());
         }
-        return await HistoryTransactionRepository.getTransactionsByAccountId(accountId);
+        const result = await HistoryTransactionRepository.getTransactionsByAccountId(accountId);
+        const response = result.map(r => {
+            return {
+                ...r,
+                id: r.id.toString(),
+            }
+        })
+        return response;
     };
 
     async getTransactionsByTargetType(target_type) {
-        return await HistoryTransactionRepository.getTransactionsByTargetType(target_type);
+        const result = await HistoryTransactionRepository.getTransactionsByTargetType(target_type);
+        const response = result.map(r => {
+            return {
+                ...r,
+                id: r.id.toString(),
+            }
+        })
+        return response;
     };
 
     async createTransaction(data) {
-        return await HistoryTransactionRepository.createTransaction(data);
+        const result = await HistoryTransactionRepository.createTransaction(data);
+        const response = {
+            ...result,
+            id: result.id.toString(),
+        }
+        return response;
     }
 
     async createCreateTransaction(account_id, target_type, target_id, created) {
-        return await HistoryTransactionRepository.createTransaction({
+        const result = await HistoryTransactionRepository.createTransaction({
             account_id: account_id ?? null,
             action: "create",
             target_type,
@@ -50,10 +80,15 @@ class HistoryTransactionService {
                 created
             }
         });
+        const response = {
+            ...result,
+            id: result.id.toString(),
+        }
+        return response;
     };
 
     async createUpdateTransaction(account_id, target_type, target_id, before, after, changed_fields) {
-        return await HistoryTransactionRepository.createTransaction({
+        const result = await HistoryTransactionRepository.createTransaction({
             account_id,
             action: "update",
             target_type,
@@ -65,6 +100,11 @@ class HistoryTransactionService {
                 changed_fields
             }
         });
+        const response = {
+            ...result,
+            id: result.id.toString(),
+        }
+        return response;
     }
 
     async deleteTransaction(id) {
