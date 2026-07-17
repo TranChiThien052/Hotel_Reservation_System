@@ -10,6 +10,7 @@ import { generateToken, hashToken } from '../middlewares/generator';
 import ResetPasswordTokenRepo from '../repositories/resetPasswordTokenRepo';
 import { sendPasswordResetEmail } from '../services/emailServices'
 import CustomerRepository from '../repositories/customerRepo';
+import historyTransactionServices from './historyTransactionServices';
 
 class AccountService {
     async requestPasswordReset(email) {
@@ -35,14 +36,24 @@ class AccountService {
             throw new ValidationError('404', 'Token not found');
         if (validToken.is_used || validToken.expires_at < new Date())
             throw new ValidationError('400', 'Token is not valid');
+        const before = await accountRepo.getAccountById(validToken.account_id);
         await prisma.$transaction(async () => {
             const hashedPassword = await bcrypt.hash(newPassword, Number(process.env.SALT_ROUNDS) || 5);
-            await accountRepo.updateAccount(validToken.account_id, { password_hash: hashedPassword });
+            const after = await accountRepo.updateAccount(validToken.account_id, { password_hash: hashedPassword });
             await ResetPasswordTokenRepo.updateResetPasswordToken(validToken.token_hash, { is_used: true });
+            await historyTransactionServices.createUpdateTransaction(
+                before?.id,
+                "account",
+                before?.id,
+                before,
+                after,
+                ['password_hash']
+            );
         }).catch(error => {
             console.log(error);
             throw new ValidationError('500', error.message);
         })
+
         return {
             message: 'Password changed successfully',
         };
@@ -238,7 +249,7 @@ class AccountService {
         }
         validatedData.password_hash = await bcrypt.hash(validatedData.password, Number(process.env.SALT_ROUNDS) || 5);
 
-        const result = prisma.$transaction(async (tx) => {
+        const result = await prisma.$transaction(async (tx) => {
             const account = await tx.accounts.create({
                 data: {
                     username: validatedData.username,
@@ -269,6 +280,13 @@ class AccountService {
                 created_staff: staff
             }
         })
+
+        await historyTransactionServices.createCreateTransaction(
+            data.log_account_id ?? null,
+            "account",
+            result.created_account.id,
+            result
+        );
 
         return result;
     };
@@ -331,6 +349,13 @@ class AccountService {
                 created_customer: customer
             };
         });
+
+        await historyTransactionServices.createCreateTransaction(
+            data.log_account_id ?? null,
+            "account",
+            result.created_account.id,
+            result
+        );
 
         return result;
     }
@@ -429,7 +454,15 @@ class AccountService {
         validatedData.password_hash = await bcrypt.hash(validatedData.password, Number(process.env.SALT_ROUNDS) || 5);
         delete validatedData.password;
 
-        return await AccountRepository.createAccount(validatedData);
+        const result = await AccountRepository.createAccount(validatedData);
+        await historyTransactionServices.createCreateTransaction(
+            data.log_account_id,
+            "account",
+            result.id,
+            result
+        );
+
+        return result;
     };
 
     async updateAccount(id, data) {
@@ -476,8 +509,18 @@ class AccountService {
         if (validator.error.length > 0) {
             throw new ValidationError('400', validator.clearError());
         }
+        const before = await AccountRepository.getAccountById(id);
+        const after = await AccountRepository.updateAccount(id, validatedData);
+        await historyTransactionServices.createUpdateTransaction(
+            data.log_account_id,
+            "account",
+            id,
+            before,
+            after,
+            Object.keys(validatedData)
+        )
 
-        return await AccountRepository.updateAccount(id, validatedData);
+        return after;
     };
 
     async deleteAccount(id) {

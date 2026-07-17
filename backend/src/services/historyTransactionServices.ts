@@ -4,12 +4,7 @@ import { Validator, ValidationError } from '../middlewares/validateData';
 
 class HistoryTransactionService {
     async getAllTransactions() {
-        const result = await HistoryTransactionRepository.getAllTransactions();
-        const response = result.map(transaction => ({
-            ...transaction,
-            id: transaction.id.toString(),
-        }));
-        return response;
+        return await HistoryTransactionRepository.getAllTransactions();
     };
 
     async getTransactionById(id) {
@@ -17,10 +12,7 @@ class HistoryTransactionService {
         if (!result) {
             throw new ValidationError('404', 'Transaction not found');
         }
-        return {
-            ...result,
-            id: result.id.toString(),
-        };
+        return result;
     };
 
     async getTransactionsByAccountId(accountId) {
@@ -36,12 +28,11 @@ class HistoryTransactionService {
         if (validator.error.length > 0) {
             throw new ValidationError('400', validator.clearError());
         }
-        const result = await HistoryTransactionRepository.getTransactionsByAccountId(accountId);
-        const response = result.map(transaction => ({
-            ...transaction,
-            id: transaction.id.toString(),
-        }));
-        return response;
+        return await HistoryTransactionRepository.getTransactionsByAccountId(accountId);
+    };
+
+    async getTransactionsByTargetType(target_type) {
+        return await HistoryTransactionRepository.getTransactionsByTargetType(target_type);
     };
 
     async createTransaction(data) {

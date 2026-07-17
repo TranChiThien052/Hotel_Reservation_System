@@ -20,6 +20,45 @@ const router = express.Router();
  *     responses:
  *       200:
  *         description: Successful operation
+ *         content:
+ *            application/json:
+ *               schema:
+ *                  type: array
+ *                  items:
+ *                    type: object
+ *                    properties:
+ *                       id:
+ *                         type: string
+ *                       accounts:
+ *                         type: object
+ *                         properties:
+ *                            customers:
+ *                              type: object
+ *                              properties:
+ *                                 full_name:
+ *                                   type: string
+ *                            staff:
+ *                              type: object
+ *                              properties:
+ *                                 full_name:
+ *                                   type: string
+ *                            branches:
+ *                              type: object
+ *                              properties:
+ *                                 name:
+ *                                   type: string
+ *                            role:
+ *                              type: string
+ *                       target_id:
+ *                         type: string
+ *                       description:
+ *                         type: string
+ *                       metadata:
+ *                         type: object
+ *                       created_at:
+ *                         type: string
+ *       500:
+ *         description: Internal server error
  */
 router.get('/account/:id', (req, res) => {
     authorize(req, res, ["manager", "admin"], () => HistoryTransactionController.getTransactionsByAccountId(req, res))
@@ -57,6 +96,10 @@ router.get('/', (req, res) => {
 router.get('/:id', (req, res) => {
     authorize(req, res, ["manager", "admin"], () => HistoryTransactionController.getTransactionById(req, res))
 });
+
+router.get('/target-type/:target_type', (req, res) => {
+    return authorize(req, res, ["manager", "admin"], () => HistoryTransactionController.getTransactionsByTargetType(req, res))
+})
 /**
  * @swagger
  * /history-transactions:
