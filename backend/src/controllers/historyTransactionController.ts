@@ -31,6 +31,18 @@ class HistoryTransactionController {
             });
     }
 
+    async getTransactionsByTargetType(req, res) {
+        const { target_type } = req.params;
+        return await HistoryTransactionService.getTransactionsByTargetType(target_type)
+            .then(transactions => res.status(200).json(transactions))
+            .catch(error => {
+                if (typeof parseInt(error.code) === 'number') {
+                    return res.status(parseInt(error.code)).json({ error: error.message });
+                }
+                res.status(500).json({ error: error.message });
+            });
+    }
+
     async createTransaction(req, res) {
         const { account_id, action, target_type, target_id, description, metadata } = req.body;
         const data = { account_id, action, target_type, target_id, description, metadata };
