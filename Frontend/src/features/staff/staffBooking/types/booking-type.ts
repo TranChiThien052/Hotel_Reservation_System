@@ -23,7 +23,7 @@ export interface Booking {
     created_by: string,
     notes?: string,
     created_at: string,
-    updated_at: string
+    updated_at: string,
     customers?: {
         account_id: string,
         address: string,
@@ -35,14 +35,20 @@ export interface Booking {
         id_card_number: string,
         nationality: string,
         phone: string,
-    }
+    },
     branches?: {
         name: string,
-    }
+    },
     room_types?: {
         id: string,
         name: string,
-    }
+    },
+    payments?: [{
+        amount: number,
+        paid_at: string,
+        is_deposit: boolean,
+    }],
+
 }
 
 export interface BookingFormData {
@@ -53,6 +59,8 @@ export interface BookingFormData {
     status: string,
     checkin_at: string,
     checkout_at: string,
+    actual_checkin_at?: string,
+    actual_checkout_at?: string,
     num_guests: number,
     discount_id?: string,
     created_by: string,

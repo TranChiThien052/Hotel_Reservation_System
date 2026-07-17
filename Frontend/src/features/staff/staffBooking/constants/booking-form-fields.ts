@@ -98,7 +98,7 @@ export const bookingFormFields: FormField<BookingFormData>[] = [
                 required: true,
                 message: "Vui lòng chọn trạng thái"
             }
-        ]
+        ],
     },
     {
         key: "checkout_at",
@@ -111,6 +111,18 @@ export const bookingFormFields: FormField<BookingFormData>[] = [
                 message: "Vui lòng chọn trạng thái"
             }
         ]
+    },
+    {
+        key: "actual_checkin_at",
+        label: "Ngày nhận phòng thực tế",
+        placeholder: "Chọn ngày nhận phòng thực tế",
+        type: FormFieldTypes.DATE_PICKER,
+    },
+    {
+        key: "actual_checkout_at",
+        label: "Ngày trả phòng thực tế",
+        placeholder: "Chọn ngày trả phòng thực tế",
+        type: FormFieldTypes.DATE_PICKER,
     },
     {
         key: "num_guests",

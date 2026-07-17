@@ -18,6 +18,7 @@ import {
 import fallbackImg from '@/assets/images/Deluxe.jpg';
 import type { Customer } from '@/features/admin/adminCustomers/types/customers-type';
 import type { Promotion } from '@/features/admin/adminPromitions/types/promotions-types';
+import { paymentApi } from '../api/payment-api';
 
 
 const formatVND = (n: number) => n.toLocaleString('vi-VN') + 'đ';
@@ -246,14 +247,55 @@ const ClientBooking = () => {
     const nights = booking_type === 'daily' ? diffDays(checkin_at, checkout_at) : 0;
     const pricePerNight = room?.room_price?.price_per_day ? Number(room.room_price.price_per_day) : 0;
     const pricePerHour = room?.room_price?.price_per_hour ? Number(room.room_price.price_per_hour) : 0;
+    const weekendRate = room?.room_price?.weekend_rate ? Number(room.room_price.weekend_rate) : 0;
 
-    // const calculateSubtotal = () => {
-      
-    // }
+    const calculateDailySubtotal = (checkin: string, checkout: string, pricePerNight: number, weekendRate: number) => {
+      if (!checkin || !checkout || pricePerNight <= 0) return 0;
+      let currentDate = new Date(checkin);
+      const endDate = new Date(checkout);
+      let total = 0;
+
+      while (currentDate < endDate) {
+        const dayOfWeek = currentDate.getDay(); // 0 = Sunday, 6 = Saturday
+        const isWeekend = (dayOfWeek === 0 || dayOfWeek === 6);
+        const currentRate = isWeekend ? weekendRate : 0;
+        total += pricePerNight + pricePerNight * (currentRate / 100);
+        currentDate.setDate(currentDate.getDate() + 1);
+    }
+    return Math.round(total);
+  }
+
+
+  const calculateHourlySubtotal = (checkinTimeStr: string, hours: number, pricePerHour: number, weekendRate: number) => {
+
+    if (!checkinTimeStr || hours <= 0 || pricePerHour <= 0) return 0;
+    const checkinDate = new Date(checkinTimeStr);
+    const dayOfWeek = checkinDate.getDay(); // 0 = Sunday, 6 = Saturday
+    const isWeekend = (dayOfWeek === 0 || dayOfWeek === 6);
+    const currentRate = isWeekend ? weekendRate : 0;
+    return Math.round(hours * pricePerHour + hours * pricePerHour * (currentRate / 100));
+  }
 
     const subtotal = booking_type === 'daily'
-        ? pricePerNight * nights
-        : pricePerHour * durationHours;
+        ? calculateDailySubtotal(checkin_at, checkout_at, pricePerNight, weekendRate)
+        : calculateHourlySubtotal(hourlyCheckin, durationHours, pricePerHour, weekendRate);
+
+            const hasWeekendNight = (() => {
+        if (booking_type !== 'daily' || !checkin_at || !checkout_at) return false;
+        let currentDate = new Date(checkin_at);
+        const endDate = new Date(checkout_at);
+        while (currentDate < endDate) {
+            const dayOfWeek = currentDate.getDay();
+            if (dayOfWeek === 0 || dayOfWeek === 6) return true;
+            currentDate.setDate(currentDate.getDate() + 1);
+        }
+        return false;
+    })();
+    const isHourlyWeekend = (() => {
+        if (booking_type !== 'hourly' || !hourlyCheckin) return false;
+        const dayOfWeek = new Date(hourlyCheckin).getDay();
+        return dayOfWeek === 0 || dayOfWeek === 6;
+    })();
     // Kiểm tra điều kiện đơn hàng tối thiểu
     const discountEligible = !discount || discount.min_order_value <= 0 || subtotal >= discount.min_order_value;
     const discountAmount = discount && discountEligible
@@ -305,7 +347,7 @@ const ClientBooking = () => {
             const finalCheckin = booking_type === 'daily' ? checkin_at : hourlyCheckin;
             const finalCheckout = booking_type === 'daily' ? checkout_at : hourlyCheckout;
 
-            await bookingApi.createBooking({
+            const bookingResponse = await bookingApi.createBooking({
                 room_id: room.id,
                 room_type_id: room.room_type_id,
                 branch_id: room.branch_id,
@@ -318,22 +360,41 @@ const ClientBooking = () => {
                 discount_id: discount?.id ?? null,
                 notes: notes || undefined,
             } as any);
+            console.log("bookingResponse", bookingResponse.id);
 
             const depositAmount = Math.round(total * 0.3);
-            navigate('/booking/success', {
-                state: {
-                    roomTypeName: room.room_types?.name,
-                    checkin: finalCheckin,
-                    checkout: finalCheckout,
-                    numGuests: num_guests,
+            if(paymentMode === 'full' && total > 0) {
+                try {
+                  const paymentResponse = await paymentApi.createZaloPayPayment(
+                    bookingResponse.id,
                     total,
+                    // 10000,
+                    false
+                  );
+                  window.location.href = paymentResponse.order_url;
+                } catch (paymentError) {
+                  console.error("Lỗi khi tạo thanh toán ZaloPay:", paymentError);
+                  setErrorMsg('Không thể tạo thanh toán ZaloPay. Vui lòng thử lại.');
+                  setSubmitting(false);
+                  return;
+                }
+            } else if(paymentMode === 'deposit' && depositAmount > 0) {
+                try {
+                  const paymentResponse = await paymentApi.createZaloPayPayment(
+                    bookingResponse.id,
                     depositAmount,
-                    paymentMode,
-                    bookingType: booking_type,
-                    nights: booking_type === 'daily' ? nights : undefined,
-                    durationHours: booking_type === 'hourly' ? durationHours : undefined,
-                },
-            });
+                    // 5000,
+                    true
+                  );
+                  window.location.href = paymentResponse.order_url;
+                } catch (paymentError) {
+                  console.error("Lỗi khi tạo thanh toán ZaloPay:", paymentError);
+                  setErrorMsg('Không thể tạo thanh toán ZaloPay. Vui lòng thử lại.');
+                  setSubmitting(false);
+                  return;
+                }
+            }
+            
         } catch (err: any) {
             console.error('Lỗi đặt phòng:', err);
             setErrorMsg(err?.response?.data?.message ?? 'Đặt phòng thất bại. Vui lòng thử lại.');
@@ -1210,29 +1271,32 @@ const ClientBooking = () => {
                 {/* Price */}
                 <div className="flex flex-col gap-2 text-sm">
                   {booking_type === "daily" ? (
-                    <div className="flex justify-between text-gray-600">
-                      <span>
-                        {formatVND(pricePerNight)} × {nights || "?"} đêm
-                      </span>
-                      <span>{nights > 0 ? formatVND(subtotal) : "—"}</span>
+                    <div className="flex flex-col gap-1 text-gray-600">
+                      <div className="flex justify-between">
+                        <span>
+                          Tạm tính ({nights || "?"} đêm)
+                        </span>
+                        <span>{nights > 0 ? formatVND(subtotal) : "—"}</span>
+                      </div>
+                      {hasWeekendNight && weekendRate !== 1.0 && (
+                        <p className="text-[11px] text-amber-600 leading-tight">
+                          * Đã áp dụng hệ số cuối tuần +{weekendRate}% cho đêm thứ Bảy / Chủ Nhật.
+                        </p>
+                      )}
                     </div>
                   ) : (
-                    <div className="flex justify-between text-gray-600">
-                      <span>
-                        {formatVND(pricePerHour)} × {durationHours} giờ
-                      </span>
-                      <span>{formatVND(subtotal)}</span>
-                    </div>
-                  )}
-                  {discount && discountEligible && (
-                    <div className="flex justify-between text-green-600">
-                      <span className="flex items-center gap-1">
-                        <FaTag className="text-xs" />
-                        {discount.discount_type === "percentage"
-                          ? `Giảm ${discount.discount_value}% (${discount.label})`
-                          : `Giảm cố định (${discount.label})`}
-                      </span>
-                      <span>− {formatVND(discountAmount)}</span>
+                    <div className="flex flex-col gap-1 text-gray-600">
+                      <div className="flex justify-between">
+                        <span>
+                          Tạm tính ({durationHours} giờ)
+                        </span>
+                        <span>{formatVND(subtotal)}</span>
+                      </div>
+                      {isHourlyWeekend && weekendRate !== 1.0 && (
+                        <p className="text-[11px] text-amber-600 leading-tight">
+                          * Đã áp dụng hệ số cuối tuần +{weekendRate}% do đặt vào thứ Bảy / Chủ Nhật.
+                        </p>
+                      )}
                     </div>
                   )}
                   {discount && !discountEligible && (

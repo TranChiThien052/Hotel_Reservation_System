@@ -14,6 +14,9 @@ import Employees from "@/features/admin/adminEmployees/pages/Employees";
 import StaffLayout from "../layout/components/StaffLayout";
 import StaffRooms from "@/features/staff/staffRooms/pages/StaffRooms";
 import StaffBooking from "@/features/staff/staffBooking/pages/StaffBooking";
+import StaffBookingDetails from "@/features/staff/staffBooking/pages/StaffBookingDetails";
+import StaffInvoicePage from "@/features/staff/staffBooking/pages/StaffInvoicePage";
+import StaffPaymentSuccess from "@/features/staff/staffBooking/pages/StaffPaymentSuccess";
 import ManagerRooms from "@/features/manager/managerRooms/pages/ManagerRooms";
 import Login from "@/features/auth/pages/Login";
 import ResetPassword from "@/features/auth/pages/ResetPassword";
@@ -76,6 +79,9 @@ const route = () => {
             <Route index element={<StaffRooms />} />
             <Route path="rooms" element={<StaffRooms />} />
             <Route path="bookings" element={<StaffBooking />} />
+            <Route path="bookings/:id" element={<StaffBookingDetails />} />
+            <Route path="bookings/:id/invoice" element={<StaffInvoicePage />} />
+            <Route path="payment/success" element={<StaffPaymentSuccess />} />
           </Route>
         </Route>
 
@@ -84,6 +90,9 @@ const route = () => {
             <Route index element={<ManagerRooms />} />
             <Route path="rooms" element={<ManagerRooms />} />
             <Route path="bookings" element={<StaffBooking />} />
+            <Route path="bookings/:id" element={<StaffBookingDetails />} />
+            <Route path="bookings/:id/invoice" element={<StaffInvoicePage />} />
+            <Route path="payment/success" element={<StaffPaymentSuccess />} />
             <Route path="management-employees" element={<ManagementEmployees />} />
           </Route>
         </Route>
