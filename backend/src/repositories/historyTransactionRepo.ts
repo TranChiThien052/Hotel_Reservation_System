@@ -4,12 +4,72 @@ class HistoryTransactionRepository {
     async getAllTransactions() {
         return await prisma.history_transaction.findMany({
             orderBy: { created_at: 'desc' },
+            select: {
+                id: true,
+                action: true,
+                target_type: true,
+                target_id: true,
+                description: true,
+                metadata: true,
+                created_at: true,
+                accounts: {
+                    select: {
+                        id: true,
+                        customers: {
+                            select: {
+                                full_name: true,
+                            }
+                        },
+                        staff: {
+                            select: {
+                                full_name: true,
+                            }
+                        },
+                        branches: {
+                            select: {
+                                name: true,
+                            }
+                        },
+                        role: true,
+                    }
+                }
+            }
         });
     };
 
     async getTransactionById(id) {
         return await prisma.history_transaction.findUnique({
             where: { id: id },
+            select: {
+                id: true,
+                action: true,
+                target_type: true,
+                target_id: true,
+                description: true,
+                metadata: true,
+                created_at: true,
+                accounts: {
+                    select: {
+                        id: true,
+                        customers: {
+                            select: {
+                                full_name: true,
+                            }
+                        },
+                        staff: {
+                            select: {
+                                full_name: true,
+                            }
+                        },
+                        branches: {
+                            select: {
+                                name: true,
+                            }
+                        },
+                        role: true,
+                    }
+                }
+            }
         });
     };
 
@@ -17,13 +77,73 @@ class HistoryTransactionRepository {
         return await prisma.history_transaction.findMany({
             where: { account_id: accountId },
             orderBy: { created_at: 'desc' },
+            select: {
+                id: true,
+                action: true,
+                target_type: true,
+                target_id: true,
+                description: true,
+                metadata: true,
+                created_at: true,
+                accounts: {
+                    select: {
+                        id: true,
+                        customers: {
+                            select: {
+                                full_name: true,
+                            }
+                        },
+                        staff: {
+                            select: {
+                                full_name: true,
+                            }
+                        },
+                        branches: {
+                            select: {
+                                name: true,
+                            }
+                        },
+                        role: true,
+                    }
+                }
+            }
         });
     };
 
-    async getTransactionsByTargetType(targetType) {
+    async getTransactionsByTargetType(target_type) {
         return await prisma.history_transaction.findMany({
-            where: { target_type: targetType },
+            where: { target_type: target_type },
             orderBy: { created_at: 'desc' },
+            select: {
+                id: true,
+                action: true,
+                target_type: true,
+                target_id: true,
+                description: true,
+                metadata: true,
+                created_at: true,
+                accounts: {
+                    select: {
+                        id: true,
+                        customers: {
+                            select: {
+                                full_name: true,
+                            }
+                        },
+                        staff: {
+                            select: {
+                                full_name: true,
+                            }
+                        },
+                        branches: {
+                            select: {
+                                name: true,
+                            }
+                        },
+                        role: true,
+                    }
+                }
+            }
         });
     };
 

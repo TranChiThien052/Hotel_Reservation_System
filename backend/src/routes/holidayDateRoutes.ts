@@ -15,7 +15,7 @@ const router = express.Router();
  *         description: Successful operation
  */
 router.get('/', (req, res) => {
-    authorize(req, res, ["staff", "manager", "admin"], HolidayDateController.getAllHolidayDates(req, res))
+    authorize(req, res, ["staff", "manager", "admin"], () => HolidayDateController.getAllHolidayDates(req, res))
 });
 /**
  * @swagger
@@ -35,7 +35,7 @@ router.get('/', (req, res) => {
  *         description: Successful operation
  */
 router.get('/:id', (req, res) => {
-    authorize(req, res, ["staff", "manager", "admin"], HolidayDateController.getHolidayDateById(req, res))
+    authorize(req, res, ["staff", "manager", "admin"], () => HolidayDateController.getHolidayDateById(req, res))
 });
 /**
  * @swagger
@@ -54,7 +54,7 @@ router.get('/:id', (req, res) => {
  *         description: Successful operation
  */
 router.post('/', (req, res) => {
-    authorize(req, res, ["manager", "admin"], HolidayDateController.createHolidayDate(req, res))
+    authorize(req, res, ["manager", "admin"], () => HolidayDateController.createHolidayDate(req, res))
 });
 /**
  * @swagger
@@ -80,7 +80,7 @@ router.post('/', (req, res) => {
  *         description: Successful operation
  */
 router.put('/:id', (req, res) => {
-    authorize(req, res, ["manager", "admin"], HolidayDateController.updateHolidayDate(req, res))
+    authorize(req, res, ["manager", "admin"], () => HolidayDateController.updateHolidayDate(req, res))
 });
 /**
  * @swagger
@@ -100,7 +100,7 @@ router.put('/:id', (req, res) => {
  *         description: Successful operation
  */
 router.delete('/:id', (req, res) => {
-    authorize(req, res, ["manager", "admin"], HolidayDateController.deleteHolidayDate(req, res))
+    authorize(req, res, ["manager", "admin"], () => HolidayDateController.deleteHolidayDate(req, res))
 });
 
 export default router;

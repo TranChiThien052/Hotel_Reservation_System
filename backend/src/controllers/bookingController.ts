@@ -68,8 +68,8 @@ class BookingController {
 
     async updateBooking(req, res) {
         const { id } = req.params;
-        const { room_type_id, assigned_room_id, status, checkin_at, checkout_at, actual_checkin_at, actual_checkout_at, num_guests, discount_id, deposit_amount, deposit_paid_at, expires_at, notes } = req.body;
-        const data = { room_type_id, assigned_room_id, status, checkin_at, checkout_at, actual_checkin_at, actual_checkout_at, num_guests, discount_id, deposit_amount, deposit_paid_at, expires_at, notes };
+        const { room_type_id, assigned_room_id, status, checkin_at, checkout_at, actual_checkin_at, actual_checkout_at, num_guests, discount_id, deposit_amount, deposit_paid_at, notes } = req.body;
+        const data = { room_type_id, assigned_room_id, status, checkin_at, checkout_at, actual_checkin_at, actual_checkout_at, num_guests, discount_id, deposit_amount, deposit_paid_at, notes };
         return await BookingService.updateBooking(id, data)
             .then(booking => res.status(200).json(booking))
             .catch(error => {

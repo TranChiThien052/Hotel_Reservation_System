@@ -160,8 +160,8 @@ router.get('/customer/:id', (req, res) => {
  *       500:
  *         description: Internal server error
  */
-router.get('/branch/:id', (res, req) => {
-    authorize(req, res, ["staff", "manager", "admin"], () => BookingController.getBookingByBranchId(res, req))
+router.get('/branch/:id', (req, res) => {
+    authorize(req, res, ["staff", "manager", "admin"], () => BookingController.getBookingByBranchId(req, res))
 });
 
 /**

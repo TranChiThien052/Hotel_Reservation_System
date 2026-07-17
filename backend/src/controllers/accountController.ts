@@ -106,7 +106,7 @@ class AccountController {
 
     async createStaffAccount(req, res) {
         const { username, password, role, status, branch_id, full_name, phone } = req.body;
-        const data = { username, password, role, status, branch_id, full_name, phone };
+        const data = { username, password, role, status, branch_id, full_name, phone, log_account_id: req.user.account_id };
         return await AccountService.registerStaffAccount(data)
             .then(response => res.status(201).json(response))
             .catch(error => {
@@ -119,7 +119,7 @@ class AccountController {
 
     async createCustomerAccount(req, res) {
         const { full_name, phone, email, password } = req.body;
-        const data = { full_name, phone, email, password };
+        const data = { full_name, phone, email, password, log_account_id: req.user.account_id };
         return await AccountService.registerCustomerAccount(data)
             .then(response => res.status(201).json(response))
             .catch(error => {
@@ -176,11 +176,10 @@ class AccountController {
 
     async createAccount(req, res) {
         const { username, password, role, status, branch_id } = req.body;
-        const data = { username, password, role, status, branch_id };
+        const data = { username, password, role, status, branch_id, log_account_id: req.user.account_id };
         return await AccountService.createAccount(data)
             .then(account => res.status(201).json(account))
             .catch(error => {
-                console.log(error)
                 if (typeof parseInt(error.code) === 'number') {
                     return res.status(parseInt(error.code)).json({ error: error.message });
                 }
@@ -191,7 +190,7 @@ class AccountController {
     async updateAccount(req, res) {
         const { id } = req.params;
         const { password, role, status, branch_id } = req.body;
-        const data = { password, role, status, branch_id };
+        const data = { password, role, status, branch_id, log_account_id: req.user.account_id };
         return await AccountService.updateAccount(id, data)
             .then(account => res.status(200).json(account))
             .catch(error => {
