@@ -25,7 +25,7 @@ export const sideBarItems: SideBarItem[] = [
   {name: "Tài khoản", path: "accounts", icon: LuUserCog  },
   {name: "Khách hàng", path: "customers", icon: HiMiniUsers },
   {name: "Nhân viên", path: "employees", icon: FaRegIdCard  },
-  {name: "Nhật ký kiểm duyệt", path: "audit-logs", icon: FaClockRotateLeft  },
+  {name: "Nhật ký kiểm duyệt", path: "history-transactions", icon: FaClockRotateLeft  },
   {name: "Đánh giá", path: "reviews", icon: GoCodeReview  },
   {name: "Hình phạt", path: "penalties", icon: ImHammer2  },
 ];

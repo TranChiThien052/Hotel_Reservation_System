@@ -30,6 +30,7 @@ import BookingSuccess from "@/features/client/booking/pages/BookingSuccess";
 import BookingHistory from "@/features/client/profile/pages/bookingHistory";
 import BookingDetails from "@/features/client/profile/pages/bookingDetails";
 import UserProfile from "@/features/client/profile/pages/userProfile";
+import HistoryTransactions from "@/features/admin/adminHistoryTransaction/pages/HistoryTransactions";
 
 const route = () => {
   return (
@@ -70,6 +71,7 @@ const route = () => {
             <Route path="customers" element={<Customers />} />
             <Route path="accounts" element={<Accounts />} />
             <Route path="employees" element={<Employees />} />
+            <Route path="history-transactions" element={<HistoryTransactions />} />
           </Route>
         </Route>
 
