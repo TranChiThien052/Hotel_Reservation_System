@@ -29,9 +29,23 @@ const router = express.Router();
  *                    properties:
  *                       id:
  *                         type: string
+ *                       action:
+ *                         type: string
+ *                       target_type:
+ *                         type: string
+ *                       target_id:
+ *                         type: string
+ *                       description:
+ *                         type: string
+ *                       metadata:
+ *                         type: object
+ *                       created_at:
+ *                         type: string
  *                       accounts:
  *                         type: object
  *                         properties:
+ *                            id:
+ *                              type: string
  *                            customers:
  *                              type: object
  *                              properties:
@@ -49,14 +63,6 @@ const router = express.Router();
  *                                   type: string
  *                            role:
  *                              type: string
- *                       target_id:
- *                         type: string
- *                       description:
- *                         type: string
- *                       metadata:
- *                         type: object
- *                       created_at:
- *                         type: string
  *       500:
  *         description: Internal server error
  */
@@ -72,6 +78,55 @@ router.get('/account/:id', (req, res) => {
  *     responses:
  *       200:
  *         description: Successful operation
+ *         content:
+ *            application/json:
+ *               schema:
+ *                  type: array
+ *                  items:
+ *                    type: object
+ *                    properties:
+ *                       id:
+ *                         type: string
+ *                       action:
+ *                         type: string
+ *                       target_type:
+ *                         type: string
+ *                       target_id:
+ *                         type: string
+ *                       description:
+ *                         type: string
+ *                       metadata:
+ *                         type: object
+ *                       created_at:
+ *                         type: string
+ *                       accounts:
+ *                         type: object
+ *                         properties:
+ *                            id:
+ *                              type: string
+ *                            customers:
+ *                              type: object
+ *                              properties:
+ *                                 full_name:
+ *                                   type: string
+ *                            staff:
+ *                              type: object
+ *                              properties:
+ *                                 full_name:
+ *                                   type: string
+ *                            branches:
+ *                              type: object
+ *                              properties:
+ *                                 name:
+ *                                   type: string
+ *                            role:
+ *                              type: string
+ *       500:
+ *         description: Internal server error
+ *       404:
+ *         description: Account not found
+ *       400:
+ *         description: Invalid data
  */
 router.get('/', (req, res) => {
     authorize(req, res, ["manager", "admin"], () => HistoryTransactionController.getAllTransactions(req, res))
@@ -92,6 +147,50 @@ router.get('/', (req, res) => {
  *     responses:
  *       200:
  *         description: Successful operation
+ *         content:
+ *            application/json:
+ *               schema:
+ *                  type: object
+ *                  properties:
+ *                     id:
+ *                        type: string
+ *                     action:
+ *                        type: string
+ *                     target_tpe:
+ *                        type: string
+ *                     target_id:
+ *                        type: string
+ *                        format: uuid
+ *                     description:
+ *                        type: string
+ *                     metadata:
+ *                        type: object
+ *                     created_at:
+ *                        type: string
+ *                     accounts:
+ *                        type: object
+ *                        properties:
+ *                          id:
+ *                            type: string
+ *                          customers:
+ *                            type: object
+ *                            properties:
+ *                              full_name:
+ *                                type: string
+ *                          staff:
+ *                            type: object
+ *                            properties:
+ *                              full_name:
+ *                                type: string
+ *                          branches:
+ *                            type: object
+ *                            properties:
+ *                              name:
+ *                                type: string
+ *                          role:
+ *                            type: string
+ *       500:
+ *         description: Internal server error
  */
 router.get('/:id', (req, res) => {
     authorize(req, res, ["manager", "admin"], () => HistoryTransactionController.getTransactionById(req, res))

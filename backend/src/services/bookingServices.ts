@@ -9,6 +9,7 @@ import RoomTypeRepository from '../repositories/roomTypeRepo';
 import RoomAvailabilityService from './roomAvailabilityServices';
 import HolidayDateRepository from '../repositories/holidayDateRepo';
 import accountServices from './accountServices';
+import historyTransactionServices from './historyTransactionServices';
 
 class BookingService {
     async getAllBookings() {
@@ -167,7 +168,16 @@ class BookingService {
         validatedData.expires_at = new Date(Date.now() + 15 * 60 * 1000);
 
         try {
-            return await BookingRepository.createBookingWithOverlapChecking(validatedData);
+            const result = await BookingRepository.createBookingWithOverlapChecking(validatedData);
+            if (result) {
+                await historyTransactionServices.createCreateTransaction(
+                    data.log_account_id,
+                    "Booking",
+                    result.id,
+                    result.created_at,
+                )
+            }
+            return result;
         } catch (error: any) {
             if (error.message.includes("Overbooking"))
                 throw new ValidationError('409', error.message);
@@ -310,8 +320,23 @@ class BookingService {
         }
 
         validatedData.updated_at = new Date();
-
-        return await BookingRepository.updateBooking(id, validatedData);
+        try {
+            const before = await BookingRepository.getBookingById(id);
+            const after = await BookingRepository.updateBooking(id, validatedData);
+            if (after) {
+                await historyTransactionServices.createUpdateTransaction(
+                    data.log_account_id,
+                    "Booking",
+                    id,
+                    before,
+                    after,
+                    Object.keys(validatedData)
+                )
+            }
+            return after;
+        } catch (error: any) {
+            throw new Error(error);
+        }
     };
 
     async deleteBooking(id) {

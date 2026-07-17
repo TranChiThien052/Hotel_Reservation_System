@@ -57,7 +57,7 @@ const router = express.Router();
  *         description: Internal server error
  */
 router.get('/', (req, res) => {
-    authorize(req, res, ["staff", "admin", "manager"], () => CustomerController.getAllCustomers(res, req))
+    authorize(req, res, ["staff", "admin", "manager"], () => CustomerController.getAllCustomers(req, res))
 });
 /**
  * @swagger
