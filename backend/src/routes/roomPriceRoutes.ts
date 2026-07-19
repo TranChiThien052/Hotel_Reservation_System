@@ -22,7 +22,7 @@ const router = express.Router();
  *         description: Successful operation
  */
 router.get('/room-type/:id', (req, res) => {
-    authorize(req, res, ["manager", "admin"], () => RoomPriceController.getRoomPricesByRoomTypeId(req, res))
+    authorize(req, res, ["customer", "staff", "manager", "admin"], () => RoomPriceController.getRoomPricesByRoomTypeId(req, res))
 });
 
 /**
@@ -36,7 +36,7 @@ router.get('/room-type/:id', (req, res) => {
  *         description: Successful operation
  */
 router.get('/', (req, res) => {
-    authorize(req, res, ["staff", "manager", "admin"], () => RoomPriceController.getAllRoomPrices(req, res))
+    authorize(req, res, ["customer", "staff", "manager", "admin"], () => RoomPriceController.getAllRoomPrices(req, res))
 });
 
 /**
@@ -57,7 +57,7 @@ router.get('/', (req, res) => {
  *         description: Successful operation
  */
 router.get('/:id', (req, res) => {
-    authorize(req, res, ["staff", "manager", "admin"], () => RoomPriceController.getRoomPriceById(req, res))
+    authorize(req, res, ["customer", "staff", "manager", "admin"], () => RoomPriceController.getRoomPriceById(req, res))
 });
 
 /**
