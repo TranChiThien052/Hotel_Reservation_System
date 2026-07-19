@@ -21,7 +21,7 @@ class BranchController {
 
     async createBranch(req, res) {
         const { name, address, city, phone, email, description, is_active } = req.body;
-        const data = { name, address, city, phone, email, description, is_active };
+        const data = { name, address, city, phone, email, description, is_active, log_account_id: req.user?.account_id };
         return await BranchServices.createBranch(data)
             .then(createdBranch => res.status(201).json(createdBranch))
             .catch(error => {
@@ -35,7 +35,7 @@ class BranchController {
     async updateBranch(req, res) {
         const { id } = req.params;
         const { name, address, city, phone, email, description, is_active } = req.body;
-        const data = { name, address, city, phone, email, description, is_active };
+        const data = { name, address, city, phone, email, description, is_active, log_account_id: req.user?.account_id };
         return await BranchServices.updateBranch(id, data)
             .then(updatedBranch => res.status(200).json(updatedBranch))
             .catch(error => {

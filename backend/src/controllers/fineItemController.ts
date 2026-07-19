@@ -38,7 +38,7 @@ class FineItemController {
 
     async createFineItem(req, res) {
         const { branch_id, name, description, price } = req.body;
-        const data = { branch_id, name, description, price };
+        const data = { branch_id, name, description, price, log_account_id: req.user?.account_id };
         return await FineItemService.createFineItem(data)
             .then(item => res.status(201).json(item))
             .catch(error => {
@@ -52,7 +52,7 @@ class FineItemController {
     async updateFineItem(req, res) {
         const { id } = req.params;
         const { branch_id, name, description, price } = req.body;
-        const data = { branch_id, name, description, price };
+        const data = { branch_id, name, description, price, log_account_id: req.user?.account_id };
         return await FineItemService.updateFineItem(id, data)
             .then(item => res.status(200).json(item))
             .catch(error => {

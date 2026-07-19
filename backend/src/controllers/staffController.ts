@@ -32,7 +32,7 @@ class StaffController {
 
     async createStaff(req, res) {
         const { branch_id, account_id, full_name, phone, position } = req.body;
-        const data = { branch_id, account_id, full_name, phone, position };
+        const data = { branch_id, account_id, full_name, phone, position, log_account_id: req.user?.account_id };
         return await StaffService.createStaff(data)
             .then(staff => res.status(201).json(staff))
             .catch(error => {
@@ -46,11 +46,10 @@ class StaffController {
     async updateStaff(req, res) {
         const { id } = req.params;
         const { branch_id, full_name, phone, position } = req.body;
-        const data = { branch_id, full_name, phone, position };
+        const data = { branch_id, full_name, phone, position, log_account_id: req.user?.account_id };
         return await StaffService.updateStaff(id, data)
             .then(staff => res.status(200).json(staff))
             .catch(error => {
-                console.log(error);
                 if (error.code !== 500) {
                     return res.status(parseInt(error.code)).json({ error: error.message });
                 }

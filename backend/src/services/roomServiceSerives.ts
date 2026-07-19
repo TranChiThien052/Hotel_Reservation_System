@@ -1,6 +1,7 @@
 import RoomServiceRepository from '../repositories/roomServiceRepo';
 import BranchRepository from '../repositories/branchRepo';
 import { Validator, ValidationError } from '../middlewares/validateData';
+import historyTransactionServices from './historyTransactionServices';
 
 class RoomServiceService {
     async getAllServices() {
@@ -51,7 +52,19 @@ class RoomServiceService {
             }
         }
 
-        return await RoomServiceRepository.createService(validatedData);
+        try {
+            const result = await RoomServiceRepository.createService(validatedData);
+            if (result)
+                await historyTransactionServices.createCreateTransaction(
+                    data.log_account_id,
+                    "Room Service",
+                    result.id,
+                    result
+                );
+            return result;
+        } catch (error: any) {
+            throw new Error(error);
+        }
     };
 
     async updateService(id, data) {
@@ -94,12 +107,26 @@ class RoomServiceService {
             }
         }
 
-        const serviceExists = await RoomServiceRepository.getServiceById(id);
-        if (!serviceExists) {
+        const existingService = await RoomServiceRepository.getServiceById(id);
+        if (!existingService) {
             throw new ValidationError('404', "Service not found");
         }
 
-        return await RoomServiceRepository.updateService(id, validatedData);
+        try {
+            const after = await RoomServiceRepository.updateService(id, validatedData);
+            if (after)
+                await historyTransactionServices.createUpdateTransaction(
+                    data.log_account_id,
+                    "Room Service",
+                    id,
+                    existingService,
+                    after,
+                    Object.keys(validatedData)
+                );
+            return after;
+        } catch (error: any) {
+            throw new Error(error);
+        }
     };
 
     async deleteService(id) {

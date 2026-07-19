@@ -21,7 +21,7 @@ class RoomServiceController {
 
     async createService(req, res) {
         const { branch_id, name, description, price, unit, is_active } = req.body;
-        const data = { branch_id, name, description, price, unit, is_active };
+        const data = { branch_id, name, description, price, unit, is_active, log_account_id: req.user?.account_id };
         return await RoomServiceServices.createService(data)
             .then(createdService => res.status(201).json(createdService))
             .catch(error => {
@@ -35,7 +35,7 @@ class RoomServiceController {
     async updateService(req, res) {
         const { id } = req.params;
         const { branch_id, name, description, price, unit, is_active } = req.body;
-        const data = { branch_id, name, description, price, unit, is_active };
+        const data = { branch_id, name, description, price, unit, is_active, log_account_id: req.user?.account_id };
         return await RoomServiceServices.updateService(id, data)
             .then(updatedService => res.status(200).json(updatedService))
             .catch(error => {

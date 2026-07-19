@@ -21,7 +21,7 @@ class DiscountController {
 
     async createDiscount(req, res) {
         const { branch_id, code, description, discount_type, discount_value, min_order_value, usage_limit, valid_from, valid_to, is_active } = req.body;
-        const data = { branch_id, code, description, discount_type, discount_value, min_order_value, usage_limit, valid_from, valid_to, is_active };
+        const data = { branch_id, code, description, discount_type, discount_value, min_order_value, usage_limit, valid_from, valid_to, is_active, log_account_id: req.user?.account_id };
         return await DiscountService.createDiscount(data)
             .then(createdDiscount => res.status(201).json(createdDiscount))
             .catch(error => {
@@ -35,7 +35,7 @@ class DiscountController {
     async updateDiscount(req, res) {
         const { id } = req.params;
         const { branch_id, code, description, discount_type, discount_value, min_order_value, usage_limit, valid_from, valid_to, is_active } = req.body;
-        const data = { branch_id, code, description, discount_type, discount_value, min_order_value, usage_limit, valid_from, valid_to, is_active };
+        const data = { branch_id, code, description, discount_type, discount_value, min_order_value, usage_limit, valid_from, valid_to, is_active, log_account_id: req.user?.account_id };
         return await DiscountService.updateDiscount(id, data)
             .then(updatedDiscount => res.status(200).json(updatedDiscount))
             .catch(error => {

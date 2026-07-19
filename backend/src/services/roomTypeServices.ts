@@ -4,6 +4,7 @@ import BranchRepository from '../repositories/branchRepo';
 import RoomImageRepository from '../repositories/roomImageRepo';
 import { deleteImage, uploadImage } from '../middlewares/uploader';
 import { prisma } from '../config/prisma';
+import historyTransactionServices from './historyTransactionServices';
 
 class RoomTypeService {
     async getAllRoomTypes() {
@@ -67,14 +68,24 @@ class RoomTypeService {
             throw new ValidationError('400', "Invalid branch ID");
         }
 
-        const result = await RoomTypeRepository.createRoomType(validatedData);
+        try {
+            const result = await RoomTypeRepository.createRoomType(validatedData);
+            if (result)
+                await historyTransactionServices.createCreateTransaction(
+                    data.log_account_id,
+                    "Room Type",
+                    result.id,
+                    result
+                );
 
-        if (files && files.length > 0) {
-            const uploadedFiles = await uploadImage(files);
-            await RoomImageRepository.createRoomImages(result.id, uploadedFiles);
+            if (result && files && files.length > 0) {
+                const uploadedFiles = await uploadImage(files);
+                await RoomImageRepository.createRoomImages(result.id, uploadedFiles);
+            }
+            return result;
+        } catch (error: any) {
+            throw new Error(error);
         }
-
-        return result;
     };
 
     async updateRoomType(id, data) {
@@ -118,26 +129,60 @@ class RoomTypeService {
             throw new ValidationError('404', "Room type not found");
         }
 
-        return await RoomTypeRepository.updateRoomType(id, validatedData);
+        try {
+            const after = await RoomTypeRepository.updateRoomType(id, validatedData);
+            if (after)
+                await historyTransactionServices.createUpdateTransaction(
+                    data.log_account_id,
+                    "Room Type",
+                    id,
+                    existingRoomType,
+                    after,
+                    Object.keys(validatedData)
+                );
+            return after;
+        } catch (error: any) {
+            throw new Error(error);
+        }
     };
 
-    async addRoomTypeImage(id, files) {
-        if (!files || files.length === 0) {
+    async addRoomTypeImage(data) {
+        if (!data.files || data.files.length === 0) {
             throw new ValidationError('400', "No image files provided");
         }
-        const uploadedFiles = await uploadImage(files);
-        await RoomImageRepository.createRoomImages(id, uploadedFiles);
+        const uploadedFiles = await uploadImage(data.files);
+        try {
+            const result = await RoomImageRepository.createRoomImages(data.id, uploadedFiles);
+            if (result)
+                await historyTransactionServices.createCreateTransaction(
+                    data.log_account_id,
+                    "Room Image",
+                    result[0].room_type_id,
+                    result[0]
+                );
+            return result;
+        } catch (error: any) {
+            throw new Error(error);
+        }
     }
 
-    async deleteRoomTypeImage(img_url, public_id) {
+    async deleteRoomTypeImage(data) {
         try {
             const result = await prisma.$transaction(async () => {
-                await deleteImage(public_id);
-                await RoomImageRepository.deleteRoomTypeImage(img_url);
+                await deleteImage(data.public_id);
+                const deleteResult = await RoomImageRepository.deleteRoomTypeImage(data.img_url);
+                return deleteResult;
             })
+            if (result)
+                await historyTransactionServices.createDeleteTransaction(
+                    data.log_account_id,
+                    "Room Image",
+                    result.room_type_id,
+                    result
+                );
             return result;
-        } catch (error) {
-            throw new ValidationError('500', 'Internal server error');
+        } catch (error: any) {
+            throw new Error(error);
         }
     };
 

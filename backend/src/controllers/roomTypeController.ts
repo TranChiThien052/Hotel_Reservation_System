@@ -38,7 +38,8 @@ class RoomTypeController {
             name,
             description,
             max_guests: max_guests ? parseInt(max_guests) : undefined,
-            is_active: is_active !== undefined ? is_active === 'true' : undefined
+            is_active: is_active !== undefined ? is_active === 'true' : undefined,
+            log_account_id: req.user?.account_id
         };
         const files = req.files;
         return await RoomTypeServices.createRoomType(data, files)
@@ -54,7 +55,15 @@ class RoomTypeController {
     async updateRoomType(req, res) {
         const { id } = req.params;
         const { branch_id, name, description, max_guests, images, is_active } = req.body;
-        const data = { branch_id, name, description, max_guests, images, is_active };
+        const data = {
+            branch_id,
+            name,
+            description,
+            max_guests: max_guests ? parseInt(max_guests) : undefined,
+            images,
+            is_active: is_active !== undefined ? is_active === 'true' : undefined,
+            log_account_id: req.user?.account_id
+        };
         return await RoomTypeServices.updateRoomType(id, data)
             .then(updatedRoomType => res.status(200).json(updatedRoomType))
             .catch(error => {
@@ -68,7 +77,8 @@ class RoomTypeController {
     async addRoomTypeImage(req, res) {
         const { id } = req.params;
         const files = req.files;
-        return await RoomTypeServices.addRoomTypeImage(id, files)
+        const data = { id, files, log_account_id: req.user?.account_id };
+        return await RoomTypeServices.addRoomTypeImage(data)
             .then(addedRoomTypeImage => res.status(201).json({ message: "Added image successfully" }))
             .catch(error => {
                 if (typeof parseInt(error.code) === 'number') {
@@ -92,7 +102,8 @@ class RoomTypeController {
 
     async deleteRoomTypeImage(req, res) {
         const { img_url, public_id } = req.body;
-        return await RoomTypeServices.deleteRoomTypeImage(img_url, public_id)
+        const data = { img_url, public_id, log_account_id: req.user?.account_id };
+        return await RoomTypeServices.deleteRoomTypeImage(data)
             .then(deletedRoomTypeImage => res.status(200).json({ message: "Deleted image successfully" }))
             .catch(error => {
                 if (typeof parseInt(error.code) === 'number') {

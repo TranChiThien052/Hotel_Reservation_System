@@ -2,6 +2,7 @@ import RoomRepository from '../repositories/roomRepo';
 import BranchRepository from '../repositories/branchRepo';
 import RoomTypeRepository from '../repositories/roomTypeRepo';
 import { Validator, ValidationError } from '../middlewares/validateData';
+import historyTransactionServices from './historyTransactionServices';
 
 class RoomService {
     async getAllRooms() {
@@ -73,7 +74,19 @@ class RoomService {
             throw new ValidationError('400', "Invalid room type ID");
         }
 
-        return await RoomRepository.createRoom(data);
+        try {
+            const result = await RoomRepository.createRoom(data);
+            if (result)
+                await historyTransactionServices.createCreateTransaction(
+                    data.log_account_id,
+                    "Room",
+                    result.id,
+                    result
+                );
+            return result;
+        } catch (error: any) {
+            throw new Error(error);
+        }
     };
 
     async updateRoom(id, data) {
@@ -127,7 +140,21 @@ class RoomService {
             throw new ValidationError('404', "Room not found");
         }
 
-        return await RoomRepository.updateRoom(id, validatedData);
+        try {
+            const after = await RoomRepository.updateRoom(id, validatedData);
+            if (after)
+                await historyTransactionServices.createUpdateTransaction(
+                    data.log_account_id,
+                    "Room",
+                    id,
+                    existingRoom,
+                    after,
+                    Object.keys(validatedData)
+                );
+            return after;
+        } catch (error: any) {
+            throw new Error(error);
+        }
     };
 
     async deleteRoom(id) {

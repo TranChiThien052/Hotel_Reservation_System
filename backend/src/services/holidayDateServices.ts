@@ -1,6 +1,7 @@
 import HolidayDateRepository from '../repositories/holidayDateRepo';
 import BranchRepository from '../repositories/branchRepo';
 import { Validator, ValidationError } from '../middlewares/validateData';
+import historyTransactionServices from './historyTransactionServices';
 
 class HolidayDateService {
     async getAllHolidayDates() {
@@ -46,7 +47,19 @@ class HolidayDateService {
             throw new ValidationError('400', validator.clearError());
         }
 
-        return await HolidayDateRepository.createHolidayDate(validatedData);
+        try {
+            const result = await HolidayDateRepository.createHolidayDate(validatedData);
+            if (result)
+                await historyTransactionServices.createCreateTransaction(
+                    data.log_account_id ?? null,
+                    "Holiday Date",
+                    result.id,
+                    result
+                )
+            return result;
+        } catch (error: any) {
+            throw new Error(error)
+        }
     };
 
     async updateHolidayDate(id, data) {
@@ -93,7 +106,22 @@ class HolidayDateService {
             throw new ValidationError('400', validator.clearError());
         }
 
-        return await HolidayDateRepository.updateHolidayDate(id, validatedData);
+        try {
+            const before = await HolidayDateRepository.getHolidayDateById(id);
+            const after = await HolidayDateRepository.updateHolidayDate(id, validatedData);
+            if (after)
+                await historyTransactionServices.createUpdateTransaction(
+                    data.log_account_id ?? null,
+                    "Holiday Date",
+                    id,
+                    before,
+                    after,
+                    Object.keys(validatedData)
+                )
+            return after;
+        } catch (error: any) {
+            throw new Error(error)
+        }
     };
 
     async deleteHolidayDate(id) {

@@ -1,5 +1,6 @@
 import branchRepository from '../repositories/branchRepo';
 import { Validator, ValidationError } from '../middlewares/validateData';
+import historyTransactionServices from './historyTransactionServices';
 
 class BranchService {
     async getAllBranches() {
@@ -74,7 +75,19 @@ class BranchService {
             throw new ValidationError("400", validator.clearError());
         }
 
-        return await branchRepository.createBranch(validatedData);
+        try {
+            const result = await branchRepository.createBranch(validatedData);
+            if (result)
+                await historyTransactionServices.createCreateTransaction(
+                    data.log_account_id ?? null,
+                    "Branch",
+                    result.id,
+                    result
+                )
+            return result;
+        } catch (error: any) {
+            throw new Error(error);
+        }
     };
 
     async updateBranch(id, data) {
@@ -145,7 +158,22 @@ class BranchService {
             throw new ValidationError("400", validator.clearError());
         }
 
-        return await branchRepository.updateBranch(id, validatedData);
+        try {
+            const before = await branchRepository.getBranchById(id);
+            const result = await branchRepository.updateBranch(id, validatedData);
+            if (result)
+                await historyTransactionServices.createUpdateTransaction(
+                    data.log_account_id ?? null,
+                    "Branch",
+                    id,
+                    before,
+                    result,
+                    Object.keys(validatedData)
+                )
+            return result;
+        } catch (error: any) {
+            throw new Error(error)
+        }
     };
 
     async deleteBranch(id) {

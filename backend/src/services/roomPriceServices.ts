@@ -1,6 +1,7 @@
 import RoomPriceRepository from '../repositories/roomPriceRepo';
 import RoomTypeRepository from '../repositories/roomTypeRepo'
 import { Validator, ValidationError } from '../middlewares/validateData';
+import historyTransactionServices from './historyTransactionServices';
 
 class RoomPriceService {
     async getAllRoomPrices() {
@@ -83,7 +84,19 @@ class RoomPriceService {
             throw new ValidationError('400', "Room type ID not found");
         }
 
-        return await RoomPriceRepository.createRoomPrice(validatedData);
+        try {
+            const result = await RoomPriceRepository.createRoomPrice(validatedData);
+            if (result)
+                await historyTransactionServices.createCreateTransaction(
+                    data.log_account_id,
+                    "Room Price",
+                    result.id,
+                    result
+                );
+            return result;
+        } catch (error: any) {
+            throw new Error(error);
+        }
     };
 
     async updateRoomPrice(id, data) {
@@ -137,13 +150,27 @@ class RoomPriceService {
             throw new ValidationError('400', validator.clearError());
         }
 
-        const roomPriceExists = await RoomPriceRepository.getRoomPriceById(id);
+        const existingRoomPrice = await RoomPriceRepository.getRoomPriceById(id);
 
-        if (!roomPriceExists) {
+        if (!existingRoomPrice) {
             throw new ValidationError('400', "Room price not found");
         }
 
-        return await RoomPriceRepository.updateRoomPrice(id, validatedData);
+        try {
+            const after = await RoomPriceRepository.updateRoomPrice(id, validatedData);
+            if (after)
+                await historyTransactionServices.createUpdateTransaction(
+                    data.log_account_id,
+                    "Room Price",
+                    id,
+                    existingRoomPrice,
+                    after,
+                    Object.keys(validatedData)
+                );
+            return after;
+        } catch (error: any) {
+            throw new Error(error);
+        }
     };
 
     async deleteRoomPrice(id) {
