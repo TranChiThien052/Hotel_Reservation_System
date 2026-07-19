@@ -2,6 +2,7 @@ import BookingServiceRepository from '../repositories/bookingServiceRepo';
 import BookingRepository from '../repositories/bookingRepo';
 import RoomServiceRepository from '../repositories/roomServiceRepo';
 import AccountRepository from '../repositories/accountRepo';
+import HistoryTransactionService from './historyTransactionServices'
 import { Validator, ValidationError } from '../middlewares/validateData';
 
 class BookingServiceService {
@@ -74,8 +75,19 @@ class BookingServiceService {
 
         validatedData.unit_price = roomService ? roomService.price : 0;
         validatedData.total_amount = validatedData.unit_price * validatedData.quantity;
-
-        return await BookingServiceRepository.createBookingService(validatedData);
+        try {
+            const result = await BookingServiceRepository.createBookingService(validatedData);
+            if (result)
+                await HistoryTransactionService.createCreateTransaction(
+                    data.log_account_id ?? null,
+                    "Booking Service",
+                    result.id,
+                    result
+                )
+            return result;
+        } catch (error: any) {
+            throw new Error(error);
+        }
     };
 
     async updateBookingService(id, data) {
@@ -120,7 +132,22 @@ class BookingServiceService {
 
         validatedData.total_amount = validatedData.unit_price * validatedData.quantity;
 
-        return await BookingServiceRepository.updateBookingService(id, validatedData);
+        try {
+            const before = await BookingServiceRepository.getBookingServiceById(id)
+            const result = await BookingServiceRepository.updateBookingService(id, validatedData);
+            if (result)
+                await HistoryTransactionService.createUpdateTransaction(
+                    data.log_account_id ?? null,
+                    "Booking Service",
+                    id,
+                    before,
+                    result,
+                    Object.keys(validatedData),
+                )
+            return result;
+        } catch (error: any) {
+            throw new Error(error);
+        }
     };
 
     async deleteBookingService(id) {

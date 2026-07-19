@@ -34,7 +34,7 @@ class RoomPriceController {
 
     async createRoomPrice(req, res) {
         const { room_type_id, price_per_day, price_per_hour, weekend_rate, holiday_rate, effective_from, effective_to } = req.body;
-        const data = { room_type_id, price_per_day, price_per_hour, weekend_rate, holiday_rate, effective_from, effective_to };
+        const data = { room_type_id, price_per_day, price_per_hour, weekend_rate, holiday_rate, effective_from, effective_to, log_account_id: req.user?.account_id };
         return await RoomPriceServices.createRoomPrice(data)
             .then(createdRoomPrice => res.status(201).json(createdRoomPrice))
             .catch(error => {
@@ -49,7 +49,7 @@ class RoomPriceController {
     async updateRoomPrice(req, res) {
         const { id } = req.params;
         const { room_type_id, price_per_day, price_per_hour, weekend_rate, holiday_rate, effective_from, effective_to } = req.body;
-        const data = { room_type_id, price_per_day, price_per_hour, weekend_rate, holiday_rate, effective_from, effective_to };
+        const data = { room_type_id, price_per_day, price_per_hour, weekend_rate, holiday_rate, effective_from, effective_to, log_account_id: req.user?.account_id };
         return await RoomPriceServices.updateRoomPrice(id, data)
             .then(updatedRoomPrice => res.status(200).json(updatedRoomPrice))
             .catch(error => {

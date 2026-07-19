@@ -26,7 +26,7 @@ class HolidayDateController {
 
     async createHolidayDate(req, res) {
         const { branch_id, date, name } = req.body;
-        const data = { branch_id, date, name };
+        const data = { branch_id, date, name, log_account_id: req.user?.account_id };
         return await HolidayDateService.createHolidayDate(data)
             .then(holidayDate => res.status(201).json(holidayDate))
             .catch(error => {
@@ -40,7 +40,7 @@ class HolidayDateController {
     async updateHolidayDate(req, res) {
         const { id } = req.params;
         const { branch_id, date, name } = req.body;
-        const data = { branch_id, date, name };
+        const data = { branch_id, date, name, log_account_id: req.user?.account_id };
         return await HolidayDateService.updateHolidayDate(id, data)
             .then(holidayDate => res.status(200).json(holidayDate))
             .catch(error => {

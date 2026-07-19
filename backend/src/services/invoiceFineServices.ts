@@ -3,6 +3,7 @@ import InvoiceRepository from '../repositories/invoiceRepo';
 import FineItemRepository from '../repositories/fineItemRepo';
 import AccountRepository from '../repositories/accountRepo';
 import { Validator, ValidationError } from '../middlewares/validateData';
+import historyTransactionServices from './historyTransactionServices';
 
 class InvoiceFineService {
     async getAllInvoiceFines() {
@@ -83,7 +84,19 @@ class InvoiceFineService {
             throw new ValidationError('400', validator.clearError());
         }
 
-        return await InvoiceFineRepository.createInvoiceFine(validatedData);
+        try {
+            const result = await InvoiceFineRepository.createInvoiceFine(validatedData);
+            if (result)
+                await historyTransactionServices.createCreateTransaction(
+                    data.log_account_id,
+                    "Invoice Fine",
+                    result.id,
+                    result
+                );
+            return result;
+        } catch (error: any) {
+            throw new Error(error);
+        }
     };
 
     async updateInvoiceFine(id, data) {
@@ -137,7 +150,22 @@ class InvoiceFineService {
             }
         }
 
-        return await InvoiceFineRepository.updateInvoiceFine(id, validatedData);
+        try {
+            const before = await InvoiceFineRepository.getInvoiceFineById(id);
+            const after = await InvoiceFineRepository.updateInvoiceFine(id, validatedData);
+            if (after)
+                await historyTransactionServices.createUpdateTransaction(
+                    data.log_account_id,
+                    "Invoice Fine",
+                    id,
+                    before,
+                    after,
+                    Object.keys(validatedData)
+                );
+            return after;
+        } catch (error: any) {
+            throw new Error(error);
+        }
     };
 
     async deleteInvoiceFine(id) {

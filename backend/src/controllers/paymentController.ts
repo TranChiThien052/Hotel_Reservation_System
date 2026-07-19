@@ -60,7 +60,7 @@ class PaymentController {
 
     async createPayment(req, res) {
         const { booking_id, invoice_id, payment_method, status, amount, is_deposit, transaction_ref, processed_by, notes } = req.body;
-        const data = { booking_id, invoice_id, payment_method, status, amount, is_deposit, transaction_ref, processed_by, notes };
+        const data = { booking_id, invoice_id, payment_method, status, amount, is_deposit, transaction_ref, processed_by, notes, log_account_id: req.user?.account_id };
         return await PaymentService.createPayment(data)
             .then(async payment => {
                 try {
@@ -83,7 +83,7 @@ class PaymentController {
     async updatePayment(req, res) {
         const { id } = req.params;
         const { payment_method, status, amount, is_deposit, transaction_ref, paid_at, processed_by, notes, updated_at } = req.body;
-        const data = { payment_method, status, amount, is_deposit, transaction_ref, paid_at, processed_by, notes, updated_at };
+        const data = { payment_method, status, amount, is_deposit, transaction_ref, paid_at, processed_by, notes, updated_at, log_account_id: req.user?.account_id };
         return await PaymentService.updatePayment(id, data)
             .then(async payment => {
                 if (is_deposit == true || is_deposit == 'true') {

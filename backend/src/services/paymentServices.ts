@@ -5,6 +5,7 @@ import AccountRepository from '../repositories/accountRepo';
 import { Validator, ValidationError } from '../middlewares/validateData';
 import axios from 'axios';
 import crypto from 'crypto';
+import historyTransactionServices from './historyTransactionServices';
 
 class PaymentService {
     async createMomoPayment(data) {
@@ -182,7 +183,19 @@ class PaymentService {
             }
         }
 
-        return await PaymentRepository.createPayment(validatedData);
+        try {
+            const result = await PaymentRepository.createPayment(validatedData);
+            if (result)
+                await historyTransactionServices.createCreateTransaction(
+                    data.log_account_id,
+                    "Payment",
+                    result.id,
+                    result
+                );
+            return result;
+        } catch (error: any) {
+            throw new Error(error);
+        }
     };
 
     async updatePayment(id, data) {
@@ -248,7 +261,22 @@ class PaymentService {
             }
         };
 
-        return await PaymentRepository.updatePayment(id, validatedData);
+        try {
+            const before = await PaymentRepository.getPaymentById(id);
+            const after = await PaymentRepository.updatePayment(id, validatedData);
+            if (after)
+                await historyTransactionServices.createUpdateTransaction(
+                    data.log_account_id,
+                    "Payment",
+                    id,
+                    before,
+                    after,
+                    Object.keys(validatedData)
+                );
+            return after;
+        } catch (error: any) {
+            throw new Error(error);
+        }
     };
 
     async deletePayment(id) {

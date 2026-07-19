@@ -1,6 +1,7 @@
 import DiscountRepository from '../repositories/discountRepo';
 import BranchRepository from '../repositories/branchRepo';
 import { Validator, ValidationError } from '../middlewares/validateData';
+import historyTransactionServices from './historyTransactionServices';
 
 class DiscountServices {
     async getAllDiscounts() {
@@ -70,7 +71,19 @@ class DiscountServices {
             }
         }
 
-        return await DiscountRepository.createDiscount(validatedData);
+        try {
+            const result = await DiscountRepository.createDiscount(validatedData);
+            if (result)
+                await historyTransactionServices.createCreateTransaction(
+                    data.log_account_id ?? null,
+                    "Discount",
+                    result.id,
+                    result
+                )
+            return result;
+        } catch (error: any) {
+            throw new Error(error)
+        }
     };
 
     async updateDiscount(id, data) {
@@ -127,7 +140,21 @@ class DiscountServices {
             throw new ValidationError('404', "Discount not found");
         }
 
-        return await DiscountRepository.updateDiscount(id, validatedData);
+        try {
+            const result = await DiscountRepository.updateDiscount(id, validatedData);
+            if (result)
+                await historyTransactionServices.createUpdateTransaction(
+                    data.log_account_id ?? null,
+                    "Discount",
+                    id,
+                    existingDiscount,
+                    result,
+                    Object.keys(validatedData)
+                )
+            return result;
+        } catch (error: any) {
+            throw new Error(error)
+        }
     };
 
     async deleteDiscount(id) {
