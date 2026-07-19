@@ -6,13 +6,38 @@ import type { TableProps } from "antd/es/table/InternalTable";
 import { FaRegBuilding } from "react-icons/fa6";
 import { FaRegCheckCircle } from "react-icons/fa";
 import { LuWrench } from "react-icons/lu";
-import { Table } from "antd";
+import { Button, Space, Table } from "antd";
+import HistoryTransactionDetailModal from "../components/HistoryTransactionDetailModal";
+
+const formatDateTime = (dateTimeString: string) => {
+    const date = new Date(dateTimeString);
+    return date.toLocaleString("vi-VN", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+    });
+}
 
 
 const HistoryTransactions = () => {
-    const [transactionsData, setTransactionsData] = useState<any[]>([]);
-    const [filteredTransactions, setFilteredTransactions] = useState<any[]>([]);
+    const [transactionsData, setTransactionsData] = useState<HistoryTransaction[]>([]);
+    const [filteredTransactions, setFilteredTransactions] = useState<HistoryTransaction[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
+    const [isDetailModalOpen, setIsDetailModalOpen] = useState<boolean>(false);
+    const [selectedTransaction, setSelectedTransaction] = useState<HistoryTransaction | null>(null);
+
+    const handleOpenDetail = (record: HistoryTransaction) => {
+        setSelectedTransaction(record);
+        setIsDetailModalOpen(true);
+    };
+
+    const handleCloseDetail = () => {
+        setIsDetailModalOpen(false);
+        setSelectedTransaction(null);
+    };
 
     const fetchTransactions = useCallback(async () => {
         setLoading(true);
@@ -32,16 +57,23 @@ const HistoryTransactions = () => {
     useEffect(() => {
         fetchTransactions();
     }, [fetchTransactions]);
+    console.log("transactionsData", transactionsData);
 
 
     const columns: TableProps<HistoryTransaction>["columns"] = [
+      {
+      title: "Ngày thực hiện",
+      dataIndex: "created_at",
+      key: "created_at",
+      render: (text) => <p className="text-blue-500 font-bold">{formatDateTime(text)}</p>,
+      sorter: (a, b) => a.created_at.localeCompare(b.created_at),
+      defaultSortOrder: "ascend",
+    },
     {
       title: "Hành động",
       dataIndex: "action",
       key: "action",
-      render: (text) => <a>{text}</a>,
-      sorter: (a, b) => a.action.localeCompare(b.action),
-      defaultSortOrder: "ascend",
+      render: (text) => <p className="text-green-600">{text}</p>,
     },
     {
       title: "Chi nhánh",
@@ -57,8 +89,29 @@ const HistoryTransactions = () => {
       title: "Vai trò",
       dataIndex: "accounts.role",
       key: "accounts.role",
-      render: (text) => <p>{text === "manager" ? "Quản lý" : text === "staff" ? "Nhân viên" : text === "customer" ? "Khách hàng" : text}</p>,
-    }
+      render: (_,  record) => <p>{record.accounts?.role === "manager" ? "Quản lý" : record.accounts?.role === "staff" ? "Nhân viên" : record.accounts?.role === "customer" ? "Khách hàng" : record.accounts?.role === "admin" ? "Quản trị viên" : record.accounts?.role}</p>,
+    },
+    {
+        title: "Mô tả",
+        key: "description",
+        render: (_, record) => <p>{record.description}</p>
+    },
+    {
+        title: "Mục tiêu",
+        key: "target_type",
+        render: (_, record) => <p>{record.target_type}</p>
+    },
+    {
+      title: "Hành động",
+      key: "action_buttons",
+      render: (_, record) => (
+        <Space size="middle">
+          <Button onClick={() => handleOpenDetail(record)} type="dashed">
+            Chi tiết
+          </Button>
+        </Space>
+      ),
+    },
   ];
   return (
       <div className="p-7 flex flex-col gap-5 ">
@@ -135,8 +188,15 @@ const HistoryTransactions = () => {
             dataSource={filteredTransactions}
             loading={loading}
             pagination={{ pageSize: 5 }}
+            rowKey="id"
           />
         </div>
+
+        <HistoryTransactionDetailModal 
+            open={isDetailModalOpen} 
+            onClose={handleCloseDetail} 
+            transaction={selectedTransaction} 
+        />
       </div>
     );
 }

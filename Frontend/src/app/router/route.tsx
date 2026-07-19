@@ -31,6 +31,7 @@ import BookingHistory from "@/features/client/profile/pages/bookingHistory";
 import BookingDetails from "@/features/client/profile/pages/bookingDetails";
 import UserProfile from "@/features/client/profile/pages/userProfile";
 import HistoryTransactions from "@/features/admin/adminHistoryTransaction/pages/HistoryTransactions";
+import CancellationRequest from "@/features/manager/managerCancellationRequest/pages/CancellationRequest";
 
 const route = () => {
   return (
@@ -49,6 +50,7 @@ const route = () => {
           <Route path="rooms/type/:typeId" element={<ClientRoomTypeDetail />} />
 
           <Route path="booking/:id" element={<ClientBooking />} />
+          <Route path="booking/room-type/:typeId" element={<ClientBooking />} />
           <Route path="booking/success" element={<BookingSuccess />} />
 
           
@@ -84,6 +86,7 @@ const route = () => {
             <Route path="bookings/:id" element={<StaffBookingDetails />} />
             <Route path="bookings/:id/invoice" element={<StaffInvoicePage />} />
             <Route path="payment/success" element={<StaffPaymentSuccess />} />
+            <Route path="cancellation-requests" element={<CancellationRequest />} />
           </Route>
         </Route>
 
@@ -96,6 +99,7 @@ const route = () => {
             <Route path="bookings/:id/invoice" element={<StaffInvoicePage />} />
             <Route path="payment/success" element={<StaffPaymentSuccess />} />
             <Route path="management-employees" element={<ManagementEmployees />} />
+            <Route path="cancellation-requests" element={<CancellationRequest />} />
           </Route>
         </Route>
       </Routes>

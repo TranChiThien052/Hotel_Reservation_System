@@ -6,6 +6,7 @@ import { roomPricesApi } from '@/features/admin/adminRoomsPrices/api/roomPrices-
 import { promotionApi } from '@/features/admin/adminPromitions/api/promotion-api';
 import { bookingApi } from '@/features/staff/staffBooking/api/booking-api';
 import { customersApi } from '@/features/admin/adminCustomers/api/customers-api';
+import { roomsAvailableApi } from '@/features/client/rooms/api/rooms-api';
 import type { RoomItem, RoomImage, RoomType, RoomPrice } from '@/app/layout/components/client/room';
 import { useAppSelector } from '@/app/store/hooks';
 import { IoArrowBack, IoCheckmarkCircle } from 'react-icons/io5';
@@ -75,8 +76,11 @@ const StepBar = ({ current }: { current: number }) => (
 
 
 const ClientBooking = () => {
-    const { id } = useParams<{ id: string }>();
+    const { id, typeId } = useParams<{ id?: string; typeId?: string }>();
     const navigate = useNavigate();
+
+    // Chế độ: theo roomId (id) hoặc theo roomTypeId (typeId)
+    const isByType = !!typeId && !id;
 
     const authUser = useAppSelector((state) => state.auth.user);
     const isLoggedIn = !!authUser;
@@ -86,10 +90,14 @@ const ClientBooking = () => {
     const [customerProfile, setCustomerProfile] = useState<Customer | null>(null);
 
     const [room, setRoom] = useState<RoomItem | null>(null);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(!isByType); // Nếu theo typeId, không load room ngay
     const [step, setStep] = useState(0);
     const [submitting, setSubmitting] = useState(false);
     const [errorMsg, setErrorMsg] = useState('');
+
+    // State kiểm tra phòng trống (chỉ dùng khi isByType)
+    const [availabilityChecking, setAvailabilityChecking] = useState(false);
+    const [availabilityError, setAvailabilityError] = useState('');
 
     // Hình thức thanh toán
     const [paymentMode, setPaymentMode] = useState<'full' | 'deposit'>('full');
@@ -162,6 +170,35 @@ const ClientBooking = () => {
 
 
     const fetchRoom = useCallback(async () => {
+        // Nếu theo typeId, sẽ load room type info (không cần specific roomId)
+        if (isByType && typeId) {
+            setLoading(true);
+            try {
+                const [rtData, allPrices] = await Promise.all([
+                    roomTypesApi.getRoomTypeById(typeId),
+                    roomPricesApi.getAllRoomprices(),
+                ]);
+                const rpList: RoomPrice[] = Array.isArray(allPrices) ? allPrices : [];
+                const foundPrice = rpList.find((rp: any) => rp.room_type_id === typeId) ?? null;
+                // Tạo 1 RoomItem giả để tái dùng UI (room_types, room_price)
+                setRoom({
+                    id: '',
+                    room_number: '',
+                    floor: 0,
+                    status: 'available',
+                    branch_id: rtData.branch_id ?? '',
+                    room_type_id: typeId,
+                    room_types: { ...rtData, roomImages: rtData.roomImages ?? [] },
+                    room_price: foundPrice,
+                } as any);
+            } catch (err) {
+                console.error('Lỗi khi lấy thông tin loại phòng:', err);
+            } finally {
+                setLoading(false);
+            }
+            return;
+        }
+
         if (!id) return;
         setLoading(true);
         try {
@@ -185,7 +222,7 @@ const ClientBooking = () => {
         } finally {
             setLoading(false);
         }
-    }, [id]);
+    }, [id, typeId, isByType]);
 
     const fetchCustomerProfile = useCallback(async () => {
         if (!authUser?.customers?.id) return;
@@ -199,7 +236,40 @@ const ClientBooking = () => {
 
     useEffect(() => { fetchRoom(); }, [fetchRoom]);
     useEffect(() => { fetchCustomerProfile(); }, [fetchCustomerProfile]);
-    console.log("customerProfile", customerProfile);
+
+    // Hàm kiểm tra phòng trống và chọn phòng tự động (chỉ dùng khi isByType)
+    const handleCheckAvailabilityAndNext = async () => {
+        if (!room || !isByType) {
+            setStep(1);
+            return;
+        }
+        setAvailabilityChecking(true);
+        setAvailabilityError('');
+        try {
+            const finalCheckin = booking_type === 'daily' ? checkin_at : hourlyCheckin;
+            const finalCheckout = booking_type === 'daily' ? checkout_at : hourlyCheckout;
+
+            const result = await roomsAvailableApi.getRoomsAvailable({
+                branch_id: room.branch_id,
+                checkin: finalCheckin,
+                checkout: finalCheckout,
+                room_type_id: typeId,
+            });
+
+            console.log("result", result);
+
+            if (result === 0) {
+                setAvailabilityError('Không còn phòng trống trong khoảng thời gian này. Vui lòng chọn ngày khác.');
+                return;
+            }
+            setStep(1);
+        } catch (err) {
+            console.error('Lỗi kiểm tra phòng trống:', err);
+            setAvailabilityError('Không thể kiểm tra phòng trống. Vui lòng thử lại.');
+        } finally {
+            setAvailabilityChecking(false);
+        }
+    };
 
     const handleApplyDiscount = async () => {
         if (!discountCode.trim()) return;
@@ -715,14 +785,27 @@ const ClientBooking = () => {
                     </div>
                   </div>
 
-                  <div className="flex justify-end pt-2">
-                    <button
-                      disabled={!step0Valid}
-                      onClick={() => setStep(1)}
-                      className="bg-amber-500 hover:bg-amber-600 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-bold px-8 py-2.5 rounded-xl transition-colors cursor-pointer"
-                    >
-                      Tiếp theo →
-                    </button>
+                  <div className="flex flex-col gap-3 pt-2">
+                    {/* Thông báo lỗi phòng trống */}
+                    {availabilityError && (
+                      <div className="flex items-start gap-2 text-sm text-red-700 bg-red-50 border border-red-200 px-4 py-3 rounded-xl">
+                        <span className="mt-0.5 text-red-500">⚠</span>
+                        <span>{availabilityError}</span>
+                      </div>
+                    )}
+                    <div className="flex justify-end">
+                      <button
+                        disabled={!step0Valid || availabilityChecking}
+                        onClick={handleCheckAvailabilityAndNext}
+                        className="bg-amber-500 hover:bg-amber-600 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-bold px-8 py-2.5 rounded-xl transition-colors cursor-pointer flex items-center gap-2"
+                      >
+                        {availabilityChecking ? (
+                          <><span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> Đang kiểm tra...</>
+                        ) : (
+                          'Tiếp theo →'
+                        )}
+                      </button>
+                    </div>
                   </div>
                 </div>
               )}

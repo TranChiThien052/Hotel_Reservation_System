@@ -14,7 +14,7 @@ import {
 } from 'react-icons/md';
 import { HiOutlineClock, HiOutlineXCircle } from 'react-icons/hi';
 import { BsDoorOpen, BsDoorClosed, BsReceipt } from 'react-icons/bs';
-import RefundModal, { calcRefund } from './RefundModal';
+import RefundModal, { calcRefund } from '../components/RefundModal';
 
 
 const formatVND = (n: number | string) =>

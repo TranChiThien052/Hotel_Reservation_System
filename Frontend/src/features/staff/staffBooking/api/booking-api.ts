@@ -26,8 +26,8 @@ export const bookingApi = {
         const res = await apiClient.get(`/bookings/branch/${branchId}`);
         return res.data;
     },
-    getBookingsByCustomerId: async (customerId: string) => {
-        const res = await apiClient.get(`/bookings/customer/${customerId}`);
+    getBookingsByCustomerId: async (id: string) => {
+        const res = await apiClient.get(`/bookings/customer/${id}`);
         return res.data;
     }
 }

@@ -2,8 +2,8 @@ import apiClient from "@/shared/lib/axios";
 
 export interface GetRoomsAvailableParams {
   branch_id: string;
-  checkin_at: string;
-  checkout_at: string;
+  checkin: string;
+  checkout: string;
   room_type_id?: string; 
 }
 

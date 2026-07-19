@@ -288,7 +288,7 @@ const StaffInvoicePage = () => {
                                         }}
                                         block
                                     >
-                                        💵 Thanh toán Tiền mặt
+                                        Thanh toán Tiền mặt
                                     </Button>
                                     <Button
                                         size="large" icon={<MobileOutlined />}
@@ -300,7 +300,7 @@ const StaffInvoicePage = () => {
                                         }}
                                         block
                                     >
-                                        📱 Thanh toán ZaloPay
+                                        Thanh toán ZaloPay
                                     </Button>
                                 </div>
                             </div>

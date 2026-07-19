@@ -1,10 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { roomTypesApi } from '@/features/admin/adminRoomTypes/api/roomTypes-api';
-import { roomsApi } from '@/features/admin/adminRooms/api/rooms-api';
 import { roomPricesApi } from '@/features/admin/adminRoomsPrices/api/roomPrices-api';
 import type { RoomType } from '@/features/admin/adminRoomTypes/types/roomsType-type';
-import type { RoomItem } from '@/app/layout/components/client/room';
 import { MdStar, MdStarHalf, MdStarBorder } from 'react-icons/md';
 import { FaRegUser, FaChevronLeft, FaChevronRight } from 'react-icons/fa6';
 import { IoArrowBack } from 'react-icons/io5';
@@ -30,7 +28,6 @@ const ClientRoomTypeDetail = () => {
     const navigate = useNavigate();
 
     const [roomType, setRoomType] = useState<RoomType | null>(null);
-    const [rooms, setRooms] = useState<RoomItem[]>([]);
     const [price, setPrice] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const [activeImg, setActiveImg] = useState(0);
@@ -39,19 +36,12 @@ const ClientRoomTypeDetail = () => {
         if (!typeId) return;
         setLoading(true);
         try {
-            const [rtData, allRooms, allPrices] = await Promise.all([
+            const [rtData, allPrices] = await Promise.all([
                 roomTypesApi.getRoomTypeById(typeId),
-                roomsApi.getAllRooms(),
                 roomPricesApi.getAllRoomprices(),
             ]);
 
             setRoomType(rtData);
-
-            // Lọc phòng thuộc loại này, còn hoạt động
-            const relatedRooms: RoomItem[] = (Array.isArray(allRooms) ? allRooms : []).filter(
-                (r: any) => r.room_type_id === typeId && r.is_active !== false
-            );
-            setRooms(relatedRooms);
 
             // Giá
             const foundPrice = (Array.isArray(allPrices) ? allPrices : []).find(
@@ -97,9 +87,10 @@ const ClientRoomTypeDetail = () => {
         ? Math.round(priceNum / (1 - weekendRate / 100))
         : null;
 
-    // Phòng đang trống (available)
-    const availableRooms = rooms.filter((r) => r.status === 'available');
-    console.log('Available rooms:', rooms);
+    // Chuyển sang trang booking theo loại phòng, kiểm tra phòng trống sẽ thực hiện tại đó
+    const handleBooking = () => {
+        if (typeId) navigate(`/booking/room-type/${typeId}`);
+    };
 
     return (
         <div className="min-h-screen bg-gray-50">
@@ -230,29 +221,24 @@ const ClientRoomTypeDetail = () => {
                             )}
 
                             <div className="border-t border-gray-100 pt-4 flex flex-col gap-3">
-                                
+                                {/* Ghi chú */}
+                                <div className="text-xs text-gray-400 bg-gray-50 border border-gray-100 rounded-xl px-4 py-3 leading-relaxed">
+                                    <p>✓ Ngày nhận / trả phòng được chọn ở bước tiếp theo</p>
+                                    <p>✓ Hệ thống sẽ kiểm tra phòng trống sau khi bạn chọn ngày</p>
+                                    <p>✓ Phòng phù hợp sẽ được chọn tự động</p>
+                                </div>
 
                                 {/* Nút đặt phòng */}
                                 <button
-                                    disabled={availableRooms.length === 0}
-                                    onClick={() => {
-                                        const firstRoom = availableRooms[0];
-                                        if (firstRoom) navigate(`/booking/${firstRoom.id}`);
-                                    }}
-                                    className={`w-full py-3.5 rounded-xl font-bold text-base transition-all duration-200 ${
-                                        availableRooms.length > 0
-                                            ? 'bg-amber-500 hover:bg-amber-600 text-white shadow-md hover:shadow-lg active:scale-[0.98] cursor-pointer'
-                                            : 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                                    }`}
+                                    onClick={handleBooking}
+                                    className="w-full py-3.5 rounded-xl font-bold text-base transition-all duration-200 bg-amber-500 hover:bg-amber-600 text-white shadow-md hover:shadow-lg active:scale-[0.98] cursor-pointer"
                                 >
-                                    {availableRooms.length > 0 ? 'Đặt phòng ngay' : 'Hết phòng'}
+                                    Đặt phòng ngay
                                 </button>
 
-                                {availableRooms.length > 0 && (
-                                    <p className="text-xs text-center text-gray-400">
-                                        Phòng sẽ được chọn tự động · Xác nhận ở bước tiếp theo
-                                    </p>
-                                )}
+                                <p className="text-xs text-center text-gray-400">
+                                    Kiểm tra phòng trống & xác nhận ở bước tiếp theo
+                                </p>
                             </div>
 
                         </div>
