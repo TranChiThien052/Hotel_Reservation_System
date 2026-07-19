@@ -216,25 +216,5 @@ router.get('/target-type/:target_type', (req, res) => {
  *         description: Successful operation
  */
 router.post('/', HistoryTransactionController.createTransaction);
-/**
- * @swagger
- * /history-transactions/{id}:
- *   delete:
- *     summary: Delete record
- *     tags: [HistoryTransaction]
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *         description: The id parameter
- *     responses:
- *       200:
- *         description: Successful operation
- */
-router.delete('/:id', (req, res) => {
-    authorize(req, res, ["manager", "admin"], () => HistoryTransactionController.deleteTransaction(req, res))
-});
 
 export default router;
