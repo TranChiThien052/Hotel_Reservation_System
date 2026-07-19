@@ -22,7 +22,7 @@ const router = express.Router();
  *         description: Successful operation
  */
 router.get('/bookings/:id', (req, res) => {
-    authorize(req, res, ["customer", "staff", "manager", "admin"], BookingServiceController.getBookingServicesByBookingId(req, res))
+    authorize(req, res, ["customer", "staff", "manager", "admin"], () => BookingServiceController.getBookingServicesByBookingId(req, res))
 });
 /**
  * @swagger
@@ -35,7 +35,7 @@ router.get('/bookings/:id', (req, res) => {
  *         description: Successful operation
  */
 router.get('/', (req, res) => {
-    authorize(req, res, ["staff", "manager", "admin"], BookingServiceController.getAllBookingServices(req, res))
+    authorize(req, res, ["customer", "staff", "manager", "admin"], () => BookingServiceController.getAllBookingServices(req, res))
 });
 /**
  * @swagger
@@ -55,7 +55,7 @@ router.get('/', (req, res) => {
  *         description: Successful operation
  */
 router.get('/:id', (req, res) => {
-    authorize(req, res, ["staff", "manager", "admin"], BookingServiceController.getBookingServiceById(req, res))
+    authorize(req, res, ["customer", "staff", "manager", "admin"], () => BookingServiceController.getBookingServiceById(req, res))
 });
 /**
  * @swagger
@@ -74,7 +74,7 @@ router.get('/:id', (req, res) => {
  *         description: Successful operation
  */
 router.post('/', (req, res) => {
-    authorize(req, res, ["customer", "staff", "manager", "admin"], BookingServiceController.createBookingService(req, res))
+    authorize(req, res, ["customer", "staff", "manager", "admin"], () => BookingServiceController.createBookingService(req, res))
 });
 /**
  * @swagger
@@ -100,7 +100,7 @@ router.post('/', (req, res) => {
  *         description: Successful operation
  */
 router.put('/:id', (req, res) => {
-    authorize(req, res, ["staff", "manager", "admin"], BookingServiceController.updateBookingService(req, res))
+    authorize(req, res, ["staff", "manager", "admin"], () => BookingServiceController.updateBookingService(req, res))
 });
 /**
  * @swagger
@@ -120,7 +120,7 @@ router.put('/:id', (req, res) => {
  *         description: Successful operation
  */
 router.delete('/:id', (req, res) => {
-    authorize(req, res, ["staff", "manager", "admin"], BookingServiceController.deleteBookingService(req, res))
+    authorize(req, res, ["staff", "manager", "admin"], () => BookingServiceController.deleteBookingService(req, res))
 });
 
 export default router;
