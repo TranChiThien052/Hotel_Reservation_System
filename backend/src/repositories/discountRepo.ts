@@ -26,6 +26,17 @@ class DiscountRepository {
         });
     };
 
+    async getDiscountByBranchId(id) {
+        return await prisma.discounts.findMany({
+            where: {
+                OR: [
+                    { branch_id: id },
+                    { branch_id: null }
+                ]
+            }
+        })
+    }
+
     async createDiscount(data) {
         return await prisma.discounts.create({
             data,

@@ -14,9 +14,7 @@ const router = express.Router();
  *       200:
  *         description: Danh sách chi nhánh
  */
-router.get('/', (req, res) => {
-    authorize(req, res, ["customer", "staff", "manager", "admin"], () => BranchController.getAllBranches(req, res))
-});
+router.get('/', BranchController.getAllBranches);
 
 /**
  * @swagger
