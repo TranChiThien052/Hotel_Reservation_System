@@ -1,5 +1,6 @@
 import CustomerRepository from '../repositories/customerRepo';
 import { Validator, ValidationError } from '../middlewares/validateData';
+import historyTransactionServices from './historyTransactionServices';
 
 class CustomerService {
     async getAllCustomers() {
@@ -64,7 +65,19 @@ class CustomerService {
             throw new ValidationError('400', "ID Card Number already exists");
         }
 
-        return await CustomerRepository.createCustomer(validatedData);
+        try {
+            const result = await CustomerRepository.createCustomer(validatedData);
+            if (result)
+                await historyTransactionServices.createCreateTransaction(
+                    data.log_account_id ?? null,
+                    "Customer",
+                    result.id,
+                    result
+                )
+            return result;
+        } catch (error: any) {
+            throw new Error(error)
+        }
     };
 
     async updateCustomer(id, data) {
@@ -126,7 +139,22 @@ class CustomerService {
             throw new ValidationError('404', "Customer not found");
         }
 
-        return await CustomerRepository.updateCustomer(id, validatedData);
+        try {
+            const before = await CustomerRepository.getCustomerById(id);
+            const result = await CustomerRepository.updateCustomer(id, validatedData);
+            if (result)
+                await historyTransactionServices.createUpdateTransaction(
+                    data.log_account_id ?? null,
+                    "Customer",
+                    id,
+                    before,
+                    result,
+                    Object.keys(validatedData)
+                )
+            return result;
+        } catch (error: any) {
+            throw new Error(error);
+        }
     };
 
     async deleteCustomer(id) {

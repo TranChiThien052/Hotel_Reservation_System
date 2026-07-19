@@ -107,8 +107,22 @@ class HistoryTransactionService {
         return response;
     }
 
-    async deleteTransaction(id) {
-        return await HistoryTransactionRepository.deleteTransaction(id);
+    async createDeleteTransaction(account_id, target_type, target_id, deleted) {
+        const result = await HistoryTransactionRepository.createTransaction({
+            account_id,
+            action: "delete",
+            target_type,
+            target_id,
+            description: `Delete ${target_type} with id ${target_id}`,
+            metadata: {
+                deleted
+            }
+        });
+        const response = {
+            ...result,
+            id: result.id.toString(),
+        }
+        return response;
     };
 }
 

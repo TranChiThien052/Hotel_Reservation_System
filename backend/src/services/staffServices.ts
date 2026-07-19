@@ -2,6 +2,7 @@ import StaffRepository from '../repositories/staffRepo';
 import AccountRepository from '../repositories/accountRepo';
 import BranchRepository from '../repositories/branchRepo';
 import { Validator, ValidationError } from '../middlewares/validateData';
+import historyTransactionServices from './historyTransactionServices';
 
 class StaffService {
     async getAllStaff() {
@@ -68,7 +69,20 @@ class StaffService {
             throw new ValidationError('400', "Phone number already exists");
         }
 
-        return await StaffRepository.createStaff(validatedData);
+        try {
+            const result = await StaffRepository.createStaff(validatedData);
+            if (result) {
+                await historyTransactionServices.createCreateTransaction(
+                    validatedData.log_account_id,
+                    "Staff",
+                    result.account_id,
+                    result
+                );
+            }
+            return result;
+        } catch (error: any) {
+            throw new Error(error);
+        }
     };
 
     async updateStaff(id, data) {
@@ -114,6 +128,7 @@ class StaffService {
             throw new ValidationError('404', "Staff not found");
         }
 
+        const before = await StaffRepository.getStaffById(id);
         const result = await StaffRepository.updateStaff(id, validatedData);
 
         if (result) {
@@ -122,6 +137,17 @@ class StaffService {
                 ...(validatedData.branch_id && { branch_id: validatedData.branch_id }),
             };
             await AccountRepository.updateAccount(result.account_id, updateData);
+        }
+
+        if (result) {
+            await historyTransactionServices.createUpdateTransaction(
+                data.log_account_id,
+                "Staff",
+                result.account_id,
+                before,
+                result,
+                Object.keys(validatedData)
+            );
         }
 
         return result;

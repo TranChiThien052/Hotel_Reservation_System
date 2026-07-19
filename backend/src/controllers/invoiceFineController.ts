@@ -38,7 +38,7 @@ class InvoiceFineController {
 
     async createInvoiceFine(req, res) {
         const { invoice_id, fine_item_id, description, amount, added_by } = req.body;
-        const data = { invoice_id, fine_item_id, description, amount, added_by };
+        const data = { invoice_id, fine_item_id, description, amount, added_by, log_account_id: req.user?.account_id };
         return await InvoiceFineService.createInvoiceFine(data)
             .then(fine => res.status(201).json(fine))
             .catch(error => {
@@ -52,7 +52,7 @@ class InvoiceFineController {
     async updateInvoiceFine(req, res) {
         const { id } = req.params;
         const { fine_item_id, description, amount, added_by } = req.body;
-        const data = { fine_item_id, description, amount, added_by };
+        const data = { fine_item_id, description, amount, added_by, log_account_id: req.user?.account_id };
         return await InvoiceFineService.updateInvoiceFine(id, data)
             .then(fine => res.status(200).json(fine))
             .catch(error => {

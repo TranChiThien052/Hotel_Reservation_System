@@ -1,6 +1,7 @@
 import FineItemRepository from '../repositories/fineItemRepo';
 import BranchRepository from '../repositories/branchRepo';
 import { Validator, ValidationError } from '../middlewares/validateData';
+import historyTransactionServices from './historyTransactionServices';
 
 class FineItemService {
     async getAllFineItems() {
@@ -62,7 +63,19 @@ class FineItemService {
             throw new ValidationError('400', validator.clearError());
         }
 
-        return await FineItemRepository.createFineItem(validatedData);
+        try {
+            const result = await FineItemRepository.createFineItem(validatedData);
+            if (result)
+                await historyTransactionServices.createCreateTransaction(
+                    data.log_account_id ?? null,
+                    "Fine Item",
+                    result.id,
+                    result
+                )
+            return result;
+        } catch (error: any) {
+            throw new Error(error);
+        }
     };
 
     async updateFineItem(id, data) {
@@ -114,7 +127,24 @@ class FineItemService {
             throw new ValidationError('400', validator.clearError());
         }
 
-        return await FineItemRepository.updateFineItem(id, validatedData);
+        try {
+            const before = await FineItemRepository.getFineItemById(id);
+            const after = await FineItemRepository.updateFineItem(id, validatedData);
+
+            if (after)
+                await historyTransactionServices.createUpdateTransaction(
+                    data.log_account_id ?? null,
+                    "Fine Item",
+                    id,
+                    before,
+                    after,
+                    Object.keys(validatedData)
+                )
+
+            return after;
+        } catch (error: any) {
+            throw new Error(error)
+        }
     };
 
     async deleteFineItem(id) {

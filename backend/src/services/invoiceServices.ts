@@ -4,6 +4,7 @@ import BookingServiceRepository from '../repositories/bookingServiceRepo';
 import AccountRepository from '../repositories/accountRepo'
 import { Validator, ValidationError } from '../middlewares/validateData';
 import { generateInvoiceCode } from '../middlewares/generator';
+import historyTransactionServices from './historyTransactionServices';
 
 class InvoiceService {
     async getAllInvoices() {
@@ -87,7 +88,19 @@ class InvoiceService {
             validatedData.invoice_code = generateInvoiceCode();
         }
 
-        return await InvoiceRepository.createInvoice(validatedData);
+        try {
+            const result = await InvoiceRepository.createInvoice(validatedData);
+            if (result)
+                await historyTransactionServices.createCreateTransaction(
+                    data.log_account_id,
+                    "Invoice",
+                    result.id,
+                    result
+                );
+            return result;
+        } catch (error: any) {
+            throw new Error(error);
+        }
     };
 
     async updateInvoice(id, data) {
@@ -133,7 +146,22 @@ class InvoiceService {
             throw new ValidationError('400', validator.clearError());
         }
 
-        return await InvoiceRepository.updateInvoice(id, validatedData);
+        try {
+            const before = await InvoiceRepository.getInvoiceById(id);
+            const after = await InvoiceRepository.updateInvoice(id, validatedData);
+            if (after)
+                await historyTransactionServices.createUpdateTransaction(
+                    data.log_account_id,
+                    "Invoice",
+                    id,
+                    before,
+                    after,
+                    Object.keys(validatedData)
+                );
+            return after;
+        } catch (error: any) {
+            throw new Error(error);
+        }
     };
 
     async deleteInvoice(id) {

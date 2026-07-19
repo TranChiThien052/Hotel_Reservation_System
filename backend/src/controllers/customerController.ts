@@ -21,7 +21,7 @@ class CustomerController {
 
     async createCustomer(req, res) {
         const { account_id, full_name, phone, email, id_card_number, nationality, date_of_birth, address } = req.body;
-        const data = { account_id, full_name, phone, email, id_card_number, nationality, date_of_birth, address };
+        const data = { account_id, full_name, phone, email, id_card_number, nationality, date_of_birth, address, log_account_id: req.user?.account_id };
         return await CustomerService.createCustomer(data)
             .then(customer => res.status(201).json(customer))
             .catch(error => {
@@ -35,7 +35,7 @@ class CustomerController {
     async updateCustomer(req, res) {
         const { id } = req.params;
         const { account_id, full_name, phone, email, id_card_number, nationality, date_of_birth, address } = req.body;
-        const data = { account_id, full_name, phone, email, id_card_number, nationality, date_of_birth, address };
+        const data = { account_id, full_name, phone, email, id_card_number, nationality, date_of_birth, address, log_account_id: req.user?.account_id };
         return await CustomerService.updateCustomer(id, data)
             .then(customer => res.status(200).json(customer))
             .catch(error => {

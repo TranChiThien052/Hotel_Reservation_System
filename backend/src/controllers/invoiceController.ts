@@ -38,7 +38,7 @@ class InvoiceController {
 
     async createInvoice(req, res) {
         const { booking_id, issued_by, notes } = req.body;
-        const data = { booking_id, issued_by, notes };
+        const data = { booking_id, issued_by, notes, log_account_id: req.user?.account_id };
         return await InvoiceService.createInvoice(data)
             .then(invoice => res.status(201).json(invoice))
             .catch(error => {
@@ -52,7 +52,7 @@ class InvoiceController {
     async updateInvoice(req, res) {
         const { id } = req.params;
         const { room_charge, service_charge, fine_charge, late_checkout_fee, early_checkout_fee, discount_amount, total_amount, deposit_used, amount_due, refund_amount, notes } = req.body;
-        const data = { room_charge, service_charge, fine_charge, late_checkout_fee, early_checkout_fee, discount_amount, total_amount, deposit_used, amount_due, refund_amount, notes };
+        const data = { room_charge, service_charge, fine_charge, late_checkout_fee, early_checkout_fee, discount_amount, total_amount, deposit_used, amount_due, refund_amount, notes, log_account_id: req.user?.account_id };
         return await InvoiceService.updateInvoice(id, data)
             .then(invoice => res.status(200).json(invoice))
             .catch(error => {

@@ -81,7 +81,7 @@ const router = express.Router();
  *         description: Internal server error
  */
 router.get('/customer/:id', (req, res) => {
-    authorize(req, res, ["customer", "staff", "manager", "admin"], () => BookingController.getBookingById(req, res))
+    authorize(req, res, ["customer", "staff", "manager", "admin"], () => BookingController.getBookingByCustomerId(req, res))
 });
 
 /**
