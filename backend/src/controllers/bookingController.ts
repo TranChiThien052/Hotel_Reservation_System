@@ -41,6 +41,13 @@ class BookingController {
             })
     }
 
+    async calculateBookingPrice(req, res) {
+        const { room_type_id, checkin_at, checkout_at, booking_type, branch_id } = req.body;
+        return await BookingService.calculateBookingPrice(room_type_id, checkin_at, checkout_at, booking_type, branch_id)
+            .then(price => res.status(200).json(price))
+            .catch(error => res.status(500).json({ error: error.message }));
+    }
+
     async getTodayCheckin(req, res) {
         const { id } = req.params;
         return await BookingService.getTodayCheckinCount(id)
