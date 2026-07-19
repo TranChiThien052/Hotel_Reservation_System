@@ -56,17 +56,17 @@ class HistoryTransactionController {
             });
     };
 
-    async deleteTransaction(req, res) {
-        const { id } = req.params;
-        return await HistoryTransactionService.deleteTransaction(id)
-            .then(transaction => res.status(200).json(transaction))
-            .catch(error => {
-                if (error.code === "P2025") {
-                    return res.status(404).json({ error: error.message });
-                }
-                res.status(500).json({ error: error.message });
-            });
-    };
+    // async deleteTransaction(req, res) {
+    //     const { id } = req.params;
+    //     return await HistoryTransactionService.deleteTransaction(id)
+    //         .then(transaction => res.status(200).json(transaction))
+    //         .catch(error => {
+    //             if (error.code === "P2025") {
+    //                 return res.status(404).json({ error: error.message });
+    //             }
+    //             res.status(500).json({ error: error.message });
+    //         });
+    // };
 }
 
 export default new HistoryTransactionController();
