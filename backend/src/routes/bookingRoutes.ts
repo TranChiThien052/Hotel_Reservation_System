@@ -799,6 +799,6 @@ router.delete('/:id', (req, res) => {
  *             description: Internal server error
  */
 router.get('/today/:id', (req, res) => {
-    authorize(req, res, ["staff", "manager", "admin"], BookingController.getTodayCheckin(req, res))
+    authorize(req, res, ["staff", "manager", "admin"], () => BookingController.getTodayCheckin(req, res))
 });
 export default router;
