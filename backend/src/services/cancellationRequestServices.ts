@@ -12,6 +12,15 @@ class CancellationRequestService {
         return await CancellationRequestRepository.getCancellationRequestById(id);
     };
 
+    async getCancellationRequestsByBranchId(id) {
+        const validator = new Validator();
+        if (!validator.isEmpty("Branch ID", id))
+            validator.isUUID("Branch ID", id)
+        if (validator.error.length > 0)
+            throw new ValidationError("400", validator.clearError())
+        return await CancellationRequestRepository.getCancellationRequestByBranchId(id)
+    }
+
     async createCancellationRequest(data) {
         const validatedData = {
             ...(data.booking_id && { booking_id: data.booking_id }),

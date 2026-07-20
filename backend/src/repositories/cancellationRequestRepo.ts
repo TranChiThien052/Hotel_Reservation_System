@@ -27,6 +27,15 @@ class CancellationRequestRepository {
         });
     };
 
+    async getCancellationRequestByBranchId(branch_id) {
+        return await prisma.cancellation_requests.findMany({
+            where: { bookings: { branch_id: branch_id } },
+            include: {
+                bookings: true,
+            }
+        });
+    };
+
     async getCancellationRequestsByStatus(status) {
         return await prisma.cancellation_requests.findMany({
             where: { status: status },
