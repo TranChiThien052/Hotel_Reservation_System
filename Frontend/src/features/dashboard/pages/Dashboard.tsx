@@ -15,6 +15,8 @@ import { roomsApi } from "@/features/admin/adminRooms/api/rooms-api";
 import type { Room } from "@/features/admin/adminRooms/types/rooms-type";
 import { bookingApi } from "@/features/staff/staffBooking/api/booking-api";
 import type { Booking } from "@/features/staff/staffBooking/types/booking-type";
+import { FcCancel } from "react-icons/fc";
+import type { CancellationRequestType } from "@/features/manager/managerCancellationRequest/types/cancellationRequest-type";
 
 export interface BookingToday {
   bookings: Booking[];
@@ -44,7 +46,7 @@ const formatDate = (dateStr: string) => {
   });
 };
 
-// ── Dashboard ─────────────────────────────────────────────────────────────────
+
 
 const Dashboard = () => {
   const user = useAppSelector((state) => state.auth.user);
@@ -56,6 +58,7 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [lastRefresh, setLastRefresh] = useState(new Date());
   const [todayCheckins, setTodayCheckins] = useState<Booking[]>([]);
+  const [cancelledRequests, setCancelledRequests] = useState<CancellationRequestType[]>([]);
 
   const today = new Date();
   const todayStr = today.toLocaleDateString("vi-VN", {
@@ -71,6 +74,7 @@ const Dashboard = () => {
       const [roomData, bookingData] = await Promise.all([
         roomsApi.getRoomsByBranchId(branchId),
         bookingApi.getBookingToday(branchId),
+        
       ]);
       console.log("Booking data fetched:", bookingData);
       setRooms(Array.isArray(roomData) ? roomData : []);
@@ -142,15 +146,16 @@ const Dashboard = () => {
       {/* Section 1: Room status */}
       <p className="text-[11px] font-bold uppercase tracking-widest text-gray-400 mb-3">Tình trạng phòng hôm nay</p>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-        <StatCard icon={<FaHotel />}       label="Tổng số phòng"      value={totalRooms}       color="text-blue-600"   bg="bg-blue-50" />
-        <StatCard icon={<FaBed />}         label="Đang ở"             value={occupiedRooms}    color="text-purple-600" bg="bg-purple-50" />
-        <StatCard icon={<FaCheckCircle />} label="Còn trống"          value={availableRooms}   color="text-green-600"  bg="bg-green-50" />
+        <StatCard icon={<FaHotel />} label="Tổng số phòng" value={totalRooms} color="text-blue-600" bg="bg-blue-50" />
+        <StatCard icon={<FaBed />} label="Đang ở" value={occupiedRooms} color="text-purple-600" bg="bg-purple-50" />
+        <StatCard icon={<FaCheckCircle />} label="Còn trống"value={availableRooms} color="text-green-600"  bg="bg-green-50" />
       </div>
 
       {/* Section 2: Booking stats */}
       <p className="text-[11px] font-bold uppercase tracking-widest text-gray-400 mb-3">Booking trong ngày</p>
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-        <StatCard icon={<FaSignInAlt />}  label="Tổng booking hôm nay"    value={bookings.count} color="text-emerald-600" bg="bg-emerald-50" />
+        <StatCard icon={<FaSignInAlt />}  label="Tổng booking hôm nay" value={bookings.count} color="text-emerald-600" bg="bg-emerald-50" />
+        <StatCard icon={<FcCancel />} label="Yêu cầu hủy" value={0} color="text-rose-600" bg="bg-rose-50" />
       </div>
 
       {/* Section 3: Detail lists */}
