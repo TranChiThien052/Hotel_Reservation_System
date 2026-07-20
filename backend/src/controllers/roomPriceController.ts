@@ -32,6 +32,19 @@ class RoomPriceController {
             });
     };
 
+    async getRoomPriceByBranchId(req, res) {
+        const { id } = req.params;
+        return await RoomPriceServices.getRoomPriceByBranchId(id)
+            .then(roomPrices => res.status(200).json(roomPrices))
+            .catch(error => {
+                console.log(error);
+                if (typeof parseInt(error.code) === 'number') {
+                    return res.status(parseInt(error.code)).json({ error: error.message });
+                }
+                res.status(500).json({ error: error.message });
+            });
+    }
+
     async createRoomPrice(req, res) {
         const { room_type_id, price_per_day, price_per_hour, weekend_rate, holiday_rate, effective_from, effective_to } = req.body;
         const data = { room_type_id, price_per_day, price_per_hour, weekend_rate, holiday_rate, effective_from, effective_to, log_account_id: req.user?.account_id };
