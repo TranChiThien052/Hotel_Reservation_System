@@ -119,7 +119,7 @@ class AccountController {
 
     async createCustomerAccount(req, res) {
         const { full_name, phone, email, password } = req.body;
-        const data = { full_name, phone, email, password, log_account_id: req.user.account_id };
+        const data = { full_name, phone, email, password, log_account_id: req.user?.account_id };
         return await AccountService.registerCustomerAccount(data)
             .then(response => res.status(201).json(response))
             .catch(error => {
