@@ -19,6 +19,13 @@ class CancellationRequestController {
             .catch(error => res.status(500).json({ error: error.message }));
     };
 
+    async getCancellationRequestsByBranchId(req, res) {
+        const { id } = req.params;
+        return await CancellationRequestService.getCancellationRequestsByBranchId(id)
+            .then(requests => res.status(200).json(requests))
+            .catch(error => res.status(500).json({ error: error.message }));
+    }
+
     async createCancellationRequest(req, res) {
         const { booking_id, requested_by, reason, status, refund_amount, notes } = req.body;
         const data = { booking_id, requested_by, reason, status, refund_amount, notes };
