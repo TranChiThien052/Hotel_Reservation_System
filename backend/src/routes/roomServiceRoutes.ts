@@ -7,7 +7,7 @@ const router = express.Router();
 
 /**
  * @swagger
- * /room-services/branch/{id}:
+ * /services/branch/{id}:
  *   get:
  *     summary: Get data
  *     tags: [RoomService]
@@ -21,12 +21,16 @@ const router = express.Router();
  *     responses:
  *       200:
  *         description: Successful operation
+ *       400:
+ *         description: Invalid data
+ *       500:
+ *         description: Internal Server Error
  */
-router.get('/branch/id', RoomServiceController.getServiceByBranchId);
+router.get('/branch/:id', RoomServiceController.getServiceByBranchId);
 
 /**
  * @swagger
- * /room-services:
+ * /services:
  *   get:
  *     summary: Get data
  *     tags: [RoomService]
@@ -38,7 +42,7 @@ router.get('/', RoomServiceController.getAllServices);
 
 /**
  * @swagger
- * /room-services/{id}:
+ * /services/{id}:
  *   get:
  *     summary: Get data
  *     tags: [RoomService]
@@ -57,7 +61,7 @@ router.get('/:id', RoomServiceController.getServiceById);
 
 /**
  * @swagger
- * /room-services:
+ * /services:
  *   post:
  *     summary: Create new record
  *     tags: [RoomService]
@@ -77,7 +81,7 @@ router.post('/', (req, res) => {
 
 /**
  * @swagger
- * /room-services/{id}:
+ * /services/{id}:
  *   put:
  *     summary: Update record
  *     tags: [RoomService]
@@ -104,7 +108,7 @@ router.put('/:id', (req, res) => {
 
 /**
  * @swagger
- * /room-services/{id}:
+ * /services/{id}:
  *   delete:
  *     summary: Delete record
  *     tags: [RoomService]

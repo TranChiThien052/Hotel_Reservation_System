@@ -23,7 +23,11 @@ class RoomServiceController {
         const { id } = req.params;
         return await RoomServiceServices.getServiceByBranchId(id)
             .then(services => res.status(200).json(services))
-            .catch(error => res.status(500).json({ error: error.message }));
+            .catch(error => {
+                if (typeof parseInt(error.code) === 'number')
+                    return res.status(parseInt(error.code)).json({ error: error.message });
+                return res.status(500).json({ error: error.message });
+            });
     }
 
     async createService(req, res) {
