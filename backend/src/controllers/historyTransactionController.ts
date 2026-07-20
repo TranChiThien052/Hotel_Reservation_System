@@ -19,6 +19,18 @@ class HistoryTransactionController {
             .catch(error => res.status(500).json({ error: error.message }));
     };
 
+    async getTransactionsByBranchId(req, res) {
+        const { id } = req.params;
+        return await HistoryTransactionService.getTransactionByBranchId(id)
+            .then(transactions => res.status(200).json(transactions))
+            .catch(error => {
+                if (typeof parseInt(error.code) === 'number') {
+                    return res.status(parseInt(error.code)).json({ error: error.message });
+                }
+                res.status(500).json({ error: error.message });
+            })
+    }
+
     async getTransactionsByAccountId(req, res) {
         const { id } = req.params;
         return await HistoryTransactionService.getTransactionsByAccountId(id)

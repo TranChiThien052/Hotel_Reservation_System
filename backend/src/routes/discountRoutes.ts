@@ -6,6 +6,25 @@ const router = express.Router();
 
 /**
  * @swagger
+ * /discounts/branch/{id}:
+ *   get:
+ *     summary: Get data
+ *     tags: [Discount]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The id parameter
+ *     responses:
+ *       200:
+ *         description: Successful operation
+ */
+router.get('/branch/:id', DiscountController.getDiscountByBranchId);
+
+/**
+ * @swagger
  * /discounts:
  *   get:
  *     summary: Get data

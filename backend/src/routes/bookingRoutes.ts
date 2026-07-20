@@ -6,6 +6,46 @@ const router = express.Router();
 
 /**
  * @swagger
+ * /bookings/calculate-price:
+ *   post:
+ *     summary: Calculate booking price
+ *     tags: [Booking]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               room_type_id:
+ *                 type: string
+ *                 description: Room type id
+ *               checkin_at:
+ *                 type: string
+ *                 description: Checkin at
+ *               checkout_at:
+ *                 type: string
+ *                 description: Checkout at
+ *               booking_type:
+ *                 type: string
+ *                 description: Booking type
+ *               branch_id:
+ *                 type: string
+ *                 description: Branch id
+ *     responses:
+ *       200:
+ *         description: Successful operation
+ *         content:
+ *            application/json:
+ *               schema:
+ *                  type: object
+ *                  properties:
+ *                     price:
+ *                        type: number
+ */
+router.post('/calculate-price', BookingController.calculateBookingPrice);
+/**
+ * @swagger
  * /bookings/customer/{id}:
  *   get:
  *     summary: Get data by customer id

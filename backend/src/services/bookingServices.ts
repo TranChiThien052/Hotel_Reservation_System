@@ -1,6 +1,6 @@
 import BookingRepository from '../repositories/bookingRepo';
 import { Validator, ValidationError } from '../middlewares/validateData';
-import { generateBookingCode, generateDiscountAmount, generateSubtotal } from '../middlewares/generator';
+import { calculateDynamicPrice, generateBookingCode, generateDiscountAmount } from '../middlewares/generator';
 import DiscountRepository from '../repositories/discountRepo';
 import RoomPriceRepository from '../repositories/roomPriceRepo';
 import BranchRepository from '../repositories/branchRepo';
@@ -10,6 +10,7 @@ import RoomAvailabilityService from './roomAvailabilityServices';
 import HolidayDateRepository from '../repositories/holidayDateRepo';
 import accountServices from './accountServices';
 import historyTransactionServices from './historyTransactionServices';
+import roomPriceServices from './roomPriceServices';
 
 class BookingService {
     async getAllBookings() {
@@ -34,6 +35,31 @@ class BookingService {
         if (validator.error.length > 0)
             throw new ValidationError('400', validator.clearError());
         return await BookingRepository.getBookingsByCustomerId(id);
+    }
+
+    async calculateBookingPrice(room_type_id, checkin_at, checkout_at, booking_type, branch_id) {
+        const validator = new Validator();
+        validator.isUUID("Room Type ID", room_type_id);
+        validator.isUUID("Branch ID", branch_id);
+        validator.validateDateOrder(checkin_at, checkout_at);
+        if (validator.error.length > 0)
+            throw new ValidationError('400', validator.clearError());
+        const roomPrice = await roomPriceServices.getRoomPricesByRoomTypeId(room_type_id);
+        if (!roomPrice) {
+            throw new ValidationError('404', 'Room price not found');
+        }
+
+        const holidays = await HolidayDateRepository.getHolidayDatesByBranchId(branch_id);
+        const holidayDates = holidays.map((h: any) => new Date(h.date).toDateString());
+
+        let price;
+        if (booking_type === 'daily')
+            price = roomPrice.price_per_day;
+        else price = roomPrice.price_per_hour;
+
+        const result = calculateDynamicPrice(new Date(checkin_at), new Date(checkout_at), price, roomPrice.weekend_rate, roomPrice.holiday_rate, holidayDates, booking_type);
+
+        return result;
     }
 
     async getTodayCheckinCount(branch_id) {
@@ -136,7 +162,7 @@ class BookingService {
         const holidays = await HolidayDateRepository.getHolidayDatesByBranchId(validatedData.branch_id);
         const holidayDates = holidays.map((h: any) => new Date(h.date).toDateString());
 
-        validatedData.subtotal = RoomAvailabilityService.calculateDynamicPrice(
+        validatedData.subtotal = calculateDynamicPrice(
             validatedData.checkin_at,
             validatedData.checkout_at,
             Number(validatedData.room_price_snapshot),
@@ -294,11 +320,19 @@ class BookingService {
             throw new ValidationError('400', validator.clearError());
         }
 
-        validatedData.subtotal = generateSubtotal(
-            validatedData.room_price_snapshot || existingBooking.room_price_snapshot,
-            validatedData.checkin_at || existingBooking.checkin_at,
-            validatedData.checkout_at || existingBooking.checkout_at,
-            validatedData.booking_type || existingBooking.booking_type
+        const roomPrice = await RoomPriceRepository.getRoomPricesByRoomTypeId(validatedData.room_type_id);
+
+        const holidays = await HolidayDateRepository.getHolidayDatesByBranchId(validatedData.branch_id);
+        const holidayDates = holidays.map((h: any) => new Date(h.date).toDateString());
+
+        validatedData.subtotal = calculateDynamicPrice(
+            validatedData.checkin_at,
+            validatedData.checkout_at,
+            Number(validatedData.room_price_snapshot),
+            Number(roomPrice?.weekend_rate),
+            Number(roomPrice?.holiday_rate),
+            holidayDates,
+            validatedData.booking_type
         );
 
         validatedData.total_amount = validatedData.subtotal;

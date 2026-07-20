@@ -37,6 +37,42 @@ class HistoryTransactionRepository {
         });
     };
 
+    async getTransactionByBranchId(id) {
+        return await prisma.history_transaction.findMany({
+            where: { accounts: { branch_id: id } },
+            select: {
+                id: true,
+                action: true,
+                target_type: true,
+                target_id: true,
+                description: true,
+                metadata: true,
+                created_at: true,
+                accounts: {
+                    select: {
+                        id: true,
+                        customers: {
+                            select: {
+                                full_name: true,
+                            }
+                        },
+                        staff: {
+                            select: {
+                                full_name: true,
+                            }
+                        },
+                        branches: {
+                            select: {
+                                name: true,
+                            }
+                        },
+                        role: true,
+                    }
+                }
+            }
+        });
+    }
+
     async getTransactionById(id) {
         return await prisma.history_transaction.findUnique({
             where: { id: id },

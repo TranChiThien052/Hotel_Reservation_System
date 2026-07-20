@@ -19,6 +19,13 @@ class DiscountController {
             .catch(error => res.status(500).json({ error: error.message }));
     };
 
+    async getDiscountByBranchId(req, res) {
+        const { id } = req.params;
+        return await DiscountService.getDiscountByBranchId(id)
+            .then(discounts => res.status(200).json(discounts))
+            .catch(error => res.status(500).json({ error }));
+    };
+
     async createDiscount(req, res) {
         const { branch_id, code, description, discount_type, discount_value, min_order_value, usage_limit, valid_from, valid_to, is_active } = req.body;
         const data = { branch_id, code, description, discount_type, discount_value, min_order_value, usage_limit, valid_from, valid_to, is_active, log_account_id: req.user?.account_id };
