@@ -4,6 +4,26 @@ import { authorize } from '../middlewares/authorizer';
 
 const router = express.Router();
 
+
+/**
+ * @swagger
+ * /room-services/branch/{id}:
+ *   get:
+ *     summary: Get data
+ *     tags: [RoomService]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The id parameter
+ *     responses:
+ *       200:
+ *         description: Successful operation
+ */
+router.get('/branch/id', RoomServiceController.getServiceByBranchId);
+
 /**
  * @swagger
  * /room-services:
@@ -14,9 +34,7 @@ const router = express.Router();
  *       200:
  *         description: Successful operation
  */
-router.get('/', (req, res) => {
-    authorize(req, res, ["customer", "staff", "manager", "admin"], () => RoomServiceController.getAllServices(req, res))
-});
+router.get('/', RoomServiceController.getAllServices);
 
 /**
  * @swagger
@@ -35,9 +53,7 @@ router.get('/', (req, res) => {
  *       200:
  *         description: Successful operation
  */
-router.get('/:id', (req, res) => {
-    authorize(req, res, ["customer", "staff", "manager", "admin"], () => RoomServiceController.getServiceById(req, res))
-});
+router.get('/:id', RoomServiceController.getServiceById);
 
 /**
  * @swagger

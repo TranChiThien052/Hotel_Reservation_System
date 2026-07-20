@@ -19,6 +19,13 @@ class RoomServiceController {
             .catch(error => res.status(500).json({ error: error.message }));
     };
 
+    async getServiceByBranchId(req, res) {
+        const { id } = req.params;
+        return await RoomServiceServices.getServiceByBranchId(id)
+            .then(services => res.status(200).json(services))
+            .catch(error => res.status(500).json({ error: error.message }));
+    }
+
     async createService(req, res) {
         const { branch_id, name, description, price, unit, is_active } = req.body;
         const data = { branch_id, name, description, price, unit, is_active, log_account_id: req.user?.account_id };
