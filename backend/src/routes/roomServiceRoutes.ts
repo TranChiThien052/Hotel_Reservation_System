@@ -4,9 +4,33 @@ import { authorize } from '../middlewares/authorizer';
 
 const router = express.Router();
 
+
 /**
  * @swagger
- * /room-services:
+ * /services/branch/{id}:
+ *   get:
+ *     summary: Get data
+ *     tags: [RoomService]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The id parameter
+ *     responses:
+ *       200:
+ *         description: Successful operation
+ *       400:
+ *         description: Invalid data
+ *       500:
+ *         description: Internal Server Error
+ */
+router.get('/branch/:id', RoomServiceController.getServiceByBranchId);
+
+/**
+ * @swagger
+ * /services:
  *   get:
  *     summary: Get data
  *     tags: [RoomService]
@@ -14,13 +38,11 @@ const router = express.Router();
  *       200:
  *         description: Successful operation
  */
-router.get('/', (req, res) => {
-    authorize(req, res, ["customer", "staff", "manager", "admin"], () => RoomServiceController.getAllServices(req, res))
-});
+router.get('/', RoomServiceController.getAllServices);
 
 /**
  * @swagger
- * /room-services/{id}:
+ * /services/{id}:
  *   get:
  *     summary: Get data
  *     tags: [RoomService]
@@ -35,13 +57,11 @@ router.get('/', (req, res) => {
  *       200:
  *         description: Successful operation
  */
-router.get('/:id', (req, res) => {
-    authorize(req, res, ["customer", "staff", "manager", "admin"], () => RoomServiceController.getServiceById(req, res))
-});
+router.get('/:id', RoomServiceController.getServiceById);
 
 /**
  * @swagger
- * /room-services:
+ * /services:
  *   post:
  *     summary: Create new record
  *     tags: [RoomService]
@@ -61,7 +81,7 @@ router.post('/', (req, res) => {
 
 /**
  * @swagger
- * /room-services/{id}:
+ * /services/{id}:
  *   put:
  *     summary: Update record
  *     tags: [RoomService]
@@ -88,7 +108,7 @@ router.put('/:id', (req, res) => {
 
 /**
  * @swagger
- * /room-services/{id}:
+ * /services/{id}:
  *   delete:
  *     summary: Delete record
  *     tags: [RoomService]

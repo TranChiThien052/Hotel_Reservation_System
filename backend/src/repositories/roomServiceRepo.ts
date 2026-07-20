@@ -26,6 +26,17 @@ class RoomServiceRepository {
         });
     };
 
+    async getServiceByBranchId(id) {
+        return await prisma.services.findMany({
+            where: {
+                OR: [
+                    { branch_id: id },
+                    { branch_id: null }
+                ]
+            }
+        });
+    }
+
     async createService(data) {
         return await prisma.services.create({ data });
     };
