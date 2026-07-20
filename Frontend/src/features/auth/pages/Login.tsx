@@ -26,17 +26,17 @@ const Login = () => {
 
   const { loading, error } = useAppSelector((state) => state.auth);
 
-  // mode: login | register | forgot
+  
   const [mode, setMode] = useState<"login" | "register" | "forgot">("login");
   const [displayed, setDisplayed] = useState<"login" | "register" | "forgot">("login");
   const [anim, setAnim] = useState<"idle" | "out" | "in">("idle");
   const [dir, setDir] = useState<"left" | "right">("left");
 
-  // Login
+  
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
-  // Register
+  
   const [regForm, setRegForm] = useState<RegisterForm>({
     username: "",
     password: "",
@@ -46,7 +46,7 @@ const Login = () => {
   const [regError, setRegError] = useState("");
   const [regSuccess, setRegSuccess] = useState(false);
 
-  // Forgot password
+  
   const [forgotEmail, setForgotEmail] = useState("");
   const [forgotLoading, setForgotLoading] = useState(false);
   const [forgotError, setForgotError] = useState("");
@@ -54,7 +54,7 @@ const Login = () => {
 
   const switchMode = (next: "login" | "register" | "forgot") => {
     if (anim !== "idle" || mode === next) return;
-    // Xác định hướng animation
+    
     if (next === "register") setDir("left");
     else if (next === "forgot") setDir("left");
     else setDir("right");
@@ -184,15 +184,15 @@ const Login = () => {
     >
       <div className="absolute inset-0 z-0 bg-black/50" />
 
-      {/* Card */}
+      
       <div
         className={`relative z-10 w-full overflow-hidden rounded-3xl bg-white shadow-2xl transition-all duration-500 ${cardWidth}`}
       >
-        {/* Content wrapper */}
+        
         <div
           className={`transition-all duration-300 ease-in-out ${contentCls}`}
         >
-          {/* ── ĐĂNG NHẬP ────────────────────────────────────────────── */}
+          
           {displayed === "login" && (
             <div className="px-12 py-10">
               <h2 className="mb-10 text-center text-3xl font-bold tracking-wider text-gray-950">
@@ -282,7 +282,7 @@ const Login = () => {
             </div>
           )}
 
-          {/* ── ĐĂNG KÝ ──────────────────────────────────────────────── */}
+          
           {displayed === "register" && (
             <div className="px-12 py-10">
               <h2 className="mb-8 text-center text-3xl font-bold tracking-wider text-gray-950">

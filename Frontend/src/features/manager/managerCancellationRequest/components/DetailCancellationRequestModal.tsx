@@ -20,6 +20,7 @@ import type { CancellationRequestType } from "../types/cancellationRequest-type"
 import { cancellationRequestApi } from "../api/cancellationRequest-type";
 import { Option } from "antd/es/mentions";
 import TextArea from "antd/es/input/TextArea";
+import { bookingApi } from "@/features/staff/staffBooking/api/booking-api";
 
 
 
@@ -85,10 +86,26 @@ const DetailCancellationRequestModal = ({
     }
     setUpdating(true);
     try {
-      await cancellationRequestApi.update(cancellationRequest.id, {
+      const res = await cancellationRequestApi.update(cancellationRequest.id, {
         status: newStatus,
         notes: adminNote || cancellationRequest.notes,
       });
+
+      if (newStatus !== 'pending' && cancellationRequest.bookings) {
+        const currentBooking = cancellationRequest.bookings;
+        await bookingApi.updateBooking(cancellationRequest.booking_id, {
+          branch_id: currentBooking.branch_id,
+          customer_id: currentBooking.customer_id,
+          room_type_id: currentBooking.room_type_id,
+          booking_type: currentBooking.booking_type,
+          status: 'cancelled',
+          checkin_at: currentBooking.checkin_at,
+          checkout_at: currentBooking.checkout_at,
+          num_guests: Number(currentBooking.num_guests),
+          created_by: currentBooking.created_by || '',
+        });
+      }
+      
       message.success("Cập nhật trạng thái thành công!");
       setNewStatus("");
       setAdminNote("");

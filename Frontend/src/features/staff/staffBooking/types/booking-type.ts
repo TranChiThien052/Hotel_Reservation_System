@@ -66,3 +66,11 @@ export interface BookingFormData {
     created_by: string,
     notes?: string
 }
+
+export interface BookingPriceCalculationData {
+    room_type_id: string,
+    checkin_at: string,
+    checkout_at: string,
+    booking_type: string,
+    branch_id: string,
+}

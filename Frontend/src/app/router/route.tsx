@@ -32,6 +32,9 @@ import BookingDetails from "@/features/client/profile/pages/bookingDetails";
 import UserProfile from "@/features/client/profile/pages/userProfile";
 import HistoryTransactions from "@/features/admin/adminHistoryTransaction/pages/HistoryTransactions";
 import CancellationRequest from "@/features/manager/managerCancellationRequest/pages/CancellationRequest";
+import ManagerRoomPrices from "@/features/manager/managerRoomPrices/pages/ManagerRoomPrices";
+import ManagerHistoryTransactions from "@/features/manager/managerHistoryTransactions/pages/ManagerHistoryTransactions";
+import Dashboard from "@/features/dashboard/pages/Dashboard";
 
 const route = () => {
   return (
@@ -100,6 +103,9 @@ const route = () => {
             <Route path="payment/success" element={<StaffPaymentSuccess />} />
             <Route path="management-employees" element={<ManagementEmployees />} />
             <Route path="cancellation-requests" element={<CancellationRequest />} />
+            <Route path="room-prices" element={<ManagerRoomPrices />} />
+            <Route path="history-transactions" element={<ManagerHistoryTransactions />} />
+            <Route path="dashboard" element={<Dashboard />} />
           </Route>
         </Route>
       </Routes>

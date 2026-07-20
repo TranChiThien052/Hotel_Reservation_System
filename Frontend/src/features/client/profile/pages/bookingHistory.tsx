@@ -90,6 +90,8 @@ const FILTER_TABS: { key: BookingStatus; label: string }[] = [
     { key: 'cancelled', label: 'Đã hủy' },
 ];
 
+const PAGE_SIZE = 5;
+
 const BookingHistory = () => {
     const navigate = useNavigate();
     const { user, initialized } = useAppSelector((state) => state.auth);
@@ -99,6 +101,7 @@ const BookingHistory = () => {
     const [bookings, setBookings] = useState<Booking[]>([]);
     const [loading, setLoading] = useState(true);
     const [activeFilter, setActiveFilter] = useState<BookingStatus>('all');
+    const [currentPage, setCurrentPage] = useState(1);
 
     const fetchBookings = useCallback(async () => {
         if (!customerId) return;
@@ -122,13 +125,19 @@ const BookingHistory = () => {
             setLoading(false);
         }
     }, [initialized, customerId, fetchBookings]);
-    console.log('bookings', bookings);
 
     const filtered = activeFilter === 'all'
         ? bookings
         : bookings.filter((b) => b.status === activeFilter);
 
-   
+    const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
+    const paginated = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+
+    const handleFilterChange = (key: BookingStatus) => {
+        setActiveFilter(key);
+        setCurrentPage(1);
+    };
+
     if (!initialized) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -137,7 +146,6 @@ const BookingHistory = () => {
         );
     }
 
-  
     if (!isLoggedIn) {
         return (
             <div className="min-h-[80vh] bg-linear-to-br from-amber-50 to-orange-50 flex items-center justify-center px-4">
@@ -194,7 +202,7 @@ const BookingHistory = () => {
                         return (
                             <button
                                 key={tab.key}
-                                onClick={() => setActiveFilter(tab.key)}
+                                onClick={() => handleFilterChange(tab.key)}
                                 className={`shrink-0 px-4 py-2 rounded-full text-sm font-medium border transition-all cursor-pointer ${
                                     activeFilter === tab.key
                                         ? 'bg-amber-500 text-white border-amber-500 shadow-md'
@@ -246,7 +254,7 @@ const BookingHistory = () => {
                     </div>
                 ) : (
                     <div className="flex flex-col gap-4">
-                        {filtered.map((booking) => {
+                        {paginated.map((booking) => {
                             const statusCfg = STATUS_CONFIG[booking.status] ?? STATUS_CONFIG.pending;
                             const isHourly = booking.booking_type === 'hourly';
                             return (
@@ -369,6 +377,48 @@ const BookingHistory = () => {
                                 </div>
                             );
                         })}
+
+                        {/* ── Phân trang ── */}
+                        {totalPages > 1 && (
+                            <div className="flex items-center justify-between pt-4">
+                                <p className="text-sm text-gray-500">
+                                    Hiển thị{' '}
+                                    <span className="font-semibold text-gray-700">{(currentPage - 1) * PAGE_SIZE + 1}</span>
+                                    –
+                                    <span className="font-semibold text-gray-700">{Math.min(currentPage * PAGE_SIZE, filtered.length)}</span>
+                                    {' '}/ <span className="font-semibold text-gray-700">{filtered.length}</span> đơn
+                                </p>
+                                <div className="flex items-center gap-1">
+                                    <button
+                                        onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                                        disabled={currentPage === 1}
+                                        className="w-9 h-9 flex items-center justify-center rounded-xl border border-gray-200 text-gray-500 hover:border-amber-400 hover:text-amber-600 disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer"
+                                    >
+                                        ‹
+                                    </button>
+                                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                                        <button
+                                            key={page}
+                                            onClick={() => setCurrentPage(page)}
+                                            className={`w-9 h-9 flex items-center justify-center rounded-xl text-sm font-semibold border transition-all cursor-pointer ${
+                                                page === currentPage
+                                                    ? 'bg-amber-500 text-white border-amber-500 shadow-md'
+                                                    : 'border-gray-200 text-gray-600 hover:border-amber-300 hover:text-amber-600'
+                                            }`}
+                                        >
+                                            {page}
+                                        </button>
+                                    ))}
+                                    <button
+                                        onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                                        disabled={currentPage === totalPages}
+                                        className="w-9 h-9 flex items-center justify-center rounded-xl border border-gray-200 text-gray-500 hover:border-amber-400 hover:text-amber-600 disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer"
+                                    >
+                                        ›
+                                    </button>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 )}
             </div>

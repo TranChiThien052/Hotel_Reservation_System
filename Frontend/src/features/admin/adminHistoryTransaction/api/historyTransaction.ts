@@ -20,5 +20,9 @@ export const historyTransactionApi = {
   delete: async (id: string) => {
     const res = await apiClient.delete(`/history-transactions/${id}`);
     return res.data;
+  },
+  getByBranchId: async (branchId: string) => {
+    const res = await apiClient.get(`/history-transactions/branch/${branchId}`);
+    return res.data;
   }
 }

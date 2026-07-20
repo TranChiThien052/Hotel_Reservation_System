@@ -1,5 +1,5 @@
 import apiClient from "@/shared/lib/axios"
-import type { BookingFormData } from "../types/booking-type";
+import type { BookingFormData, BookingPriceCalculationData } from "../types/booking-type";
 
 export const bookingApi = {
     getAllBooking: async () => {
@@ -28,6 +28,10 @@ export const bookingApi = {
     },
     getBookingsByCustomerId: async (id: string) => {
         const res = await apiClient.get(`/bookings/customer/${id}`);
+        return res.data;
+    },
+    calculateBookingPrice: async (bookingData: BookingPriceCalculationData) => {
+        const res = await apiClient.post('/bookings/calculate-price', bookingData);
         return res.data;
     }
 }

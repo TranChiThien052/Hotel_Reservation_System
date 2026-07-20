@@ -80,11 +80,6 @@ export const roomPricesFormFields: FormField<RoomPriceFormData>[] = [
         label: "Hiệu lực từ",
         placeholder: "Chọn ngày hiệu lực từ",
         type: FormFieldTypes.DATE_PICKER,
-        componentProps: {
-          disabledDate: (current: any, values: any) => {
-            return disableStartDateNotPast(current, values?.effective_to ? dayjs(values.effective_to) : null)
-          }
-        },
         rules: [
             {
                 required: true,
@@ -106,11 +101,6 @@ export const roomPricesFormFields: FormField<RoomPriceFormData>[] = [
         label: "Hiệu lực đến",
         placeholder: "Chọn ngày hiệu lực đến",
         type: FormFieldTypes.DATE_PICKER,
-        componentProps: {
-          disabledDate: (current: any, values: any) => {
-            return disableEndDateNotPast(current, values?.effective_from ? dayjs(values.effective_from) : null)
-          }
-        },
         rules: [
             {
                 required: true,
