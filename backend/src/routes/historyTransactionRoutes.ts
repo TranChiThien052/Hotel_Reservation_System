@@ -196,6 +196,44 @@ router.get('/:id', (req, res) => {
     authorize(req, res, ["manager", "admin"], () => HistoryTransactionController.getTransactionById(req, res))
 });
 
+/**
+ * @swagger
+ * /history-transactions/branch/{id}:
+ *   get:
+ *     summary: Get data
+ *     tags: [HistoryTransaction]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The id parameter
+ *     responses:
+ *       200:
+ *         description: Successful operation
+ */
+router.get('/branch/:id', (req, res) => {
+    return authorize(req, res, ["manager", "admin"], () => HistoryTransactionController.getTransactionsByBranchId(req, res))
+});
+
+/**
+ * @swagger
+ * /history-transactions/target-type/{target_type}:
+ *   get:
+ *     summary: Get data
+ *     tags: [HistoryTransaction]
+ *     parameters:
+ *       - in: path
+ *         name: target_type
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The target_type parameter
+ *     responses:
+ *       200:
+ *         description: Successful operation
+ */
 router.get('/target-type/:target_type', (req, res) => {
     return authorize(req, res, ["manager", "admin"], () => HistoryTransactionController.getTransactionsByTargetType(req, res))
 })

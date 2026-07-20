@@ -12,6 +12,15 @@ class DiscountServices {
         return await DiscountRepository.getDiscountById(id);
     };
 
+    async getDiscountByBranchId(id) {
+        const validator = new Validator();
+        if (!validator.isEmpty("Branch Id", id))
+            validator.isUUID("Branch Id", id);
+        if (validator.error.length > 0)
+            throw new ValidationError("400", validator.clearError());
+        return await DiscountRepository.getDiscountByBranchId(id);
+    }
+
     async createDiscount(data) {
         const validatedData = {
             ...(data.branch_id && { branch_id: data.branch_id }),

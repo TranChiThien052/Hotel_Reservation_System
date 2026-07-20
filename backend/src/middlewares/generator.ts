@@ -75,12 +75,41 @@ export const generateLateCheckoutFee = (expected_checkout: Date, actual_checkout
     return unit_price;
 };
 
-export const generateSubtotal = (roomPrice: number, start: Date, end: Date, type: string) => {
-    if (type === "daily") {
-        const dayDiff = generateDayDiff(start, end);
-        return roomPrice * dayDiff;
-    } else if (type === "hourly") {
-        const hourDiff = generateHourDiff(start, end);
-        return roomPrice * hourDiff;
+export const calculateDynamicPrice = (checkin, checkout, basePrice, weekendRate, holidayRate, holidayDates, bookingType) => {
+    let total = 0;
+
+    if (bookingType === 'hourly') {
+        const hours = Math.ceil(Math.abs(checkout.getTime() - checkin.getTime()) / (1000 * 60 * 60));
+        const checkinDateStr = checkin.toDateString();
+        const dayOfWeek = checkin.getDay();
+
+        let rate = 0;
+        if (holidayDates.includes(checkinDateStr)) {
+            rate = holidayRate;
+        } else if (dayOfWeek === 0 || dayOfWeek === 6) {
+            rate = weekendRate;
+        }
+        return (basePrice + basePrice * (rate / 100)) * hours;
     }
-};
+
+    let currentDate = new Date(checkin);
+
+    while (currentDate < checkout) {
+        const dateStr = currentDate.toDateString();
+        const dayOfWeek = currentDate.getDay();
+
+        let rate = 0;
+        if (holidayDates.includes(dateStr)) {
+            rate = holidayRate;
+        } else if (dayOfWeek === 0 || dayOfWeek === 6) {
+            rate = weekendRate;
+        }
+
+        total += Number(basePrice) + Number(basePrice * (rate / 100));
+
+        currentDate.setDate(currentDate.getDate() + 1);
+    }
+
+    return total;
+}
+

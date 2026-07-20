@@ -37,9 +37,7 @@ router.get('/branch/:id', (req, res) => {
  *       200:
  *         description: Successful operation
  */
-router.get('/', (req, res) => {
-    authorize(req, res, ["customer", "staff", "manager", "admin"], () => RoomTypeController.getAllRoomTypes(req, res))
-});
+router.get('/', RoomTypeController.getAllRoomTypes);
 
 /**
  * @swagger

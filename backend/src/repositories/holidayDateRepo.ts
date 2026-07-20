@@ -13,7 +13,12 @@ class HolidayDateRepository {
 
     async getHolidayDatesByBranchId(branchId) {
         return await prisma.holiday_dates.findMany({
-            where: { branch_id: branchId },
+            where: {
+                OR: [
+                    { branch_id: branchId },
+                    { branch_id: null },
+                ],
+            },
         });
     };
 

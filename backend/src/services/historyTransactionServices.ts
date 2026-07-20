@@ -26,6 +26,24 @@ class HistoryTransactionService {
         return response;
     };
 
+    async getTransactionByBranchId(id) {
+        const validator = new Validator();
+        if (!validator.isEmpty("Branch ID", id)) {
+            validator.isUUID("Branch ID", id)
+        }
+        if (validator.error.length > 0) {
+            throw new ValidationError('400', validator.clearError());
+        }
+        const result = await HistoryTransactionRepository.getTransactionByBranchId(id);
+        const response = result.map(r => {
+            return {
+                ...r,
+                id: r.id.toString(),
+            }
+        })
+        return response;
+    }
+
     async getTransactionsByAccountId(accountId) {
         const validator = new Validator();
         if (!validator.isEmpty("Account ID", accountId)) {
