@@ -63,6 +63,26 @@ class BookingRepository {
                 status: {
                     not: 'checked_in',
                 }
+            },
+            select: {
+                id: true,
+                booking_code: true,
+                checkin_at: true,
+                checkout_at: true,
+                booking_type: true,
+                status: true,
+                num_guests: true,
+                customers: {
+                    select: {
+                        full_name: true,
+                        phone: true,
+                    }
+                },
+                room_types: {
+                    select: {
+                        name: true,
+                    }
+                }
             }
         })
     }
