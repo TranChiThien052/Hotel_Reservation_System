@@ -12,6 +12,15 @@ class RoomServiceService {
         return await RoomServiceRepository.getServiceById(id);
     };
 
+    async getServiceByBranchId(id) {
+        const validator = new Validator();
+        if (!validator.isEmpty("Branch ID", id))
+            validator.isUUID("Branch ID", id);
+        if (validator.error.length > 0)
+            throw new ValidationError('400', validator.clearError());
+        return await RoomServiceRepository.getServiceByBranchId(id);
+    }
+
     async createService(data) {
         const validatedData = {
             ...(data.branch_id && { branch_id: data.branch_id }),
