@@ -35,6 +35,7 @@ import CancellationRequest from "@/features/manager/managerCancellationRequest/p
 import ManagerRoomPrices from "@/features/manager/managerRoomPrices/pages/ManagerRoomPrices";
 import ManagerHistoryTransactions from "@/features/manager/managerHistoryTransactions/pages/ManagerHistoryTransactions";
 import Dashboard from "@/features/dashboard/pages/Dashboard";
+import ManagerRoomTypes from "@/features/manager/managementRoomTypes/pages/ManagerRoomTypes";
 
 const route = () => {
   return (
@@ -95,7 +96,7 @@ const route = () => {
 
         <Route element={<ProtectedRoute allowedRoles={["manager"]} />}>
           <Route path="/manager" element={<ManagerLayout />}>
-            <Route index element={<ManagerRooms />} />
+            <Route index element={<Dashboard />} />
             <Route path="rooms" element={<ManagerRooms />} />
             <Route path="bookings" element={<StaffBooking />} />
             <Route path="bookings/:id" element={<StaffBookingDetails />} />
@@ -106,6 +107,7 @@ const route = () => {
             <Route path="room-prices" element={<ManagerRoomPrices />} />
             <Route path="history-transactions" element={<ManagerHistoryTransactions />} />
             <Route path="dashboard" element={<Dashboard />} />
+            <Route path="roomTypes" element={<ManagerRoomTypes />} />
           </Route>
         </Route>
       </Routes>

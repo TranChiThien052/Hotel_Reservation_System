@@ -33,5 +33,9 @@ export const bookingApi = {
     calculateBookingPrice: async (bookingData: BookingPriceCalculationData) => {
         const res = await apiClient.post('/bookings/calculate-price', bookingData);
         return res.data;
+    },
+    getBookingToday: async (branchId: string) => {
+        const res = await apiClient.get(`/bookings/today/${branchId}`);
+        return res.data;
     }
 }

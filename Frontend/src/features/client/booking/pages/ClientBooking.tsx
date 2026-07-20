@@ -267,14 +267,17 @@ const ClientBooking = () => {
     fetchCustomerProfile();
   }, [fetchCustomerProfile]);
 
+
   const fetchServices = useCallback(async () => {
+    if (!room?.branch_id) return;
     try {
-      const svcs = await servicesApi.getAllServices();
+      const svcs = await servicesApi.getServicesByBranchId(room.branch_id);
+      console.log("svcs", svcs);
       setAvailableServices(svcs.filter((s: Service) => s.is_active));
     } catch (err) {
       console.error("Lỗi khi lấy danh sách dịch vụ:", err);
     }
-  }, []);
+  }, [room?.branch_id]);
 
   useEffect(() => {
     fetchServices();
@@ -1160,7 +1163,7 @@ const ClientBooking = () => {
                     <MdOutlineNotes className="text-gray-400" /> Dịch vụ đi kèm
                   </label>
                   {availableServices.length > 0 ? (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 overflow-y-auto max-h-[144px] pr-1 scrollbar-thin scrollbar-thumb-gray-200 scrollbar-track-transparent">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 overflow-y-auto max-h-36 pr-1 scrollbar-thin scrollbar-thumb-gray-200 scrollbar-track-transparent">
                       {availableServices.map((svc) => {
                         const selected = bookingServices.find(
                           (s) => s.service.id === svc.id,

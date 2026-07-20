@@ -15,7 +15,9 @@ import { accountApi } from "@/features/admin/adminAccounts/api/accounts-api";
 import { authApi } from "../api/auth-api";
 
 interface RegisterForm {
-  username: string;
+  email: string;
+  full_name: string;
+  phone: string;
   password: string;
   confirmPassword: string;
 }
@@ -38,7 +40,9 @@ const Login = () => {
 
   
   const [regForm, setRegForm] = useState<RegisterForm>({
-    username: "",
+    email: "",
+    full_name: "",
+    phone: "",
     password: "",
     confirmPassword: "",
   });
@@ -113,7 +117,7 @@ const Login = () => {
   const handleRegister = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setRegError("");
-    if (!regForm.username.trim() || !regForm.password) {
+    if (!regForm.email.trim() || !regForm.password) {
       setRegError("Vui lòng điền đầy đủ thông tin bắt buộc.");
       return;
     }
@@ -127,11 +131,11 @@ const Login = () => {
     }
     setRegLoading(true);
     try {
-      await accountApi.createAccount({
-        username: regForm.username,
+      await accountApi.createCustomerAccount({
+        email: regForm.email,
         password: regForm.password,
-        status: "active",
-        role: "customer",
+        full_name: regForm.full_name,
+        phone: regForm.phone,
       });
       setRegSuccess(true);
       setTimeout(() => switchMode("login"), 1800);
@@ -308,14 +312,14 @@ const Login = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-1 gap-x-6 gap-y-5">
                   <div className={fieldCls}>
                     <label className="mb-1 block pl-1 text-sm font-semibold text-gray-900">
-                      Tên đăng nhập <span className="text-red-500">*</span>
+                      Email <span className="text-red-500">*</span>
                     </label>
                     <Input
-                      value={regForm.username}
+                      value={regForm.email}
                       onChange={(e) =>
-                        setRegForm((f) => ({ ...f, username: e.target.value }))
+                        setRegForm((f) => ({ ...f, email: e.target.value }))
                       }
-                      placeholder="Nhập tên đăng nhập"
+                      placeholder="Nhập địa chỉ email"
                       variant="borderless"
                       suffix={
                         <UserOutlined className="text-lg text-gray-400" />
@@ -323,6 +327,44 @@ const Login = () => {
                       className="custom-antd-input-dark w-full text-base text-gray-950"
                     />
                   </div>
+
+                  <div className={fieldCls}>
+                    <label className="mb-1 block pl-1 text-sm font-semibold text-gray-900">
+                      Họ và tên <span className="text-red-500">*</span>
+                    </label>
+                    <Input
+                      value={regForm.full_name}
+                      onChange={(e) =>
+                        setRegForm((f) => ({ ...f, full_name: e.target.value }))
+                      }
+                      placeholder="Nhập họ và tên"
+                      variant="borderless"
+                      suffix={
+                        <UserOutlined className="text-lg text-gray-400" />
+                      }
+                      className="custom-antd-input-dark w-full text-base text-gray-950"
+                    />
+                  </div>
+
+                  <div className={fieldCls}>
+                    <label className="mb-1 block pl-1 text-sm font-semibold text-gray-900">
+                      Số điện thoại <span className="text-red-500">*</span>
+                    </label>
+                    <Input
+                      value={regForm.phone}
+                      onChange={(e) =>
+                        setRegForm((f) => ({ ...f, phone: e.target.value }))
+                      }
+                      placeholder="Nhập số điện thoại"
+                      variant="borderless"
+                      suffix={
+                        <UserOutlined className="text-lg text-gray-400" />
+                      }
+                      className="custom-antd-input-dark w-full text-base text-gray-950"
+                    />
+                  </div>
+
+                  
 
                   <div className={fieldCls}>
                     <label className="mb-1 block pl-1 text-sm font-semibold text-gray-900">

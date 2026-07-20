@@ -1,7 +1,7 @@
 import FormModal from "@/app/layout/components/admin/FormModal";
 import { useAppSelector } from "@/app/store/hooks";
 import { roomsApi } from "@/features/admin/adminRooms/api/rooms-api";
-import { roomsFormFields } from "@/features/admin/adminRooms/constants/rooms-form-fields";
+import { managerRoomTypesFormFields } from "../contants/managerRooms-form-fields";
 import type { Room, RoomFormData } from "@/features/admin/adminRooms/types/rooms-type";
 import { useFormModal } from "@/shared/hooks/useFormModal";
 import { FormModalModes } from "@/shared/types/type-form-mode";
@@ -87,7 +87,7 @@ const ManagerRooms = () => {
       
 
       try {
-        await roomsApi.createRoom(values);
+        await roomsApi.createRoom({ ...values, branch_id: user?.branch_id || "" });
         message.success("Tạo phòng mới thành công");
         fetchRooms(); 
         room.close();
@@ -427,7 +427,7 @@ const ManagerRooms = () => {
             ? "Chỉnh sửa phòng"
             : "Chi tiết phòng"
         }
-        fields={roomsFormFields}
+        fields={managerRoomTypesFormFields}
         initialValues={room.selectedRecord || defaultRoomData}
         onSubmit={handleSubmitForm}
       />

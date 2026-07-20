@@ -12,6 +12,7 @@ import { FaRegCheckCircle } from "react-icons/fa";
 import { FaRegBuilding } from "react-icons/fa6";
 import { IoSearch } from "react-icons/io5";
 import { LuWrench } from "react-icons/lu";
+import { managerEmployeesFormFields } from "../contants/ManagerEmployees-form-field";
 
 
 const defaultEmployeeData: EmployeeFormData = {
@@ -50,6 +51,7 @@ const managementEmployees = () => {
 
   const handleSubmitForm = async (values: EmployeeFormData) => {
     if (employee.mode === FormModalModes.CREATE) {
+      values.branch_id = user?.branch_id || "";
       try {
         await employeesApi.createEmployee(values);
         fetchEmployees();
@@ -220,7 +222,7 @@ const managementEmployees = () => {
             ? "Chỉnh sửa nhân viên"
             : "Chi tiết nhân viên"
         }
-        fields={emplloyeesFormFields}
+        fields={managerEmployeesFormFields}
         initialValues={employee.selectedRecord || defaultEmployeeData}
         onSubmit={handleSubmitForm}
       />

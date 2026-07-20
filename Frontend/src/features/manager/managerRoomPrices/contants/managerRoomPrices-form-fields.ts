@@ -2,6 +2,7 @@ import type { FormField } from "@/shared/types/form-field";
 import { FormFieldTypes } from "@/shared/types/type-form-field";
 import { roomTypesApi } from "@/features/admin/adminRoomTypes/api/roomTypes-api";
 import type { RoomPrice, RoomPriceFormData } from "@/features/admin/adminRoomsPrices/types/roomPrices-type";
+import { store } from "@/app/store/store";
 
 export const managerRoomPricesFormFields: FormField<RoomPriceFormData>[] = [
     {
@@ -9,7 +10,10 @@ export const managerRoomPricesFormFields: FormField<RoomPriceFormData>[] = [
             label: "Loại phòng",
             placeholder: "Chọn loại phòng",
             type: FormFieldTypes.SELECT_FETCH,
-            fetchOptions: roomTypesApi.getRoomTypes,
+            fetchOptions: () =>  {
+                const branchId = store.getState().auth.user?.branch_id || "";
+                return roomTypesApi.getRoomTypeByBranchId(branchId);
+            },
             customData: (data: any[]) => data.map((item) => ({label: item.name, value: item.id}))
         },
         {
