@@ -89,7 +89,7 @@ export const calculateDynamicPrice = (checkin, checkout, basePrice, weekendRate,
         } else if (dayOfWeek === 0 || dayOfWeek === 6) {
             rate = weekendRate;
         }
-        return (basePrice + basePrice * (rate / 100)) * hours;
+        return (Number(basePrice) + Number(basePrice) * (Number(rate) / 100)) * hours;
     }
 
     let currentDate = new Date(checkin);

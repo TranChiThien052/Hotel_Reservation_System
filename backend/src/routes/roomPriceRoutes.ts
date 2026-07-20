@@ -21,9 +21,7 @@ const router = express.Router();
  *       200:
  *         description: Successful operation
  */
-router.get('/room-type/:id', (req, res) => {
-    authorize(req, res, ["customer", "staff", "manager", "admin"], () => RoomPriceController.getRoomPricesByRoomTypeId(req, res))
-});
+router.get('/room-type/:id', RoomPriceController.getRoomPricesByRoomTypeId);
 
 /**
  * @swagger
