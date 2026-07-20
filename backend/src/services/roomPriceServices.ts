@@ -2,6 +2,7 @@ import RoomPriceRepository from '../repositories/roomPriceRepo';
 import RoomTypeRepository from '../repositories/roomTypeRepo'
 import { Validator, ValidationError } from '../middlewares/validateData';
 import historyTransactionServices from './historyTransactionServices';
+import roomPriceRepo from '../repositories/roomPriceRepo';
 
 class RoomPriceService {
     async getAllRoomPrices() {
@@ -23,6 +24,15 @@ class RoomPriceService {
         }
         return roomPrice;
     };
+
+    async getRoomPriceByBranchId(id) {
+        const validator = new Validator();
+        if (!validator.isEmpty("Branch ID", id))
+            validator.isUUID("Branch ID", id);
+        if (validator.error.length > 0)
+            throw new ValidationError("400", validator.clearError());
+        return roomPriceRepo.getRoomPriceByBranchId(id);
+    }
 
     async createRoomPrice(data) {
         const validatedData = {

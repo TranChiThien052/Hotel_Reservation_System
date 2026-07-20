@@ -36,6 +36,18 @@ class InvoiceController {
             })
     }
 
+    async calculateInvoice(req, res) {
+        const { id } = req.params;
+        return await InvoiceService.calculateInvoiceAmount(id)
+            .then(invoice => res.status(200).json(invoice))
+            .catch(error => {
+                if (typeof parseInt(error.code) === "number") {
+                    return res.status(parseInt(error.code)).json({ error: error.message });
+                }
+                res.status(500).json({ error: error.message });
+            });
+    }
+
     async createInvoice(req, res) {
         const { booking_id, issued_by, notes } = req.body;
         const data = { booking_id, issued_by, notes, log_account_id: req.user?.account_id };

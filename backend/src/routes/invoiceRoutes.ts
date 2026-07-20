@@ -106,4 +106,23 @@ router.delete('/:id', (req, res) => {
     authorize(req, res, ["manager", "admin"], () => InvoiceController.deleteInvoice(req, res))
 });
 
+/**
+ * @swagger
+ * /invoices/calculate/{id}:
+ *   get:
+ *     summary: Get data
+ *     tags: [Invoice]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The id parameter
+ *     responses:
+ *       200:
+ *         description: Successful operation
+ */
+router.get('/calculate/:id', InvoiceController.calculateInvoice);
+
 export default router;

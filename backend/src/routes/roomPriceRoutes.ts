@@ -25,6 +25,60 @@ router.get('/room-type/:id', RoomPriceController.getRoomPricesByRoomTypeId);
 
 /**
  * @swagger
+ * /room-prices/branch/{id}:
+ *   get:
+ *     summary: Get data
+ *     tags: [RoomPrice]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The id parameter
+ *     responses:
+ *       200:
+ *         description: Successful operation
+ *         content:
+ *            application/json:
+ *               schema:
+ *                  type: object
+ *                  properties:
+ *                     id: 
+ *                        type: string
+ *                        description: The id parameter
+ *                     price_per_day: 
+ *                        type: number
+ *                        description: The price_per_day parameter
+ *                     price_per_hour: 
+ *                        type: number
+ *                        description: The price_per_hour parameter
+ *                     weekend_rate: 
+ *                        type: number
+ *                        description: The weekend_rate parameter
+ *                     holiday_rate: 
+ *                        type: number
+ *                        description: The holiday_rate parameter
+ *                     effective_from: 
+ *                        type: string
+ *                        description: The effective_from parameter
+ *                     effective_to: 
+ *                        type: string
+ *                        description: The effective_to parameter
+ *                     room_types: 
+ *                        type: object
+ *                        properties:
+ *                           id: 
+ *                              type: string
+ *                              description: The id parameter
+ *                           name: 
+ *                              type: string
+ *                              description: The name parameter
+ */
+router.get('/branch/:id', RoomPriceController.getRoomPriceByBranchId);
+
+/**
+ * @swagger
  * /room-prices:
  *   get:
  *     summary: Get data
