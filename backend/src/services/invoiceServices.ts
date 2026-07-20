@@ -3,8 +3,13 @@ import BookingRepository from '../repositories/bookingRepo';
 import BookingServiceRepository from '../repositories/bookingServiceRepo';
 import AccountRepository from '../repositories/accountRepo'
 import { Validator, ValidationError } from '../middlewares/validateData';
-import { generateInvoiceCode } from '../middlewares/generator';
+import { calculateDynamicPrice, generateInvoiceCode } from '../middlewares/generator';
 import historyTransactionServices from './historyTransactionServices';
+import bookingRepo from '../repositories/bookingRepo';
+import bookingServiceRepo from '../repositories/bookingServiceRepo';
+import discountRepo from '../repositories/discountRepo';
+import roomPriceRepo from '../repositories/roomPriceRepo';
+import holidayDateRepo from '../repositories/holidayDateRepo';
 
 class InvoiceService {
     async getAllInvoices() {
@@ -32,6 +37,52 @@ class InvoiceService {
         if (validator.error.length > 0)
             throw new ValidationError('400', validator.clearError());
         return await InvoiceRepository.getInvoicesByBookingId(id);
+    }
+
+    async calculateInvoiceAmount(bookingId) {
+        const booking = await bookingRepo.getBookingById(bookingId);
+        if (!booking)
+            throw new ValidationError('404', "Booking not found");
+
+        const services = await bookingServiceRepo.getBookingServicesByBookingId(bookingId);
+
+        let discount = 0;
+        if (booking.discount_id !== null) {
+            if (booking.discount_amount !== null)
+                discount = Number(booking.discount_amount);
+        }
+
+        let deposit = 0;
+        if (booking.deposit_amount !== null)
+            deposit = Number(booking.deposit_amount);
+
+        let serviceCharge = 0;
+        for (const service of services) {
+            serviceCharge += Number(service.total_amount);
+        }
+
+        const roomPrice = await roomPriceRepo.getRoomPricesByRoomTypeId(booking.room_type_id);
+
+        let basePrice = 0;
+        if (booking.booking_type === 'daily')
+            basePrice = Number(roomPrice?.price_per_day);
+        else basePrice = Number(roomPrice?.price_per_hour)
+
+        const holidayDates = await holidayDateRepo.getHolidayDatesByBranchId(booking.branch_id);
+
+        let roomCharge = 0;
+        if (booking.actual_checkin_at === null || booking.actual_checkout_at === null)
+            roomCharge = calculateDynamicPrice(booking.checkin_at, booking.checkout_at, basePrice, roomPrice?.weekend_rate, roomPrice?.holiday_rate, holidayDates, booking.booking_type);
+        else if (booking.actual_checkin_at !== null && booking.actual_checkout_at !== null)
+            roomCharge = calculateDynamicPrice(booking.actual_checkin_at, booking.actual_checkout_at, basePrice, roomPrice?.weekend_rate, roomPrice?.holiday_rate, holidayDates, booking.booking_type);
+
+        return {
+            roomCharge,
+            serviceCharge,
+            discount,
+            deposit,
+            totalAmount: roomCharge + serviceCharge - discount - deposit,
+        }
     }
 
     async createInvoice(data) {

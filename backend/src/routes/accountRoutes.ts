@@ -315,9 +315,9 @@ router.post('/register/staff', (req, res) => {
 
 /**
  * @swagger
-/accounts/register/staff:
+/accounts/register/customer:
  *   post:
- *     summary: Create new staff account
+ *     summary: Create new customer account
  *     tags: [Account]
  *     security:
  *       - bearerAuth:

@@ -12,6 +12,7 @@ class RoomPriceRepository {
             }
         });
     };
+
     async getRoomPriceById(id) {
         return await prisma.room_prices.findUnique({
             where: { id },
@@ -36,6 +37,31 @@ class RoomPriceRepository {
                 },
             }
         });
+    };
+
+    async getRoomPriceByBranchId(id) {
+        return await prisma.room_prices.findMany({
+            where: {
+                room_types: {
+                    branch_id: id
+                }
+            },
+            select: {
+                id: true,
+                price_per_hour: true,
+                price_per_day: true,
+                effective_to: true,
+                effective_from: true,
+                weekend_rate: true,
+                holiday_rate: true,
+                room_types: {
+                    select: {
+                        id: true,
+                        name: true,
+                    }
+                }
+            }
+        })
     };
 
     async createRoomPrice(data) {
