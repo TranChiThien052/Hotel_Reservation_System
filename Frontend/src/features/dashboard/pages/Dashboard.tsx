@@ -26,15 +26,6 @@ export interface BookingToday {
   checkoutsCount: number;
 }
 
-const isSameLocalDay = (dateStr: string, refDate: Date) => {
-  const d = new Date(dateStr);
-  return (
-    d.getFullYear() === refDate.getFullYear() &&
-    d.getMonth() === refDate.getMonth() &&
-    d.getDate() === refDate.getDate()
-  );
-};
-
 const formatTime = (dateStr: string) => {
   const d = new Date(dateStr);
   return d.toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" });
