@@ -700,7 +700,7 @@ router.delete('/:id', (req, res) => {
  *                   schema:
  *                      type: object
  *                      properties:
- *                         bookings:
+ *                         checkins:
  *                            type: array
  *                            items:
  *                               type: object
@@ -789,7 +789,98 @@ router.delete('/:id', (req, res) => {
  *                                     type: string
  *                                     required: false
  *                                     format: date-time
- *                         count:
+ *                         checkouts:
+ *                            type: array
+ *                            items:
+ *                               type: object
+ *                               properties:
+ *                                  id:
+ *                                     type: string
+ *                                     required: true
+ *                                     format: uuid
+ *                                  booking_code:
+ *                                     type: string
+ *                                     required: false
+ *                                     example: BOOK-001
+ *                                  branch_id:
+ *                                     type: string
+ *                                     required: false
+ *                                     format: uuid
+ *                                  customer_id:
+ *                                     type: string
+ *                                     required: false
+ *                                     format: uuid
+ *                                  room_type_id:
+ *                                     type: string
+ *                                     required: false
+ *                                     format: uuid
+ *                                  assigned_room_id:
+ *                                     type: string
+ *                                     required: false
+ *                                     format: uuid
+ *                                  booking_type:
+ *                                     type: string
+ *                                     required: false
+ *                                  status:
+ *                                     type: string
+ *                                     required: false
+ *                                  checkin_at:
+ *                                     type: string
+ *                                     required: false
+ *                                     format: date-time
+ *                                  checkout_at:
+ *                                     type: string
+ *                                     required: false
+ *                                     format: date-time
+ *                                  num_guests:
+ *                                     type: integer
+ *                                     required: false
+ *                                  room_price_snapshot:
+ *                                     type: number
+ *                                     required: false
+ *                                     format: double
+ *                                  discount_id:
+ *                                     type: string
+ *                                     required: false
+ *                                     format: uuid
+ *                                  discount_amount:
+ *                                     type: number
+ *                                     required: false
+ *                                     format: double
+ *                                  subtotal:
+ *                                     type: number
+ *                                     required: false
+ *                                     format: double
+ *                                  total_amount:
+ *                                     type: number
+ *                                     required: false
+ *                                     format: double
+ *                                  deposit_amount:
+ *                                     type: number
+ *                                     required: false
+ *                                     format: double
+ *                                  deposit_paid_at:
+ *                                     type: string
+ *                                     required: false
+ *                                     format: date-time
+ *                                  created_by:
+ *                                     type: string
+ *                                     required: false
+ *                                     format: uuid
+ *                                  notes:
+ *                                     type: string
+ *                                     required: false
+ *                                  created_at:
+ *                                     type: string
+ *                                     required: false
+ *                                     format: date-time
+ *                                  updated_at:
+ *                                     type: string
+ *                                     required: false
+ *                                     format: date-time
+ *                         checkinsCount:
+ *                            type: integer
+ *                         checkoutsCount:
  *                            type: integer
  *          400:
  *             description: Bad request

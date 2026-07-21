@@ -68,7 +68,12 @@ class StaffRepository {
 
     async getStaffByBranchId(branchId) {
         return await prisma.staff.findMany({
-            where: { branch_id: branchId },
+            where: {
+                AND: [
+                    { branch_id: branchId },
+                    { position: 'staff' }
+                ]
+            },
             include: {
                 accounts: {
                     select: {

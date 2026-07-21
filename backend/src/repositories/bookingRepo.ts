@@ -53,16 +53,14 @@ class BookingRepository {
 
     async getTodayCheckinCount(branch_id) {
         const today = new Date();
-        return await prisma.bookings.findMany({
+        const checkins = await prisma.bookings.findMany({
             where: {
                 branch_id: branch_id,
                 checkin_at: {
                     gte: new Date(today.getFullYear(), today.getMonth(), today.getDate()),
                     lt: new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1),
                 },
-                status: {
-                    not: 'checked_in',
-                }
+                status: 'confirmed'
             },
             select: {
                 id: true,
@@ -85,6 +83,45 @@ class BookingRepository {
                 }
             }
         })
+        const checkouts = await prisma.bookings.findMany({
+            where: {
+                branch_id: branch_id,
+                checkout_at: {
+                    gte: new Date(today.getFullYear(), today.getMonth(), today.getDate()),
+                    lt: new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1),
+                },
+                status: 'checked_in'
+            },
+            select: {
+                id: true,
+                booking_code: true,
+                checkin_at: true,
+                checkout_at: true,
+                booking_type: true,
+                status: true,
+                num_guests: true,
+                customers: {
+                    select: {
+                        full_name: true,
+                        phone: true,
+                    }
+                },
+                room_types: {
+                    select: {
+                        name: true,
+                    }
+                }
+            }
+        })
+        const checkinsCount = checkins.length;
+        const checkoutsCount = checkouts.length;
+
+        return {
+            checkinsCount,
+            checkoutsCount,
+            checkins,
+            checkouts
+        }
     }
 
     async getBookingByCode(code) {
