@@ -2,8 +2,7 @@ import type { FormField } from "@/shared/types/form-field";
 import type { RoomPrice, RoomPriceFormData } from "../types/roomPrices-type";
 import { FormFieldTypes } from "@/shared/types/type-form-field";
 import { roomTypesApi } from "../../adminRoomTypes/api/roomTypes-api";
-import { disableEndDateNotPast, disableStartDateNotPast } from "@/shared/util/validate-date";
-import dayjs from 'dayjs';
+
 
 export const roomPricesFormFields: FormField<RoomPriceFormData>[] = [
     {
@@ -80,11 +79,6 @@ export const roomPricesFormFields: FormField<RoomPriceFormData>[] = [
         label: "Hiệu lực từ",
         placeholder: "Chọn ngày hiệu lực từ",
         type: FormFieldTypes.DATE_PICKER,
-        componentProps: {
-          disabledDate: (current: any, values: any) => {
-            return disableStartDateNotPast(current, values?.effective_to ? dayjs(values.effective_to) : null)
-          }
-        },
         rules: [
             {
                 required: true,
@@ -106,11 +100,6 @@ export const roomPricesFormFields: FormField<RoomPriceFormData>[] = [
         label: "Hiệu lực đến",
         placeholder: "Chọn ngày hiệu lực đến",
         type: FormFieldTypes.DATE_PICKER,
-        componentProps: {
-          disabledDate: (current: any, values: any) => {
-            return disableEndDateNotPast(current, values?.effective_from ? dayjs(values.effective_from) : null)
-          }
-        },
         rules: [
             {
                 required: true,

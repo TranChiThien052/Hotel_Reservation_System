@@ -15,7 +15,9 @@ import { accountApi } from "@/features/admin/adminAccounts/api/accounts-api";
 import { authApi } from "../api/auth-api";
 
 interface RegisterForm {
-  username: string;
+  email: string;
+  full_name: string;
+  phone: string;
   password: string;
   confirmPassword: string;
 }
@@ -26,19 +28,21 @@ const Login = () => {
 
   const { loading, error } = useAppSelector((state) => state.auth);
 
-  // mode: login | register | forgot
+  
   const [mode, setMode] = useState<"login" | "register" | "forgot">("login");
   const [displayed, setDisplayed] = useState<"login" | "register" | "forgot">("login");
   const [anim, setAnim] = useState<"idle" | "out" | "in">("idle");
   const [dir, setDir] = useState<"left" | "right">("left");
 
-  // Login
+  
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
-  // Register
+  
   const [regForm, setRegForm] = useState<RegisterForm>({
-    username: "",
+    email: "",
+    full_name: "",
+    phone: "",
     password: "",
     confirmPassword: "",
   });
@@ -46,7 +50,7 @@ const Login = () => {
   const [regError, setRegError] = useState("");
   const [regSuccess, setRegSuccess] = useState(false);
 
-  // Forgot password
+  
   const [forgotEmail, setForgotEmail] = useState("");
   const [forgotLoading, setForgotLoading] = useState(false);
   const [forgotError, setForgotError] = useState("");
@@ -54,7 +58,7 @@ const Login = () => {
 
   const switchMode = (next: "login" | "register" | "forgot") => {
     if (anim !== "idle" || mode === next) return;
-    // Xác định hướng animation
+    
     if (next === "register") setDir("left");
     else if (next === "forgot") setDir("left");
     else setDir("right");
@@ -113,7 +117,7 @@ const Login = () => {
   const handleRegister = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setRegError("");
-    if (!regForm.username.trim() || !regForm.password) {
+    if (!regForm.email.trim() || !regForm.password) {
       setRegError("Vui lòng điền đầy đủ thông tin bắt buộc.");
       return;
     }
@@ -127,11 +131,11 @@ const Login = () => {
     }
     setRegLoading(true);
     try {
-      await accountApi.createAccount({
-        username: regForm.username,
+      await accountApi.createCustomerAccount({
+        email: regForm.email,
         password: regForm.password,
-        status: "active",
-        role: "customer",
+        full_name: regForm.full_name,
+        phone: regForm.phone,
       });
       setRegSuccess(true);
       setTimeout(() => switchMode("login"), 1800);
@@ -184,15 +188,15 @@ const Login = () => {
     >
       <div className="absolute inset-0 z-0 bg-black/50" />
 
-      {/* Card */}
+      
       <div
         className={`relative z-10 w-full overflow-hidden rounded-3xl bg-white shadow-2xl transition-all duration-500 ${cardWidth}`}
       >
-        {/* Content wrapper */}
+        
         <div
           className={`transition-all duration-300 ease-in-out ${contentCls}`}
         >
-          {/* ── ĐĂNG NHẬP ────────────────────────────────────────────── */}
+          
           {displayed === "login" && (
             <div className="px-12 py-10">
               <h2 className="mb-10 text-center text-3xl font-bold tracking-wider text-gray-950">
@@ -210,7 +214,7 @@ const Login = () => {
 
                 <div className={fieldCls}>
                   <label className="mb-1 block pl-1 text-sm font-semibold text-gray-900">
-                    Tên đăng nhập
+                    Email
                   </label>
                   <Input
                     value={username}
@@ -282,7 +286,7 @@ const Login = () => {
             </div>
           )}
 
-          {/* ── ĐĂNG KÝ ──────────────────────────────────────────────── */}
+          
           {displayed === "register" && (
             <div className="px-12 py-10">
               <h2 className="mb-8 text-center text-3xl font-bold tracking-wider text-gray-950">
@@ -308,14 +312,14 @@ const Login = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-1 gap-x-6 gap-y-5">
                   <div className={fieldCls}>
                     <label className="mb-1 block pl-1 text-sm font-semibold text-gray-900">
-                      Tên đăng nhập <span className="text-red-500">*</span>
+                      Email <span className="text-red-500">*</span>
                     </label>
                     <Input
-                      value={regForm.username}
+                      value={regForm.email}
                       onChange={(e) =>
-                        setRegForm((f) => ({ ...f, username: e.target.value }))
+                        setRegForm((f) => ({ ...f, email: e.target.value }))
                       }
-                      placeholder="Nhập tên đăng nhập"
+                      placeholder="Nhập địa chỉ email"
                       variant="borderless"
                       suffix={
                         <UserOutlined className="text-lg text-gray-400" />
@@ -323,6 +327,44 @@ const Login = () => {
                       className="custom-antd-input-dark w-full text-base text-gray-950"
                     />
                   </div>
+
+                  <div className={fieldCls}>
+                    <label className="mb-1 block pl-1 text-sm font-semibold text-gray-900">
+                      Họ và tên <span className="text-red-500">*</span>
+                    </label>
+                    <Input
+                      value={regForm.full_name}
+                      onChange={(e) =>
+                        setRegForm((f) => ({ ...f, full_name: e.target.value }))
+                      }
+                      placeholder="Nhập họ và tên"
+                      variant="borderless"
+                      suffix={
+                        <UserOutlined className="text-lg text-gray-400" />
+                      }
+                      className="custom-antd-input-dark w-full text-base text-gray-950"
+                    />
+                  </div>
+
+                  <div className={fieldCls}>
+                    <label className="mb-1 block pl-1 text-sm font-semibold text-gray-900">
+                      Số điện thoại <span className="text-red-500">*</span>
+                    </label>
+                    <Input
+                      value={regForm.phone}
+                      onChange={(e) =>
+                        setRegForm((f) => ({ ...f, phone: e.target.value }))
+                      }
+                      placeholder="Nhập số điện thoại"
+                      variant="borderless"
+                      suffix={
+                        <UserOutlined className="text-lg text-gray-400" />
+                      }
+                      className="custom-antd-input-dark w-full text-base text-gray-950"
+                    />
+                  </div>
+
+                  
 
                   <div className={fieldCls}>
                     <label className="mb-1 block pl-1 text-sm font-semibold text-gray-900">

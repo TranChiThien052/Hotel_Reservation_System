@@ -14,7 +14,7 @@ import {
 } from 'react-icons/md';
 import { HiOutlineClock, HiOutlineXCircle } from 'react-icons/hi';
 import { BsDoorOpen, BsDoorClosed, BsReceipt } from 'react-icons/bs';
-import RefundModal, { calcRefund } from './RefundModal';
+import RefundModal, { calcRefund } from '../components/RefundModal';
 
 
 const formatVND = (n: number | string) =>
@@ -129,6 +129,7 @@ const BookingDetails = () => {
     useEffect(() => {
         if (initialized) fetchBooking();
     }, [initialized, fetchBooking]);
+    console.log("booking", booking);
 
     const handleRefundConfirm = async (reason: string, refundAmount: number) => {
         if (!booking || !id) return;
@@ -451,16 +452,16 @@ const BookingDetails = () => {
                             )}
                             <div className="flex justify-between items-center py-3 mt-2 border-t-2 border-gray-100">
                                 <span className="font-bold text-gray-900">Tổng cộng</span>
-                                <span className={`font-bold text-lg ${Number(booking.deposit_amount ?? 0) > 0 ? 'text-gray-900' : 'text-amber-500'}`}>
+                                <span className={`font-bold text-lg ${Number(booking.payments?.[0]?.amount ?? 0) > 0 ? 'text-gray-900' : 'text-amber-500'}`}>
                                     {booking.total_amount ? formatVND(booking.total_amount) : '—'}
                                 </span>
                             </div>
-                            {Number(booking.deposit_amount ?? 0) > 0 && (
+                            {Number(booking.payments?.[0]?.amount ?? 0) > 0 && (
                                 <>
                                     <div className="mt-2 p-3 bg-blue-50 border border-blue-200 rounded-xl text-sm mb-3">
                                         <div className="flex justify-between">
                                             <span className="text-blue-600">Đã đặt cọc</span>
-                                            <span className="text-blue-700 font-bold">{formatVND(booking.deposit_amount)}</span>
+                                            <span className="text-blue-700 font-bold">{formatVND(booking.payments?.[0]?.amount ?? 0)}</span>
                                         </div>
                                         {booking.deposit_paid_at && (
                                             <p className="text-xs text-blue-400 mt-1">
@@ -472,7 +473,7 @@ const BookingDetails = () => {
                                         <span className="font-bold text-gray-900">Còn lại cần thanh toán</span>
                                         <span className="font-bold text-xl text-amber-500">
                                             {booking.total_amount 
-                                                ? formatVND(Number(booking.total_amount) - Number(booking.deposit_amount)) 
+                                                ? formatVND(Number(booking.total_amount) - Number(booking.payments?.[0]?.amount ?? 0)) 
                                                 : '—'}
                                         </span>
                                     </div>

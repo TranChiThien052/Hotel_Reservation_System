@@ -11,22 +11,39 @@ import Wifi from "@/assets/images/WiFi.jpg";
 import Restaurant from "@/assets/images/restaurant.jpg";
 import Pool from "@/assets/images/pool.jpg";
 import Spa from "@/assets/images/Spa.jpg";
+import type { Branch } from "@/features/admin/adminBranch/types/branch-type";
+import { branchApi } from "@/features/admin/adminBranch/api/admin-api";
+import message from "antd/es/message";
+import { roomsAvailableApi, type SearchRoomsAvailableParams } from "../rooms/api/rooms-api";
+
+
 
 const index = () => {
   const [roomTypes, setRoomTypes] = useState<RoomTypeWithPrice[]>([]);
+  const [branches, setBranches] = useState<Branch[]>([]);
   const [loading, setLoading] = useState(false);
+  const [searchParams, setSearchParams] = useState<SearchRoomsAvailableParams>({
+    checkin_at: "",
+    checkout_at: "",
+    num_guests: 1,
+    branch_id: "",
+    room_type_id: "",
+    booking_type: ""
+  });
   const navigate = useNavigate();
 
  const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      const [rtData, rpData] = await Promise.all([
+      const [rtData, rpData, branchData] = await Promise.all([
         roomTypesApi.getRoomTypes(),
         roomPricesApi.getAllRoomprices(),
+        branchApi.getBranches(),
       ]);
 
       const rtList: any[] = Array.isArray(rtData) ? rtData : [];
       const rpList: any[] = Array.isArray(rpData) ? rpData : [];
+      const branchList: any[] = Array.isArray(branchData) ? branchData : [];
 
       // Join giá vào từng room type
       const merged: RoomTypeWithPrice[] = rtList
@@ -35,7 +52,7 @@ const index = () => {
           ...rt,
           room_price: rpList.find((rp) => rp.room_type_id === rt.id) ?? null,
         }));
-
+      setBranches(branchList);
       setRoomTypes(merged);
     } catch (error) {
       console.error("Lỗi khi lấy dữ liệu loại phòng:", error);
@@ -48,6 +65,33 @@ const index = () => {
     loading;
     fetchData();
   }, [fetchData]);
+
+  const handleSearchAvailableRooms = async () => {
+    if (!searchParams.checkin_at || !searchParams.checkout_at) {
+      message.error("Vui lòng chọn ngày nhận và trả phòng");
+      return;
+    } else if (searchParams.checkin_at > searchParams.checkout_at) {
+      message.error("Ngày nhận phòng phải trước ngày trả phòng");
+      return;
+    } else if (!searchParams.branch_id) {
+      message.error("Vui lòng chọn chi nhánh");
+      return;
+    }
+    setLoading(true);
+    try {
+      const res = await roomsAvailableApi.searchRoomsAvailable(searchParams);
+      if (res.length === 0) {
+        message.info("Không có phòng trống cho khoảng thời gian này");
+      } else {
+        navigate("/rooms", { state: { searchParams } });
+      }
+    } catch (error) {
+      message.error("Có lỗi xảy ra khi tìm phòng");
+    } finally {
+      setLoading(false);
+    }
+  }
+  console.log("branches", branches);
 
     const handleViewAllRooms = () => {
       navigate("/rooms");
@@ -76,36 +120,48 @@ const index = () => {
               <p className="text-gray-600">NHẬN PHÒNG</p>
               <input
                 className=" cursor-pointer border border-gray-300 bg-gray-100 rounded-lg p-3 w-full hover:border-orange-400"
-                type="date"
+                type="date" onChange={(e) => setSearchParams({ ...searchParams, checkin_at: e.target.value })}
               />
             </div>
             <div className="flex flex-col items-center w-full gap-2 font-bold">
               <p className="text-gray-600">TRẢ PHÒNG</p>
               <input
                 className="cursor-pointer border border-gray-300 bg-gray-100 rounded-lg p-3 w-full hover:border-orange-400"
-                type="date"
+                type="date" onChange={(e) => setSearchParams({ ...searchParams, checkout_at: e.target.value })}
               />
             </div>
             <div className="flex flex-col items-center w-full gap-2 font-bold">
               <p className="text-gray-600">SỐ KHÁCH</p>
-              <select className="cursor-pointer border border-gray-300 bg-gray-100 rounded-lg p-3 w-full hover:border-orange-400">
-                <option>1</option>
-                <option>2</option>
-                <option>3</option>
-                <option>4</option>
+              <select className="cursor-pointer border border-gray-300 bg-gray-100 rounded-lg p-3 w-full hover:border-orange-400" onChange={(e) => setSearchParams({ ...searchParams, num_guests: parseInt(e.target.value) })}>
+                <option key="1" value="1">
+                  1
+                </option>
+                <option key="2" value="2">
+                  2
+                </option>
+                <option key="3" value="3">
+                  3
+                </option>
+                <option key="4+" value="4">
+                  4+
+                </option>
               </select>
             </div>
             <div className="flex flex-col items-center w-full gap-2 font-bold">
-              <p className="text-gray-600">LOẠI PHÒNG</p>
-              <select className="cursor-pointer border border-gray-300 bg-gray-100 rounded-lg p-3 w-full hover:border-orange-400">
-                <option>Deluxe</option>
-                <option>Superior</option>
-                <option>Family</option>
-                <option>Presidential</option>
+              <p className="text-gray-600">CHI NHÁNH</p>
+              <select className="cursor-pointer border border-gray-300 bg-gray-100 rounded-lg p-3 w-full hover:border-orange-400" onChange={(e) => setSearchParams({ ...searchParams, branch_id: e.target.value })}>
+                <option key="all" value="">
+                  Tất cả chi nhánh
+                </option>
+                {branches.map((branch) => (
+                  <option key={branch.id} value={branch.id}>
+                    {branch.name}
+                  </option>
+                ))}
               </select>
             </div>
           </div>
-          <div className="bg-orange-400 hover:bg-orange-500 text-white px-4 py-2 rounded-lg text-lg w-full flex items-center justify-center gap-2 font-medium cursor-pointer">
+          <div className="bg-orange-400 hover:bg-orange-500 text-white px-4 py-2 rounded-lg text-lg w-full flex items-center justify-center gap-2 font-medium cursor-pointer" onClick={handleSearchAvailableRooms}>
             <IoSearch />
             Tìm phòng trống
           </div>

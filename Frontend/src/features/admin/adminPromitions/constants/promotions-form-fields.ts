@@ -65,13 +65,7 @@ export const promotionsFormFields: FormField<PromotionFormData>[] = [
     type: FormFieldTypes.SELECT_FETCH,
     fetchOptions: branchApi.getBranches,
     customData: (data: any[]) =>
-      data.map((item) => ({ label: item.name, value: item.id })),
-    rules: [
-      {
-        required: true,
-        message: "Vui lòng chọn chi nhánh",
-      },
-    ],
+      data.map((item) => ({ label: item.name, value: item.id }))
   },
   {
     key: "min_order_value",

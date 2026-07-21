@@ -16,7 +16,8 @@ export const accountsFormFields: FormField<AccountFormData>[] = [
                 message: "Vui lòng nhập tên đăng nhập"
             }
         ],
-        hideInUpdateMode: true
+        hideInUpdateMode: true,
+        componentProps: { autoComplete: "new-password" }
     },
     {
         key: "password",
@@ -30,7 +31,7 @@ export const accountsFormFields: FormField<AccountFormData>[] = [
             },
             rules.password
         ],
-        hideInUpdateMode: true
+        componentProps: { autoComplete: "new-password" }
     },
     {
         key: "full_name",
@@ -43,7 +44,7 @@ export const accountsFormFields: FormField<AccountFormData>[] = [
                 message: "Vui lòng nhập họ và tên"
             }
         ],
-        hideInUpdateMode: true
+        // hideInUpdateMode: true
     },
     {
         key: "phone",

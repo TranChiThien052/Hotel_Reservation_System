@@ -32,3 +32,10 @@ export interface AccountFormData {
     status: string;
     branch_id?: string;
 }
+
+export interface AccountCustomerFormData {
+    password?: string;
+    full_name?: string;
+    phone: string;
+    email: string;
+}

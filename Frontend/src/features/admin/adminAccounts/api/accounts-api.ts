@@ -1,5 +1,5 @@
 import apiClient from "@/shared/lib/axios"
-import type { AccountFormData } from "../types/accounts-type";
+import type { AccountCustomerFormData, AccountFormData } from "../types/accounts-type";
 
 export const accountApi = {
     getAllAccounts: async () => {
@@ -28,6 +28,10 @@ export const accountApi = {
     },
     createStaffAccount: async (accountData: AccountFormData) => {
         const res = await apiClient.post('/accounts/register/staff', accountData);
+        return res.data;
+    },
+    createCustomerAccount: async (accountData: AccountCustomerFormData) => {
+        const res = await apiClient.post('/accounts/register/customer', accountData);
         return res.data;
     }
 }

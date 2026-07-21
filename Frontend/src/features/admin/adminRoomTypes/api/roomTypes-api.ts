@@ -11,7 +11,10 @@ export const roomTypesApi = {
     const res = await apiClient.get(`/room-types/${id}`);
     return res.data;
   },
-  updateRoomType: async (id: string, roomTypeData: Omit<RoomTypeFormData, 'roomImages'>) => {
+  updateRoomType: async (
+    id: string,
+    roomTypeData: Omit<RoomTypeFormData, "roomImages">,
+  ) => {
     const res = await apiClient.put(`/room-types/${id}`, roomTypeData);
     return res.data;
   },
@@ -26,9 +29,10 @@ export const roomTypesApi = {
     // Append từng file ảnh, tên field phải là "images" (khớp với backend)
     if (roomTypeData.roomImages && roomTypeData.roomImages.length > 0) {
       roomTypeData.roomImages.forEach((file) => {
-        if (file instanceof File) {       // ← chỉ append nếu là File thật
-      formData.append('images', file);
-    }
+        if (file instanceof File) {
+          // ← chỉ append nếu là File thật
+          formData.append("images", file);
+        }
       });
     }
     const res = await apiClient.post("/room-types", formData, {
@@ -43,19 +47,23 @@ export const roomTypesApi = {
     return res.data;
   },
   addRoomTypeImage: async (id: string, files: File[]) => {
-  const formData = new FormData();
-  files.forEach((file) => {
-    formData.append('images', file);  // khớp với upload.array("images", 5)
-  });
-  const res = await apiClient.post(`/room-types/images/${id}`, formData, {
-    headers: { 'Content-Type': 'multipart/form-data' },
-  });
-  return res.data;
-},
-deleteRoomTypeImage: async (img_url: string, public_id: string) => {
-  const res = await apiClient.delete('/room-types/images', {
-    data: { img_url, public_id },   // axios DELETE cần dùng `data` không phải `body`
-  });
-  return res.data;
-},
+    const formData = new FormData();
+    files.forEach((file) => {
+      formData.append("images", file); // khớp với upload.array("images", 5)
+    });
+    const res = await apiClient.post(`/room-types/images/${id}`, formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+    return res.data;
+  },
+  deleteRoomTypeImage: async (img_url: string, public_id: string) => {
+    const res = await apiClient.delete("/room-types/images", {
+      data: { img_url, public_id }, // axios DELETE cần dùng `data` không phải `body`
+    });
+    return res.data;
+  },
+  getRoomTypeByBranchId: async (branch_id: string) => {
+    const res = await apiClient.get(`/room-types/branch/${branch_id}`);
+    return res.data;
+  }
 };
