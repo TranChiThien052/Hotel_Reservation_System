@@ -210,12 +210,15 @@ const Accounts = () => {
       key: "actions",
       render: (_, record) => (
         <Space size="medium">
-          <Button onClick={() => account.openEdit(record)} type="primary">
-            Chỉnh sửa
-          </Button>
           <Button onClick={() => account.openView(record)} type="dashed">
             Chi tiết
           </Button>
+          {record.role !== "admin" && record.role !== "customer" && (
+            <Button onClick={() => account.openEdit(record)} type="primary">
+              Chỉnh sửa
+            </Button>
+          )}
+          
         </Space>
       ),
     },

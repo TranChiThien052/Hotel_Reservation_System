@@ -214,7 +214,7 @@ const Login = () => {
 
                 <div className={fieldCls}>
                   <label className="mb-1 block pl-1 text-sm font-semibold text-gray-900">
-                    Tên đăng nhập
+                    Email
                   </label>
                   <Input
                     value={username}

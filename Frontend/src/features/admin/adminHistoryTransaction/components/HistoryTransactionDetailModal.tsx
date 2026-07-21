@@ -1,4 +1,4 @@
-import { Modal, Descriptions, Tag, Typography } from "antd";
+import { Modal, Descriptions, Tag } from "antd";
 import type { HistoryTransaction } from "../types/historyTransactions-type";
 
 

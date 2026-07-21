@@ -34,6 +34,7 @@ const DynamicForm = <T extends object>({
             value={String(value ?? "")}
             onChange={(e) => onChange(key, e.target.value)}
             disabled={disabled} // Thêm disabled
+            {...(field.componentProps ?? {})}
           />
         );
 
@@ -156,6 +157,7 @@ const DynamicForm = <T extends object>({
             value={String(value ?? "")}
             onChange={(e) => onChange(key, e.target.value)}
             disabled={disabled} // Thêm disabled
+            {...(field.componentProps ?? {})}
           />
         );
 

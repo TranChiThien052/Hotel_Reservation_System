@@ -2,8 +2,7 @@ import type { FormField } from "@/shared/types/form-field";
 import type { RoomPrice, RoomPriceFormData } from "../types/roomPrices-type";
 import { FormFieldTypes } from "@/shared/types/type-form-field";
 import { roomTypesApi } from "../../adminRoomTypes/api/roomTypes-api";
-import { disableEndDateNotPast, disableStartDateNotPast } from "@/shared/util/validate-date";
-import dayjs from 'dayjs';
+
 
 export const roomPricesFormFields: FormField<RoomPriceFormData>[] = [
     {

@@ -1,7 +1,6 @@
 import FormModal from "@/app/layout/components/admin/FormModal";
 import { useAppSelector } from "@/app/store/hooks";
 import { employeesApi } from "@/features/admin/adminEmployees/api/employees-api";
-import { emplloyeesFormFields } from "@/features/admin/adminEmployees/constants/employees-form-field";
 import type { Employee, EmployeeFormData } from "@/features/admin/adminEmployees/types/employees-type";
 import { useFormModal } from "@/shared/hooks/useFormModal";
 import { FormModalModes } from "@/shared/types/type-form-mode";

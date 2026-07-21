@@ -150,7 +150,7 @@ const Dashboard = () => {
       <p className="text-[11px] font-bold uppercase tracking-widest text-gray-400 mb-3">Tình trạng phòng hôm nay</p>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
         <StatCard icon={<FaHotel />} label="Tổng số phòng" value={totalRooms} color="text-blue-600" bg="bg-blue-50" />
-        <StatCard icon={<FaBed />} label="Đang ở" value={occupiedRooms} color="text-purple-600" bg="bg-purple-50" />
+        <StatCard icon={<FaBed />} label="Đang sử dụng" value={occupiedRooms} color="text-purple-600" bg="bg-purple-50" />
         <StatCard icon={<FaCheckCircle />} label="Còn trống"value={availableRooms} color="text-green-600"  bg="bg-green-50" />
       </div>
 

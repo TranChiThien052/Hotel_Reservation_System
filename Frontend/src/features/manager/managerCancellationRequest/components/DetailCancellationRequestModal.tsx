@@ -86,7 +86,7 @@ const DetailCancellationRequestModal = ({
     }
     setUpdating(true);
     try {
-      const res = await cancellationRequestApi.update(cancellationRequest.id, {
+      await cancellationRequestApi.update(cancellationRequest.id, {
         status: newStatus,
         notes: adminNote || cancellationRequest.notes,
       });
