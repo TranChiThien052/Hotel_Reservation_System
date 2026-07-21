@@ -54,9 +54,7 @@ router.get('/', (req, res) => {
  *       200:
  *         description: Successful operation
  */
-router.get('/:id', (req, res) => {
-    authorize(req, res, ["customer", "staff", "manager", "admin"], DiscountController.getDiscountById(req, res))
-});
+router.get('/:id', DiscountController.getDiscountById);
 
 /**
  * @swagger
@@ -75,7 +73,7 @@ router.get('/:id', (req, res) => {
  *         description: Successful operation
  */
 router.post('/', (req, res) => {
-    authorize(req, res, ["manager", "admin"], DiscountController.createDiscount(req, res))
+    authorize(req, res, ["manager", "admin"], () => DiscountController.createDiscount(req, res))
 });
 
 /**
@@ -102,7 +100,7 @@ router.post('/', (req, res) => {
  *         description: Successful operation
  */
 router.put('/:id', (req, res) => {
-    authorize(req, res, ["manager", "admin"], DiscountController.updateDiscount(req, res))
+    authorize(req, res, ["manager", "admin"], () => DiscountController.updateDiscount(req, res))
 });
 
 /**
@@ -123,7 +121,7 @@ router.put('/:id', (req, res) => {
  *         description: Successful operation
  */
 router.delete('/:id', (req, res) => {
-    authorize(req, res, ["manager", "admin"], DiscountController.deleteDiscount(req, res))
+    authorize(req, res, ["manager", "admin"], () => DiscountController.deleteDiscount(req, res))
 });
 
 export default router;
