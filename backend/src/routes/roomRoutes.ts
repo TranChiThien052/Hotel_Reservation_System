@@ -104,7 +104,7 @@ router.post('/', (req, res) => {
  *         description: Successful operation
  */
 router.put('/:id', (req, res) => {
-    authorize(req, res, ["manager", "admin"], () => RoomController.updateRoom(req, res))
+    authorize(req, res, ["staff", "manager", "admin"], () => RoomController.updateRoom(req, res))
 });
 
 /**
