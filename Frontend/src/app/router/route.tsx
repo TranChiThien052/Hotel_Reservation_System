@@ -37,6 +37,7 @@ import ManagerHistoryTransactions from "@/features/manager/managerHistoryTransac
 import Dashboard from "@/features/dashboard/pages/Dashboard";
 import ManagerRoomTypes from "@/features/manager/managementRoomTypes/pages/ManagerRoomTypes";
 import Holiday from "@/features/admin/adminHolidays/pages/AdminHoliday";
+import StaffAcccount from "@/features/manager/managerStaffAccount/pages/StaffAcccount";
 
 const route = () => {
   return (
@@ -94,7 +95,6 @@ const route = () => {
             <Route path="payment/success" element={<StaffPaymentSuccess />} />
             <Route path="cancellation-requests" element={<CancellationRequest />} />
             <Route path="dashboard" element={<Dashboard />} />
-          
           </Route>
         </Route>
 
@@ -113,6 +113,7 @@ const route = () => {
             <Route path="dashboard" element={<Dashboard />} />
             <Route path="roomTypes" element={<ManagerRoomTypes />} />
             <Route path="promotions" element={<Promotions />} />
+            <Route path="accounts" element={<StaffAcccount />} />
           </Route>
         </Route>
       </Routes>

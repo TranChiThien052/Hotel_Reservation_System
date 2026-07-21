@@ -20,8 +20,10 @@ import type { CancellationRequestType } from "@/features/manager/managerCancella
 import { cancellationRequestApi } from "@/features/manager/managerCancellationRequest/api/cancellationRequest-type";
 
 export interface BookingToday {
-  bookings: Booking[];
-  count: number;
+  checkins: Booking[];
+  checkouts: Booking[];
+  checkinsCount: number;
+  checkoutsCount: number;
 }
 
 const isSameLocalDay = (dateStr: string, refDate: Date) => {
@@ -55,10 +57,9 @@ const Dashboard = () => {
   const branchName = user?.branches?.name ?? "Chi nhánh";
 
   const [rooms, setRooms] = useState<Room[]>([]);
-  const [bookings, setBookings] = useState<BookingToday>({ bookings: [], count: 0 });
+  const [bookings, setBookings] = useState<BookingToday>({ checkins: [], checkouts: [], checkinsCount: 0, checkoutsCount: 0 });
   const [loading, setLoading] = useState(true);
   const [lastRefresh, setLastRefresh] = useState(new Date());
-  const [todayCheckins, setTodayCheckins] = useState<Booking[]>([]);
   const [cancelledRequests, setCancelledRequests] = useState<CancellationRequestType[]>([]);
 
   const today = new Date();
@@ -79,10 +80,9 @@ const Dashboard = () => {
       ]);
       console.log("Booking data fetched:", bookingData);
       console.log("Cancelled requests fetched:", cancelledData);
-      setCancelledRequests(Array.isArray(cancelledData) ? cancelledData : []);
+      setCancelledRequests(Array.isArray(cancelledData) ? cancelledData.filter((req: any) => req.status === "pending") : []);
       setRooms(Array.isArray(roomData) ? roomData : []);
       setBookings(bookingData);
-      setTodayCheckins(Array.isArray(bookingData.bookings) ? bookingData.bookings : []);
     } catch (e) {
       console.error("Dashboard fetch error:", e);
     } finally {
@@ -95,6 +95,7 @@ const Dashboard = () => {
     fetchAll();
   }, [fetchAll]);
 
+
   // ── Room stats ──
   const activeRooms = rooms.filter((r) => r.is_active);
   const totalRooms = activeRooms.length;
@@ -103,14 +104,12 @@ const Dashboard = () => {
 
   // ── Booking stats ──
 
-  const todayCheckouts = bookings.bookings.filter(
-    (b) =>
-      b.checkout_at &&
-      isSameLocalDay(b.checkout_at, today) &&
-      (b.status === "checked_in" || b.status === "checked_out"),
+  const inHouseGuests = [...bookings.checkins, ...bookings.checkouts].filter(
+    (b, index, self) => b.status === "checked_in" && self.findIndex((t) => t.id === b.id) === index
   );
-
-  const inHouseGuests = bookings.bookings.filter((b) => b.status === "checked_in");
+  const totalBookingsToday = bookings.checkinsCount + bookings.checkoutsCount;
+  const todayCheckins = bookings.checkins;
+  const todayCheckouts = bookings.checkouts;
 
   if (loading) {
     return (
@@ -157,7 +156,7 @@ const Dashboard = () => {
       {/* Section 2: Booking stats */}
       <p className="text-[11px] font-bold uppercase tracking-widest text-gray-400 mb-3">Booking trong ngày</p>
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-        <StatCard icon={<FaSignInAlt />}  label="Tổng booking hôm nay" value={bookings.count} color="text-emerald-600" bg="bg-emerald-50" />
+        <StatCard icon={<FaSignInAlt />}  label="Tổng booking hôm nay" value={totalBookingsToday} color="text-emerald-600" bg="bg-emerald-50" />
         <StatCard icon={<FcCancel />} label="Yêu cầu hủy" value={cancelledRequests.length} color="text-rose-600" bg="bg-rose-50" />
       </div>
 

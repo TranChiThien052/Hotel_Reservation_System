@@ -33,5 +33,9 @@ export const accountApi = {
     createCustomerAccount: async (accountData: AccountCustomerFormData) => {
         const res = await apiClient.post('/accounts/register/customer', accountData);
         return res.data;
+    },
+    getStaffAccountsByBranchId: async (branchId: string) => {
+        const res = await apiClient.get(`/accounts/branch/${branchId}`);
+        return res.data;
     }
 }
