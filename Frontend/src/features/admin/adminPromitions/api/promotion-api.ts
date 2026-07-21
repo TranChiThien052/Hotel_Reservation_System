@@ -21,5 +21,9 @@ export const promotionApi = {
     deletePromotion: async (id: string) => {
         const res = await apiClient.delete(`/discounts/${id}`);
         return res.data;
+    },
+    getByBranchId: async (branchId: string) => {
+        const res = await apiClient.get(`/discounts/branch/${branchId}`);
+        return res.data;
     }
 }

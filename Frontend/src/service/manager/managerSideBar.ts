@@ -15,5 +15,6 @@ export const managerSideBarItems: ManagerSideBarItem[] = [
     {name: "Quản lý phòng", path: "rooms", icon: LuDoorClosed},
     {name: "Quản lý giá phòng", path: "room-prices", icon: LuDoorClosed},
     {name: "Quản lý loại phòng", path: "roomTypes", icon: LuDoorClosed},
+    {name: "Quản lý khuyến mãi", path: "promotions", icon: LuDoorClosed},
     {name: "Lịch sử hoạt động", path: "history-transactions", icon: LuDoorClosed},
 ];

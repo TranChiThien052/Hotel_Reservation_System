@@ -36,6 +36,7 @@ import ManagerRoomPrices from "@/features/manager/managerRoomPrices/pages/Manage
 import ManagerHistoryTransactions from "@/features/manager/managerHistoryTransactions/pages/ManagerHistoryTransactions";
 import Dashboard from "@/features/dashboard/pages/Dashboard";
 import ManagerRoomTypes from "@/features/manager/managementRoomTypes/pages/ManagerRoomTypes";
+import Holiday from "@/features/admin/adminHolidays/pages/AdminHoliday";
 
 const route = () => {
   return (
@@ -78,19 +79,22 @@ const route = () => {
             <Route path="accounts" element={<Accounts />} />
             <Route path="employees" element={<Employees />} />
             <Route path="history-transactions" element={<HistoryTransactions />} />
+            <Route path="holidays" element={<Holiday />} />
           </Route>
         </Route>
 
         
         <Route element={<ProtectedRoute allowedRoles={["staff"]} />}>
           <Route path="/staff" element={<StaffLayout />}>
-            <Route index element={<StaffRooms />} />
+            <Route index element={<Dashboard />} />
             <Route path="rooms" element={<StaffRooms />} />
             <Route path="bookings" element={<StaffBooking />} />
             <Route path="bookings/:id" element={<StaffBookingDetails />} />
             <Route path="bookings/:id/invoice" element={<StaffInvoicePage />} />
             <Route path="payment/success" element={<StaffPaymentSuccess />} />
             <Route path="cancellation-requests" element={<CancellationRequest />} />
+            <Route path="dashboard" element={<Dashboard />} />
+          
           </Route>
         </Route>
 
@@ -108,6 +112,7 @@ const route = () => {
             <Route path="history-transactions" element={<ManagerHistoryTransactions />} />
             <Route path="dashboard" element={<Dashboard />} />
             <Route path="roomTypes" element={<ManagerRoomTypes />} />
+            <Route path="promotions" element={<Promotions />} />
           </Route>
         </Route>
       </Routes>

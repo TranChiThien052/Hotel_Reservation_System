@@ -1,4 +1,5 @@
 import { type IconType } from 'react-icons';
+import { CgCalendarDates } from 'react-icons/cg';
 import { FaRegBuilding, FaRegIdCard } from 'react-icons/fa';
 import { FaClockRotateLeft } from 'react-icons/fa6';
 import { GoCodeReview, GoTag } from 'react-icons/go';
@@ -20,12 +21,13 @@ export const sideBarItems: SideBarItem[] = [
   { name: "Loại phòng", path: "room-types", icon: MdOutlineBed  },
   { name: "Phòng", path: "rooms", icon: LuDoorClosed  },
   { name: "Giá phòng", path: "room-prices", icon: PiMoneyWavy },
+  { name: "Ngày lễ", path: "holidays", icon: CgCalendarDates  },
   { name: "Dịch vụ", path: "services", icon: RiServiceBellLine  },
   {name: "Khuyến mãi", path: "promotions", icon: GoTag  },
   {name: "Tài khoản", path: "accounts", icon: LuUserCog  },
   {name: "Khách hàng", path: "customers", icon: HiMiniUsers },
   {name: "Nhân viên", path: "employees", icon: FaRegIdCard  },
-  {name: "Nhật ký kiểm duyệt", path: "history-transactions", icon: FaClockRotateLeft  },
-  {name: "Đánh giá", path: "reviews", icon: GoCodeReview  },
-  {name: "Hình phạt", path: "penalties", icon: ImHammer2  },
+  {name: "Lịch sử hoạt động", path: "history-transactions", icon: FaClockRotateLeft  },
+  // {name: "Đánh giá", path: "reviews", icon: GoCodeReview  },
+  // {name: "Hình phạt", path: "penalties", icon: ImHammer2  },
 ];

@@ -17,6 +17,7 @@ import { bookingApi } from "@/features/staff/staffBooking/api/booking-api";
 import type { Booking } from "@/features/staff/staffBooking/types/booking-type";
 import { FcCancel } from "react-icons/fc";
 import type { CancellationRequestType } from "@/features/manager/managerCancellationRequest/types/cancellationRequest-type";
+import { cancellationRequestApi } from "@/features/manager/managerCancellationRequest/api/cancellationRequest-type";
 
 export interface BookingToday {
   bookings: Booking[];
@@ -71,12 +72,14 @@ const Dashboard = () => {
     }
     setLoading(true);
     try {
-      const [roomData, bookingData] = await Promise.all([
+      const [roomData, bookingData, cancelledData] = await Promise.all([
         roomsApi.getRoomsByBranchId(branchId),
         bookingApi.getBookingToday(branchId),
-        
+        cancellationRequestApi.getByBranchId(branchId),
       ]);
       console.log("Booking data fetched:", bookingData);
+      console.log("Cancelled requests fetched:", cancelledData);
+      setCancelledRequests(Array.isArray(cancelledData) ? cancelledData : []);
       setRooms(Array.isArray(roomData) ? roomData : []);
       setBookings(bookingData);
       setTodayCheckins(Array.isArray(bookingData.bookings) ? bookingData.bookings : []);
@@ -155,7 +158,7 @@ const Dashboard = () => {
       <p className="text-[11px] font-bold uppercase tracking-widest text-gray-400 mb-3">Booking trong ngày</p>
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
         <StatCard icon={<FaSignInAlt />}  label="Tổng booking hôm nay" value={bookings.count} color="text-emerald-600" bg="bg-emerald-50" />
-        <StatCard icon={<FcCancel />} label="Yêu cầu hủy" value={0} color="text-rose-600" bg="bg-rose-50" />
+        <StatCard icon={<FcCancel />} label="Yêu cầu hủy" value={cancelledRequests.length} color="text-rose-600" bg="bg-rose-50" />
       </div>
 
       {/* Section 3: Detail lists */}

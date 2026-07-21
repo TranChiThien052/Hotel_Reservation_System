@@ -20,5 +20,9 @@ export const cancellationRequestApi = {
     delete: async (id: string) => {
         const res = await apiClient.delete(`/cancellation-requests/${id}`);
         return res.data;
+    },
+    getByBranchId: async (branchId: string) => {
+        const res = await apiClient.get(`/cancellation-requests/branch/${branchId}`);
+        return res.data;
     }
 }
