@@ -6,6 +6,59 @@ const router = express.Router();
 
 /**
  * @swagger
+ * /accounts/branch/{id}:
+ *   get:
+ *     summary: Get data
+ *     tags: [Account]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The id parameter
+ *     responses:
+ *       200:
+ *         description: Successful operation
+ *         content:
+ *              application/json:
+ *                  schema:
+ *                      type: object
+ *                      properties:
+ *                          id: 
+ *                              type: string
+ *                          username: 
+ *                              type: string
+ *                          password_hash: 
+ *                              type: string
+ *                          status: 
+ *                              type: string
+ *                          role: 
+ *                              type: string
+ *                          branch_id: 
+ *                              type: string
+ *                          branches:
+ *                              type: object
+ *                              properties:
+ *                                  id: 
+ *                                      type: string
+ *                                  name: 
+ *                                      type: string
+ *                          staff: 
+ *                              type: object
+ *                              properties:
+ *                                  id: 
+ *                                      type: string
+ *       400:
+ *         description: Validation error
+ *       500:
+ *         description: Internal server error   
+ */
+router.get('/branch/:id', (req, res) => {
+    authorize(req, res, ["manager", "admin"], () => AccountController.getStaffAccountByBranchId(req, res))
+})
+/**
+ * @swagger
  * /accounts/username/{username}:
  *   get:
  *     summary: Get data

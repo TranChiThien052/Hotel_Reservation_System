@@ -400,6 +400,15 @@ class AccountService {
         return await AccountRepository.getAccountById(id);
     };
 
+    async getStaffAccountByBranchId(id) {
+        const validator = new Validator();
+        if (!validator.isEmpty("Branch ID", id))
+            validator.isUUID("Branch ID", id);
+        if (validator.error.length > 0)
+            throw new ValidationError('400', validator.clearError());
+        return await AccountRepository.getStaffAccountByBranchId(id);
+    };
+
     async createAccount(data) {
         const validatedData = {
             ...(data.username && { username: data.username }),

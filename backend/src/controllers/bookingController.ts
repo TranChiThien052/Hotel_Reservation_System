@@ -52,7 +52,12 @@ class BookingController {
         const { id } = req.params;
         return await BookingService.getTodayCheckinCount(id)
             .then(response => {
-                res.status(200).json({ bookings: response, count: response.length })
+                res.status(200).json({
+                    checkins: response.checkins,
+                    checkouts: response.checkouts,
+                    checkinsCount: response.checkinsCount,
+                    checkoutsCount: response.checkoutsCount
+                })
             })
             .catch(error => {
                 if (typeof parseInt(error.code) === 'number')

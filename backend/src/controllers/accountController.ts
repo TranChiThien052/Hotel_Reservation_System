@@ -174,6 +174,17 @@ class AccountController {
             });
     };
 
+    async getStaffAccountByBranchId(req, res) {
+        const { id } = req.params;
+        return await AccountService.getStaffAccountByBranchId(id)
+            .then(account => res.status(200).json(account))
+            .catch(error => {
+                if (typeof parseInt(error.code) === "number")
+                    return res.status(parseInt(error.code)).json({ error: error.message });
+                res.status(500).json({ error: error.message })
+            });
+    }
+
     async createAccount(req, res) {
         const { username, password, role, status, branch_id } = req.body;
         const data = { username, password, role, status, branch_id, log_account_id: req.user.account_id };

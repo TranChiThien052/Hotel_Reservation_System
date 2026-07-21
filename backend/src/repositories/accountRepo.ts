@@ -123,6 +123,32 @@ class AccountRepository {
         });
     };
 
+    async getStaffAccountByBranchId(id) {
+        return await prisma.accounts.findMany({
+            where: {
+                AND: [
+                    { branch_id: id },
+                    { role: 'staff' }
+                ]
+            },
+            include: {
+                branches: {
+                    select: {
+                        id: true,
+                        name: true,
+                    }
+                },
+                staff: {
+                    select: {
+                        id: true,
+                        full_name: true,
+                        phone: true,
+                    }
+                }
+            }
+        });
+    }
+
     async createAccount(data) {
         return await prisma.accounts.create({
             data: data,
