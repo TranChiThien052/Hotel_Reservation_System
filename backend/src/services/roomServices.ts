@@ -75,10 +75,10 @@ class RoomService {
         }
 
         try {
-            const result = await RoomRepository.createRoom(data);
+            const result = await RoomRepository.createRoom(validatedData);
             if (result)
                 await historyTransactionServices.createCreateTransaction(
-                    data.log_account_id,
+                    data.log_account_id ?? null,
                     "Room",
                     result.id,
                     result
