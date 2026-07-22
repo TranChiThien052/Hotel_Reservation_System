@@ -43,11 +43,14 @@ export interface Booking {
         id: string,
         name: string,
     },
-    payments?: [{
+    payments?: Array<{
+        id?: string,
         amount: number,
-        paid_at: string,
-        is_deposit: boolean,
-    }],
+        paid_at?: string,
+        is_deposit?: boolean,
+        status?: string,
+        payment_method?: string,
+    }>,
 
 }
 

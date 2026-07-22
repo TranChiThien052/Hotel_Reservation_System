@@ -8,6 +8,7 @@ import { MdOutlineHotel } from 'react-icons/md';
 import { IoCheckmarkCircle, IoTimeOutline } from 'react-icons/io5';
 import { HiOutlineXCircle, HiOutlineClock } from 'react-icons/hi';
 import { BsDoorOpen, BsDoorClosed } from 'react-icons/bs';
+import { getBookingAmounts } from '../components/RefundModal';
 
 const formatVND = (n: number | string) =>
     Number(n).toLocaleString('vi-VN') + 'đ';
@@ -257,6 +258,7 @@ const BookingHistory = () => {
                         {paginated.map((booking) => {
                             const statusCfg = STATUS_CONFIG[booking.status] ?? STATUS_CONFIG.pending;
                             const isHourly = booking.booking_type === 'hourly';
+                            const amounts = getBookingAmounts(booking);
                             return (
                                 <div
                                     key={booking.id}
@@ -339,30 +341,36 @@ const BookingHistory = () => {
                                             <div className="flex items-center justify-between">
                                                 <span className="text-xs text-gray-500">Tổng tiền</span>
                                                 <span className="text-sm font-bold text-gray-900">
-                                                    {booking.total_amount ? formatVND(booking.total_amount) : '—'}
+                                                    {formatVND(amounts.totalAmount)}
                                                 </span>
                                             </div>
-                                            {Number(booking.deposit_amount ?? 0) > 0 && (
+                                            {amounts.isFullPaid ? (
+                                                <div className="flex items-center justify-between">
+                                                    <span className="text-xs text-emerald-600 font-semibold">Đã thanh toán đủ</span>
+                                                    <span className="text-sm font-bold text-emerald-600">
+                                                        {formatVND(amounts.paidAmount)}
+                                                    </span>
+                                                </div>
+                                            ) : amounts.isDepositPaid ? (
                                                 <>
                                                     <div className="flex items-center justify-between">
                                                         <span className="text-xs text-gray-500">Đã cọc</span>
                                                         <span className="text-sm font-bold text-blue-600">
-                                                            {formatVND(booking.deposit_amount)}
+                                                            {formatVND(amounts.paidAmount)}
                                                         </span>
                                                     </div>
                                                     <div className="flex items-center justify-between">
                                                         <span className="text-xs text-gray-500">Còn lại</span>
                                                         <span className="text-lg font-bold text-amber-500">
-                                                            {formatVND(Number(booking.total_amount ?? 0) - Number(booking.deposit_amount))}
+                                                            {formatVND(amounts.remainingAmount)}
                                                         </span>
                                                     </div>
                                                 </>
-                                            )}
-                                            {Number(booking.deposit_amount ?? 0) === 0 && (
+                                            ) : (
                                                 <div className="flex items-center justify-between">
                                                     <span className="text-xs text-gray-500">Còn lại</span>
                                                     <span className="text-lg font-bold text-amber-500">
-                                                        {booking.total_amount ? formatVND(booking.total_amount) : '—'}
+                                                        {formatVND(amounts.totalAmount)}
                                                     </span>
                                                 </div>
                                             )}

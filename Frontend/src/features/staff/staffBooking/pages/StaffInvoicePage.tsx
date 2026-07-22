@@ -10,6 +10,7 @@ import { Button, Spin, message, Divider, Modal } from 'antd';
 import { IoArrowBack, IoCheckmarkCircle } from 'react-icons/io5';
 import { BsReceipt } from 'react-icons/bs';
 import { DollarOutlined, MobileOutlined, CheckCircleOutlined } from '@ant-design/icons';
+import { getBookingAmounts } from '@/features/client/profile/components/RefundModal';
 
 const formatVND = (n: number | string) => Number(n).toLocaleString('vi-VN') + 'đ';
 const formatDateTime = (str?: string | null) => {
@@ -52,12 +53,13 @@ const StaffInvoicePage = () => {
             ]);
             setBooking(bookingData);
 
+            const amounts = getBookingAmounts(bookingData);
             const serviceCharge = bookingServices.reduce((sum: number, s: any) => sum + Number(s.total_amount || 0), 0);
-            const roomCharge = Number(bookingData.total_amount || 0);
+            const roomCharge = amounts.subtotal;
             const discountAmount = Number(bookingData.discount_amount || 0);
-            const depositUsed = bookingData.payments?.reduce((sum: number, p: any) => sum + Number(p.amount || 0), 0) || 0;
+            const depositUsed = amounts.paidAmount;
             
-            const totalAmount = roomCharge + serviceCharge - discountAmount;
+            const totalAmount = Math.max(0, roomCharge + serviceCharge - discountAmount);
             let amountDue = totalAmount - depositUsed;
             let refundAmount = 0;
             if (amountDue < 0) {
@@ -71,13 +73,17 @@ const StaffInvoicePage = () => {
             if (existingInvoice) {
                 // Update the existing invoice if there are changes
                 if (
-                    existingInvoice.service_charge !== serviceCharge ||
-                    existingInvoice.total_amount !== totalAmount ||
-                    existingInvoice.deposit_used !== depositUsed ||
-                    existingInvoice.amount_due !== amountDue
+                    Number(existingInvoice.room_charge) !== roomCharge ||
+                    Number(existingInvoice.service_charge) !== serviceCharge ||
+                    Number(existingInvoice.discount_amount) !== discountAmount ||
+                    Number(existingInvoice.total_amount) !== totalAmount ||
+                    Number(existingInvoice.deposit_used) !== depositUsed ||
+                    Number(existingInvoice.amount_due) !== amountDue
                 ) {
                      finalInvoice = await invoiceApi.updateInvoice(existingInvoice.id, {
+                         room_charge: roomCharge,
                          service_charge: serviceCharge,
+                         discount_amount: discountAmount,
                          total_amount: totalAmount,
                          deposit_used: depositUsed,
                          amount_due: amountDue,
@@ -93,7 +99,9 @@ const StaffInvoicePage = () => {
                 
                 // Immediately update it to ensure accurate numbers
                 finalInvoice = await invoiceApi.updateInvoice(newInvoice.id, {
+                    room_charge: roomCharge,
                     service_charge: serviceCharge,
+                    discount_amount: discountAmount,
                     total_amount: totalAmount,
                     deposit_used: depositUsed,
                     amount_due: amountDue,

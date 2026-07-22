@@ -14,7 +14,7 @@ import {
 } from 'react-icons/md';
 import { HiOutlineClock, HiOutlineXCircle } from 'react-icons/hi';
 import { BsDoorOpen, BsDoorClosed, BsReceipt } from 'react-icons/bs';
-import RefundModal, { calcRefund } from '../components/RefundModal';
+import RefundModal, { calcRefund, getBookingAmounts } from '../components/RefundModal';
 
 
 const formatVND = (n: number | string) =>
@@ -219,10 +219,13 @@ const BookingDetails = () => {
     const nights = isHourly ? 0 : Math.ceil(diffMs / (1000 * 60 * 60 * 24));
     const hours = isHourly ? Math.round(diffMs / (1000 * 60 * 60)) : 0;
 
+    const amounts = getBookingAmounts(booking);
+
     /* Điều kiện hiển thị nút hoàn tiền */
     const canRequestRefund =
         !isHourly &&
         (booking.status === 'pending' || booking.status === 'confirmed') &&
+        amounts.isDepositPaid &&
         !existingCancelRequest &&
         !refundSuccess;
 
@@ -437,7 +440,7 @@ const BookingDetails = () => {
                             />
                             <InfoRow
                                 label="Tạm tính"
-                                value={booking.subtotal ? formatVND(booking.subtotal) : '—'}
+                                value={formatVND(amounts.subtotal)}
                             />
                             {hasDiscount && (
                                 <InfoRow
@@ -452,16 +455,28 @@ const BookingDetails = () => {
                             )}
                             <div className="flex justify-between items-center py-3 mt-2 border-t-2 border-gray-100">
                                 <span className="font-bold text-gray-900">Tổng cộng</span>
-                                <span className={`font-bold text-lg ${Number(booking.payments?.[0]?.amount ?? 0) > 0 ? 'text-gray-900' : 'text-amber-500'}`}>
-                                    {booking.total_amount ? formatVND(booking.total_amount) : '—'}
+                                <span className={`font-bold text-lg ${amounts.isDepositPaid ? 'text-gray-900' : 'text-amber-500'}`}>
+                                    {formatVND(amounts.totalAmount)}
                                 </span>
                             </div>
-                            {Number(booking.payments?.[0]?.amount ?? 0) > 0 && (
+                            {amounts.isFullPaid ? (
+                                <div className="mt-2 p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-sm mb-3">
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-emerald-700 font-semibold">Đã thanh toán 100%</span>
+                                        <span className="text-emerald-700 font-bold">{formatVND(amounts.paidAmount)}</span>
+                                    </div>
+                                    {booking.deposit_paid_at && (
+                                        <p className="text-xs text-emerald-600 mt-1">
+                                            Thanh toán lúc: {formatDateTime(booking.deposit_paid_at)}
+                                        </p>
+                                    )}
+                                </div>
+                            ) : amounts.isDepositPaid ? (
                                 <>
                                     <div className="mt-2 p-3 bg-blue-50 border border-blue-200 rounded-xl text-sm mb-3">
                                         <div className="flex justify-between">
                                             <span className="text-blue-600">Đã đặt cọc</span>
-                                            <span className="text-blue-700 font-bold">{formatVND(booking.payments?.[0]?.amount ?? 0)}</span>
+                                            <span className="text-blue-700 font-bold">{formatVND(amounts.paidAmount)}</span>
                                         </div>
                                         {booking.deposit_paid_at && (
                                             <p className="text-xs text-blue-400 mt-1">
@@ -472,12 +487,17 @@ const BookingDetails = () => {
                                     <div className="flex justify-between items-center py-3 border-t-2 border-gray-100">
                                         <span className="font-bold text-gray-900">Còn lại cần thanh toán</span>
                                         <span className="font-bold text-xl text-amber-500">
-                                            {booking.total_amount 
-                                                ? formatVND(Number(booking.total_amount) - Number(booking.payments?.[0]?.amount ?? 0)) 
-                                                : '—'}
+                                            {formatVND(amounts.remainingAmount)}
                                         </span>
                                     </div>
                                 </>
+                            ) : (
+                                <div className="flex justify-between items-center py-3 border-t-2 border-gray-100">
+                                    <span className="font-bold text-gray-900">Tiền cọc cần thanh toán (30%)</span>
+                                    <span className="font-bold text-xl text-amber-500">
+                                        {formatVND(amounts.depositAmount)}
+                                    </span>
+                                </div>
                             )}
                         </div>
                     </div>
