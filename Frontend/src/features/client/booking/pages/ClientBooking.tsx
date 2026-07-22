@@ -18,6 +18,7 @@ import type {
 import { useAppSelector } from "@/app/store/hooks";
 import { IoArrowBack, IoCheckmarkCircle } from "react-icons/io5";
 import { FaRegCalendarAlt, FaRegUser, FaTag } from "react-icons/fa";
+import { message } from "antd";
 import {
   MdOutlinePhone,
   MdOutlineMail,
@@ -27,9 +28,10 @@ import {
   MdOutlinePublic,
   MdOutlineCake,
   MdOutlineHome,
+  MdOutlineEdit,
 } from "react-icons/md";
 import fallbackImg from "@/assets/images/Deluxe.jpg";
-import type { Customer } from "@/features/admin/adminCustomers/types/customers-type";
+import type { Customer, CustomerFormData } from "@/features/admin/adminCustomers/types/customers-type";
 import type { Promotion } from "@/features/admin/adminPromitions/types/promotions-types";
 import { paymentApi } from "../api/payment-api";
 import { bookingServiceApi } from "@/features/staff/staffBooking/api/booking-service-api";
@@ -107,6 +109,11 @@ const ClientBooking = () => {
   const existingCustomer = authUser?.customers ?? null;
   const loggedInCustomerId = existingCustomer?.id ?? null;
   const [customerProfile, setCustomerProfile] = useState<Customer | null>(null);
+
+  // States cho tính năng chỉnh sửa thông tin khách hàng
+  const [isEditingCustomer, setIsEditingCustomer] = useState(false);
+  const [savingCustomer, setSavingCustomer] = useState(false);
+  const [editCustomerForm, setEditCustomerForm] = useState<CustomerFormData | null>(null);
 
   const [room, setRoom] = useState<RoomItem | null>(null);
   const [loading, setLoading] = useState(!isByType);
@@ -255,10 +262,88 @@ const ClientBooking = () => {
     try {
       const profile = await customersApi.getCustomerById(authUser.customers.id);
       setCustomerProfile(profile);
+      if (profile) {
+        setGuestForm({
+          full_name: profile.full_name || "",
+          phone: profile.phone || "",
+          email: profile.email || "",
+          id_card_number: profile.id_card_number || "",
+          nationality: profile.nationality || "Việt Nam",
+          date_of_birth: profile.date_of_birth
+            ? new Date(profile.date_of_birth).toISOString().split("T")[0]
+            : "",
+          address: profile.address || "",
+        });
+      }
     } catch (error) {
       console.error("Lỗi khi lấy thông tin khách hàng:", error);
     }
   }, [authUser?.customers?.id]);
+  const handleStartEditing = () => {
+    const activeProfile = customerProfile || authUser?.customers;
+    const formattedDob = activeProfile?.date_of_birth
+      ? new Date(activeProfile.date_of_birth).toISOString().split("T")[0]
+      : guestForm.date_of_birth || "";
+
+    setEditCustomerForm({
+      full_name: activeProfile?.full_name || guestForm.full_name || "",
+      phone: activeProfile?.phone || guestForm.phone || "",
+      email: activeProfile?.email || guestForm.email || "",
+      id_card_number: activeProfile?.id_card_number || guestForm.id_card_number || "",
+      date_of_birth: formattedDob,
+      nationality: activeProfile?.nationality || guestForm.nationality || "Việt Nam",
+      address: activeProfile?.address || guestForm.address || "",
+    });
+    setIsEditingCustomer(true);
+  };
+
+  const handleSaveCustomer = async () => {
+    const customerId = customerProfile?.id || authUser?.customers?.id;
+    if (!customerId || !editCustomerForm) return;
+
+    if (
+      !editCustomerForm.full_name.trim() ||
+      !editCustomerForm.phone.trim() ||
+      !editCustomerForm.email.trim() ||
+      !editCustomerForm.id_card_number.trim()
+    ) {
+      message.error("Vui lòng điền đầy đủ các thông tin bắt buộc (*)");
+      return;
+    }
+
+    setSavingCustomer(true);
+    try {
+      const payload: any = {
+        full_name: editCustomerForm.full_name,
+        phone: editCustomerForm.phone,
+        email: editCustomerForm.email,
+        id_card_number: editCustomerForm.id_card_number,
+        date_of_birth: editCustomerForm.date_of_birth,
+        nationality: editCustomerForm.nationality,
+        address: editCustomerForm.address || undefined,
+        account_id: authUser?.id,
+      };
+      const updated = await customersApi.updateCustomer(customerId, payload);
+      const updatedData = updated?.data ?? updated ?? payload;
+      setCustomerProfile(updatedData);
+      setGuestForm({
+        full_name: editCustomerForm.full_name,
+        phone: editCustomerForm.phone,
+        email: editCustomerForm.email,
+        id_card_number: editCustomerForm.id_card_number,
+        date_of_birth: editCustomerForm.date_of_birth,
+        nationality: editCustomerForm.nationality,
+        address: editCustomerForm.address || "",
+      });
+      message.success("Cập nhật thông tin khách hàng thành công!");
+      setIsEditingCustomer(false);
+    } catch (err: any) {
+      console.error("Lỗi cập nhật thông tin khách hàng:", err);
+      message.error(err?.response?.data?.message ?? "Cập nhật thông tin thất bại!");
+    } finally {
+      setSavingCustomer(false);
+    }
+  };
 
   useEffect(() => {
     fetchRoom();
@@ -933,213 +1018,197 @@ const ClientBooking = () => {
                   Thông tin khách hàng
                 </h2>
 
-                {/* Đã có customer profile: hiển thị thông tin */}
-                {existingCustomer ? (
+                {!isEditingCustomer ? (
+                  /* Hiển thị thông tin tổng quan dạng thẻ gọn */
                   <div className="flex flex-col gap-3 p-4 bg-amber-50 border border-amber-200 rounded-xl">
-                    <div className="flex items-center gap-2 text-amber-700 text-sm font-medium mb-1">
-                      <IoCheckmarkCircle className="text-lg" />
-                      Đặt phòng với tài khoản đã đăng nhập
+                    <div className="flex items-center justify-between gap-2 mb-1 flex-wrap">
+                      <div className="flex items-center gap-2 text-amber-700 text-sm font-medium">
+                        <IoCheckmarkCircle className="text-lg" />
+                        Đặt phòng với tài khoản đã đăng nhập
+                      </div>
+                      <button
+                        type="button"
+                        onClick={handleStartEditing}
+                        className="flex items-center gap-1.5 px-3 py-1.5 bg-white hover:bg-amber-100 text-amber-800 text-xs font-semibold rounded-lg border border-amber-300 transition-colors cursor-pointer shadow-sm"
+                      >
+                        <MdOutlineEdit className="text-sm text-amber-600" />
+                        Thay đổi thông tin
+                      </button>
                     </div>
-                    <div className="grid grid-cols-2 gap-3 text-sm">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-sm">
                       <div>
                         <p className="text-gray-500 text-xs">Họ tên</p>
                         <p className="font-semibold text-gray-800">
-                          {customerProfile?.full_name}
+                          {customerProfile?.full_name || guestForm.full_name || "—"}
                         </p>
                       </div>
                       <div>
                         <p className="text-gray-500 text-xs">Điện thoại</p>
                         <p className="font-semibold text-gray-800">
-                          {customerProfile?.phone}
+                          {customerProfile?.phone || guestForm.phone || "—"}
                         </p>
                       </div>
                       <div>
                         <p className="text-gray-500 text-xs">Email</p>
                         <p className="font-semibold text-gray-800">
-                          {customerProfile?.email}
+                          {customerProfile?.email || guestForm.email || "—"}
                         </p>
                       </div>
                       <div>
                         <p className="text-gray-500 text-xs">CCCD/CMND</p>
                         <p className="font-semibold text-gray-800">
-                          {customerProfile?.id_card_number}
+                          {customerProfile?.id_card_number || guestForm.id_card_number || "—"}
                         </p>
                       </div>
                       <div>
                         <p className="text-gray-500 text-xs">Quốc tịch</p>
                         <p className="font-semibold text-gray-800">
-                          {customerProfile?.nationality}
+                          {customerProfile?.nationality || guestForm.nationality || "—"}
                         </p>
                       </div>
                       <div>
                         <p className="text-gray-500 text-xs">Ngày sinh</p>
                         <p className="font-semibold text-gray-800">
-                          {customerProfile?.date_of_birth
-                            ? new Date(
-                                customerProfile.date_of_birth,
-                              ).toLocaleDateString()
-                            : "N/A"}
+                          {(customerProfile?.date_of_birth || guestForm.date_of_birth)
+                            ? new Date(customerProfile?.date_of_birth || guestForm.date_of_birth).toLocaleDateString("vi-VN")
+                            : "—"}
                         </p>
                       </div>
+                      {(customerProfile?.address || guestForm.address) && (
+                        <div className="col-span-2 sm:col-span-3">
+                          <p className="text-gray-500 text-xs">Địa chỉ</p>
+                          <p className="font-semibold text-gray-800">
+                            {customerProfile?.address || guestForm.address}
+                          </p>
+                        </div>
+                      )}
                     </div>
                   </div>
                 ) : (
-                  <div className="flex flex-col gap-4">
-                    <div className="flex items-start gap-2 p-3 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-800">
-                      <span>⚠️</span>
-                      <span>
-                        Tài khoản của bạn chưa có hồ sơ khách hàng. Vui lòng
-                        nhập thông tin dưới đây — thông tin sẽ được lưu cho
-                        những lần đặt phòng tiếp theo.
+                  /* Form cập nhật thông tin thiết kế gọn gàng */
+                  <div className="flex flex-col gap-4 p-4 bg-white border border-amber-300 rounded-xl shadow-sm">
+                    <div className="flex items-center justify-between border-b border-gray-100 pb-2">
+                      <span className="font-bold text-sm text-gray-800 flex items-center gap-2">
+                        <MdOutlineEdit className="text-amber-500" /> Cập nhật thông tin khách hàng
                       </span>
+                      <button
+                        type="button"
+                        onClick={() => setIsEditingCustomer(false)}
+                        className="text-xs text-gray-400 hover:text-gray-600 cursor-pointer"
+                      >
+                        Hủy
+                      </button>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div className="sm:col-span-2 flex flex-col gap-1.5">
-                        <label className="text-sm font-medium text-gray-700">
-                          Họ và tên *
-                        </label>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div className="flex flex-col gap-1">
+                        <label className="text-xs font-medium text-gray-700">Họ và tên *</label>
                         <div className="relative">
-                          <MdOutlinePersonOutline className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-lg" />
+                          <MdOutlinePersonOutline className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-base" />
                           <input
                             type="text"
-                            value={guestForm.full_name}
-                            onChange={(e) =>
-                              setGuestForm((f) => ({
-                                ...f,
-                                full_name: e.target.value,
-                              }))
-                            }
-                            placeholder="Nguyễn Văn A"
-                            className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-300 bg-gray-50"
+                            value={editCustomerForm?.full_name || ""}
+                            onChange={(e) => setEditCustomerForm(f => f ? ({ ...f, full_name: e.target.value }) : null)}
+                            className="w-full pl-9 pr-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-300 bg-gray-50"
                           />
                         </div>
                       </div>
 
-                      <div className="flex flex-col gap-1.5">
-                        <label className="text-sm font-medium text-gray-700">
-                          Số điện thoại *
-                        </label>
+                      <div className="flex flex-col gap-1">
+                        <label className="text-xs font-medium text-gray-700">Số điện thoại *</label>
                         <div className="relative">
-                          <MdOutlinePhone className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-lg" />
+                          <MdOutlinePhone className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-base" />
                           <input
                             type="tel"
-                            value={guestForm.phone}
-                            onChange={(e) =>
-                              setGuestForm((f) => ({
-                                ...f,
-                                phone: e.target.value,
-                              }))
-                            }
-                            placeholder="0901 234 567"
-                            className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-300 bg-gray-50"
+                            value={editCustomerForm?.phone || ""}
+                            onChange={(e) => setEditCustomerForm(f => f ? ({ ...f, phone: e.target.value }) : null)}
+                            className="w-full pl-9 pr-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-300 bg-gray-50"
                           />
                         </div>
                       </div>
 
-                      <div className="flex flex-col gap-1.5">
-                        <label className="text-sm font-medium text-gray-700">
-                          Email *
-                        </label>
+                      <div className="flex flex-col gap-1">
+                        <label className="text-xs font-medium text-gray-700">Email *</label>
                         <div className="relative">
-                          <MdOutlineMail className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-lg" />
+                          <MdOutlineMail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-base" />
                           <input
                             type="email"
-                            value={guestForm.email}
-                            onChange={(e) =>
-                              setGuestForm((f) => ({
-                                ...f,
-                                email: e.target.value,
-                              }))
-                            }
-                            placeholder="email@example.com"
-                            className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-300 bg-gray-50"
+                            value={editCustomerForm?.email || ""}
+                            onChange={(e) => setEditCustomerForm(f => f ? ({ ...f, email: e.target.value }) : null)}
+                            className="w-full pl-9 pr-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-300 bg-gray-50"
                           />
                         </div>
                       </div>
 
-                      <div className="flex flex-col gap-1.5">
-                        <label className="text-sm font-medium text-gray-700">
-                          Số CCCD / Hộ chiếu *
-                        </label>
+                      <div className="flex flex-col gap-1">
+                        <label className="text-xs font-medium text-gray-700">Số CCCD / Hộ chiếu *</label>
                         <div className="relative">
-                          <MdOutlineCreditCard className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-lg" />
+                          <MdOutlineCreditCard className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-base" />
                           <input
                             type="text"
-                            value={guestForm.id_card_number}
-                            onChange={(e) =>
-                              setGuestForm((f) => ({
-                                ...f,
-                                id_card_number: e.target.value,
-                              }))
-                            }
-                            placeholder="012345678901"
-                            className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-300 bg-gray-50"
+                            value={editCustomerForm?.id_card_number || ""}
+                            onChange={(e) => setEditCustomerForm(f => f ? ({ ...f, id_card_number: e.target.value }) : null)}
+                            className="w-full pl-9 pr-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-300 bg-gray-50"
                           />
                         </div>
                       </div>
 
-                      <div className="flex flex-col gap-1.5">
-                        <label className="text-sm font-medium text-gray-700">
-                          Ngày sinh *
-                        </label>
+                      <div className="flex flex-col gap-1">
+                        <label className="text-xs font-medium text-gray-700">Ngày sinh *</label>
                         <div className="relative">
-                          <MdOutlineCake className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-lg" />
+                          <MdOutlineCake className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-base" />
                           <input
                             type="date"
-                            value={guestForm.date_of_birth}
-                            onChange={(e) =>
-                              setGuestForm((f) => ({
-                                ...f,
-                                date_of_birth: e.target.value,
-                              }))
-                            }
-                            className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-300 bg-gray-50"
+                            value={editCustomerForm?.date_of_birth || ""}
+                            onChange={(e) => setEditCustomerForm(f => f ? ({ ...f, date_of_birth: e.target.value }) : null)}
+                            className="w-full pl-9 pr-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-300 bg-gray-50"
                           />
                         </div>
                       </div>
 
-                      <div className="flex flex-col gap-1.5">
-                        <label className="text-sm font-medium text-gray-700">
-                          Quốc tịch
-                        </label>
+                      <div className="flex flex-col gap-1">
+                        <label className="text-xs font-medium text-gray-700">Quốc tịch</label>
                         <div className="relative">
-                          <MdOutlinePublic className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-lg" />
+                          <MdOutlinePublic className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-base" />
                           <input
                             type="text"
-                            value={guestForm.nationality}
-                            onChange={(e) =>
-                              setGuestForm((f) => ({
-                                ...f,
-                                nationality: e.target.value,
-                              }))
-                            }
-                            placeholder="Việt Nam"
-                            className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-300 bg-gray-50"
+                            value={editCustomerForm?.nationality || ""}
+                            onChange={(e) => setEditCustomerForm(f => f ? ({ ...f, nationality: e.target.value }) : null)}
+                            className="w-full pl-9 pr-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-300 bg-gray-50"
                           />
                         </div>
                       </div>
 
-                      <div className="sm:col-span-2 flex flex-col gap-1.5">
-                        <label className="text-sm font-medium text-gray-700">
-                          Địa chỉ
-                        </label>
+                      <div className="sm:col-span-2 flex flex-col gap-1">
+                        <label className="text-xs font-medium text-gray-700">Địa chỉ</label>
                         <div className="relative">
-                          <MdOutlineHome className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-lg" />
+                          <MdOutlineHome className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-base" />
                           <input
                             type="text"
-                            value={guestForm.address}
-                            onChange={(e) =>
-                              setGuestForm((f) => ({
-                                ...f,
-                                address: e.target.value,
-                              }))
-                            }
-                            placeholder="Số nhà, đường, quận, thành phố..."
-                            className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-300 bg-gray-50"
+                            value={editCustomerForm?.address || ""}
+                            onChange={(e) => setEditCustomerForm(f => f ? ({ ...f, address: e.target.value }) : null)}
+                            className="w-full pl-9 pr-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-300 bg-gray-50"
                           />
                         </div>
                       </div>
+                    </div>
+
+                    <div className="flex justify-end gap-2 pt-2 border-t border-gray-100">
+                      <button
+                        type="button"
+                        onClick={() => setIsEditingCustomer(false)}
+                        className="px-4 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
+                      >
+                        Hủy
+                      </button>
+                      <button
+                        type="button"
+                        disabled={savingCustomer}
+                        onClick={handleSaveCustomer}
+                        className="px-4 py-1.5 bg-amber-500 hover:bg-amber-600 disabled:bg-gray-300 text-white text-xs font-bold rounded-lg transition-colors cursor-pointer flex items-center gap-1.5"
+                      >
+                        {savingCustomer ? "Đang lưu..." : "Lưu thay đổi"}
+                      </button>
                     </div>
                   </div>
                 )}

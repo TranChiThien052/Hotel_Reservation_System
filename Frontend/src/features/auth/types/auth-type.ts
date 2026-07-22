@@ -27,5 +27,10 @@ export interface AuthUser {
     id?: string;
     full_name: string;
     phone: string;
+    email?: string;
+    id_card_number?: string;
+    nationality?: string;
+    date_of_birth?: string;
+    address?: string;
   }
 }
