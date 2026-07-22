@@ -23,6 +23,7 @@ import {
 import { HiOutlineClock } from 'react-icons/hi';
 import { BsDoorOpen, BsDoorClosed, BsReceipt, BsPlus } from 'react-icons/bs';
 import { LoginOutlined, LogoutOutlined, DeleteOutlined, EditOutlined, DollarOutlined } from '@ant-design/icons';
+import { getBookingAmounts } from '@/features/client/profile/components/RefundModal';
 
 const formatVND = (n: number | string) => Number(n).toLocaleString('vi-VN') + 'đ';
 const formatDate = (str?: string | null) => {
@@ -285,8 +286,9 @@ const StaffBookingDetails = () => {
     const nights = isHourly ? 0 : Math.ceil(diffMs / (1000 * 60 * 60 * 24));
     const hours = isHourly ? Math.round(diffMs / (1000 * 60 * 60)) : 0;
 
-    const totalAmount = Number(booking.total_amount  || 0);
-    const totalPaid = booking.payments?.reduce((sum, p) => sum + Number(p.amount || 0), 0) || 0;
+    const amounts = getBookingAmounts(booking);
+    const totalAmount = amounts.totalAmount;
+    const totalPaid = amounts.paidAmount;
     const serviceTotal = bookingServices.reduce((sum, s) => sum + Number(s.total_amount || 0), 0);
     const amountDue = Math.max(0, totalAmount + serviceTotal - totalPaid);
 
