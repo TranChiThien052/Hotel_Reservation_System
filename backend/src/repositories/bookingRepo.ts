@@ -243,7 +243,7 @@ class BookingRepository {
                 notes: "Đã hủy vì không thanh toán cọc",
             },
         });
-        const booking = await prisma.bookings.findMany({
+        return await prisma.bookings.findMany({
             where: { customer_id: customerId },
             include: {
                 customers: true,
