@@ -1,7 +1,25 @@
+import { PrismaClient } from '@prisma/client';
 import { prisma } from '../config/prisma';
 
 class BookingRepository {
     async getAllBookings() {
+        await prisma.bookings.updateMany({
+            where: {
+                status: "pending",
+                expires_at: {
+                    lt: new Date(),
+                },
+                payments: {
+                    none: {
+                        status: "paid",
+                    },
+                },
+            },
+            data: {
+                status: "cancelled",
+                notes: "Đã hủy vì không thanh toán cọc",
+            },
+        });
         return await prisma.bookings.findMany({
             include: {
                 customers: true,
@@ -21,7 +39,7 @@ class BookingRepository {
     };
 
     async getBookingById(id) {
-        return await prisma.bookings.findUnique({
+        const booking = await prisma.bookings.findUnique({
             where: { id: id },
             include: {
                 customers: true,
@@ -49,6 +67,18 @@ class BookingRepository {
                 }
             }
         });
+        if (booking?.expires_at && new Date(booking.expires_at).getTime() < Date.now()) {
+            booking.status = 'cancelled';
+            booking.notes = `${booking.notes}\nĐã hủy vì không thanh toán cọc`;
+            await prisma.bookings.update({
+                where: { id: id },
+                data: {
+                    status: booking.status,
+                    notes: booking.notes,
+                }
+            })
+        }
+        return booking;
     };
 
     async getTodayCheckinCount(branch_id) {
@@ -125,7 +155,7 @@ class BookingRepository {
     }
 
     async getBookingByCode(code) {
-        return await prisma.bookings.findUnique({
+        const booking = await prisma.bookings.findUnique({
             where: { booking_code: code },
             include: {
                 customers: true,
@@ -142,9 +172,39 @@ class BookingRepository {
                 }
             }
         });
+        if (booking?.expires_at && new Date(booking.expires_at).getTime() < Date.now()) {
+            booking.status = 'cancelled';
+            booking.notes = `${booking.notes}\nĐã hủy vì không thanh toán cọc`;
+            await prisma.bookings.update({
+                where: { booking_code: code },
+                data: {
+                    status: booking.status,
+                    notes: booking.notes,
+                }
+            })
+        }
+        return booking;
     };
 
     async getBookingsByBranchId(branchId) {
+        await prisma.bookings.updateMany({
+            where: {
+                branch_id: branchId,
+                status: "pending",
+                expires_at: {
+                    lt: new Date(),
+                },
+                payments: {
+                    none: {
+                        status: "paid",
+                    },
+                },
+            },
+            data: {
+                status: "cancelled",
+                notes: "Đã hủy vì không thanh toán cọc",
+            },
+        });
         return await prisma.bookings.findMany({
             where: { branch_id: branchId },
             include: {
@@ -165,7 +225,25 @@ class BookingRepository {
     };
 
     async getBookingsByCustomerId(customerId) {
-        return await prisma.bookings.findMany({
+        await prisma.bookings.updateMany({
+            where: {
+                customer_id: customerId,
+                status: "pending",
+                expires_at: {
+                    lt: new Date(),
+                },
+                payments: {
+                    none: {
+                        status: "paid",
+                    },
+                },
+            },
+            data: {
+                status: "cancelled",
+                notes: "Đã hủy vì không thanh toán cọc",
+            },
+        });
+        const booking = await prisma.bookings.findMany({
             where: { customer_id: customerId },
             include: {
                 customers: true,
@@ -185,6 +263,23 @@ class BookingRepository {
     };
 
     async getBookingsByStatus(status) {
+        await prisma.bookings.updateMany({
+            where: {
+                status: status,
+                expires_at: {
+                    lt: new Date(),
+                },
+                payments: {
+                    none: {
+                        status: "paid",
+                    },
+                },
+            },
+            data: {
+                status: "cancelled",
+                notes: "Đã hủy vì không thanh toán cọc",
+            },
+        });
         return await prisma.bookings.findMany({
             where: { status: status },
             include: {
@@ -240,6 +335,8 @@ class BookingRepository {
             }
 
             return booking;
+        }, {
+            isolationLevel: PrismaClient.TransactionIsolationLevel.Serializable
         })
     }
 

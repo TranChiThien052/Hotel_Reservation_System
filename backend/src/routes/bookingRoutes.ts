@@ -677,7 +677,7 @@ router.put('/:id', (req, res) => {
  *         description: Successful operation
  */
 router.delete('/:id', (req, res) => {
-    authorize(res, req, ["admin"], BookingController.deleteBooking(req, res))
+    authorize(req, res, ["admin"], () => BookingController.deleteBooking(req, res))
 });
 /**
  * @swagger
