@@ -61,7 +61,7 @@ class RoomTypeController {
             description,
             max_guests: max_guests ? parseInt(max_guests) : undefined,
             images,
-            is_active: is_active !== undefined ? is_active === 'true' : undefined,
+            is_active: is_active !== undefined ? is_active === true : undefined,
             log_account_id: req.user?.account_id
         };
         return await RoomTypeServices.updateRoomType(id, data)

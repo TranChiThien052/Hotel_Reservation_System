@@ -325,7 +325,7 @@ class AccountService {
         const result = await prisma.$transaction(async (tx) => {
             const account = await tx.accounts.create({
                 data: {
-                    username: validatedData.email,
+                    username: validatedData.email.toLowerCase(),
                     password_hash: validatedData.password_hash,
                     role: "customer",
                     status: "active"
