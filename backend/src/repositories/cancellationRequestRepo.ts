@@ -55,13 +55,66 @@ class CancellationRequestRepository {
     };
 
     async updateCancellationRequest(id, data) {
-        return await prisma.cancellation_requests.update({
-            where: { id: id },
-            data: data,
-            include: {
-                bookings: true,
+        return await prisma.$transaction(async (tx) => {
+            const before = await tx.cancellation_requests.findUnique({
+                where: { id: id }
+            })
+            const updatedCancellationRequest = await tx.cancellation_requests.update({
+                where: { id: id },
+                data: data,
+                include: {
+                    bookings: true,
+                }
+            });
+            const { bookings, ...after } = updatedCancellationRequest;
+            const changes = Object.keys(data);
+            const history = await tx.history_transaction.create({
+                data: {
+                    action: 'Update',
+                    account_id: updatedCancellationRequest.resolved_by,
+                    target_type: "Cancellation request",
+                    target_id: updatedCancellationRequest.id,
+                    description: `Cancellation request updated by account with id ${updatedCancellationRequest.resolved_by}`,
+                    metadata: {
+                        before: before,
+                        after: after,
+                        updated_fields: changes,
+                    },
+                }
+            });
+            if (data.status === 'confirmed') {
+                const beforeBooking = await tx.bookings.findUnique({
+                    where: { id: updatedCancellationRequest.booking_id },
+                })
+                const booking = await tx.bookings.update({
+                    where: { id: updatedCancellationRequest.booking_id },
+                    data: {
+                        status: 'cancelled',
+                        updated_at: new Date(),
+                    }
+                });
+                await tx.history_transaction.create({
+                    data: {
+                        action: 'Update',
+                        account_id: updatedCancellationRequest.resolved_by,
+                        target_type: "Booking",
+                        target_id: updatedCancellationRequest.booking_id,
+                        description: `Booking updated by account with id ${updatedCancellationRequest.resolved_by}`,
+                        metadata: {
+                            before: beforeBooking,
+                            after: booking,
+                            updated_fields: ['status'],
+                        },
+                    }
+                });
             }
-        });
+            return await tx.cancellation_requests.findUnique({
+                where: { id: id },
+                include: {
+                    bookings: true,
+                }
+            });
+        })
     };
 
     async deleteCancellationRequest(id) {

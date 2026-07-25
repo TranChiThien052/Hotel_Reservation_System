@@ -535,6 +535,30 @@ class AccountService {
     async deleteAccount(id) {
         return await AccountRepository.deleteAccount(id);
     };
+
+    async createAdmin() {
+        const existingAdmin = await AccountRepository.getAccountByRole("admin");
+        if (existingAdmin)
+            throw new ValidationError('500', "Admin account already exists");
+
+        const data = {
+            account: {
+                username: "admin",
+                password: await bcrypt.hash('Admin123@', Number(process.env.SALT_ROUNDS) || 5),
+                role: 'admin',
+                status: 'active'
+            },
+            user: {
+                full_name: 'admin',
+                position: 'admin',
+            }
+        };
+
+        const result = await AccountRepository.createAdmin(data);
+        if (!result)
+            throw new Error('Failed to create admin account');
+        return { code: 201, message: 'Admin account created successfully' };
+    }
 }
 
 export default new AccountService();

@@ -21,6 +21,14 @@ class BookingService {
         return await BookingRepository.getBookingById(id);
     };
 
+    async getBookingByCode(code) {
+        const validator = new Validator();
+        validator.isEmpty("Booking Code", code);
+        if (validator.error.length > 0)
+            throw new ValidationError('400', validator.clearError());
+        return await BookingRepository.getBookingByCode(code);
+    };
+
     async getBookingByBranchId(id) {
         const validator = new Validator();
         validator.isUUID("Branch ID", id);

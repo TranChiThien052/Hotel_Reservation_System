@@ -1,5 +1,5 @@
-import { PrismaClient } from '@prisma/client';
 import { prisma } from '../config/prisma';
+import { Prisma } from '../generated/prisma/client';
 
 class BookingRepository {
     async getAllBookings() {
@@ -67,9 +67,9 @@ class BookingRepository {
                 }
             }
         });
-        if (booking?.expires_at && new Date(booking.expires_at).getTime() < Date.now()) {
+        if (booking?.expires_at && new Date(booking.expires_at).getTime() < Date.now() && booking.status === 'pending') {
             booking.status = 'cancelled';
-            booking.notes = `${booking.notes}\nĐã hủy vì không thanh toán cọc`;
+            booking.notes = booking.notes + '\nĐã hủy vì không thanh toán cọc';
             await prisma.bookings.update({
                 where: { id: id },
                 data: {
@@ -172,9 +172,9 @@ class BookingRepository {
                 }
             }
         });
-        if (booking?.expires_at && new Date(booking.expires_at).getTime() < Date.now()) {
+        if (booking?.expires_at && new Date(booking.expires_at).getTime() < Date.now() && booking.status === 'pending') {
             booking.status = 'cancelled';
-            booking.notes = `${booking.notes}\nĐã hủy vì không thanh toán cọc`;
+            booking.notes = booking.notes + '\nĐã hủy vì không thanh toán cọc';
             await prisma.bookings.update({
                 where: { booking_code: code },
                 data: {
@@ -336,7 +336,7 @@ class BookingRepository {
 
             return booking;
         }, {
-            isolationLevel: PrismaClient.TransactionIsolationLevel.Serializable
+            isolationLevel: Prisma.TransactionIsolationLevel.Serializable
         })
     }
 

@@ -7,6 +7,21 @@ class BookingController {
             .catch(error => res.status(500).json({ error: error.message }));
     };
 
+    async getBookingByBookingCode(req, res) {
+        const { code } = req.body;
+        return await BookingService.getBookingByCode(code).
+            then(booking => {
+                if (!booking)
+                    return res.status(404).json({ error: "Booking note found" });
+                res.status(200).json(booking);
+            })
+            .catch(error => {
+                if (typeof parseInt(error.code) === 'number')
+                    return res.status(parseInt(error.code)).json({ error: error.message });
+                res.status(500).json({ error: error.message });
+            })
+    }
+
     async getBookingById(req, res) {
         const { id } = req.params;
         return await BookingService.getBookingById(id)
