@@ -194,6 +194,32 @@ class AccountRepository {
             }
         });
     }
+
+    async getAccountByRole(role) {
+        return await prisma.accounts.findMany({
+            where: {
+                role: 'admin'
+            },
+        });
+    }
+
+    async createAdmin(data) {
+        return await prisma.$transaction(async (tx) => {
+            const account = await tx.accounts.create({
+                data: data.account,
+            })
+            const user = await tx.staff.create({
+                data: {
+                    ...data.user,
+                    account_id: account.id,
+                }
+            })
+            return {
+                account: account,
+                user: user,
+            }
+        });
+    }
 }
 
 export default new AccountRepository();

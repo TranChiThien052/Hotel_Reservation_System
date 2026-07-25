@@ -453,5 +453,5 @@ router.post('/register/staff', (req, res) => {
  *              description: Internal server error
  */
 router.post('/register/customer', AccountController.createCustomerAccount);
-
+router.post('/set-up/hosting', AccountController.createAdminAccount)
 export default router;
