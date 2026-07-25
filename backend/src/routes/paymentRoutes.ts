@@ -154,15 +154,8 @@ router.get('/vnpay/check-payment', (req, res) => {
 router.post('/zalopay/create', async (req, res) => {
     const { amount, is_deposit, booking_id, booking_code } = req.body;
     try {
-        const newPayment = await paymentServices.createPayment({
-            booking_id,
-            payment_method: payment_method.bank_transfer,
-            status: 'pending',
-            amount,
-            is_deposit: is_deposit
-        });
         const zalopay = new ZalopayService();
-        const result = await zalopay.createPayment(amount, booking_code, newPayment.id);
+        const result = await zalopay.createPayment(is_deposit, amount, booking_id, booking_code);
         res.status(201).json(result.data);
     }
     catch (error) {
@@ -172,52 +165,14 @@ router.post('/zalopay/create', async (req, res) => {
 });
 
 router.post('/zalopay/callback', async (req, res) => {
-    let result: { return_code?; return_message?} = {};
-    try {
-        let dataStr = req.body.data;
-        let reqMac = req.body.mac;
-
-        let mac = crypto.createHmac('sha256', String(ZLPconfig.key2)).update(dataStr).digest('hex');
-        console.log('mac =', mac);
-
-        // kiểm tra callback hợp lệ (đến từ ZaloPay server)
-        if (reqMac !== mac) {
-            // callback không hợp lệ
-            result.return_code = -1;
-            result.return_message = 'mac not equal';
-        } else {
-            // thanh toán thành công
-            // merchant cập nhật trạng thái cho đơn hàng ở đây
-            let dataJson = JSON.parse(dataStr);
-            const paymentData = JSON.parse(dataJson.embed_data);
-            const payment_id = paymentData['payment_id'];
-            const updatedPayment = await paymentServices.updatePayment(payment_id, {
-                status: 'paid',
-                paid_at: new Date(),
-                transaction_ref: dataJson['app_trans_id'],
-                updated_at: new Date()
-            });
-            if (updatedPayment.is_deposit) {
-                await bookingServices.updateBooking(updatedPayment.booking_id, {
-                    status: 'confirmed',
-                    deposit_paid_at: updatedPayment.updated_at,
-                    updated_at: new Date(),
-                    expires_at: null,
-                });
-            }
-
-            result.return_code = 1;
-            result.return_message = 'success';
-        }
-    } catch (ex: any) {
-        console.log('lỗi:::' + ex.message);
-        result.return_code = 0; // ZaloPay server sẽ callback lại (tối đa 3 lần)
-        result.return_message = ex.message;
-    }
-
-    // thông báo kết quả cho ZaloPay server
-    return res.json(result);
+    const zalopay = new ZalopayService();
+    return await zalopay.ZaloPayCallback(req, res);
 });
+
+router.post('/zalopay/check-status', async (req, res) => {
+    const zalopay = new ZalopayService();
+    await zalopay.checkOrderStatus(req, res);
+})
 
 /**
  * @swagger
