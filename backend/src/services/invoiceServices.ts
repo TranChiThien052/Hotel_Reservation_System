@@ -7,9 +7,9 @@ import { calculateDynamicPrice, generateInvoiceCode } from '../middlewares/gener
 import historyTransactionServices from './historyTransactionServices';
 import bookingRepo from '../repositories/bookingRepo';
 import bookingServiceRepo from '../repositories/bookingServiceRepo';
-import discountRepo from '../repositories/discountRepo';
 import roomPriceRepo from '../repositories/roomPriceRepo';
 import holidayDateRepo from '../repositories/holidayDateRepo';
+import discountRepo from '../repositories/discountRepo';
 
 class InvoiceService {
     async getAllInvoices() {
@@ -46,12 +46,6 @@ class InvoiceService {
 
         const services = await bookingServiceRepo.getBookingServicesByBookingId(bookingId);
 
-        let discount = 0;
-        if (booking.discount_id !== null) {
-            if (booking.discount_amount !== null)
-                discount = Number(booking.discount_amount);
-        }
-
         let deposit = 0;
         if (booking.deposit_amount !== null)
             deposit = Number(booking.deposit_amount);
@@ -75,6 +69,15 @@ class InvoiceService {
             roomCharge = calculateDynamicPrice(booking.checkin_at, booking.checkout_at, basePrice, roomPrice?.weekend_rate, roomPrice?.holiday_rate, holidayDates, booking.booking_type);
         else if (booking.actual_checkin_at !== null && booking.actual_checkout_at !== null)
             roomCharge = calculateDynamicPrice(booking.actual_checkin_at, booking.actual_checkout_at, basePrice, roomPrice?.weekend_rate, roomPrice?.holiday_rate, holidayDates, booking.booking_type);
+
+        let discount = 0;
+        if (booking.discount_id !== null) {
+            const discountInfo = await discountRepo.getDiscountById(booking.discount_id);
+            if (discountInfo?.discount_type === 'fixed_amount')
+                discount = Number(discountInfo.discount_value);
+            else if (discountInfo?.discount_type === 'percentage')
+                discount = (Number(roomCharge) + Number(serviceCharge)) * Number(discountInfo.discount_value) / 100;
+        }
 
         return {
             roomCharge,
