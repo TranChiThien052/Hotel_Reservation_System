@@ -77,7 +77,9 @@ router.get('/branch/:id', CancellationRequestController.getCancellationRequestsB
  *       200:
  *         description: Successful operation
  */
-router.get('/', CancellationRequestController.getAllCancellationRequests);
+router.get('/', (req, res) => {
+    authorize(req, res, ['manager', 'admin'], () => CancellationRequestController.getAllCancellationRequests(req, res))
+});
 /**
  * @swagger
  * /cancellation-requests/{id}:
@@ -136,7 +138,9 @@ router.post('/', CancellationRequestController.createCancellationRequest);
  *       200:
  *         description: Successful operation
  */
-router.put('/:id', CancellationRequestController.updateCancellationRequest);
+router.put('/:id', (req, res) => {
+    authorize(req, res, ['staff', 'manager', 'admin'], () => CancellationRequestController.updateCancellationRequest(req, res))
+});
 /**
  * @swagger
  * /cancellation-requests/{id}:
