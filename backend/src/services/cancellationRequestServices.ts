@@ -105,7 +105,6 @@ class CancellationRequestService {
         }
 
         validatedData.updated_at = new Date();
-
         return await CancellationRequestRepository.updateCancellationRequest(id, validatedData);
     };
 

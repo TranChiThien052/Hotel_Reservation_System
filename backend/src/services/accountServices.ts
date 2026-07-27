@@ -132,7 +132,7 @@ class AccountService {
             throw new ValidationError('400', validator.clearError());
         }
         const RefreshTokenRepo = new RefreshTokenRepository();
-        const decoded = jwt.decode(oldRefreshToken);
+        const decoded = jwt.verify(oldRefreshToken, process.env.JWT_SECRET);
         const refreshTokens = await RefreshTokenRepo.getRefreshTokenByAccountId(decoded.account_id);
         const validRefreshToken = refreshTokens.find(token => token.expires_at > new Date() && !token.is_revoked);
 
@@ -194,7 +194,7 @@ class AccountService {
         if (validator.error.length > 0) {
             throw new ValidationError('400', validator.clearError());
         }
-        const decoded = jwt.decode(refreshToken);
+        const decoded = jwt.verify(refreshToken, process.env.JWT_SECRET);
         const RefreshTokenRepo = new RefreshTokenRepository();
         const refreshTokens = await RefreshTokenRepo.getRefreshTokenByAccountId(decoded.account_id);
         const validRefreshToken = refreshTokens.find(token => token.expires_at > new Date() && !token.is_revoked);
