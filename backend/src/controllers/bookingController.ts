@@ -82,8 +82,8 @@ class BookingController {
     }
 
     async createBooking(req, res) {
-        const { branch_id, customer_id, room_type_id, booking_type, status, checkin_at, checkout_at, num_guests, discount_id, created_by, notes } = req.body;
-        const data = { branch_id, customer_id, room_type_id, booking_type, status, checkin_at, checkout_at, num_guests, discount_id, created_by, notes, log_account_id: req.user.account_id };
+        const { branch_id, customer_id, assigned_room_id, room_type_id, booking_type, deposit_amount, status, checkin_at, checkout_at, num_guests, discount_id, created_by, notes } = req.body;
+        const data = { branch_id, customer_id, assigned_room_id, room_type_id, booking_type, deposit_amount, status, checkin_at, checkout_at, num_guests, discount_id, created_by, notes, log_account_id: req.user.account_id };
         return await BookingService.createBooking(data)
             .then(booking => res.status(201).json(booking))
             .catch(error => {
