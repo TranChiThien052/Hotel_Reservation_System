@@ -348,23 +348,22 @@ class BookingService {
             validatedData.subtotal = calculateDynamicPrice(
                 validatedData.actual_checkin_at,
                 validatedData.actual_checkout_at,
-                Number(validatedData.room_price_snapshot),
+                Number(existingBooking.room_price_snapshot),
                 Number(roomPrice?.weekend_rate),
                 Number(roomPrice?.holiday_rate),
                 holidayDates,
-                validatedData.booking_type
+                existingBooking.booking_type
             );
         } else {
             validatedData.subtotal = calculateDynamicPrice(
-                validatedData.checkin_at,
-                validatedData.checkout_at,
-                Number(validatedData.room_price_snapshot),
+                existingBooking.checkin_at,
+                existingBooking.checkout_at,
+                Number(existingBooking.room_price_snapshot),
                 Number(roomPrice?.weekend_rate),
                 Number(roomPrice?.holiday_rate),
                 holidayDates,
-                validatedData.booking_type
+                existingBooking.booking_type
             );
-
         }
 
         validatedData.total_amount = validatedData.subtotal;
