@@ -43,7 +43,34 @@ class BookingService {
         validator.isUUID("Customer ID", id);
         if (validator.error.length > 0)
             throw new ValidationError('400', validator.clearError());
-        return await BookingRepository.getBookingsByCustomerId(id);
+        try {
+            const result = await BookingRepository.getBookingsByCustomerId(id);
+            console.log(result[0]);
+            result.map((booking) => {
+                const room_charge = Number(booking.subtotal);
+                const deposited = booking.payments.reduce((acc, payment) => {
+                    if (payment.is_deposit && payment.status === 'paid') {
+                        return acc + Number(payment.amount);
+                    }
+                    return acc;
+                }, 0);
+                const service_charge = booking.booking_services.reduce((acc, service) => {
+                    return acc + Number(service.total_amount);
+                }, 0)
+                const discount = Number(booking.discount_amount);
+                Object.assign(booking, {
+                    charge: {
+                        total: room_charge + service_charge,
+                        discount,
+                        deposited,
+                        balance: room_charge + service_charge - discount - deposited,
+                    }
+                });
+            });
+            return result;
+        } catch (error: any) {
+            throw new Error(error.message);
+        }
     }
 
     async calculateBookingPrice(room_type_id, checkin_at, checkout_at, booking_type, branch_id) {
@@ -345,25 +372,39 @@ class BookingService {
         const holidayDates = holidays.map((h: any) => new Date(h.date).toDateString());
 
         if (validatedData.actual_checkin_at && validatedData.actual_checkout_at) {
+            let room_price_snapshot = validatedData.room_price_snapshot ?? existingBooking.room_price_snapshot;
             validatedData.subtotal = calculateDynamicPrice(
                 validatedData.actual_checkin_at,
                 validatedData.actual_checkout_at,
-                Number(existingBooking.room_price_snapshot),
+                Number(room_price_snapshot),
+                Number(roomPrice?.weekend_rate),
+                Number(roomPrice?.holiday_rate),
+                holidayDates,
+                existingBooking.booking_type
+            );
+        } else if (validatedData.checkin_at && validatedData.checkout_at) {
+            let room_price_snapshot = validatedData.room_price_snapshot ?? existingBooking.room_price_snapshot;
+            validatedData.subtotal = calculateDynamicPrice(
+                validatedData.checkin_at,
+                validatedData.checkout_at,
+                Number(room_price_snapshot),
+                Number(roomPrice?.weekend_rate),
+                Number(roomPrice?.holiday_rate),
+                holidayDates,
+                existingBooking.booking_type
+            );
+        } else if (validatedData.room_price_snapshot) {
+            validatedData.subtotal = calculateDynamicPrice(
+                validatedData.checkin_at,
+                validatedData.checkout_at,
+                Number(validatedData.room_price_snapshot),
                 Number(roomPrice?.weekend_rate),
                 Number(roomPrice?.holiday_rate),
                 holidayDates,
                 existingBooking.booking_type
             );
         } else {
-            validatedData.subtotal = calculateDynamicPrice(
-                existingBooking.checkin_at,
-                existingBooking.checkout_at,
-                Number(existingBooking.room_price_snapshot),
-                Number(roomPrice?.weekend_rate),
-                Number(roomPrice?.holiday_rate),
-                holidayDates,
-                existingBooking.booking_type
-            );
+            validatedData.subtotal = Number(existingBooking.subtotal);
         }
 
         validatedData.total_amount = validatedData.subtotal;

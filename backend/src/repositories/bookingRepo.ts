@@ -268,6 +268,16 @@ class BookingRepository {
                         payment_method: true,
                         transaction_ref: true,
                     }
+                },
+                booking_services: {
+                    select: {
+                        services: {
+                            select: { name: true, }
+                        },
+                        quantity: true,
+                        unit_price: true,
+                        total_amount: true,
+                    }
                 }
             }
         });
