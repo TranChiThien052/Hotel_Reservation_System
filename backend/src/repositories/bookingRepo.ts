@@ -257,6 +257,17 @@ class BookingRepository {
                     select: {
                         name: true,
                     }
+                },
+                payments: {
+                    select: {
+                        amount: true,
+                        invoices: true,
+                        is_deposit: true,
+                        status: true,
+                        paid_at: true,
+                        payment_method: true,
+                        transaction_ref: true,
+                    }
                 }
             }
         });

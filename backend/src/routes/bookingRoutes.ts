@@ -117,6 +117,38 @@ router.post('/calculate-price', BookingController.calculateBookingPrice);
  *                           type: string
  *                        updated_at:
  *                           type: string
+ *                        payments:
+ *                           type: array
+ *                           items:
+ *                              type: object
+ *                              properties:
+ *                                 amount:
+ *                                    type: string
+ *                                 invoices:
+ *                                    type: array
+ *                                    items:
+ *                                       type: object
+ *                                       properties:
+ *                                          id:
+ *                                             type: string
+ *                                          booking_id:
+ *                                             type: string
+ *                                          amount:
+ *                                             type: string
+ *                                          created_at:
+ *                                             type: string
+ *                                          updated_at:
+ *                                             type: string
+ *                                 is_deposit:
+ *                                    type: boolean
+ *                                 status:
+ *                                    type: string
+ *                                 paid_at:
+ *                                    type: string
+ *                                 payment_method:
+ *                                    type: string
+ *                                 transaction_ref:
+ *                                    type: string
  *       500:
  *         description: Internal server error
  */
