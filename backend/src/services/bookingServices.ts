@@ -11,6 +11,7 @@ import HolidayDateRepository from '../repositories/holidayDateRepo';
 import accountServices from './accountServices';
 import historyTransactionServices from './historyTransactionServices';
 import roomPriceServices from './roomPriceServices';
+import roomServices from './roomServices';
 
 class BookingService {
     async getAllBookings() {
@@ -83,8 +84,10 @@ class BookingService {
         const validatedData = {
             ...(data.branch_id && { branch_id: data.branch_id }),
             ...(data.customer_id && { customer_id: data.customer_id }),
+            ...(data.assigned_room_id && { assigned_room_id: data.assigned_room_id }),
             ...(data.room_type_id && { room_type_id: data.room_type_id }),
             ...(data.booking_type && { booking_type: data.booking_type }),
+            ...(data.deposit_amount && { deposit_amount: data.deposit_amount }),
             ...(data.status && { status: data.status }),
             ...(data.checkin_at && { checkin_at: data.checkin_at }),
             ...(data.checkout_at && { checkout_at: data.checkout_at }),
@@ -191,7 +194,9 @@ class BookingService {
                 validatedData.total_amount -= validatedData.discount_amount;
             }
         }
-        validatedData.deposit_amount = Math.ceil((validatedData.total_amount * 0.3) / 1000) * 1000;
+
+        if (!validatedData.deposit_amount)
+            validatedData.deposit_amount = Math.ceil((validatedData.total_amount * 0.3) / 1000) * 1000;
 
         if (validator.error.length > 0) {
             throw new ValidationError('400', validator.clearError());
@@ -328,20 +333,39 @@ class BookingService {
             throw new ValidationError('400', validator.clearError());
         }
 
-        const roomPrice = await RoomPriceRepository.getRoomPricesByRoomTypeId(validatedData.room_type_id);
+        if (validatedData.assigned_room_id && validatedData.status === 'checked-in') {
+            await roomServices.updateRoom(validatedData.assigned_room_id, { status: "occupied" });
+        }
 
+        if (validatedData.status === 'checked-out')
+            await roomServices.updateRoom(validatedData.assigned_room_id, { status: 'available' });
+
+        const roomPrice = await RoomPriceRepository.getRoomPricesByRoomTypeId(validatedData.room_type_id);
         const holidays = await HolidayDateRepository.getHolidayDatesByBranchId(validatedData.branch_id);
         const holidayDates = holidays.map((h: any) => new Date(h.date).toDateString());
 
-        validatedData.subtotal = calculateDynamicPrice(
-            validatedData.checkin_at,
-            validatedData.checkout_at,
-            Number(validatedData.room_price_snapshot),
-            Number(roomPrice?.weekend_rate),
-            Number(roomPrice?.holiday_rate),
-            holidayDates,
-            validatedData.booking_type
-        );
+        if (validatedData.actual_checkin_at && validatedData.actual_checkout_at) {
+            validatedData.subtotal = calculateDynamicPrice(
+                validatedData.actual_checkin_at,
+                validatedData.actual_checkout_at,
+                Number(validatedData.room_price_snapshot),
+                Number(roomPrice?.weekend_rate),
+                Number(roomPrice?.holiday_rate),
+                holidayDates,
+                validatedData.booking_type
+            );
+        } else {
+            validatedData.subtotal = calculateDynamicPrice(
+                validatedData.checkin_at,
+                validatedData.checkout_at,
+                Number(validatedData.room_price_snapshot),
+                Number(roomPrice?.weekend_rate),
+                Number(roomPrice?.holiday_rate),
+                holidayDates,
+                validatedData.booking_type
+            );
+
+        }
 
         validatedData.total_amount = validatedData.subtotal;
 
