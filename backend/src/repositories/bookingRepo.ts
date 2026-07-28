@@ -64,6 +64,12 @@ class BookingRepository {
                     where: {
                         status: 'paid',
                     }
+                },
+                cancellation_requests: {
+                    select: {
+                        status: true,
+                        reason: true,
+                    }
                 }
             }
         });
