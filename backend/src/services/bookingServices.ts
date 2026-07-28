@@ -45,7 +45,6 @@ class BookingService {
             throw new ValidationError('400', validator.clearError());
         try {
             const result = await BookingRepository.getBookingsByCustomerId(id);
-            console.log(result[0]);
             result.map((booking) => {
                 const room_charge = Number(booking.subtotal);
                 const deposited = booking.payments.reduce((acc, payment) => {
