@@ -39,7 +39,7 @@ class BookingRepository {
     };
 
     async getBookingById(id) {
-        const booking = await prisma.bookings.findUnique({
+        let booking = await prisma.bookings.findUnique({
             where: { id: id },
             include: {
                 customers: true,
@@ -84,6 +84,40 @@ class BookingRepository {
                 }
             })
         }
+        booking = await prisma.bookings.findUnique({
+            where: { id: id },
+            include: {
+                customers: true,
+                room_types: {
+                    select: {
+                        id: true,
+                        name: true,
+                    }
+                },
+                branches: {
+                    select: {
+                        name: true,
+                    }
+                },
+                payments: {
+                    select: {
+                        amount: true,
+                        paid_at: true,
+                        is_deposit: true,
+                        transaction_ref: true,
+                    },
+                    where: {
+                        status: 'paid',
+                    }
+                },
+                cancellation_requests: {
+                    select: {
+                        status: true,
+                        reason: true,
+                    }
+                }
+            }
+        });
         return booking;
     };
 
