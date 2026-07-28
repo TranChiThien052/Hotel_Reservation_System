@@ -76,7 +76,7 @@ class InvoiceService {
             if (discountInfo?.discount_type === 'fixed_amount')
                 discount = Number(discountInfo.discount_value);
             else if (discountInfo?.discount_type === 'percentage')
-                discount = (Number(roomCharge) + Number(serviceCharge)) * Number(discountInfo.discount_value) / 100;
+                discount = Number(roomCharge) * Number(discountInfo.discount_value) / 100;
         }
 
         return {
