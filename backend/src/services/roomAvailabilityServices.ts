@@ -3,6 +3,7 @@ import RoomTypeRepository from '../repositories/roomTypeRepo';
 import RoomPriceRepository from '../repositories/roomPriceRepo';
 import HolidayDateRepository from '../repositories/holidayDateRepo';
 import { Validator, ValidationError } from '../middlewares/validateData'
+import { calculateDynamicPrice } from '../middlewares/generator';
 
 class RoomAvailabilityService {
     async getAvailableRoomCount(branch_id, checkin, checkout, room_type_id?) {
@@ -23,34 +24,30 @@ class RoomAvailabilityService {
         const checkin = new Date(checkinAt);
         const checkout = new Date(checkoutAt);
 
-        // Get room types to check
         let roomTypes: any[] = [];
         if (roomTypeId) {
-            const rt = await RoomTypeRepository.getRoomTypeById(roomTypeId);
-            if (rt) roomTypes.push(rt);
+            const roomType = await RoomTypeRepository.getRoomTypeById(roomTypeId);
+            if (roomType) roomTypes.push(roomType);
         } else {
-            const allTypes = await RoomTypeRepository.getAllRoomTypes();
-            roomTypes = allTypes.filter((rt: any) => rt.branch_id === branchId);
+            roomTypes = await RoomTypeRepository.getRoomTypesByBranchId(branchId);
         }
 
         if (numGuests) {
-            roomTypes = roomTypes.filter((rt: any) => rt.max_guests >= numGuests);
+            roomTypes = roomTypes.filter((roomType: any) => roomType.max_guests >= numGuests);
         }
 
-        // Fetch holidays for the branch
-        const holidays = await HolidayDateRepository.getAllHolidayDates();
-        const branchHolidays = holidays.filter((h: any) => h.branch_id === branchId || h.branch_id === null);
-        const holidayDates = branchHolidays.map((h: any) => new Date(h.date).toDateString());
+        const holidays = await HolidayDateRepository.getHolidayDatesByBranchId(branchId);
+        const holidayDates = holidays.map((holiday) => new Date(holiday.date).toDateString());
 
         const results: any[] = [];
 
-        for (const rt of roomTypes) {
-            const totalRooms = await RoomAvailabilityRepository.getPhysicalRoomCount(branchId, rt.id);
-            const bookedCount = await RoomAvailabilityRepository.getOverlappingBookingCount(branchId, checkin, checkout, rt.id);
+        for (const roomType of roomTypes) {
+            const totalRooms = await RoomAvailabilityRepository.getPhysicalRoomCount(branchId, roomType.id);
+            const bookedCount = await RoomAvailabilityRepository.getOverlappingBookingCount(branchId, checkin, checkout, roomType.id);
 
             const availableCount = totalRooms - bookedCount;
 
-            const roomPrice = await RoomPriceRepository.getRoomPricesByRoomTypeId(rt.id);
+            const roomPrice = await RoomPriceRepository.getRoomPricesByRoomTypeId(roomType.id);
             let estimatedTotal = 0;
             let pricePerUnit = 0;
 
@@ -58,15 +55,14 @@ class RoomAvailabilityService {
                 const basePrice = bookingType === 'hourly' ? Number(roomPrice.price_per_hour) : Number(roomPrice.price_per_day);
                 pricePerUnit = basePrice;
 
-                // Calculate estimated total including weekends and holidays
-                estimatedTotal = this.calculateDynamicPrice(checkin, checkout, basePrice, Number(roomPrice.weekend_rate), Number(roomPrice.holiday_rate), holidayDates, bookingType || 'daily');
+                estimatedTotal = calculateDynamicPrice(checkin, checkout, basePrice, Number(roomPrice.weekend_rate), Number(roomPrice.holiday_rate), holidayDates, bookingType || 'daily');
             }
             const result_data = {
                 room_type: {
-                    id: rt.id,
-                    name: rt.name,
-                    max_guests: rt.max_guests,
-                    images: rt.images
+                    id: roomType.id,
+                    name: roomType.name,
+                    max_guests: roomType.max_guests,
+                    images: roomType.images
                 },
                 total_rooms: totalRooms,
                 booked_count: bookedCount,
@@ -85,43 +81,6 @@ class RoomAvailabilityService {
             booking_type: bookingType,
             results
         };
-    }
-
-    calculateDynamicPrice(checkin, checkout, basePrice, weekendRate, holidayRate, holidayDates, bookingType) {
-        let total = 0;
-
-        if (bookingType === 'hourly') {
-            const hours = Math.ceil(Math.abs(checkout.getTime() - checkin.getTime()) / (1000 * 60 * 60));
-            const checkinDateStr = checkin.toDateString();
-            const dayOfWeek = checkin.getDay();
-
-            let rate = 0;
-            if (holidayDates.includes(checkinDateStr)) {
-                rate = holidayRate;
-            } else if (dayOfWeek === 0 || dayOfWeek === 6) {
-                rate = weekendRate;
-            }
-            return (basePrice + basePrice * (rate / 100)) * hours;
-        }
-
-        let currentDate = new Date(checkin);
-        while (currentDate < checkout) {
-            const dateStr = currentDate.toDateString();
-            const dayOfWeek = currentDate.getDay();
-
-            let rate = 0;
-            if (holidayDates.includes(dateStr)) {
-                rate = holidayRate;
-            } else if (dayOfWeek === 0 || dayOfWeek === 6) {
-                rate = weekendRate;
-            }
-
-            total += basePrice + basePrice * (rate / 100);
-
-            currentDate.setDate(currentDate.getDate() + 1);
-        }
-
-        return total;
     }
 }
 
