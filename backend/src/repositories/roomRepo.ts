@@ -14,6 +14,14 @@ class RoomRepository {
         });
     };
 
+    async getRoomsByRoomTypeId(id) {
+        return await prisma.rooms.findMany({
+            where: {
+                room_type_id: id,
+            }
+        })
+    }
+
     async getRoomsByBranchId(id) {
         return await prisma.rooms.findMany({
             where: {
