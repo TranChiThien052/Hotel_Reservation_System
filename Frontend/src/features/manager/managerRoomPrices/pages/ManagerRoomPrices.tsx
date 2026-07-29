@@ -10,9 +10,7 @@ import message from "antd/es/message";
 import { useCallback, useEffect, useState } from "react";
 import { CiCirclePlus } from "react-icons/ci";
 import { FaRegBuilding } from "react-icons/fa";
-import { IoIosCheckmarkCircleOutline } from "react-icons/io";
 import { IoSearch } from "react-icons/io5";
-import { LuWrench } from "react-icons/lu";
 
 const defaultRoomData: RoomPriceFormData = {
   room_type_id: "",
