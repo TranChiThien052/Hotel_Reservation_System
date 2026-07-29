@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { roomsApi } from "@/features/admin/adminRooms/api/rooms-api";
 import { roomTypesApi } from "@/features/admin/adminRoomTypes/api/roomTypes-api";
 import { roomPricesApi } from "@/features/admin/adminRoomsPrices/api/roomPrices-api";
 import { promotionApi } from "@/features/admin/adminPromitions/api/promotion-api";
@@ -10,9 +9,7 @@ import { roomsAvailableApi } from "@/features/client/rooms/api/rooms-api";
 import { servicesApi } from "@/features/admin/adminServices/api/services-api";
 import type { Service } from "@/features/admin/adminServices/types/services-type";
 import type {
-  RoomItem,
   RoomImage,
-  RoomType,
   RoomPrice,
 } from "@/app/layout/components/client/room";
 import { useAppSelector } from "@/app/store/hooks";
@@ -98,10 +95,10 @@ const StepBar = ({ current }: { current: number }) => (
 );
 
 const ClientBooking = () => {
-  const { id, typeId } = useParams<{ id?: string; typeId?: string }>();
+  const { typeId } = useParams<{ typeId?: string }>();
   const navigate = useNavigate();
 
-  const isByType = !!typeId && !id;
+
 
   const authUser = useAppSelector((state) => state.auth.user);
   const isLoggedIn = !!authUser;
@@ -110,13 +107,13 @@ const ClientBooking = () => {
   const loggedInCustomerId = existingCustomer?.id ?? null;
   const [customerProfile, setCustomerProfile] = useState<Customer | null>(null);
 
-  // States cho tính năng chỉnh sửa thông tin khách hàng
+
   const [isEditingCustomer, setIsEditingCustomer] = useState(false);
   const [savingCustomer, setSavingCustomer] = useState(false);
   const [editCustomerForm, setEditCustomerForm] = useState<CustomerFormData | null>(null);
 
-  const [room, setRoom] = useState<RoomItem | null>(null);
-  const [loading, setLoading] = useState(!isByType);
+  const [room, setRoom] = useState<any | null>(null);
+  const [loading, setLoading] = useState(true);
   const [step, setStep] = useState(0);
   const [submitting, setSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
@@ -127,11 +124,11 @@ const ClientBooking = () => {
   const [subtotal, setSubtotal] = useState(0);
   const [calculatingPrice, setCalculatingPrice] = useState(false);
 
-  // State kiểm tra phòng trống (chỉ dùng khi isByType)
+
   const [availabilityChecking, setAvailabilityChecking] = useState(false);
   const [availabilityError, setAvailabilityError] = useState("");
 
-  // Hình thức thanh toán
+
   const [paymentMode, setPaymentMode] = useState<"full" | "deposit">("full");
 
   const [discount, setDiscount] = useState<{
@@ -164,7 +161,7 @@ const ClientBooking = () => {
 
   const [num_guests, setNumGuests] = useState(1);
 
-  // Tính checkin/checkout
+
   const hourlyCheckin = `${bookingDate}T${startTime}:00`;
   const hourlyCheckout = (() => {
     const d = new Date(`${bookingDate}T${startTime}:00`);
@@ -182,7 +179,7 @@ const ClientBooking = () => {
   })();
   console.log("authUser", authUser);
 
-  // Thông tin khách hàng — pre-fill từ authUser.customers nếu đã có
+  // Thông tin khách hàng
   const [guestForm, setGuestForm] = useState({
     full_name: authUser?.customers?.full_name ?? "",
     phone: authUser?.customers?.phone ?? "",
@@ -196,66 +193,29 @@ const ClientBooking = () => {
   const [notes, setNotes] = useState("");
 
   const fetchRoom = useCallback(async () => {
-    // Nếu theo typeId, sẽ load room type info (không cần specific roomId)
-    if (isByType && typeId) {
-      setLoading(true);
-      try {
-        const [rtData, allPrices] = await Promise.all([
-          roomTypesApi.getRoomTypeById(typeId),
-          roomPricesApi.getAllRoomprices(),
-        ]);
-        const rpList: RoomPrice[] = Array.isArray(allPrices) ? allPrices : [];
-        const foundPrice =
-          rpList.find((rp: any) => rp.room_type_id === typeId) ?? null;
-        // Tạo 1 RoomItem giả để tái dùng UI (room_types, room_price)
-        setRoom({
-          id: "",
-          room_number: "",
-          floor: 0,
-          status: "available",
-          branch_id: rtData.branch_id ?? "",
-          room_type_id: typeId,
-          room_types: { ...rtData, roomImages: rtData.roomImages ?? [] },
-          room_price: foundPrice,
-        } as any);
-      } catch (err) {
-        console.error("Lỗi khi lấy thông tin loại phòng:", err);
-      } finally {
-        setLoading(false);
-      }
-      return;
-    }
-
-    if (!id) return;
+    if (!typeId) return;
     setLoading(true);
     try {
-      const [roomData, roomTypesData, roomPricesData] = await Promise.all([
-        roomsApi.getRoomById(id),
-        roomTypesApi.getRoomTypes(),
-        roomPricesApi.getAllRoomprices(),
+      const [rtData, rpData] = await Promise.all([
+        roomTypesApi.getRoomTypeById(typeId),
+        roomPricesApi.getRoomPricesByRoomTypeId(typeId),
       ]);
-      const rtList: RoomType[] = Array.isArray(roomTypesData)
-        ? roomTypesData
-        : [];
-      const rpList: RoomPrice[] = Array.isArray(roomPricesData)
-        ? roomPricesData
-        : [];
-      const rtMap = new Map<string, RoomType>(rtList.map((r) => [r.id, r]));
-      const rtFromApi = roomData.room_types ?? {};
-      const rtFull = rtMap.get(roomData.room_type_id) ?? rtFromApi;
+      const rpList: RoomPrice = rpData;
+
       setRoom({
-        ...roomData,
-        room_types: { ...rtFromApi, roomImages: rtFull.roomImages ?? [] },
-        room_price:
-          rpList.find((rp: any) => rp.room_type_id === roomData.room_type_id) ??
-          null,
+        id: "",
+        status: "available",
+        branch_id: rtData.branch_id ?? "",
+        room_type_id: typeId,
+        room_types: { ...rtData, roomImages: rtData.roomImages ?? [] },
+        room_price: rpList,
       });
     } catch (err) {
-      console.error("Lỗi khi lấy thông tin phòng:", err);
+      console.error("Lỗi khi lấy thông tin loại phòng:", err);
     } finally {
       setLoading(false);
     }
-  }, [id, typeId, isByType]);
+  }, [typeId]);
 
   const fetchCustomerProfile = useCallback(async () => {
     if (!authUser?.customers?.id) return;
@@ -279,6 +239,7 @@ const ClientBooking = () => {
       console.error("Lỗi khi lấy thông tin khách hàng:", error);
     }
   }, [authUser?.customers?.id]);
+  
   const handleStartEditing = () => {
     const activeProfile = customerProfile || authUser?.customers;
     const formattedDob = activeProfile?.date_of_birth
@@ -324,8 +285,7 @@ const ClientBooking = () => {
         account_id: authUser?.id,
       };
       const updated = await customersApi.updateCustomer(customerId, payload);
-      const updatedData = updated?.data ?? updated ?? payload;
-      setCustomerProfile(updatedData);
+      setCustomerProfile(updated.data);
       setGuestForm({
         full_name: editCustomerForm.full_name,
         phone: editCustomerForm.phone,
@@ -368,9 +328,8 @@ const ClientBooking = () => {
     fetchServices();
   }, [fetchServices]);
 
-  // Hàm kiểm tra phòng trống và chọn phòng tự động (chỉ dùng khi isByType)
   const handleCheckAvailabilityAndNext = async () => {
-    if (!room || !isByType) {
+    if (!room || !typeId) {
       setStep(1);
       return;
     }
@@ -412,15 +371,14 @@ const ClientBooking = () => {
     setDiscountError("");
     setDiscount(null);
     try {
-      const list: Promotion[] = await promotionApi.getPromotions();
+      const list: Promotion[] = await promotionApi.getByBranchId(room?.branch_id);
       console.log("list", list);
       const found = list.find(
         (p: Promotion) =>
           p.code?.toLowerCase() === discountCode.trim().toLowerCase() &&
           new Date(p.valid_to) >= new Date() &&
           new Date(p.valid_from) <= new Date() &&
-          p.is_active &&
-          p.branch_id === room?.branch_id,
+          p.is_active
       );
       if (found) {
         const minOrderValue = Number(found.min_order_value ?? 0);
@@ -466,6 +424,12 @@ const ClientBooking = () => {
     : 0;
   const pricePerHour = room?.room_price?.price_per_hour
     ? Number(room.room_price.price_per_hour)
+    : 0;
+  const weekendRate = room?.room_price?.weekend_rate
+    ? Number(room.room_price.weekend_rate)
+    : 0;
+  const holidayRate = room?.room_price?.holiday_rate
+    ? Number(room.room_price.holiday_rate)
     : 0;
 
   useEffect(() => {
@@ -528,14 +492,14 @@ const ClientBooking = () => {
   const discountEligible =
     !discount ||
     discount.min_order_value <= 0 ||
-    subtotal + serviceSubtotal >= discount.min_order_value;
+    subtotal >= discount.min_order_value;
   const discountAmount =
     discount && discountEligible
       ? discount.discount_type === "percentage"
         ? Math.round(
-            ((subtotal + serviceSubtotal) * discount.discount_value) / 100,
+            (subtotal * discount.discount_value) / 100,
           )
-        : Math.min(discount.discount_value, subtotal + serviceSubtotal)
+        : Math.min(discount.discount_value, subtotal)
       : 0;
   const total = subtotal + serviceSubtotal - discountAmount;
 
@@ -547,7 +511,7 @@ const ClientBooking = () => {
         durationHours >= 1 &&
         num_guests >= 1;
 
-  // Nếu đã có customer → hợp lệ luôn; nếu chưa → cần nhập đủ thông tin
+  // Nếu đã có customer
   const step1Valid = existingCustomer
     ? true
     : guestForm.full_name.trim() !== "" &&
@@ -562,21 +526,6 @@ const ClientBooking = () => {
     setErrorMsg("");
     try {
       let customerId = loggedInCustomerId;
-
-      // Đã đăng nhập nhưng chưa có customer profile → tạo mới và gắn account_id
-      if (!customerId) {
-        const newCustomer = await customersApi.createCustomer({
-          full_name: guestForm.full_name,
-          phone: guestForm.phone,
-          email: guestForm.email,
-          id_card_number: guestForm.id_card_number,
-          nationality: guestForm.nationality,
-          date_of_birth: guestForm.date_of_birth,
-          address: guestForm.address || undefined,
-          account_id: authUser?.id, // gắn account_id để lần sau tự load
-        });
-        customerId = newCustomer?.id ?? newCustomer?.data?.id;
-      }
 
       if (!customerId) {
         throw new Error("Không thể lấy thông tin khách hàng.");
@@ -611,6 +560,7 @@ const ClientBooking = () => {
               quantity: bs.quantity,
               unit_price: bs.service.price,
               total_amount: bs.service.price * bs.quantity,
+              added_by: authUser?.id || "",
             }),
           ),
         );
@@ -623,7 +573,7 @@ const ClientBooking = () => {
             bookingResponse.id,
             total,
             // 10000,
-            false,
+            true,
           );
           window.location.href = paymentResponse.order_url;
         } catch (paymentError) {
@@ -678,8 +628,14 @@ const ClientBooking = () => {
             Sau khi đăng nhập, bạn sẽ được chuyển trở lại trang này.
           </p>
           <button
-            onClick={() => navigate(`/login?returnUrl=/booking/${id}`)}
-            className="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-3 rounded-xl transition-colors"
+            onClick={() =>
+              navigate(
+                `/login?returnUrl=${encodeURIComponent(
+                  typeId ? `/booking/room-type/${typeId}` : "/rooms"
+                )}`
+              )
+            }
+            className="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-3 rounded-xl transition-colors cursor-pointer"
           >
             Đăng nhập ngay
           </button>
@@ -1019,7 +975,7 @@ const ClientBooking = () => {
                 </h2>
 
                 {!isEditingCustomer ? (
-                  /* Hiển thị thông tin tổng quan dạng thẻ gọn */
+                  
                   <div className="flex flex-col gap-3 p-4 bg-amber-50 border border-amber-200 rounded-xl">
                     <div className="flex items-center justify-between gap-2 mb-1 flex-wrap">
                       <div className="flex items-center gap-2 text-amber-700 text-sm font-medium">
@@ -1085,19 +1041,12 @@ const ClientBooking = () => {
                     </div>
                   </div>
                 ) : (
-                  /* Form cập nhật thông tin thiết kế gọn gàng */
+                  
                   <div className="flex flex-col gap-4 p-4 bg-white border border-amber-300 rounded-xl shadow-sm">
                     <div className="flex items-center justify-between border-b border-gray-100 pb-2">
                       <span className="font-bold text-sm text-gray-800 flex items-center gap-2">
                         <MdOutlineEdit className="text-amber-500" /> Cập nhật thông tin khách hàng
                       </span>
-                      <button
-                        type="button"
-                        onClick={() => setIsEditingCustomer(false)}
-                        className="text-xs text-gray-400 hover:text-gray-600 cursor-pointer"
-                      >
-                        Hủy
-                      </button>
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -1556,7 +1505,7 @@ const ClientBooking = () => {
                         <IoCheckmarkCircle className="text-amber-500 text-xl shrink-0" />
                       )}
                     </label>
-                    <label
+                    {booking_type === "daily" && <label
                       className={`flex items-center gap-3 p-3.5 rounded-xl border-2 cursor-pointer transition-all ${paymentMode === "deposit" ? "border-blue-500 bg-blue-50" : "border-gray-200 bg-white hover:border-gray-300"}`}
                     >
                       <input
@@ -1581,7 +1530,7 @@ const ClientBooking = () => {
                       {paymentMode === "deposit" && (
                         <IoCheckmarkCircle className="text-blue-500 text-xl shrink-0" />
                       )}
-                    </label>
+                    </label>}
                   </div>
                 </div>
 
@@ -1729,6 +1678,16 @@ const ClientBooking = () => {
                       ? formatVND(total)
                       : "—"}
                 </span>
+              </div>
+              <div className="text-xs text-green-600">
+                {weekendRate > 0
+                  ? `- Cuối tuần giá tăng ${weekendRate}%`
+                  : '- Cuối tuần không phụ thu'}
+              </div>
+              <div className="text-xs text-green-600">
+                {holidayRate > 0
+                  ? `- Ngày lễ giá tăng ${holidayRate}%`
+                  : '- Ngày lễ không phụ thu'}
               </div>
             </div>
           </div>

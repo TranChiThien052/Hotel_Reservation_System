@@ -264,10 +264,7 @@ const StaffInvoicePage = () => {
                             <InfoRow label="Tổng cộng" value={<strong>{formatVND(invoice.total_amount ?? 0)}</strong>} />
 
                             {Number(invoice.deposit_used ?? 0) > 0 && (
-                                <InfoRow label="Tiền cọc đã trả" value={<span className="text-blue-600">− {formatVND(invoice.deposit_used)}</span>} />
-                            )}
-                            {Number(invoice.refund_amount ?? 0) > 0 && (
-                                <InfoRow label="Hoàn lại khách" value={<span className="text-green-600">{formatVND(invoice.refund_amount)}</span>} />
+                                <InfoRow label="Tiền đã trả" value={<span className="text-blue-600">− {formatVND(invoice.deposit_used)}</span>} />
                             )}
 
                             <Divider style={{ margin: '8px 0' }} />

@@ -242,6 +242,8 @@ const StaffBooking = () => {
       title: "Ghi chú",
       dataIndex: "notes",
       key: "notes",
+      width: 240,
+      ellipsis: true,
     },
     {
       title: "Hành động",
@@ -390,6 +392,7 @@ const StaffBooking = () => {
           dataSource={filteredBookings}
           loading={loading}
           rowKey="id"
+          tableLayout="fixed"
           pagination={{ pageSize: 5 }}
         />
       </div>

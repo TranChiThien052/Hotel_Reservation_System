@@ -3,9 +3,6 @@ import { historyTransactionApi } from "../api/historyTransaction";
 import message from "antd/es/message";
 import type { HistoryTransaction } from "../types/historyTransactions-type";
 import type { TableProps } from "antd/es/table/InternalTable";
-import { FaRegBuilding } from "react-icons/fa6";
-import { FaRegCheckCircle } from "react-icons/fa";
-import { LuWrench } from "react-icons/lu";
 import { Button, Space, Table } from "antd";
 import HistoryTransactionDetailModal from "../components/HistoryTransactionDetailModal";
 
@@ -97,7 +94,7 @@ const HistoryTransactions = () => {
         render: (_, record) => <p>{record.description}</p>
     },
     {
-        title: "Mục tiêu",
+        title: "Đối tượng",
         key: "target_type",
         render: (_, record) => <p>{record.target_type}</p>
     },
@@ -126,45 +123,7 @@ const HistoryTransactions = () => {
         </div>
   
         <div className="grid grid-cols-3 gap-5 w-2/3 mx-auto mt-4">
-          <div className="bg-white rounded-lg border border-gray-300 shadow p-5 flex flex-col gap-3">
-            <div className="flex items-center gap-2 justify-between">
-              <span className="font-xl font-bold text-blue-500">
-                Tổng giao dịch
-              </span>
-              <FaRegBuilding className="text-blue-500 text-2xl" />
-            </div>
-            <div className="text-2xl font-bold ">
-              {Array.isArray(transactionsData) ? transactionsData.length : 0}
-            </div>
-          </div>
-  
-          <div className="bg-white rounded-lg border border-gray-300 shadow p-5 flex flex-col gap-3">
-            <div className="flex items-center gap-2 justify-between">
-              <span className="font-xl font-bold text-green-500">
-                Đang hoạt động
-              </span>
-              <FaRegCheckCircle className="text-green-500 text-2xl" />
-            </div>
-            <div className="text-2xl font-bold ">
-              {/* {Array.isArray(customersData)
-                ? customersData.filter((item: Customer) => item.is_active).length
-                : 0} */}
-            </div>
-          </div>
-  
-          <div className="bg-white rounded-lg border border-gray-300 shadow p-5 flex flex-col gap-3">
-            <div className="flex items-center gap-2 justify-between">
-              <span className="font-xl font-bold text-yellow-500">
-                Đang bảo trì
-              </span>
-              <LuWrench className="text-yellow-500 text-2xl" />
-            </div>
-            <div className="text-2xl font-bold">
-              {/* {Array.isArray(customersData)
-                ? customersData.filter((item: Customer) => !item.is_active).length
-                : 0} */}
-            </div>
-          </div>
+          
         </div>
   
         <div className="mt-5 border border-gray-300 rounded-lg">

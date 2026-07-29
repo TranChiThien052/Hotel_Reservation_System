@@ -157,33 +157,7 @@ const managementEmployees = () => {
           </div>
         </div>
 
-        <div className="bg-white rounded-lg border border-gray-300 shadow p-5 flex flex-col gap-3">
-          <div className="flex items-center gap-2 justify-between">
-            <span className="font-xl font-bold text-green-500">
-              Đang hoạt động
-            </span>
-            <FaRegCheckCircle className="text-green-500 text-2xl" />
-          </div>
-          <div className="text-2xl font-bold ">
-            {/* {Array.isArray(customersData)
-              ? customersData.filter((item: Customer) => item.is_active).length
-              : 0} */}
-          </div>
-        </div>
-
-        <div className="bg-white rounded-lg border border-gray-300 shadow p-5 flex flex-col gap-3">
-          <div className="flex items-center gap-2 justify-between">
-            <span className="font-xl font-bold text-yellow-500">
-              Đang bảo trì
-            </span>
-            <LuWrench className="text-yellow-500 text-2xl" />
-          </div>
-          <div className="text-2xl font-bold">
-            {/* {Array.isArray(customersData)
-              ? customersData.filter((item: Customer) => !item.is_active).length
-              : 0} */}
-          </div>
-        </div>
+        
       </div>
 
       <div className="mt-5 border border-gray-300 rounded-lg">

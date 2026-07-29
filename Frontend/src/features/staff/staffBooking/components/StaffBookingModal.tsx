@@ -24,10 +24,14 @@ import { SiZalo } from 'react-icons/si';
 
 
 const formatVND = (n: number) => n.toLocaleString('vi-VN') + 'đ';
-const todayStr = () => new Date().toISOString().split('T')[0];
-const tomorrowStr = () => {
+const todayStr = () => {
     const d = new Date();
     d.setDate(d.getDate() + 1);
+    return d.toISOString().split('T')[0];
+};
+const tomorrowStr = () => {
+    const d = new Date();
+    d.setDate(d.getDate() + 2);
     return d.toISOString().split('T')[0];
 };
 const getCurrentTime = () => {
@@ -155,6 +159,8 @@ const StaffBookingModal = ({ open, onClose, onSuccess, branchId }: StaffBookingM
             setGuestForm({ full_name: '', phone: '', email: '', id_card_number: '', nationality: 'Việt Nam', date_of_birth: '', address: '' });
             setPaymentMethod('cash');
             setErrorMsg('');
+            setSubtotal(0);
+            setCalculatingPrice(false);
         }
     }, [open]);
 
@@ -162,7 +168,6 @@ const StaffBookingModal = ({ open, onClose, onSuccess, branchId }: StaffBookingM
     const selectedPrice = roomPrices.find((rp) => rp.room_type_id === selectedRoomTypeId);
     const pricePerNight = selectedPrice ? Number(selectedPrice.price_per_day ?? 0) : 0;
     const pricePerHour = selectedPrice ? Number(selectedPrice.price_per_hour ?? 0) : 0;
-    const weekendRate = selectedPrice ? Number(selectedPrice.weekend_rate ?? 0) : 0;
     const nights = bookingType === 'daily' ? diffDays(checkinAt, checkoutAt) : 0;
 
     const hourlyCheckin = `${bookingDate}T${startTime}:00`;
@@ -173,27 +178,60 @@ const StaffBookingModal = ({ open, onClose, onSuccess, branchId }: StaffBookingM
         return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}:00.000`;
     })();
 
-    const calcDailySubtotal = () => {
-        if (!checkinAt || !checkoutAt || pricePerNight <= 0) return 0;
-        let cur = new Date(checkinAt);
-        const end = new Date(checkoutAt);
-        let total = 0;
-        while (cur < end) {
-            const dow = cur.getDay();
-            total += pricePerNight + pricePerNight * ((dow === 0 || dow === 6) ? weekendRate / 100 : 0);
-            cur.setDate(cur.getDate() + 1);
-        }
-        return Math.round(total);
-    };
+    const [subtotal, setSubtotal] = useState(0);
+    const [calculatingPrice, setCalculatingPrice] = useState(false);
 
-    const calcHourlySubtotal = () => {
-        if (!hourlyCheckin || durationHours <= 0 || pricePerHour <= 0) return 0;
-        const dow = new Date(hourlyCheckin).getDay();
-        const isWeekend = dow === 0 || dow === 6;
-        return Math.round(durationHours * pricePerHour + durationHours * pricePerHour * (isWeekend ? weekendRate / 100 : 0));
-    };
+    useEffect(() => {
+        let isMounted = true;
+        const fetchPrice = async () => {
+            if (!selectedRoomTypeId || !branchId) {
+                if (isMounted) setSubtotal(0);
+                return;
+            }
 
-    const subtotal = bookingType === 'daily' ? calcDailySubtotal() : calcHourlySubtotal();
+            const finalCheckin = bookingType === 'daily' ? checkinAt : hourlyCheckin;
+            const finalCheckout = bookingType === 'daily' ? checkoutAt : hourlyCheckout;
+
+            if (!finalCheckin || !finalCheckout) {
+                if (isMounted) setSubtotal(0);
+                return;
+            }
+
+            setCalculatingPrice(true);
+            try {
+                const price = await bookingApi.calculateBookingPrice({
+                    room_type_id: selectedRoomTypeId,
+                    branch_id: branchId,
+                    booking_type: bookingType,
+                    checkin_at: finalCheckin,
+                    checkout_at: finalCheckout,
+                });
+
+                if (isMounted) {
+                    setSubtotal(Number(price) || 0);
+                }
+            } catch (err) {
+                console.error('Lỗi tính giá phòng:', err);
+            } finally {
+                if (isMounted) {
+                    setCalculatingPrice(false);
+                }
+            }
+        };
+
+        fetchPrice();
+        return () => {
+            isMounted = false;
+        };
+    }, [
+        bookingType,
+        checkinAt,
+        checkoutAt,
+        hourlyCheckin,
+        hourlyCheckout,
+        selectedRoomTypeId,
+        branchId,
+    ]);
 
     const step0Valid = selectedRoomTypeId !== '' && numGuests >= 1 && (
         bookingType === 'daily' ? nights > 0 : bookingDate !== '' && startTime !== '' && durationHours >= 1
@@ -359,7 +397,7 @@ const StaffBookingModal = ({ open, onClose, onSuccess, branchId }: StaffBookingM
                                         {nights > 0 && (
                                             <div className="col-span-2 flex items-center gap-2 text-sm text-amber-700 bg-amber-50 border border-amber-200 px-4 py-2.5 rounded-xl">
                                                 <FaRegCalendarAlt />
-                                                <span>Lưu trú: <strong>{nights} đêm</strong> · Tạm tính: <strong>{formatVND(subtotal)}</strong></span>
+                                                <span>Lưu trú: <strong>{nights} đêm</strong> · Tạm tính: <strong>{calculatingPrice ? 'Đang tính...' : formatVND(subtotal)}</strong></span>
                                             </div>
                                         )}
                                     </div>
@@ -395,7 +433,7 @@ const StaffBookingModal = ({ open, onClose, onSuccess, branchId }: StaffBookingM
                                             </svg>
                                             <span>
                                                 Từ <strong>{startTime}</strong> — đến <strong>{(() => { const d = new Date(`${bookingDate}T${startTime}`); d.setHours(d.getHours() + durationHours); return d.toTimeString().slice(0, 5); })()}</strong> ({durationHours}h)
-                                                {subtotal > 0 && <span> · Tạm tính: <strong>{formatVND(subtotal)}</strong></span>}
+                                                <span> · Tạm tính: <strong>{calculatingPrice ? 'Đang tính...' : formatVND(subtotal)}</strong></span>
                                             </span>
                                         </div>
                                     </div>
@@ -611,7 +649,7 @@ const StaffBookingModal = ({ open, onClose, onSuccess, branchId }: StaffBookingM
                                 {/* Tổng tiền */}
                                 <div className="flex items-center justify-between p-4 bg-amber-50 border border-amber-200 rounded-xl">
                                     <span className="font-bold text-gray-800">Tổng tiền tạm tính</span>
-                                    <span className="font-bold text-xl text-amber-600">{subtotal > 0 ? formatVND(subtotal) : '—'}</span>
+                                    <span className="font-bold text-xl text-amber-600">{calculatingPrice ? 'Đang tính...' : (subtotal > 0 ? formatVND(subtotal) : '—')}</span>
                                 </div>
 
                                 {/* Hình thức thanh toán */}

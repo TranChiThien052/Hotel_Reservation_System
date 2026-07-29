@@ -51,6 +51,12 @@ export interface Booking {
         status?: string,
         payment_method?: string,
     }>,
+    charge: {
+        balance: number,
+        deposited: number,
+        total: number,
+        discount: number,
+    }
 
 }
 

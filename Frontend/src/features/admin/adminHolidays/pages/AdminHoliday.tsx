@@ -6,8 +6,6 @@ import message from "antd/es/message";
 import { Button, Space, Table, type TableProps } from "antd";
 import { CiCirclePlus } from "react-icons/ci";
 import { FaRegBuilding } from "react-icons/fa6";
-import { IoIosCheckmarkCircleOutline } from "react-icons/io";
-import { LuWrench } from "react-icons/lu";
 import FormModal from "@/app/layout/components/admin/FormModal";
 import { FormModalModes } from "@/shared/types/type-form-mode";
 import { holidayFormFields } from "../contants/holiday-form-fields";
@@ -143,29 +141,7 @@ const AdminHoliday = () => {
             </div>
           </div>
   
-          <div className="bg-white rounded-lg border border-gray-300 shadow p-5 flex flex-col gap-3">
-            <div className="flex items-center gap-2 justify-between">
-              <span className="font-xl font-bold text-green-500">
-                Đang hoạt động
-              </span>
-              <IoIosCheckmarkCircleOutline className="text-green-500 text-2xl" />
-            </div>
-            <div className="text-2xl font-bold ">
-              {/* {Array.isArray(holidaysData) ? holidaysData.filter((item: Holiday) => item.is_active).length : 0} */}
-            </div>
-          </div>
-  
-          <div className="bg-white rounded-lg border border-gray-300 shadow p-5 flex flex-col gap-3">
-            <div className="flex items-center gap-2 justify-between">
-              <span className="font-xl font-bold text-yellow-500">
-                Đang bảo trì
-              </span>
-              <LuWrench className="text-yellow-500 text-2xl" />
-            </div>
-            <div className="text-2xl font-bold">
-              {/* {Array.isArray(holidaysData) ? holidaysData.filter((item: Holiday) => !item.is_active).length : 0} */}
-            </div>
-          </div>
+          
         </div>
   
         <div className="mt-5 border border-gray-300 rounded-lg">

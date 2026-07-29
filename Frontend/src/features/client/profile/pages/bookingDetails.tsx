@@ -2,11 +2,12 @@ import { useCallback, useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAppSelector } from '@/app/store/hooks';
 import { bookingApi } from '@/features/staff/staffBooking/api/booking-api';
+import { bookingServiceApi } from '@/features/staff/staffBooking/api/booking-service-api';
 import type { Booking } from '@/features/staff/staffBooking/types/booking-type';
 import { cancellationApi } from '@/features/client/profile/api/profile-api';
 import { IoArrowBack, IoCheckmarkCircle } from 'react-icons/io5';
 import {
-    FaRegCalendarAlt, FaRegUser, FaTag, FaBuilding,
+    FaRegCalendarAlt, FaRegUser, FaTag, FaBuilding, FaConciergeBell,
 } from 'react-icons/fa';
 import {
     MdOutlineHotel, MdOutlinePhone, MdOutlineMail,
@@ -15,6 +16,16 @@ import {
 import { HiOutlineClock, HiOutlineXCircle } from 'react-icons/hi';
 import { BsDoorOpen, BsDoorClosed, BsReceipt } from 'react-icons/bs';
 import RefundModal, { calcRefund, getBookingAmounts } from '../components/RefundModal';
+
+interface BookingService {
+    id: string;
+    service_id: string;
+    quantity: number;
+    unit_price: number | string;
+    total_amount: number | string;
+    added_at: string;
+    services?: { name: string; price: number };
+}
 
 
 const formatVND = (n: number | string) =>
@@ -36,40 +47,61 @@ const formatDateTime = (str?: string | null) => {
 };
 
 
-const STATUS_CONFIG: Record<string, {
-    label: string; color: string; bg: string; border: string; icon: React.ReactNode;
-}> = {
-    pending: {
-        label: 'Chờ xác nhận', color: 'text-amber-700', bg: 'bg-amber-50',
-        border: 'border-amber-200', icon: <HiOutlineClock className="text-amber-500 text-lg" />,
-    },
-    confirmed: {
-        label: 'Đã xác nhận', color: 'text-blue-700', bg: 'bg-blue-50',
-        border: 'border-blue-200', icon: <IoCheckmarkCircle className="text-blue-500 text-lg" />,
-    },
-    checked_in: {
-        label: 'Đã nhận phòng', color: 'text-emerald-700', bg: 'bg-emerald-50',
-        border: 'border-emerald-200', icon: <BsDoorOpen className="text-emerald-500 text-lg" />,
-    },
-    checked_out: {
-        label: 'Đã trả phòng', color: 'text-purple-700', bg: 'bg-purple-50',
-        border: 'border-purple-200', icon: <BsDoorClosed className="text-purple-500 text-lg" />,
-    },
-    completed: {
-        label: 'Hoàn thành', color: 'text-teal-700', bg: 'bg-teal-50',
-        border: 'border-teal-200', icon: <IoCheckmarkCircle className="text-teal-500 text-lg" />,
-    },
-    cancelled: {
-        label: 'Đã hủy', color: 'text-red-700', bg: 'bg-red-50',
-        border: 'border-red-200', icon: <HiOutlineXCircle className="text-red-500 text-lg" />,
-    },
+const renderBookingStatusBadge = (status: string) => {
+    switch (status) {
+        case 'confirmed':
+            return (
+                <span className="self-start sm:self-center flex items-center gap-2 text-sm font-bold px-4 py-2.5 rounded-xl border-2 text-blue-700 bg-blue-50 border-blue-200">
+                    <IoCheckmarkCircle className="text-blue-500 text-lg" />
+                    Đã xác nhận
+                </span>
+            );
+        case 'checked_in':
+            return (
+                <span className="self-start sm:self-center flex items-center gap-2 text-sm font-bold px-4 py-2.5 rounded-xl border-2 text-emerald-700 bg-emerald-50 border-emerald-200">
+                    <BsDoorOpen className="text-emerald-500 text-lg" />
+                    Đã nhận phòng
+                </span>
+            );
+        case 'checked_out':
+            return (
+                <span className="self-start sm:self-center flex items-center gap-2 text-sm font-bold px-4 py-2.5 rounded-xl border-2 text-purple-700 bg-purple-50 border-purple-200">
+                    <BsDoorClosed className="text-purple-500 text-lg" />
+                    Đã trả phòng
+                </span>
+            );
+        case 'completed':
+            return (
+                <span className="self-start sm:self-center flex items-center gap-2 text-sm font-bold px-4 py-2.5 rounded-xl border-2 text-teal-700 bg-teal-50 border-teal-200">
+                    <IoCheckmarkCircle className="text-teal-500 text-lg" />
+                    Hoàn thành
+                </span>
+            );
+        case 'cancelled':
+            return (
+                <span className="self-start sm:self-center flex items-center gap-2 text-sm font-bold px-4 py-2.5 rounded-xl border-2 text-red-700 bg-red-50 border-red-200">
+                    <HiOutlineXCircle className="text-red-500 text-lg" />
+                    Đã hủy
+                </span>
+            );
+        case 'pending':
+        default:
+            return (
+                <span className="self-start sm:self-center flex items-center gap-2 text-sm font-bold px-4 py-2.5 rounded-xl border-2 text-amber-700 bg-amber-50 border-amber-200">
+                    <HiOutlineClock className="text-amber-500 text-lg" />
+                    Chờ xác nhận
+                </span>
+            );
+    }
 };
 
-
-const CANCEL_STATUS_CONFIG: Record<string, { label: string; color: string; bg: string; border: string }> = {
-    pending: { label: 'Đang chờ xử lý', color: 'text-amber-700', bg: 'bg-amber-50', border: 'border-amber-300' },
-    confirmed: { label: 'Đã chấp thuận', color: 'text-green-700', bg: 'bg-green-50', border: 'border-green-300' },
-    failed: { label: 'Bị từ chối', color: 'text-red-700', bg: 'bg-red-50', border: 'border-red-300' },
+const getCancelStatusLabel = (status: string) => {
+    switch (status) {
+        case 'confirmed': return 'Đã chấp thuận';
+        case 'failed': return 'Bị từ chối';
+        case 'pending':
+        default: return 'Đang chờ xử lý';
+    }
 };
 
 
@@ -94,6 +126,7 @@ const BookingDetails = () => {
     const [booking, setBooking] = useState<Booking | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+    const [bookingServices, setBookingServices] = useState<BookingService[]>([]);
 
     /* Hoàn tiền */
     const [showRefundModal, setShowRefundModal] = useState(false);
@@ -108,15 +141,16 @@ const BookingDetails = () => {
         try {
             const data = await bookingApi.getBookingById(id);
             setBooking(data);
-
-            // Kiểm tra xem đã có yêu cầu hoàn tiền chưa
             try {
-                const cancelRequests = await cancellationApi.getByBookingId(id);
-                if (cancelRequests.length > 0) {
-                    setExistingCancelRequest(cancelRequests[0]);
-                }
-            } catch {
-                // Bỏ qua lỗi fetch cancellation
+                const svcs = await bookingServiceApi.getByBookingId(id);
+                const cancellationRequests = data.cancellation_request ?? data.cancellation_requests ?? [];
+                const latestCancellationRequest = Array.isArray(cancellationRequests)
+                    ? cancellationRequests[cancellationRequests.length - 1] ?? null
+                    : cancellationRequests ?? null;
+                setExistingCancelRequest(latestCancellationRequest);
+                setBookingServices(svcs ?? []);
+            } catch (err) {
+                console.error('Lỗi khi lấy dịch vụ:', err);
             }
         } catch (err) {
             console.error('Lỗi khi lấy chi tiết đặt phòng:', err);
@@ -145,7 +179,6 @@ const BookingDetails = () => {
             });
             setRefundSuccess(true);
             setShowRefundModal(false);
-            // Reload để lấy trạng thái mới nhất
             fetchBooking();
         } catch (err: any) {
             setRefundError(err?.response?.data?.error ?? 'Gửi yêu cầu thất bại. Vui lòng thử lại.');
@@ -154,7 +187,7 @@ const BookingDetails = () => {
         }
     };
 
-    /* ─── Loading / error states ─────────────────────────── */
+    
     if (!initialized) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -207,8 +240,7 @@ const BookingDetails = () => {
         );
     }
 
-    /* ─── Computed values ─────────────────────────────────── */
-    const statusCfg = STATUS_CONFIG[booking.status] ?? STATUS_CONFIG.pending;
+    
     const isHourly = booking.booking_type === 'hourly';
     const customer = booking.customers;
     const hasDiscount = Number(booking.discount_amount ?? 0) > 0;
@@ -220,6 +252,8 @@ const BookingDetails = () => {
     const hours = isHourly ? Math.round(diffMs / (1000 * 60 * 60)) : 0;
 
     const amounts = getBookingAmounts(booking);
+    const servicesTotalAmount = bookingServices.reduce((sum, s) => sum + Number(s.total_amount ?? 0), 0);
+    const grandTotal = amounts.totalAmount + servicesTotalAmount;
 
     /* Điều kiện hiển thị nút hoàn tiền */
     const canRequestRefund =
@@ -259,10 +293,7 @@ const BookingDetails = () => {
                                 Đặt lúc: {formatDateTime(booking.created_at)}
                             </p>
                         </div>
-                        <span className={`self-start sm:self-center flex items-center gap-2 text-sm font-bold px-4 py-2.5 rounded-xl border-2 ${statusCfg.color} ${statusCfg.bg} ${statusCfg.border}`}>
-                            {statusCfg.icon}
-                            {statusCfg.label}
-                        </span>
+                        {renderBookingStatusBadge(booking.status)}
                     </div>
                 </div>
 
@@ -301,7 +332,7 @@ const BookingDetails = () => {
                                 }`}>
                                     Yêu cầu hoàn tiền
                                     {existingCancelRequest
-                                        ? ` — ${CANCEL_STATUS_CONFIG[existingCancelRequest.status]?.label ?? ''}`
+                                        ? ` — ${getCancelStatusLabel(existingCancelRequest.status)}`
                                         : ' đã được gửi thành công'}
                                 </p>
                                 {existingCancelRequest && (
@@ -427,19 +458,58 @@ const BookingDetails = () => {
                         </div>
                     )}
 
+                    {/* Dịch vụ đã đặt */}
+                    {bookingServices.length > 0 ? (
+                        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
+                            <h2 className="text-sm font-bold text-gray-900 uppercase tracking-wider mb-1 flex items-center gap-2">
+                                <FaConciergeBell className="text-amber-500 text-base" />
+                                Dịch vụ đã đặt
+                            </h2>
+                            <div className="mt-3 divide-y divide-gray-50">
+                                {bookingServices.map((svc) => (
+                                    <div key={svc.id} className="flex items-center justify-between py-2.5">
+                                        <div>
+                                            <p className="text-sm font-semibold text-gray-800">
+                                                {svc.services?.name ?? 'Dịch vụ'}
+                                            </p>
+                                            <p className="text-xs text-gray-400 mt-0.5">
+                                                {formatVND(svc.unit_price)} × {svc.quantity}
+                                            </p>
+                                        </div>
+                                        <span className="text-sm font-bold text-gray-700">
+                                            {formatVND(svc.total_amount)}
+                                        </span>
+                                    </div>
+                                ))}
+                                <div className="flex justify-between items-center pt-2.5">
+                                    <span className="text-sm font-semibold text-amber-700">Tổng dịch vụ</span>
+                                    <span className="text-sm font-bold text-amber-700">{formatVND(servicesTotalAmount)}</span>
+                                </div>
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
+                            <h2 className="text-sm font-bold text-gray-900 uppercase tracking-wider mb-1 flex items-center gap-2">
+                                <FaConciergeBell className="text-amber-500 text-base" />
+                                Dịch vụ đã đặt
+                            </h2>
+                            <p className="text-sm text-gray-500 mt-3">Không có dịch vụ nào được đặt kèm.</p>
+                        </div>
+                    )}
+
                     {/* Chi phí */}
-                    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
+                    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 md:col-span-2">
                         <h2 className="text-sm font-bold text-gray-900 uppercase tracking-wider mb-1 flex items-center gap-2">
                             <BsReceipt className="text-amber-500 text-base" />
                             Chi phí
                         </h2>
                         <div className="mt-3">
                             <InfoRow
-                                label="Giá phòng/đêm"
+                                label={isHourly ? 'Giá phòng/giờ' : 'Giá phòng/đêm'}
                                 value={formatVND(booking.room_price_snapshot)}
                             />
                             <InfoRow
-                                label="Tạm tính"
+                                label="Tạm tính phòng"
                                 value={formatVND(amounts.subtotal)}
                             />
                             {hasDiscount && (
@@ -453,10 +523,17 @@ const BookingDetails = () => {
                                     icon={<FaTag />}
                                 />
                             )}
+                            {servicesTotalAmount > 0 && (
+                                <InfoRow
+                                    label="Dịch vụ thêm"
+                                    value={formatVND(servicesTotalAmount)}
+                                    icon={<FaConciergeBell />}
+                                />
+                            )}
                             <div className="flex justify-between items-center py-3 mt-2 border-t-2 border-gray-100">
                                 <span className="font-bold text-gray-900">Tổng cộng</span>
                                 <span className={`font-bold text-lg ${amounts.isDepositPaid ? 'text-gray-900' : 'text-amber-500'}`}>
-                                    {formatVND(amounts.totalAmount)}
+                                    {formatVND(grandTotal)}
                                 </span>
                             </div>
                             {amounts.isFullPaid ? (
@@ -487,7 +564,7 @@ const BookingDetails = () => {
                                     <div className="flex justify-between items-center py-3 border-t-2 border-gray-100">
                                         <span className="font-bold text-gray-900">Còn lại cần thanh toán</span>
                                         <span className="font-bold text-xl text-amber-500">
-                                            {formatVND(amounts.remainingAmount)}
+                                            {formatVND(Math.max(0, grandTotal - amounts.paidAmount))}
                                         </span>
                                     </div>
                                 </>
@@ -527,8 +604,8 @@ const BookingDetails = () => {
                         }`}>
                             <p className={`text-sm font-medium ${refundInfo.isFullRefund ? 'text-green-700' : 'text-amber-700'}`}>
                                 {refundInfo.isFullRefund
-                                    ? '✅ Nếu hủy ngay bây giờ, bạn sẽ được hoàn 100%'
-                                    : '⚠️ Nếu hủy ngay bây giờ, sẽ bị trừ phí 1 đêm đầu'}
+                                    ? 'Nếu hủy ngay bây giờ, bạn sẽ được hoàn 100% tiền đã thanh toán.'
+                                    : 'Nếu hủy ngay bây giờ, sẽ bị trừ phí 1 đêm đầu'}
                             </p>
                             <div className="mt-2 flex justify-between items-center">
                                 <span className="text-xs text-gray-500">Số tiền hoàn dự kiến:</span>
@@ -553,7 +630,7 @@ const BookingDetails = () => {
                         {/* Thông báo trạng thái */}
                         {booking.status === 'pending' && !canRequestRefund && !existingCancelRequest && (
                             <p className="text-xs text-amber-600 bg-amber-50 border border-amber-200 px-4 py-2.5 rounded-xl">
-                                ⏳ Đơn đang chờ xác nhận từ khách sạn
+                                 Đơn đang chờ xác nhận
                             </p>
                         )}
 
@@ -564,14 +641,14 @@ const BookingDetails = () => {
                                 className="flex items-center gap-2 px-5 py-2.5 bg-red-500 hover:bg-red-600 text-white text-sm font-bold rounded-xl transition-colors cursor-pointer shadow-sm hover:shadow-md"
                             >
                                 <MdOutlineMoneyOffCsred className="text-base" />
-                                Yêu cầu hoàn tiền
+                                Yêu cầu hủy phòng
                             </button>
                         )}
 
                         {/* Thông báo đơn theo giờ không được hoàn */}
                         {isHourly && (booking.status === 'pending' || booking.status === 'confirmed') && (
                             <p className="text-xs text-gray-500 bg-gray-100 border border-gray-200 px-4 py-2.5 rounded-xl">
-                                🕐 Đặt theo giờ không áp dụng hoàn tiền
+                                Đặt theo giờ không áp dụng hủy phòng
                             </p>
                         )}
                     </div>

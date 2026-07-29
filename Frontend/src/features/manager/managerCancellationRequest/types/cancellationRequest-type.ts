@@ -1,3 +1,5 @@
+import type { Booking } from "@/features/staff/staffBooking/types/booking-type";
+
 export interface CancellationRequestType {
     id: string;
     booking_id: string,
@@ -10,31 +12,5 @@ export interface CancellationRequestType {
     notes: string,
     created_at: string,
     updated_at: string,
-    bookings: {
-      id: string,
-      booking_code: string,
-      branch_id: string,
-      customer_id: string,
-      room_type_id: string,
-      assigned_room_id?: string,
-      booking_type: string,
-      status: string,
-      checkin_at: string,
-      checkout_at: string,
-      actual_checkin_at?: string,
-      actual_checkout_at?: string,
-      num_guests: Number,
-      room_price_snapshot: Number,
-      subtotal: Number,
-      discount_id?: string,
-      discount_amount: Number,
-      total_amount: Number,
-      deposit_amount: Number,
-      deposit_paid_at?: string,
-      created_by?: string,
-      expires_at: string,
-      notes?: string,
-      created_at: string,
-      updated_at: string
-    }
+    bookings: Booking
 }

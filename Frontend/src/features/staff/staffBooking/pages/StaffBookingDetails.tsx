@@ -35,13 +35,16 @@ const formatDateTime = (str?: string | null) => {
     return new Date(str).toLocaleString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 };
 
-const STATUS_CONFIG: Record<string, { label: string; antColor: string }> = {
-    pending:     { label: 'Chờ xác nhận',  antColor: 'orange' },
-    confirmed:   { label: 'Đã xác nhận',   antColor: 'blue' },
-    checked_in:  { label: 'Đã nhận phòng', antColor: 'cyan' },
-    checked_out: { label: 'Đã trả phòng',  antColor: 'purple' },
-    completed:   { label: 'Hoàn thành',    antColor: 'green' },
-    cancelled:   { label: 'Đã hủy',        antColor: 'red' },
+const getStatusLabel = (status: string) => {
+    switch (status) {
+        case 'pending': return 'Chờ xác nhận';
+        case 'confirmed': return 'Đã xác nhận';
+        case 'checked_in': return 'Đã nhận phòng';
+        case 'checked_out': return 'Đã trả phòng';
+        case 'completed': return 'Hoàn thành';
+        case 'cancelled': return 'Đã hủy';
+        default: return status;
+    }
 };
 
 const InfoRow = ({ label, value, icon }: { label: string; value: React.ReactNode; icon?: React.ReactNode }) => (
@@ -149,7 +152,7 @@ const StaffBookingDetails = () => {
             if (newStatus === 'checked_out') updatePayload.actual_checkout_at = new Date().toISOString();
             
             await bookingApi.updateBooking(booking.id, updatePayload);
-            message.success(`Đã chuyển trạng thái thành: ${STATUS_CONFIG[newStatus]?.label || newStatus}`);
+            message.success(`Đã chuyển trạng thái thành: ${getStatusLabel(newStatus)}`);
             fetchAll();
         } catch { message.error('Cập nhật trạng thái thất bại!'); }
         finally { setActionLoading(false); }
@@ -327,10 +330,14 @@ const StaffBookingDetails = () => {
                                 onChange={handleStatusChange}
                                 disabled={actionLoading}
                                 style={{ width: 160 }}
-                                options={Object.entries(STATUS_CONFIG).map(([key, val]) => ({
-                                    value: key,
-                                    label: val.label,
-                                }))}
+                                options={[
+                                    { value: 'pending', label: 'Chờ xác nhận' },
+                                    { value: 'confirmed', label: 'Đã xác nhận' },
+                                    { value: 'checked_in', label: 'Đã nhận phòng' },
+                                    { value: 'checked_out', label: 'Đã trả phòng' },
+                                    { value: 'completed', label: 'Hoàn thành' },
+                                    { value: 'cancelled', label: 'Đã hủy' },
+                                ]}
                             />
                         </div>
                     </div>

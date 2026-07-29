@@ -80,12 +80,16 @@ const index = () => {
     setLoading(true);
     try {
       const res = await roomsAvailableApi.searchRoomsAvailable(searchParams);
-      if (res.length === 0) {
+      const resultsList = res?.results || [];
+      const availableRooms = resultsList.filter((r: any) => r.available_count > 0 && !r.is_sold_out);
+      if (resultsList.length === 0 || availableRooms.length === 0) {
         message.info("Không có phòng trống cho khoảng thời gian này");
-      } else {
-        navigate("/rooms", { state: { searchParams } });
       }
+      sessionStorage.setItem("client_room_search_params", JSON.stringify(searchParams));
+      sessionStorage.setItem("client_room_search_results", JSON.stringify(resultsList));
+      navigate("/rooms");
     } catch (error) {
+      console.error("Lỗi khi tìm phòng:", error);
       message.error("Có lỗi xảy ra khi tìm phòng");
     } finally {
       setLoading(false);
@@ -94,6 +98,8 @@ const index = () => {
   console.log("branches", branches);
 
     const handleViewAllRooms = () => {
+      sessionStorage.removeItem("client_room_search_params");
+      sessionStorage.removeItem("client_room_search_results");
       navigate("/rooms");
     }
   return (

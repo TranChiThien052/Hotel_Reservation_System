@@ -8,8 +8,6 @@ import { MdOutlineHotel } from 'react-icons/md';
 import { IoCheckmarkCircle, IoTimeOutline } from 'react-icons/io5';
 import { HiOutlineXCircle, HiOutlineClock } from 'react-icons/hi';
 import { BsDoorOpen, BsDoorClosed } from 'react-icons/bs';
-import { getBookingAmounts } from '../components/RefundModal';
-
 const formatVND = (n: number | string) =>
     Number(n).toLocaleString('vi-VN') + 'đ';
 
@@ -30,55 +28,52 @@ const formatDateTime = (str: string) => {
 
 type BookingStatus = 'all' | 'pending' | 'confirmed' | 'checked_in' | 'checked_out' | 'completed' | 'cancelled';
 
-const STATUS_CONFIG: Record<string, {
-    label: string;
-    color: string;
-    bg: string;
-    border: string;
-    icon: React.ReactNode;
-}> = {
-    pending: {
-        label: 'Chờ xác nhận',
-        color: 'text-amber-700',
-        bg: 'bg-amber-50',
-        border: 'border-amber-200',
-        icon: <HiOutlineClock className="text-amber-500" />,
-    },
-    confirmed: {
-        label: 'Đã xác nhận',
-        color: 'text-blue-700',
-        bg: 'bg-blue-50',
-        border: 'border-blue-200',
-        icon: <IoCheckmarkCircle className="text-blue-500" />,
-    },
-    checked_in: {
-        label: 'Đã nhận phòng',
-        color: 'text-emerald-700',
-        bg: 'bg-emerald-50',
-        border: 'border-emerald-200',
-        icon: <BsDoorOpen className="text-emerald-500" />,
-    },
-    checked_out: {
-        label: 'Đã trả phòng',
-        color: 'text-purple-700',
-        bg: 'bg-purple-50',
-        border: 'border-purple-200',
-        icon: <BsDoorClosed className="text-purple-500" />,
-    },
-    completed: {
-        label: 'Hoàn thành',
-        color: 'text-teal-700',
-        bg: 'bg-teal-50',
-        border: 'border-teal-200',
-        icon: <IoCheckmarkCircle className="text-teal-500" />,
-    },
-    cancelled: {
-        label: 'Đã hủy',
-        color: 'text-red-700',
-        bg: 'bg-red-50',
-        border: 'border-red-200',
-        icon: <HiOutlineXCircle className="text-red-500" />,
-    },
+const renderStatusBadge = (status: string) => {
+    switch (status) {
+        case 'confirmed':
+            return (
+                <span className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full border text-blue-700 bg-blue-50 border-blue-200">
+                    <IoCheckmarkCircle className="text-blue-500" />
+                    Đã xác nhận
+                </span>
+            );
+        case 'checked_in':
+            return (
+                <span className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full border text-emerald-700 bg-emerald-50 border-emerald-200">
+                    <BsDoorOpen className="text-emerald-500" />
+                    Đã nhận phòng
+                </span>
+            );
+        case 'checked_out':
+            return (
+                <span className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full border text-purple-700 bg-purple-50 border-purple-200">
+                    <BsDoorClosed className="text-purple-500" />
+                    Đã trả phòng
+                </span>
+            );
+        case 'completed':
+            return (
+                <span className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full border text-teal-700 bg-teal-50 border-teal-200">
+                    <IoCheckmarkCircle className="text-teal-500" />
+                    Hoàn thành
+                </span>
+            );
+        case 'cancelled':
+            return (
+                <span className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full border text-red-700 bg-red-50 border-red-200">
+                    <HiOutlineXCircle className="text-red-500" />
+                    Đã hủy
+                </span>
+            );
+        case 'pending':
+        default:
+            return (
+                <span className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full border text-amber-700 bg-amber-50 border-amber-200">
+                    <HiOutlineClock className="text-amber-500" />
+                    Chờ xác nhận
+                </span>
+            );
+    }
 };
 
 const FILTER_TABS: { key: BookingStatus; label: string }[] = [
@@ -126,7 +121,7 @@ const BookingHistory = () => {
             setLoading(false);
         }
     }, [initialized, customerId, fetchBookings]);
-
+console.log('bookings', bookings);
     const filtered = activeFilter === 'all'
         ? bookings
         : bookings.filter((b) => b.status === activeFilter);
@@ -138,6 +133,7 @@ const BookingHistory = () => {
         setActiveFilter(key);
         setCurrentPage(1);
     };
+
 
     if (!initialized) {
         return (
@@ -256,9 +252,12 @@ const BookingHistory = () => {
                 ) : (
                     <div className="flex flex-col gap-4">
                         {paginated.map((booking) => {
-                            const statusCfg = STATUS_CONFIG[booking.status] ?? STATUS_CONFIG.pending;
                             const isHourly = booking.booking_type === 'hourly';
-                            const amounts = getBookingAmounts(booking);
+                            const chargeTotal = booking.charge?.total ?? Number(booking.total_amount || 0);
+                            const chargeDiscount = booking.charge?.discount ?? Number(booking.discount_amount || 0);
+                            const chargeDeposited = booking.charge?.deposited ?? Number(booking.deposit_amount || 0);
+                            const chargeBalance = booking.charge?.balance ?? (chargeTotal - chargeDiscount - chargeDeposited);
+
                             return (
                                 <div
                                     key={booking.id}
@@ -266,7 +265,7 @@ const BookingHistory = () => {
                                     className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md hover:border-amber-200 transition-all cursor-pointer group"
                                 >
                                     <div className="p-5">
-                                        {/* Top row: code + status */}
+                                        
                                         <div className="flex items-center justify-between mb-4">
                                             <div>
                                                 <span className="text-xs text-gray-400 font-medium">Mã đặt phòng</span>
@@ -274,13 +273,10 @@ const BookingHistory = () => {
                                                     #{booking.booking_code}
                                                 </p>
                                             </div>
-                                            <span className={`flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full border ${statusCfg.color} ${statusCfg.bg} ${statusCfg.border}`}>
-                                                {statusCfg.icon}
-                                                {statusCfg.label}
-                                            </span>
+                                            {renderStatusBadge(booking.status)}
                                         </div>
 
-                                        {/* Middle row */}
+                                        
                                         <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-4">
                                             <div className="flex items-start gap-2">
                                                 <MdOutlineHotel className="text-amber-400 text-lg mt-0.5 shrink-0" />
@@ -337,48 +333,68 @@ const BookingHistory = () => {
                                             </div>
                                         </div>
 
-                                        <div className="flex flex-col gap-2 pt-3 border-t border-gray-100">
-                                            <div className="flex items-center justify-between">
-                                                <span className="text-xs text-gray-500">Tổng tiền</span>
-                                                <span className="text-sm font-bold text-gray-900">
-                                                    {formatVND(amounts.totalAmount)}
-                                                </span>
-                                            </div>
-                                            {amounts.isFullPaid ? (
-                                                <div className="flex items-center justify-between">
-                                                    <span className="text-xs text-emerald-600 font-semibold">Đã thanh toán đủ</span>
-                                                    <span className="text-sm font-bold text-emerald-600">
-                                                        {formatVND(amounts.paidAmount)}
-                                                    </span>
-                                                </div>
-                                            ) : amounts.isDepositPaid ? (
-                                                <>
-                                                    <div className="flex items-center justify-between">
-                                                        <span className="text-xs text-gray-500">Đã cọc</span>
+                                        {/* ── Payment Summary ── */}
+                                        <div className="mt-3 pt-3 border-t border-gray-100">
+                                            <div className="rounded-xl overflow-hidden border border-gray-100 shadow-sm">
+                                                {/* Header */}
+
+                                                <div className="bg-white divide-y divide-gray-50">
+                                                    {/* Tổng tiền */}
+                                                    <div className="flex items-center justify-between px-3 py-2">
+                                                        <span className="text-xs text-gray-500 flex items-center gap-1">
+                                                            <span className="w-1.5 h-1.5 rounded-full bg-gray-300 inline-block"></span>
+                                                            Tổng tiền
+                                                        </span>
+                                                        <span className="text-sm font-bold text-gray-800">
+                                                            {formatVND(chargeTotal)}
+                                                        </span>
+                                                    </div>
+
+                                                    {/* Giảm giá */}
+                                                    {chargeDiscount > 0 && (
+                                                        <div className="flex items-center justify-between px-3 py-2 bg-green-50/50">
+                                                            <span className="text-xs text-green-700 flex items-center gap-1">
+                                                                <span className="w-1.5 h-1.5 rounded-full bg-green-400 inline-block"></span>
+                                                                Giảm giá
+                                                            </span>
+                                                            <span className="text-sm font-bold text-green-600 flex items-center gap-1">
+                                                                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                                                                </svg>
+                                                                -{formatVND(chargeDiscount)}
+                                                            </span>
+                                                        </div>
+                                                    )}
+
+                                                    {/* Đã thanh toán */}
+                                                    <div className="flex items-center justify-between px-3 py-2">
+                                                        <span className="text-xs text-blue-600 flex items-center gap-1">
+                                                            <span className="w-1.5 h-1.5 rounded-full bg-blue-400 inline-block"></span>
+                                                            Đã thanh toán
+                                                        </span>
                                                         <span className="text-sm font-bold text-blue-600">
-                                                            {formatVND(amounts.paidAmount)}
+                                                            {formatVND(chargeDeposited)}
                                                         </span>
                                                     </div>
-                                                    <div className="flex items-center justify-between">
-                                                        <span className="text-xs text-gray-500">Còn lại</span>
-                                                        <span className="text-lg font-bold text-amber-500">
-                                                            {formatVND(amounts.remainingAmount)}
+
+                                                    {/* Còn lại */}
+                                                    <div className="flex items-center justify-between px-3 py-2.5 bg-linear-to-r from-amber-50 to-orange-50 rounded-b-xl">
+                                                        <span className="text-xs font-semibold text-amber-700 flex items-center gap-1">
+                                                            <span className="w-1.5 h-1.5 rounded-full bg-amber-400 inline-block"></span>
+                                                            Còn lại
+                                                        </span>
+                                                        <span className="text-base font-extrabold text-amber-600 tracking-tight">
+                                                            {formatVND(chargeBalance)}
                                                         </span>
                                                     </div>
-                                                </>
-                                            ) : (
-                                                <div className="flex items-center justify-between">
-                                                    <span className="text-xs text-gray-500">Còn lại</span>
-                                                    <span className="text-lg font-bold text-amber-500">
-                                                        {formatVND(amounts.totalAmount)}
-                                                    </span>
                                                 </div>
-                                            )}
-                                            <div className="flex justify-end mt-1 group-hover:mt-2 transition-all">
-                                                <div className="flex items-center gap-1 text-amber-500 group-hover:gap-2 transition-all">
-                                                    <span className="text-sm font-medium">Xem chi tiết</span>
-                                                    <FaChevronRight className="text-xs" />
-                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="flex justify-end mt-1 group-hover:mt-2 transition-all">
+                                            <div className="flex items-center gap-1 text-amber-500 group-hover:gap-2 transition-all">
+                                                <span className="text-sm font-medium">Xem chi tiết</span>
+                                                <FaChevronRight className="text-xs" />
                                             </div>
                                         </div>
                                     </div>
@@ -386,7 +402,7 @@ const BookingHistory = () => {
                             );
                         })}
 
-                        {/* ── Phân trang ── */}
+                        
                         {totalPages > 1 && (
                             <div className="flex items-center justify-between pt-4">
                                 <p className="text-sm text-gray-500">
