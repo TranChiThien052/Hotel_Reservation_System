@@ -55,20 +55,34 @@ class BookingRepository {
                     }
                 },
                 payments: {
+                    where: {
+                        status: 'paid',
+                    },
                     select: {
+                        status: true,
                         amount: true,
                         paid_at: true,
                         is_deposit: true,
                         transaction_ref: true,
                     },
-                    where: {
-                        status: 'paid',
-                    }
                 },
                 cancellation_requests: {
                     select: {
                         status: true,
                         reason: true,
+                        created_at: true,
+                        updated_at: true,
+                        resolved_by: true
+                    }
+                },
+                booking_services: {
+                    select: {
+                        services: {
+                            select: { name: true, }
+                        },
+                        quantity: true,
+                        unit_price: true,
+                        total_amount: true,
                     }
                 }
             }
@@ -83,41 +97,54 @@ class BookingRepository {
                     notes: booking.notes,
                 }
             })
-        }
-        booking = await prisma.bookings.findUnique({
-            where: { id: id },
-            include: {
-                customers: true,
-                room_types: {
-                    select: {
-                        id: true,
-                        name: true,
-                    }
-                },
-                branches: {
-                    select: {
-                        name: true,
-                    }
-                },
-                payments: {
-                    select: {
-                        amount: true,
-                        paid_at: true,
-                        is_deposit: true,
-                        transaction_ref: true,
+            return await prisma.bookings.findUnique({
+                where: { id: id },
+                include: {
+                    customers: true,
+                    room_types: {
+                        select: {
+                            id: true,
+                            name: true,
+                        }
                     },
-                    where: {
-                        status: 'paid',
-                    }
-                },
-                cancellation_requests: {
-                    select: {
-                        status: true,
-                        reason: true,
+                    branches: {
+                        select: {
+                            name: true,
+                        }
+                    },
+                    payments: {
+                        select: {
+                            amount: true,
+                            paid_at: true,
+                            is_deposit: true,
+                            transaction_ref: true,
+                        },
+                        where: {
+                            status: 'paid',
+                        }
+                    },
+                    cancellation_requests: {
+                        select: {
+                            status: true,
+                            reason: true,
+                            created_at: true,
+                            updated_at: true,
+                            resolved_by: true
+                        }
+                    },
+                    booking_services: {
+                        select: {
+                            services: {
+                                select: { name: true, }
+                            },
+                            quantity: true,
+                            unit_price: true,
+                            total_amount: true,
+                        }
                     }
                 }
-            }
-        });
+            });
+        }
         return booking;
     };
 
