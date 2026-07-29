@@ -6,7 +6,6 @@ import RoomPriceRepository from '../repositories/roomPriceRepo';
 import BranchRepository from '../repositories/branchRepo';
 import CustomerRepository from '../repositories/customerRepo';
 import RoomTypeRepository from '../repositories/roomTypeRepo';
-import RoomAvailabilityService from './roomAvailabilityServices';
 import HolidayDateRepository from '../repositories/holidayDateRepo';
 import accountServices from './accountServices';
 import historyTransactionServices from './historyTransactionServices';
@@ -61,12 +60,13 @@ class BookingService {
         return await BookingRepository.getBookingByCode(code);
     };
 
-    async getBookingByBranchId(id) {
+    async getBookingByBranchId(id, status?) {
+        console.log(status);
         const validator = new Validator();
         validator.isUUID("Branch ID", id);
         if (validator.error.length > 0)
             throw new ValidationError('400', validator.clearError());
-        return await BookingRepository.getBookingsByBranchId(id);
+        return await BookingRepository.getBookingsByBranchId(id, status);
     }
 
     async getBookingByCustomerId(id) {

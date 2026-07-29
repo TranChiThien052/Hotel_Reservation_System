@@ -130,10 +130,14 @@ class AccountController {
     }
 
     async getAccountInformation(req, res) {
-        const token = req.headers.authorization.split(' ')[1];
-        return await AccountService.getAccountInformationFromToken(token)
-            .then(account => res.status(200).json(account))
-            .catch(error => res.status(500).json({ error: error.message }));
+        try {
+            const token = req.headers.authorization.split(' ')[1];
+            return await AccountService.getAccountInformationFromToken(token)
+                .then(account => res.status(200).json(account))
+                .catch(error => res.status(500).json({ error: error.message }));
+        } catch (error) {
+            return res.status(403).json({ error: "Forbidden" })
+        }
     }
 
     async getAllAccounts(req, res) {
