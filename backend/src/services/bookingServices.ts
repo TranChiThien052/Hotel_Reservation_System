@@ -19,7 +19,38 @@ class BookingService {
     };
 
     async getBookingById(id) {
-        return await BookingRepository.getBookingById(id);
+        const validator = new Validator();
+        if (!validator.isEmpty("ID", id))
+            validator.isUUID("ID", id);
+        if (validator.error.length > 0)
+            throw new ValidationError("400", validator.clearError());
+        try {
+            const booking = await BookingRepository.getBookingById(id);
+            if (booking) {
+                const room_charge = Number(booking.subtotal);
+                const deposited = booking.payments.reduce((acc, payment) => {
+                    if (payment.is_deposit) {
+                        return acc + Number(payment.amount);
+                    }
+                    return acc;
+                }, 0);
+                const service_charge = booking.booking_services.reduce((acc, service) => {
+                    return acc + Number(service.total_amount);
+                }, 0)
+                const discount = Number(booking.discount_amount);
+                Object.assign(booking, {
+                    charge: {
+                        total: room_charge + service_charge,
+                        discount,
+                        deposited,
+                        balance: room_charge + service_charge - discount - deposited,
+                    }
+                });
+            }
+            return booking;
+        } catch (error) {
+
+        }
     };
 
     async getBookingByCode(code) {
