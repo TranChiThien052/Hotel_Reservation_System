@@ -169,6 +169,11 @@ router.get('/customer/:id', (req, res) => {
  *         schema:
  *           type: string
  *         description: The id parameter
+ *       - in: query
+ *         name: status
+ *         schema:
+ *           type: string
+ *         description: The status parameter
  *     responses:
  *       200:
  *         description: Successful operation
