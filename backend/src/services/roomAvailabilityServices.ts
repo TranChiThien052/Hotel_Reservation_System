@@ -4,6 +4,7 @@ import RoomPriceRepository from '../repositories/roomPriceRepo';
 import HolidayDateRepository from '../repositories/holidayDateRepo';
 import { Validator, ValidationError } from '../middlewares/validateData'
 import { calculateDynamicPrice } from '../middlewares/generator';
+import roomRepo from '../repositories/roomRepo';
 
 class RoomAvailabilityService {
     async getAvailableRoomCount(branch_id, checkin, checkout, room_type_id?) {
@@ -44,7 +45,13 @@ class RoomAvailabilityService {
         for (const roomType of roomTypes) {
             const totalRooms = await RoomAvailabilityRepository.getPhysicalRoomCount(branchId, roomType.id);
             const bookedCount = await RoomAvailabilityRepository.getOverlappingBookingCount(branchId, checkin, checkout, roomType.id);
-
+            const rooms = (await roomRepo.getRoomsByRoomTypeId(roomType.id)).filter(room => room.status === 'available');
+            const availableRooms = rooms.map(room => {
+                return {
+                    id: room.id,
+                    room_number: room.room_number,
+                }
+            });
             const availableCount = totalRooms - bookedCount;
 
             const roomPrice = await RoomPriceRepository.getRoomPricesByRoomTypeId(roomType.id);
@@ -62,7 +69,8 @@ class RoomAvailabilityService {
                     id: roomType.id,
                     name: roomType.name,
                     max_guests: roomType.max_guests,
-                    images: roomType.images
+                    images: roomType.images,
+                    availble_rooms: availableRooms,
                 },
                 total_rooms: totalRooms,
                 booked_count: bookedCount,
