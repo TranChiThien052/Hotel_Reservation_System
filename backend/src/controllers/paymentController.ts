@@ -60,7 +60,7 @@ class PaymentController {
 
     async createPayment(req, res) {
         const { booking_id, invoice_id, payment_method, status, amount, is_deposit, transaction_ref, processed_by, notes } = req.body;
-        const data = { booking_id, invoice_id, payment_method, status, amount, is_deposit, transaction_ref, processed_by, notes, log_account_id: req.user?.account_id };
+        const data = { booking_id, invoice_id, payment_method, status, amount, is_deposit, transaction_ref, processed_by, notes, log_account_id: req.user.account_id };
         return await PaymentService.createPayment(data)
             .then(async payment => {
                 try {
