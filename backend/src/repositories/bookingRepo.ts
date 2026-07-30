@@ -43,12 +43,7 @@ class BookingRepository {
             where: { id: id },
             include: {
                 customers: true,
-                room_types: {
-                    select: {
-                        id: true,
-                        name: true,
-                    }
-                },
+                room_types: { select: { name: true, } },
                 branches: {
                     select: {
                         name: true,
@@ -78,11 +73,20 @@ class BookingRepository {
                 booking_services: {
                     select: {
                         services: {
-                            select: { name: true, }
+                            select: {
+                                id: true,
+                                name: true,
+                            }
                         },
                         quantity: true,
                         unit_price: true,
                         total_amount: true,
+                    }
+                },
+                rooms: {
+                    select: {
+                        id: true,
+                        room_number: true,
                     }
                 }
             }
@@ -135,7 +139,10 @@ class BookingRepository {
                     booking_services: {
                         select: {
                             services: {
-                                select: { name: true, }
+                                select: {
+                                    id: true,
+                                    name: true,
+                                }
                             },
                             quantity: true,
                             unit_price: true,
@@ -273,7 +280,7 @@ class BookingRepository {
             },
         });
         const status_condition = status ? status : { in: ['pending', 'confirmed', 'checked_in', 'checked_out'] };
-        const result = await prisma.bookings.findMany({
+        return await prisma.bookings.findMany({
             where: {
                 branch_id: branchId,
                 status: status_condition,
@@ -293,7 +300,6 @@ class BookingRepository {
                 }
             }
         });
-        return result;
     };
 
     async getBookingsByCustomerId(customerId) {
