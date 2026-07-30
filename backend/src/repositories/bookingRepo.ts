@@ -253,7 +253,7 @@ class BookingRepository {
         return booking;
     };
 
-    async getBookingsByBranchId(branchId) {
+    async getBookingsByBranchId(branchId, status?) {
         await prisma.bookings.updateMany({
             where: {
                 branch_id: branchId,
@@ -272,8 +272,12 @@ class BookingRepository {
                 notes: "Đã hủy vì không thanh toán cọc",
             },
         });
-        return await prisma.bookings.findMany({
-            where: { branch_id: branchId },
+        const status_condition = status ? status : { in: ['pending', 'confirmed', 'checked_in', 'checked_out'] };
+        const result = await prisma.bookings.findMany({
+            where: {
+                branch_id: branchId,
+                status: status_condition,
+            },
             include: {
                 customers: true,
                 room_types: {
@@ -289,6 +293,7 @@ class BookingRepository {
                 }
             }
         });
+        return result;
     };
 
     async getBookingsByCustomerId(customerId) {

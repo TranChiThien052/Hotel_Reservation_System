@@ -81,6 +81,7 @@ import { VNPay, ignoreLogger, ProductCode, VnpLocale, dateFormat, HashAlgorithm 
 import paymentServices from '../services/paymentServices';
 import { payment_method } from '../generated/prisma/enums';
 import bookingServices from '../services/bookingServices';
+import { authorize } from '../middlewares/authorizer';
 router.post('/vnpay/create', async (req, res) => {
     const vnPay = new VNPay({
         tmnCode: String(process.env.VNPAY_TMN_CODE),
@@ -354,7 +355,9 @@ router.get('/zalopay/payment_result', async (req, res) => {
  *       201:
  *         description: Successful operation
  */
-router.post('/', PaymentController.createPayment);
+router.post('/', (req, res) => {
+    authorize(req, res, ['staff', 'manager'], () => PaymentController.createPayment(req, res));
+});
 /**
  * @swagger
  * /payments/{id}:
