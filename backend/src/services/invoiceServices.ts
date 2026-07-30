@@ -1,6 +1,4 @@
 import InvoiceRepository from '../repositories/invoiceRepo';
-import BookingRepository from '../repositories/bookingRepo';
-import BookingServiceRepository from '../repositories/bookingServiceRepo';
 import AccountRepository from '../repositories/accountRepo'
 import { Validator, ValidationError } from '../middlewares/validateData';
 import { calculateDynamicPrice, generateInvoiceCode } from '../middlewares/generator';
@@ -10,6 +8,7 @@ import bookingServiceRepo from '../repositories/bookingServiceRepo';
 import roomPriceRepo from '../repositories/roomPriceRepo';
 import holidayDateRepo from '../repositories/holidayDateRepo';
 import discountRepo from '../repositories/discountRepo';
+import paymentRepo from '../repositories/paymentRepo';
 
 class InvoiceService {
     async getAllInvoices() {
@@ -31,8 +30,8 @@ class InvoiceService {
 
     async getInvoiceByBookingId(id) {
         const validator = new Validator();
-        if (!validator.isEmpty("Invoice ID", id)) {
-            validator.isUUID("Invoice ID", id);
+        if (!validator.isEmpty("Booking ID", id)) {
+            validator.isUUID("Booking ID", id);
         }
         if (validator.error.length > 0)
             throw new ValidationError('400', validator.clearError());
@@ -46,13 +45,9 @@ class InvoiceService {
 
         const services = await bookingServiceRepo.getBookingServicesByBookingId(bookingId);
 
-        let deposit = 0;
-        if (booking.deposit_amount !== null)
-            deposit = Number(booking.deposit_amount);
-
-        let serviceCharge = 0;
+        let service_charge = 0;
         for (const service of services) {
-            serviceCharge += Number(service.total_amount);
+            service_charge += Number(service.total_amount);
         }
 
         const roomPrice = await roomPriceRepo.getRoomPricesByRoomTypeId(booking.room_type_id);
@@ -64,11 +59,11 @@ class InvoiceService {
 
         const holidayDates = await holidayDateRepo.getHolidayDatesByBranchId(booking.branch_id);
 
-        let roomCharge = 0;
+        let room_charge = 0;
         if (booking.actual_checkin_at === null || booking.actual_checkout_at === null)
-            roomCharge = calculateDynamicPrice(booking.checkin_at, booking.checkout_at, basePrice, roomPrice?.weekend_rate, roomPrice?.holiday_rate, holidayDates, booking.booking_type);
+            room_charge = calculateDynamicPrice(booking.checkin_at, booking.checkout_at, basePrice, roomPrice?.weekend_rate, roomPrice?.holiday_rate, holidayDates, booking.booking_type);
         else if (booking.actual_checkin_at !== null && booking.actual_checkout_at !== null)
-            roomCharge = calculateDynamicPrice(booking.actual_checkin_at, booking.actual_checkout_at, basePrice, roomPrice?.weekend_rate, roomPrice?.holiday_rate, holidayDates, booking.booking_type);
+            room_charge = calculateDynamicPrice(booking.actual_checkin_at, booking.actual_checkout_at, basePrice, roomPrice?.weekend_rate, roomPrice?.holiday_rate, holidayDates, booking.booking_type);
 
         let discount = 0;
         if (booking.discount_id !== null) {
@@ -76,15 +71,26 @@ class InvoiceService {
             if (discountInfo?.discount_type === 'fixed_amount')
                 discount = Number(discountInfo.discount_value);
             else if (discountInfo?.discount_type === 'percentage')
-                discount = Number(roomCharge) * Number(discountInfo.discount_value) / 100;
+                discount = Number(room_charge) * Number(discountInfo.discount_value) / 100;
+        }
+
+        const payments = await paymentRepo.getPaymentsByBookingId(bookingId);
+        let deposited = 0;
+        if (payments.some(payment => payment.is_deposit === true)) {
+            deposited = payments.reduce((acc, curr) => {
+                if (curr.is_deposit === true)
+                    acc += Number(curr.amount)
+                return acc;
+            }, 0);
         }
 
         return {
-            roomCharge,
-            serviceCharge,
+            room_charge,
+            service_charge,
             discount,
-            deposit,
-            totalAmount: roomCharge + serviceCharge - discount - deposit,
+            deposited,
+            total: room_charge + service_charge,
+            balance: room_charge + service_charge - discount - deposited,
         }
     }
 
@@ -111,28 +117,14 @@ class InvoiceService {
             throw new ValidationError('400', validator.clearError());
         }
 
-        const booking = await BookingRepository.getBookingById(validatedData.booking_id);
-        if (!booking) {
-            throw new ValidationError('404', "Booking not found");
-        }
+        const charges = await this.calculateInvoiceAmount(validatedData.booking_id);
 
-        const bookingServices = await BookingServiceRepository.getBookingServicesByBookingId(validatedData.booking_id);
-
-        if (bookingServices.length > 0) {
-            const serviceCharge = bookingServices.reduce((total, item) => total + Number(item.total_amount || 0), 0);
-            validatedData.service_charge = serviceCharge;
-        } else
-            validatedData.service_charge = 0;
-
-        validatedData.room_charge = Number(booking.total_amount);
-        validatedData.discount_amount = Number(booking.discount_amount || 0);
-        validatedData.total_amount = Number(booking.total_amount) + validatedData.service_charge - validatedData.discount_amount;
-        validatedData.deposit_used = Number(booking.deposit_amount);
-        validatedData.amount_due = validatedData.total_amount - validatedData.deposit_used;
-        if (validatedData.amount_due < 0) {
-            validatedData.refund_amount = Math.abs(validatedData.amount_due);
-            validatedData.amount_due = 0;
-        }
+        validatedData.room_charge = charges.room_charge;
+        validatedData.service_charge = charges.service_charge;
+        validatedData.discount_amount = charges.discount;
+        validatedData.deposit_used = charges.deposited;
+        validatedData.total_amount = charges.total;
+        validatedData.amount_due = charges.balance;
 
         const codesExists = await InvoiceRepository.getAllCode();
 

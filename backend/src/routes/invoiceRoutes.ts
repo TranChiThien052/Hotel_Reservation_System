@@ -4,8 +4,25 @@ import { authorize } from '../middlewares/authorizer';
 
 const router = express.Router();
 
+/**
+ * @swagger
+ * /invoices/booking/{id}:
+ *   get:
+ *     summary: Get data
+ *     tags: [Invoice]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The id parameter
+ *     responses:
+ *       200:
+ *         description: Successful operation
+ */
 router.get('booking/:id', (req, res) => {
-    authorize(req, res, ["staff", "manager"], () => InvoiceController.getInvoiceByBookingId(req, res))
+    authorize(req, res, ["customer", "staff", "manager"], () => InvoiceController.getInvoiceByBookingId(req, res))
 })
 /**
  * @swagger
