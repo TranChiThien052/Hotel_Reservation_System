@@ -1,5 +1,5 @@
 ﻿import apiClient from "@/shared/lib/axios";
-import type { Payment, PaymentData } from "../types/payment-type";
+import type { PaymentData } from "../types/payment-type";
 
 
 

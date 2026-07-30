@@ -136,6 +136,13 @@ const StaffBooking = () => {
       render: (_, record) => <p>{record.room_types?.name}</p>,
     },
     {
+      key: "assigned_room_id",
+      title: "Phòng được chỉ định",
+      render: (_, record) => (
+        <p>{record.assigned_room_id ? "Phòng " + record.rooms?.room_number : "-"}</p>
+      ),
+    },
+    {
       title: "Ngày nhận phòng",
       key: "checkin_at",
       render: (_, record) => (
@@ -252,13 +259,6 @@ const StaffBooking = () => {
           </Dropdown>
         );
       },
-    },
-    {
-      key: "assigned_room_id",
-      title: "Phòng được chỉ định",
-      render: (_, record) => (
-        <p>{record.assigned_room_id ? record.assigned_room_id : "-"}</p>
-      ),
     },
     {
       title: "Ghi chú",
