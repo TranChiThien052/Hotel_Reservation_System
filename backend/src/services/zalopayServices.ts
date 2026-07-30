@@ -4,7 +4,10 @@ import crypto from 'crypto';
 import { ZLPconfig } from "../config/zaloPay";
 import bookingServices from "./bookingServices";
 import paymentServices from "./paymentServices";
-import { payment_method } from "../generated/prisma/enums";
+import { booking_status, payment_method, payment_status } from "../generated/prisma/enums";
+import invoiceRepo from "../repositories/invoiceRepo";
+import { ValidationError } from "../middlewares/validateData";
+import invoiceServices from "./invoiceServices";
 
 class ZalopayService {
     async createPayment(is_deposit, amount, booking_id, booking_code) {
@@ -12,13 +15,28 @@ class ZalopayService {
         const transID = Math.floor(Math.random() * 1000000);
         const app_trans_id = `${moment().format('YYMMDD')}_${transID}`;
 
-        const newPayment = await paymentServices.createPayment({
+        const payment_data = {
             booking_id,
             payment_method: payment_method.bank_transfer,
-            status: 'pending',
+            status: payment_status.pending,
             amount,
             is_deposit: is_deposit,
             transaction_ref: app_trans_id,
+        }
+
+        if (!is_deposit) {
+            const invoice = await invoiceServices.getInvoiceByBookingId(booking_id);
+            if (invoice == null)
+                throw new ValidationError('404', "Invoice not found");
+            Object.assign(payment_data,
+                {
+                    invoice_id: invoice.id
+                }
+            );
+        }
+
+        const newPayment = await paymentServices.createPayment({
+            payment_data,
         });
 
         const embed_data = {
@@ -83,18 +101,24 @@ class ZalopayService {
                 const paymentData = JSON.parse(dataJson.embed_data);
                 const payment_id = paymentData['payment_id'];
                 const updatedPayment = await paymentServices.updatePayment(payment_id, {
-                    status: 'paid',
+                    status: payment_status.paid,
                     paid_at: new Date(),
                     transaction_ref: dataJson['app_trans_id'],
                     updated_at: new Date()
                 });
-                if (updatedPayment.is_deposit) {
+                if (updatedPayment.is_deposit === true) {
                     await bookingServices.updateBooking(updatedPayment.booking_id, {
-                        status: 'confirmed',
+                        status: booking_status.confirmed,
                         deposit_paid_at: updatedPayment.updated_at,
                         updated_at: new Date(),
                         expires_at: null,
                     });
+                } else if (updatedPayment.is_deposit === false) {
+                    await bookingServices.updateBooking(updatedPayment.booking_id, {
+                        status: booking_status.completed,
+                        deposit_paid_at: updatedPayment.updated_at,
+                        updated_at: new Date(),
+                    })
                 }
 
                 result.return_code = 1;

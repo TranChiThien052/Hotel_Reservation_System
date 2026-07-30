@@ -18,6 +18,9 @@ class RoomRepository {
         return await prisma.rooms.findMany({
             where: {
                 room_type_id: id,
+            },
+            orderBy: {
+                room_number: 'asc'
             }
         })
     }
