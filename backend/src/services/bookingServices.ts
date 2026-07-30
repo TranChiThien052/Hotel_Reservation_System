@@ -41,7 +41,7 @@ class BookingService {
                     charge: {
                         room_charge,
                         service_charge,
-                        total: room_charge + service_charge,
+                        total: room_charge + service_charge - discount,
                         discount,
                         deposited,
                         balance: room_charge + service_charge - discount - deposited,
@@ -93,7 +93,7 @@ class BookingService {
                     charge: {
                         room_charge,
                         service_charge,
-                        total: room_charge + service_charge,
+                        total: room_charge + service_charge - discount,
                         discount,
                         deposited,
                         balance: room_charge + service_charge - discount - deposited,
