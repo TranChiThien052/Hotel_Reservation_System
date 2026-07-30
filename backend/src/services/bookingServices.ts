@@ -393,11 +393,10 @@ class BookingService {
             throw new ValidationError('400', validator.clearError());
         }
 
-        if (validatedData.assigned_room_id && validatedData.status === 'checked-in') {
+        if (validatedData.assigned_room_id && validatedData.status === 'checked_in')
             await roomServices.updateRoom(validatedData.assigned_room_id, { status: "occupied" });
-        }
 
-        if (validatedData.status === 'checked-out')
+        if (validatedData.assigned_room_id && validatedData.status === 'checked_out')
             await roomServices.updateRoom(validatedData.assigned_room_id, { status: 'available' });
 
         const roomPrice = await RoomPriceRepository.getRoomPricesByRoomTypeId(validatedData.room_type_id);
