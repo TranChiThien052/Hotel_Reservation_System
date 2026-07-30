@@ -166,8 +166,8 @@ class Validator {
     }
 
     isUUID(typeOfData, data) {
-        if (data === undefined || data === null) {
-            return true;
+        if (data === undefined || data === null || data === "") {
+            return false;
         }
         const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
         if (!uuidRegex.test(String(data))) {
@@ -179,7 +179,7 @@ class Validator {
 
     minLength(typeOfData, data, minLength) {
         if (data === undefined || data === null || data === "") {
-            return true;
+            return false;
         }
         if (String(data).length < minLength) {
             this.error.push(`${typeOfData} must be at least ${minLength} characters`);
@@ -190,7 +190,7 @@ class Validator {
 
     maxLength(typeOfData, data, maxLength) {
         if (data === undefined || data === null || data === "") {
-            return true;
+            return false;
         }
         if (String(data).length > maxLength) {
             this.error.push(`${typeOfData} must not exceed ${maxLength} characters`);
