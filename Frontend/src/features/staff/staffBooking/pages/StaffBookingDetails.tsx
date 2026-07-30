@@ -419,8 +419,8 @@ const StaffBookingDetails = () => {
     const hours = isHourly ? Math.round(diffMs / (1000 * 60 * 60)) : 0;
 
     const charge = booking.charge;
-    // const chargeTotal = Number(charge?.total ?? booking.total_amount ?? 0);
-    const chargeDiscount = Number(charge?.discount ?? booking.discount_amount ?? 0);
+    const chargeTotal = Number(charge?.total ?? 0);
+    const chargeDiscount = Number(charge?.discount ?? 0);
     const chargeDeposited = Number(charge?.deposited ?? 0);
     const chargeBalance = Number(charge?.balance ?? 0);
     const chargeRoom = Number(charge?.room_charge ?? 0);
@@ -632,6 +632,11 @@ const StaffBookingDetails = () => {
                                     value={<span className="text-blue-600 font-bold">− {formatVND(chargeDeposited)}</span>}
                                 />
                             )} */}
+                            <InfoRow
+                                label="Tổng cộng"
+                                value={<strong className="text-gray-900 text-xl">{formatVND(chargeTotal)}</strong>}
+                            />  
+                            <Divider style={{ margin: '8px 0' }} />
                             <InfoRow
                                     label="Đã thanh toán / cọc"
                                     value={<span className="text-blue-600 font-bold">− {formatVND(chargeDeposited)}</span>}

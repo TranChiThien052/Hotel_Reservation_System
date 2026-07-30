@@ -136,6 +136,13 @@ const StaffBooking = () => {
       render: (_, record) => <p>{record.room_types?.name}</p>,
     },
     {
+      key: "assigned_room_id",
+      title: "Phòng được chỉ định",
+      render: (_, record) => (
+        <p>{record.assigned_room_id ? "Phòng " + record.rooms?.room_number : "-"}</p>
+      ),
+    },
+    {
       title: "Ngày nhận phòng",
       key: "checkin_at",
       render: (_, record) => (
@@ -254,13 +261,6 @@ const StaffBooking = () => {
       },
     },
     {
-      key: "assigned_room_id",
-      title: "Phòng được chỉ định",
-      render: (_, record) => (
-        <p>{record.assigned_room_id ? record.assigned_room_id : "-"}</p>
-      ),
-    },
-    {
       title: "Ghi chú",
       dataIndex: "notes",
       key: "notes",
@@ -313,23 +313,12 @@ const StaffBooking = () => {
       </div>
 
       <div className="grid grid-cols-3 gap-5 w-2/3 mx-auto mt-4">
-        <div className="bg-white rounded-lg border border-gray-300 shadow p-5 flex flex-col gap-3">
+      <div className="bg-white rounded-lg border border-gray-300 shadow p-5 flex flex-col gap-3">
           <div className="flex items-center gap-2 justify-between">
             <span className="font-xl font-bold text-blue-500">
-              Tổng đặt phòng
-            </span>
-            <FaRegBuilding className="text-blue-500 text-2xl" />
-          </div>
-          <div className="text-2xl font-bold">
-            {Array.isArray(bookingsData) ? bookingsData.length : 0}
-          </div>
-        </div>
-        <div className="bg-white rounded-lg border border-gray-300 shadow p-5 flex flex-col gap-3">
-          <div className="flex items-center gap-2 justify-between">
-            <span className="font-xl font-bold text-green-500">
               Đã xác nhận
             </span>
-            <IoIosCheckmarkCircleOutline className="text-green-500 text-2xl" />
+            <IoIosCheckmarkCircleOutline className="text-blue-500 text-2xl" />
           </div>
           <div className="text-2xl font-bold">
             {Array.isArray(bookingsData)
@@ -341,13 +330,29 @@ const StaffBooking = () => {
         </div>
         <div className="bg-white rounded-lg border border-gray-300 shadow p-5 flex flex-col gap-3">
           <div className="flex items-center gap-2 justify-between">
-            <span className="font-xl font-bold text-yellow-500">Đang chờ</span>
-            <LuWrench className="text-yellow-500 text-2xl" />
+            <span className="font-xl font-bold text-cyan-500">
+              Đã nhận phòng
+            </span>
+            <FaRegBuilding className="text-cyan-500 text-2xl" />
           </div>
           <div className="text-2xl font-bold">
             {Array.isArray(bookingsData)
               ? bookingsData.filter(
-                  (item: Booking) => item.status === "pending",
+                  (item: Booking) => item.status === "checked_in",
+                ).length
+              : 0}
+          </div>
+        </div>
+        
+        <div className="bg-white rounded-lg border border-gray-300 shadow p-5 flex flex-col gap-3">
+          <div className="flex items-center gap-2 justify-between">
+            <span className="font-xl font-bold text-purple-500">Đã trả phòng</span>
+            <LuWrench className="text-purple-500 text-2xl" />
+          </div>
+          <div className="text-2xl font-bold">
+            {Array.isArray(bookingsData)
+              ? bookingsData.filter(
+                  (item: Booking) => item.status === "checked_out",
                 ).length
               : 0}
           </div>
@@ -378,20 +383,20 @@ const StaffBooking = () => {
                   label: <span className="text-blue-600">Đã xác nhận</span>,
                 },
                 {
-                  value: "cancelled",
-                  label: <span className="text-red-600">Đã hủy</span>,
-                },
-                {
-                  value: "completed",
-                  label: <span className="text-green-600">Đã hoàn thành</span>,
-                },
-                {
                   value: "checked_in",
                   label: <span className="text-cyan-600">Đã nhận phòng</span>,
                 },
                 {
                   value: "checked_out",
                   label: <span className="text-purple-600">Đã trả phòng</span>,
+                },
+                {
+                  value: "completed",
+                  label: <span className="text-green-600">Đã hoàn thành</span>,
+                },
+                {
+                  value: "cancelled",
+                  label: <span className="text-red-600">Đã hủy</span>,
                 },
               ]}
             />

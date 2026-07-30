@@ -48,19 +48,15 @@ const StaffInvoicePage = () => {
             const bookingData = await bookingApi.getBookingById(id);
             setBooking(bookingData);
 
-            try {
-                const invoiceData = await invoiceApi.getByBookingId(id);
+            const invoiceData = await invoiceApi.getByBookingId(id);
+            if (invoiceData === null) {
+                const createdInvoice = await invoiceApi.createInvoice({
+                    booking_id: id,
+                    issued_by: user?.id ?? '',
+                });
+                setInvoice(createdInvoice);
+            } else {
                 setInvoice(invoiceData);
-            } catch (err: any) {
-                if (err?.response?.status === 404) {
-                    const createdInvoice = await invoiceApi.createInvoice({
-                        booking_id: id,
-                        issued_by: user?.id ?? '',
-                    });
-                    setInvoice(createdInvoice);
-                } else {
-                    throw err;
-                }
             }
         } catch (err: any) {
             console.error(err);
@@ -69,6 +65,7 @@ const StaffInvoicePage = () => {
             setLoading(false);
         }
     }, [id, user?.id]);
+    console.log('booking', booking);
 
     useEffect(() => { fetchData(); }, [fetchData]);
 
@@ -105,11 +102,11 @@ const StaffInvoicePage = () => {
         setPayingZalo(true);
         try {
             const amountDue = Number(invoice.amount_due ?? 0);
+            console.log('amountDue', amountDue);
             if (amountDue <= 0) {
                 message.warning('Không có số tiền cần thanh toán qua ZaloPay.');
                 return;
             }
-            // Store role in sessionStorage → BookingSuccess.tsx will read and redirect correctly
             sessionStorage.setItem('zp_role', role ?? 'staff');
             sessionStorage.setItem('zp_booking_id', booking.id);
 
@@ -213,7 +210,7 @@ const StaffInvoicePage = () => {
                             )}
 
                             <Divider style={{ margin: '8px 0' }} />
-                            <InfoRow label="Tổng cộng" value={<strong>{formatVND(invoice.total_amount ?? 0)}</strong>} />
+                            <InfoRow label="Tổng cộng" value={<strong>{formatVND(invoice.total_amount - (invoice.discount_amount || 0))}</strong>} />
 
                             {Number(invoice.deposit_used ?? 0) > 0 && (
                                 <InfoRow label="Tiền đã trả" value={<span className="text-blue-600">− {formatVND(invoice.deposit_used)}</span>} />
