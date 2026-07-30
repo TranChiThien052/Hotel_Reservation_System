@@ -39,6 +39,8 @@ class BookingService {
                 const discount = Number(booking.discount_amount);
                 Object.assign(booking, {
                     charge: {
+                        room_charge,
+                        service_charge,
                         total: room_charge + service_charge,
                         discount,
                         deposited,
@@ -89,6 +91,8 @@ class BookingService {
                 const discount = Number(booking.discount_amount);
                 Object.assign(booking, {
                     charge: {
+                        room_charge,
+                        service_charge,
                         total: room_charge + service_charge,
                         discount,
                         deposited,

@@ -301,6 +301,12 @@ class BookingRepository {
                     select: {
                         name: true,
                     }
+                },
+                rooms: {
+                    select: {
+                        id: true,
+                        room_number: true,
+                    }
                 }
             }
         });

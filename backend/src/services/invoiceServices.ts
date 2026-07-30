@@ -25,7 +25,24 @@ class InvoiceService {
             throw new ValidationError('400', validator.clearError());
         }
 
-        return await InvoiceRepository.getInvoiceById(id);
+        const old_invoice = await InvoiceRepository.getInvoiceById(id);
+
+        if (old_invoice) {
+            const charges = await this.calculateInvoiceAmount(old_invoice.booking_id);
+            const update_data = {
+                room_charge: charges.room_charge,
+                service_charge: charges.service_charge,
+                discount_amount: charges.discount,
+                deposit_used: charges.deposited,
+                total_amount: charges.total,
+                amount_due: charges.balance < 0 ? 0 : charges.balance,
+                refund_amount: charges.balance < 0 ? Math.abs(charges.balance) : 0,
+            }
+            await InvoiceRepository.updateInvoice(old_invoice.id, update_data);
+            return { ...old_invoice, ...update_data };
+        }
+
+        throw new ValidationError('404', "Invoice not found");
     };
 
     async getInvoiceByBookingId(id) {
@@ -38,7 +55,7 @@ class InvoiceService {
         const old_invoices = await InvoiceRepository.getInvoicesByBookingId(id);
         const old_invoice = old_invoices[0];
         if (!old_invoice)
-            throw new ValidationError('404', "Invoice not found");
+            return null;
         const charges = await this.calculateInvoiceAmount(id);
         const update_data = {
             room_charge: charges.room_charge,
@@ -49,17 +66,15 @@ class InvoiceService {
             amount_due: charges.balance < 0 ? 0 : charges.balance,
             refund_amount: charges.balance < 0 ? Math.abs(charges.balance) : 0,
         }
-        const new_invoice = {
-            ...old_invoice,
-            ...update_data
-        }
         try {
             await InvoiceRepository.updateInvoice(old_invoice.id, update_data);
         } catch (error) {
-            console.log(error);
             throw new ValidationError('500', "Internal server error");
         }
-        return new_invoice;
+        return {
+            ...old_invoice,
+            ...update_data,
+        };
     }
 
     async calculateInvoiceAmount(bookingId) {
