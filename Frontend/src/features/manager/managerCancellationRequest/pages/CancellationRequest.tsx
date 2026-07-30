@@ -3,11 +3,11 @@ import type { CancellationRequestType } from "../types/cancellationRequest-type"
 import type { TableProps } from "antd/es/table/InternalTable";
 import message from "antd/es/message";
 import { cancellationRequestApi } from "../api/cancellationRequest-type";
-import { Button, Space, Table } from "antd";
+import { Button, Input, Space, Table } from "antd";
 import { FaRegBuilding } from "react-icons/fa6";
-import { FaRegCheckCircle } from "react-icons/fa";
-import { LuWrench } from "react-icons/lu";
 import DetailCancellationRequestModal from "../components/DetailCancellationRequestModal";
+import { useAppSelector } from "@/app/store/hooks";
+import { IoSearch } from "react-icons/io5";
 
 const formatVND = (n: number) => n.toLocaleString('vi-VN') + 'đ';
 
@@ -17,11 +17,18 @@ const CancellationRequest = () => {
     const [loading, setLoading] = useState<boolean>(false);
     const [openModal, setOpenModal] = useState<boolean>(false);
     const [selectedRequest, setSelectedRequest] = useState<CancellationRequestType | null>(null);
+    const user = useAppSelector((state) => state.auth.user);
+    const branchId = user?.branch_id;
 
     const fetchCancellationRequests = useCallback( async () => {
         setLoading(true);
+        if (!branchId) {
+            message.error("Không tìm thấy chi nhánh của người dùng. Vui lòng đăng nhập lại.");
+            setLoading(false);
+            return;
+        }
         try {
-            const data = await cancellationRequestApi.getAll();
+            const data = await cancellationRequestApi.getByBranchId(branchId);
             setCancellationRequestsData(data);
             setFilteredCancellationRequests(data);
         } catch (error) {
@@ -47,6 +54,18 @@ const CancellationRequest = () => {
         setSelectedRequest(null);
     }
 
+    const handleSearch = (searchTerm: string) => {
+    if (!searchTerm) {
+      setFilteredCancellationRequests(cancellationRequestsData);
+      return;
+    }
+    setFilteredCancellationRequests(
+      cancellationRequestsData.filter((cr) =>
+        cr.bookings?.booking_code.toLowerCase().includes(searchTerm.toLowerCase()),
+      ),
+    );
+  };
+
     console.log("cancellationRequestsData:", cancellationRequestsData);
 
 
@@ -58,9 +77,24 @@ const CancellationRequest = () => {
       render: (_, record) => <p>{record.bookings?.booking_code}</p>,
     },
     {
+      title: "Ngày yêu cầu",
+      key: "created_at",
+      render: (_, record) => <p>{new Date(record.created_at).toLocaleString()}</p>,
+      sorter: (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime(),
+      defaultSortOrder: 'descend',
+    },
+    {
       title: "Trạng thái",
-      dataIndex: "status",
       key: "status",
+      render: (_, record) => {
+        if (record.status === 'pending') {
+          return <p className="text-yellow-500">Đang chờ</p>;
+        } else if (record.status === 'confirmed') {
+          return <p className="text-green-500">Đã duyệt</p>;
+        } else {
+          return <p className="text-red-500">Từ chối</p>;
+        }
+      },
     },
     {
       title: "Số tiền hoàn lại",
@@ -69,7 +103,6 @@ const CancellationRequest = () => {
     },
     {
       title: "Lý do",
-      dataIndex: "reason",
       key: "reason",
       render: (_, record) => <p>{record.reason}</p>,
     },
@@ -109,7 +142,7 @@ const CancellationRequest = () => {
           <div className="bg-white rounded-lg border border-gray-300 shadow p-5 flex flex-col gap-3">
             <div className="flex items-center gap-2 justify-between">
               <span className="font-xl font-bold text-blue-500">
-                Tổng giao dịch
+                Tổng yêu cầu hủy
               </span>
               <FaRegBuilding className="text-blue-500 text-2xl" />
             </div>
@@ -118,43 +151,16 @@ const CancellationRequest = () => {
             </div>
           </div>
   
-          <div className="bg-white rounded-lg border border-gray-300 shadow p-5 flex flex-col gap-3">
-            <div className="flex items-center gap-2 justify-between">
-              <span className="font-xl font-bold text-green-500">
-                Đang hoạt động
-              </span>
-              <FaRegCheckCircle className="text-green-500 text-2xl" />
-            </div>
-            <div className="text-2xl font-bold ">
-              {/* {Array.isArray(customersData)
-                ? customersData.filter((item: Customer) => item.is_active).length
-                : 0} */}
-            </div>
-          </div>
-  
-          <div className="bg-white rounded-lg border border-gray-300 shadow p-5 flex flex-col gap-3">
-            <div className="flex items-center gap-2 justify-between">
-              <span className="font-xl font-bold text-yellow-500">
-                Đang bảo trì
-              </span>
-              <LuWrench className="text-yellow-500 text-2xl" />
-            </div>
-            <div className="text-2xl font-bold">
-              {/* {Array.isArray(customersData)
-                ? customersData.filter((item: Customer) => !item.is_active).length
-                : 0} */}
-            </div>
-          </div>
         </div>
   
         <div className="mt-5 border border-gray-300 rounded-lg">
           <div className="flex items-center gap-2 bg-gray-100 px-4 py-3 border-b border-gray-300 justify-between">
             <div className="flex items-center gap-4">
-              {/* <Input
-                placeholder="Tìm kiếm..."
-                prefix={<IoSearch className="text-xl" />}
-                onChange={(e) => handleSearch(e.target.value)}
-              /> */}
+              <Input
+              placeholder="Tìm kiếm mã đặt phòng..."
+              prefix={<IoSearch className="text-xl" />}
+              onChange={(e) => handleSearch(e.target.value)}
+            />
             </div>
             <div className="flex items-center gap-3 pr-4">
               <p className="font-lg font-bold text-gray-700">Hiển thị:</p>

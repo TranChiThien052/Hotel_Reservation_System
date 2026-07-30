@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useState } from "react";
-import { IoSearch } from "react-icons/io5";
+import { IoSearch, IoCalendarOutline, IoCloseCircle } from "react-icons/io5";
 import { roomTypesApi } from "@/features/admin/adminRoomTypes/api/roomTypes-api";
 import { roomPricesApi } from "@/features/admin/adminRoomsPrices/api/roomPrices-api";
 import Room, { type RoomTypeWithPrice } from "@/app/layout/components/client/room";
 import { branchApi } from "@/features/admin/adminBranch/api/admin-api";
 import type { Branch } from "@/features/admin/adminBranch/types/branch-type";
+import { roomsAvailableApi, type SearchRoomsAvailableParams } from "../api/rooms-api";
 
 // ── Constants ────────────────────────────────────────────────────────────────
 const GUEST_OPTIONS = ["Tất cả", "1", "2", "3", "4+"];
@@ -16,13 +17,15 @@ const PRICE_RANGES = [
   { label: "Trên 3 triệu", min: 3_000_000, max: Infinity },
 ];
 
-
-
-
 const ClientRooms = () => {
   const [roomTypes, setRoomTypes] = useState<RoomTypeWithPrice[]>([]);
   const [loading, setLoading] = useState(false);
   const [roomTypeNames, setRoomTypeNames] = useState<string[]>([]);
+  const [branchData, setBranchData] = useState<Branch[]>([]);
+
+  // Active search params & available type IDs from Home search
+  const [activeSearchParams, setActiveSearchParams] = useState<SearchRoomsAvailableParams | null>(null);
+  const [availableTypeIds, setAvailableTypeIds] = useState<Set<string> | null>(null);
 
   // Filter states
   const [search, setSearch] = useState("");
@@ -30,12 +33,11 @@ const ClientRooms = () => {
   const [selectedBranch, setSelectedBranch] = useState("Tất cả");
   const [selectedGuests, setSelectedGuests] = useState("Tất cả");
   const [selectedPrice, setSelectedPrice] = useState(0);
-  const [branchData, setBranchData] = useState<Branch[]>([]);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      const [rtData, rpData, branchData] = await Promise.all([
+      const [rtData, rpData, bData] = await Promise.all([
         roomTypesApi.getRoomTypes(),
         roomPricesApi.getAllRoomprices(),
         branchApi.getBranches(),
@@ -43,7 +45,7 @@ const ClientRooms = () => {
 
       const rtList: any[] = Array.isArray(rtData) ? rtData : [];
       const rpList: any[] = Array.isArray(rpData) ? rpData : [];
-      const branchList: Branch[] = Array.isArray(branchData) ? branchData : [];
+      const branchList: Branch[] = Array.isArray(bData) ? bData : [];
       setBranchData(branchList);
 
       // Lấy danh sách tên loại phòng duy nhất để làm filter
@@ -59,6 +61,48 @@ const ClientRooms = () => {
         }));
 
       setRoomTypes(merged);
+
+      // Read search session data from Home page
+      const savedParamsStr = sessionStorage.getItem("client_room_search_params");
+      const savedResultsStr = sessionStorage.getItem("client_room_search_results");
+
+      if (savedParamsStr) {
+        try {
+          const sParams: SearchRoomsAvailableParams = JSON.parse(savedParamsStr);
+          setActiveSearchParams(sParams);
+
+          if (sParams.branch_id) {
+            const matchedBranch = branchList.find((b) => b.id === sParams.branch_id);
+            if (matchedBranch) {
+              setSelectedBranch(matchedBranch.name);
+            }
+          }
+
+          if (sParams.num_guests) {
+            const g = sParams.num_guests;
+            setSelectedGuests(g >= 4 ? "4+" : String(g));
+          }
+
+          let results: any[] = [];
+          if (savedResultsStr) {
+            results = JSON.parse(savedResultsStr);
+          } else if (sParams.branch_id && sParams.checkin_at && sParams.checkout_at) {
+            const apiRes = await roomsAvailableApi.searchRoomsAvailable(sParams);
+            results = apiRes?.results || [];
+          }
+
+          if (results && Array.isArray(results)) {
+            const availIds = new Set<string>(
+              results
+                .filter((r: any) => r.available_count > 0 && !r.is_sold_out)
+                .map((r: any) => r.room_type.id)
+            );
+            setAvailableTypeIds(availIds);
+          }
+        } catch (e) {
+          console.error("Lỗi parse sessionStorage search data:", e);
+        }
+      }
     } catch (error) {
       console.error("Lỗi khi lấy dữ liệu loại phòng:", error);
     } finally {
@@ -70,18 +114,22 @@ const ClientRooms = () => {
     fetchData();
   }, [fetchData]);
 
-  console.log("roomTypes:", roomTypes);
-
   const handleReset = () => {
     setSearch("");
     setSelectedType("Tất cả");
     setSelectedBranch("Tất cả");
     setSelectedGuests("Tất cả");
     setSelectedPrice(0);
+    setActiveSearchParams(null);
+    setAvailableTypeIds(null);
+    sessionStorage.removeItem("client_room_search_params");
+    sessionStorage.removeItem("client_room_search_results");
   };
 
-  
   const filtered = roomTypes.filter((rt) => {
+    // Filter available room types from Home search
+    if (availableTypeIds !== null && !availableTypeIds.has(rt.id)) return false;
+
     // Search
     if (search && !rt.name.toLowerCase().includes(search.toLowerCase())) return false;
 
@@ -226,6 +274,31 @@ const ClientRooms = () => {
 
         {/* ── Main Content ── */}
         <main className="flex-1 min-w-0">
+          {activeSearchParams && (
+            <div className="mb-6 bg-orange-50 border border-orange-200 rounded-xl p-4 flex items-center justify-between shadow-sm">
+              <div className="flex items-center gap-3 text-orange-900 text-sm">
+                <IoCalendarOutline className="text-orange-500 text-xl shrink-0" />
+                <div>
+                  <span className="font-bold">Đang xem phòng trống:</span>{" "}
+                  <span>
+                    {activeSearchParams.checkin_at} → {activeSearchParams.checkout_at}
+                  </span>
+                  {activeSearchParams.num_guests && (
+                    <span className="ml-2 font-medium bg-orange-200/80 px-2 py-0.5 rounded-full text-xs text-orange-800">
+                      {activeSearchParams.num_guests} khách
+                    </span>
+                  )}
+                </div>
+              </div>
+              <button
+                onClick={handleReset}
+                className="flex items-center gap-1 text-xs text-orange-700 hover:text-orange-900 font-semibold cursor-pointer bg-white border border-orange-300 px-3 py-1.5 rounded-lg hover:bg-orange-100 transition-colors shrink-0"
+              >
+                <IoCloseCircle className="text-base" /> Xóa bộ lọc ngày
+              </button>
+            </div>
+          )}
+
           <p className="text-gray-600 mb-5 font-medium">
             Hiển thị{" "}
             <span className="font-bold text-gray-800">{filtered.length}</span>{" "}
@@ -270,7 +343,7 @@ const ClientRooms = () => {
               <p className="text-sm mt-1">Thử thay đổi bộ lọc hoặc từ khóa tìm kiếm</p>
               <button
                 onClick={handleReset}
-                className="mt-4 px-5 py-2 bg-orange-500 text-white rounded-lg text-sm font-medium hover:bg-orange-600 transition-colors"
+                className="mt-4 px-5 py-2 bg-orange-500 text-white rounded-lg text-sm font-medium hover:bg-orange-600 transition-colors cursor-pointer"
               >
                 Đặt lại bộ lọc
               </button>

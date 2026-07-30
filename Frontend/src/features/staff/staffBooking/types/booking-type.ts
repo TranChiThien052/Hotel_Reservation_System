@@ -51,6 +51,30 @@ export interface Booking {
         status?: string,
         payment_method?: string,
     }>,
+    charge: {
+        balance: number,
+        deposited: number,
+        total: number,
+        discount: number,
+        service_charge: number,
+        room_charge: number,
+    },
+    booking_services?: Array<{
+        id: string,
+        service_id: string,
+        quantity: number,
+        services:{
+            id: string,
+            name: string,
+        },
+        total_amount: number,
+        unit_price: number,
+    }>,
+    rooms?: {
+        room_number: string,
+        id: string,
+    }
+        
 
 }
 

@@ -22,8 +22,8 @@ export const bookingApi = {
         const res = await apiClient.delete(`/bookings/${id}`);
         return res.data;
     },
-    getBookingsByBranchId: async (branchId: string) => {
-        const res = await apiClient.get(`/bookings/branch/${branchId}`);
+    getBookingsByBranchId: async (branchId: string, params?: {status: string}) => {
+        const res = await apiClient.get(`/bookings/branch/${branchId}`, { params });
         return res.data;
     },
     getBookingsByCustomerId: async (id: string) => {
@@ -37,5 +37,15 @@ export const bookingApi = {
     getBookingToday: async (branchId: string) => {
         const res = await apiClient.get(`/bookings/today/${branchId}`);
         return res.data;
-    }
+    },
+    searchAvailableRooms: async (params: {
+        branch_id: string;
+        checkin_at: string;
+        checkout_at: string;
+        room_type_id: string;
+        booking_type: string;
+    }) => {
+        const res = await apiClient.get('/rooms-availability/search', { params });
+        return res.data;
+    },
 }

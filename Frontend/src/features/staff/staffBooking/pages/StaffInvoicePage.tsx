@@ -4,13 +4,12 @@ import { useAppSelector } from '@/app/store/hooks';
 import { bookingApi } from '../api/booking-api';
 import { invoiceApi } from '../api/invoice-api';
 import { paymentApi } from '../api/payment-api';
-import { bookingServiceApi } from '../api/booking-service-api';
 import type { Booking } from '../types/booking-type';
+import type { Invoice } from '../types/invoice-type';
 import { Button, Spin, message, Divider, Modal } from 'antd';
 import { IoArrowBack, IoCheckmarkCircle } from 'react-icons/io5';
 import { BsReceipt } from 'react-icons/bs';
 import { DollarOutlined, MobileOutlined, CheckCircleOutlined } from '@ant-design/icons';
-import { getBookingAmounts } from '@/features/client/profile/components/RefundModal';
 
 const formatVND = (n: number | string) => Number(n).toLocaleString('vi-VN') + 'đ';
 const formatDateTime = (str?: string | null) => {
@@ -32,7 +31,7 @@ const StaffInvoicePage = () => {
     const role = user?.role;
 
     const [booking, setBooking] = useState<Booking | null>(null);
-    const [invoice, setInvoice] = useState<any>(null);
+    const [invoice, setInvoice] = useState<Invoice | null>(null);
     const [loading, setLoading] = useState(true);
     const [payingCash, setPayingCash] = useState(false);
     const [payingZalo, setPayingZalo] = useState(false);
@@ -46,70 +45,23 @@ const StaffInvoicePage = () => {
         if (!id) return;
         setLoading(true);
         try {
-            const [bookingData, allInvoices, bookingServices] = await Promise.all([
-                bookingApi.getBookingById(id),
-                invoiceApi.getAllInvoices(),
-                bookingServiceApi.getByBookingId(id),
-            ]);
+            const bookingData = await bookingApi.getBookingById(id);
             setBooking(bookingData);
 
-            const amounts = getBookingAmounts(bookingData);
-            const serviceCharge = bookingServices.reduce((sum: number, s: any) => sum + Number(s.total_amount || 0), 0);
-            const roomCharge = amounts.subtotal;
-            const discountAmount = Number(bookingData.discount_amount || 0);
-            const depositUsed = amounts.paidAmount;
-            
-            const totalAmount = Math.max(0, roomCharge + serviceCharge - discountAmount);
-            let amountDue = totalAmount - depositUsed;
-            let refundAmount = 0;
-            if (amountDue < 0) {
-                refundAmount = Math.abs(amountDue);
-                amountDue = 0;
-            }
-
-            const existingInvoice = allInvoices.find((inv: any) => inv.booking_id === id);
-            let finalInvoice = existingInvoice;
-
-            if (existingInvoice) {
-                // Update the existing invoice if there are changes
-                if (
-                    Number(existingInvoice.room_charge) !== roomCharge ||
-                    Number(existingInvoice.service_charge) !== serviceCharge ||
-                    Number(existingInvoice.discount_amount) !== discountAmount ||
-                    Number(existingInvoice.total_amount) !== totalAmount ||
-                    Number(existingInvoice.deposit_used) !== depositUsed ||
-                    Number(existingInvoice.amount_due) !== amountDue
-                ) {
-                     finalInvoice = await invoiceApi.updateInvoice(existingInvoice.id, {
-                         room_charge: roomCharge,
-                         service_charge: serviceCharge,
-                         discount_amount: discountAmount,
-                         total_amount: totalAmount,
-                         deposit_used: depositUsed,
-                         amount_due: amountDue,
-                         refund_amount: refundAmount
-                     });
+            try {
+                const invoiceData = await invoiceApi.getByBookingId(id);
+                setInvoice(invoiceData);
+            } catch (err: any) {
+                if (err?.response?.status === 404) {
+                    const createdInvoice = await invoiceApi.createInvoice({
+                        booking_id: id,
+                        issued_by: user?.id ?? '',
+                    });
+                    setInvoice(createdInvoice);
+                } else {
+                    throw err;
                 }
-            } else {
-                // Create a new invoice
-                const newInvoice = await invoiceApi.createInvoice({
-                    booking_id: id,
-                    issued_by: user?.id ?? '',
-                });
-                
-                // Immediately update it to ensure accurate numbers
-                finalInvoice = await invoiceApi.updateInvoice(newInvoice.id, {
-                    room_charge: roomCharge,
-                    service_charge: serviceCharge,
-                    discount_amount: discountAmount,
-                    total_amount: totalAmount,
-                    deposit_used: depositUsed,
-                    amount_due: amountDue,
-                    refund_amount: refundAmount,
-                });
             }
-            
-            setInvoice(finalInvoice);
         } catch (err: any) {
             console.error(err);
             message.error(err?.response?.data?.error ?? 'Không thể tải hóa đơn.');
@@ -252,10 +204,10 @@ const StaffInvoicePage = () => {
                             <h2 className="text-sm font-bold text-gray-900 uppercase tracking-wider mb-3">Chi tiết hóa đơn</h2>
 
                             <InfoRow label="Tiền phòng" value={formatVND(invoice.room_charge ?? 0)} />
-                            {Number(invoice.service_charge   ?? 0) > 0 && <InfoRow label="Phí dịch vụ" value={formatVND(invoice.service_charge)} />}
-                            {Number(invoice.fine_charge      ?? 0) > 0 && <InfoRow label="Phí phạt" value={formatVND(invoice.fine_charge)} />}
-                            {Number(invoice.late_checkout_fee  ?? 0) > 0 && <InfoRow label="Phí trả phòng muộn" value={formatVND(invoice.late_checkout_fee)} />}
-                            {Number(invoice.early_checkout_fee ?? 0) > 0 && <InfoRow label="Phí trả phòng sớm" value={formatVND(invoice.early_checkout_fee)} />}
+                            {Number(invoice.service_charge ?? 0) > 0 && <InfoRow label="Phí dịch vụ" value={formatVND(Number(invoice.service_charge ?? 0))} />}
+                            {Number(invoice.fine_charge ?? 0) > 0 && <InfoRow label="Phí phạt" value={formatVND(Number(invoice.fine_charge ?? 0))} />}
+                            {Number(invoice.late_checkout_fee ?? 0) > 0 && <InfoRow label="Phí trả phòng muộn" value={formatVND(Number(invoice.late_checkout_fee ?? 0))} />}
+                            {Number(invoice.early_checkout_fee ?? 0) > 0 && <InfoRow label="Phí trả phòng sớm" value={formatVND(Number(invoice.early_checkout_fee ?? 0))} />}
                             {Number(invoice.discount_amount  ?? 0) > 0 && (
                                 <InfoRow label="Giảm giá" value={<span className="text-green-600">− {formatVND(invoice.discount_amount)}</span>} />
                             )}
@@ -264,10 +216,7 @@ const StaffInvoicePage = () => {
                             <InfoRow label="Tổng cộng" value={<strong>{formatVND(invoice.total_amount ?? 0)}</strong>} />
 
                             {Number(invoice.deposit_used ?? 0) > 0 && (
-                                <InfoRow label="Tiền cọc đã trả" value={<span className="text-blue-600">− {formatVND(invoice.deposit_used)}</span>} />
-                            )}
-                            {Number(invoice.refund_amount ?? 0) > 0 && (
-                                <InfoRow label="Hoàn lại khách" value={<span className="text-green-600">{formatVND(invoice.refund_amount)}</span>} />
+                                <InfoRow label="Tiền đã trả" value={<span className="text-blue-600">− {formatVND(invoice.deposit_used)}</span>} />
                             )}
 
                             <Divider style={{ margin: '8px 0' }} />
