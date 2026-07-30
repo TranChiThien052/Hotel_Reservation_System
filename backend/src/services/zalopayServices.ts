@@ -16,10 +16,10 @@ class ZalopayService {
         const app_trans_id = `${moment().format('YYMMDD')}_${transID}`;
 
         const payment_data = {
-            booking_id,
+            booking_id: booking_id,
             payment_method: payment_method.bank_transfer,
             status: payment_status.pending,
-            amount,
+            amount: amount,
             is_deposit: is_deposit,
             transaction_ref: app_trans_id,
         }
@@ -35,9 +35,7 @@ class ZalopayService {
             );
         }
 
-        const newPayment = await paymentServices.createPayment({
-            payment_data,
-        });
+        const newPayment = await paymentServices.createPayment(payment_data);
 
         const embed_data = {
             //sau khi hoàn tất thanh toán sẽ đi vào link này (thường là link web thanh toán thành công của mình)
