@@ -21,7 +21,7 @@ const router = express.Router();
  *       200:
  *         description: Successful operation
  */
-router.get('booking/:id', (req, res) => {
+router.get('/booking/:id', (req, res) => {
     authorize(req, res, ["customer", "staff", "manager"], () => InvoiceController.getInvoiceByBookingId(req, res))
 })
 /**

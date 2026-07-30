@@ -35,7 +35,31 @@ class InvoiceService {
         }
         if (validator.error.length > 0)
             throw new ValidationError('400', validator.clearError());
-        return await InvoiceRepository.getInvoicesByBookingId(id);
+        const old_invoices = await InvoiceRepository.getInvoicesByBookingId(id);
+        const old_invoice = old_invoices[0];
+        if (!old_invoice)
+            throw new ValidationError('404', "Invoice not found");
+        const charges = await this.calculateInvoiceAmount(id);
+        const update_data = {
+            room_charge: charges.room_charge,
+            service_charge: charges.service_charge,
+            discount_amount: charges.discount,
+            deposit_used: charges.deposited,
+            total_amount: charges.total,
+            amount_due: charges.balance < 0 ? 0 : charges.balance,
+            refund_amount: charges.balance < 0 ? Math.abs(charges.balance) : 0,
+        }
+        const new_invoice = {
+            ...old_invoice,
+            ...update_data
+        }
+        try {
+            await InvoiceRepository.updateInvoice(old_invoice.id, update_data);
+        } catch (error) {
+            console.log(error);
+            throw new ValidationError('500', "Internal server error");
+        }
+        return new_invoice;
     }
 
     async calculateInvoiceAmount(bookingId) {
@@ -52,11 +76,7 @@ class InvoiceService {
 
         const roomPrice = await roomPriceRepo.getRoomPricesByRoomTypeId(booking.room_type_id);
 
-        let basePrice = 0;
-        if (booking.booking_type === 'daily')
-            basePrice = Number(roomPrice?.price_per_day);
-        else basePrice = Number(roomPrice?.price_per_hour)
-
+        let basePrice = booking.room_price_snapshot;
         const holidayDates = await holidayDateRepo.getHolidayDatesByBranchId(booking.branch_id);
 
         let room_charge = 0;
