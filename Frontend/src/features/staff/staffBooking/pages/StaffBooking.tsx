@@ -69,11 +69,25 @@ const StaffBooking = () => {
     }
   };
 
-  const filterRoomStatus = (value: string) => {
+  const filterRoomStatus = async (value: string | undefined) => {
     if (!value) {
       setFilteredBookings(bookingsData);
       return;
     }
+
+    if (value === "cancelled" || value === "completed") {
+      try {
+        const data = await bookingApi.getBookingsByBranchId(
+          user?.branch_id || "",
+          { status: value },
+        );
+        setFilteredBookings(Array.isArray(data) ? data : []);
+      } catch (error) {
+        console.error("Error filtering bookings:", error);
+      }
+      return;
+    }
+
     setFilteredBookings(bookingsData.filter((b) => b.status === value));
   };
 
@@ -101,6 +115,7 @@ const StaffBooking = () => {
     });
     setFilteredBookings(filtered);
   };
+  console.log("Filtered Bookings:", filteredBookings);
 
 
   const columns: TableProps<Booking>["columns"] = [
@@ -154,11 +169,11 @@ const StaffBooking = () => {
       key: "status",
       render: (text, record: Booking) => {
         const dynamicStatusItems: MenuProps["items"] = [
-          {
-            key: "Pending",
-            label: <span className="text-amber-600">Đang chờ</span>,
-            onClick: () => handleStatusChange(record.id, { status: "pending" }),
-          },
+          // {
+          //   key: "Pending",
+          //   label: <span className="text-amber-600">Đang chờ</span>,
+          //   onClick: () => handleStatusChange(record.id, { status: "pending" }),
+          // },
           {
             key: "Confirmed",
             label: <span className="text-blue-600">Đã xác nhận</span>,
@@ -177,24 +192,24 @@ const StaffBooking = () => {
             onClick: () =>
               handleStatusChange(record.id, { status: "cancelled" }),
           },
-          {
-            key: "Checked-in",
-            label: <span className="text-cyan-600">Đã nhận phòng</span>,
-            onClick: () =>
-              handleStatusChange(record.id, {
-                status: "checked_in",
-                actual_checkin_at: new Date().toISOString(),
-              }),
-          },
-          {
-            key: "Checked-out",
-            label: <span className="text-purple-600">Đã trả phòng</span>,
-            onClick: () =>
-              handleStatusChange(record.id, {
-                status: "checked_out",
-                actual_checkout_at: new Date().toISOString(),
-              }),
-          },
+          // {
+          //   key: "Checked-in",
+          //   label: <span className="text-cyan-600">Đã nhận phòng</span>,
+          //   onClick: () =>
+          //     handleStatusChange(record.id, {
+          //       status: "checked_in",
+          //       actual_checkin_at: new Date().toISOString(),
+          //     }),
+          // },
+          // {
+          //   key: "Checked-out",
+          //   label: <span className="text-purple-600">Đã trả phòng</span>,
+          //   onClick: () =>
+          //     handleStatusChange(record.id, {
+          //       status: "checked_out",
+          //       actual_checkout_at: new Date().toISOString(),
+          //     }),
+          // },
         ];
         return (
           <Dropdown
@@ -237,6 +252,13 @@ const StaffBooking = () => {
           </Dropdown>
         );
       },
+    },
+    {
+      key: "assigned_room_id",
+      title: "Phòng được chỉ định",
+      render: (_, record) => (
+        <p>{record.assigned_room_id ? record.assigned_room_id : "-"}</p>
+      ),
     },
     {
       title: "Ghi chú",

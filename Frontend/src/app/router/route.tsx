@@ -39,6 +39,7 @@ import Dashboard from "@/features/dashboard/pages/Dashboard";
 import ManagerRoomTypes from "@/features/manager/managementRoomTypes/pages/ManagerRoomTypes";
 import Holiday from "@/features/admin/adminHolidays/pages/AdminHoliday";
 import StaffAcccount from "@/features/manager/managerStaffAccount/pages/StaffAcccount";
+import ManagerService from "@/features/manager/managerService/pages/ManagerService";
 
 const route = () => {
   return (
@@ -117,6 +118,7 @@ const route = () => {
             <Route path="roomTypes" element={<ManagerRoomTypes />} />
             <Route path="promotions" element={<Promotions />} />
             <Route path="accounts" element={<StaffAcccount />} />
+            <Route path="services" element={<ManagerService />} />
           </Route>
         </Route>
       </Routes>

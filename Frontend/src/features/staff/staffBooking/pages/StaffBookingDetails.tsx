@@ -13,7 +13,7 @@ import {
     Button, Spin, message, Select, Divider, Table, Modal, InputNumber, Input, Form, DatePicker
 } from 'antd';
 import dayjs from 'dayjs';
-import { IoArrowBack } from 'react-icons/io5';
+import { IoArrowBack} from 'react-icons/io5';
 import {
     FaRegCalendarAlt, FaRegUser, FaTag, FaBuilding
 } from 'react-icons/fa';
@@ -23,7 +23,6 @@ import {
 import { HiOutlineClock } from 'react-icons/hi';
 import { BsDoorOpen, BsDoorClosed, BsReceipt, BsPlus } from 'react-icons/bs';
 import { LoginOutlined, LogoutOutlined, DeleteOutlined, EditOutlined, DollarOutlined } from '@ant-design/icons';
-import { getBookingAmounts } from '@/features/client/profile/components/RefundModal';
 
 const formatVND = (n: number | string) => Number(n).toLocaleString('vi-VN') + 'đ';
 const formatDate = (str?: string | null) => {
@@ -33,18 +32,6 @@ const formatDate = (str?: string | null) => {
 const formatDateTime = (str?: string | null) => {
     if (!str) return '—';
     return new Date(str).toLocaleString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
-};
-
-const getStatusLabel = (status: string) => {
-    switch (status) {
-        case 'pending': return 'Chờ xác nhận';
-        case 'confirmed': return 'Đã xác nhận';
-        case 'checked_in': return 'Đã nhận phòng';
-        case 'checked_out': return 'Đã trả phòng';
-        case 'completed': return 'Hoàn thành';
-        case 'cancelled': return 'Đã hủy';
-        default: return status;
-    }
 };
 
 const InfoRow = ({ label, value, icon }: { label: string; value: React.ReactNode; icon?: React.ReactNode }) => (
@@ -68,15 +55,14 @@ const StaffBookingDetails = () => {
     const [actionLoading, setActionLoading] = useState(false);
 
     const [allServices, setAllServices] = useState<any[]>([]);
-    const [discounts, setDiscounts] = useState<any[]>([]);
     const [bookingServices, setBookingServices] = useState<any[]>([]);
+    const [discounts, setDiscounts] = useState<any[]>([]);
     const [branches, setBranches] = useState<any[]>([]);
     const [roomTypes, setRoomTypes] = useState<any[]>([]);
 
     const backPath   = role === 'manager' ? '/manager/bookings' : '/staff/bookings';
     const invoicePath = `${backPath}/${id}/invoice`;
 
-    // Edit states
     const [editCustomerOpen, setEditCustomerOpen] = useState(false);
     const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(null);
     const [customerForm] = Form.useForm();
@@ -84,28 +70,33 @@ const StaffBookingDetails = () => {
     const [isEditOpen, setIsEditOpen] = useState(false);
     const [form] = Form.useForm();
 
-    // Add service states
     const [addServiceOpen, setAddServiceOpen] = useState(false);
     const [selectedServiceId, setSelectedServiceId] = useState<string | null>(null);
     const [serviceQty, setServiceQty] = useState(1);
     const [addServiceLoading, setAddServiceLoading] = useState(false);
 
+    const [roomPickerOpen, setRoomPickerOpen] = useState(false);
+    const [availableRooms, setAvailableRooms] = useState<{ id: string; room_number: string }[]>([]);
+    const [roomsLoading, setRoomsLoading] = useState(false);
+    const [selectedRoomId, setSelectedRoomId] = useState('');
+    const [pendingCheckin, setPendingCheckin] = useState(false);
+
     const fetchAll = useCallback(async () => {
         if (!id) return;
         setLoading(true);
         try {
-            const [bookingData, services, allDiscounts, bkServices, allBranches, allRoomTypes] = await Promise.all([
+            const [bookingData, services, bookingServiceRows, allDiscounts, allBranches, allRoomTypes] = await Promise.all([
                 bookingApi.getBookingById(id),
                 servicesApi.getAllServices(),
-                promotionApi.getPromotions(),
                 bookingServiceApi.getByBookingId(id),
+                promotionApi.getPromotions(),
                 branchApi.getBranches(),
                 roomTypesApi.getRoomTypes()
             ]);
             setBooking(bookingData);
             setAllServices(services);
+            setBookingServices(Array.isArray(bookingServiceRows) ? bookingServiceRows : []);
             setDiscounts(allDiscounts);
-            setBookingServices(bkServices);
             setBranches(allBranches);
             setRoomTypes(allRoomTypes);
         } catch (err) {
@@ -117,46 +108,153 @@ const StaffBookingDetails = () => {
     }, [id]);
 
     useEffect(() => { fetchAll(); }, [fetchAll]);
-    console.log('booking', booking);
-    console.log('bookingServices', bookingServices);
-    console.log("services", allServices);
 
-    const handleCheckin = async () => {
-        if (!booking) return;
-        setActionLoading(true);
+    const fetchAvailableRooms = useCallback(async (bk: Booking) => {
+        setRoomsLoading(true);
+        setAvailableRooms([]);
+        setSelectedRoomId('');
         try {
-            await bookingApi.updateBooking(booking.id, { status: 'checked_in', actual_checkin_at: new Date().toISOString() } as any);
-            message.success('Check-in thành công!');
-            fetchAll();
-        } catch { message.error('Check-in thất bại!'); }
-        finally { setActionLoading(false); }
+            const data = await bookingApi.searchAvailableRooms({
+                branch_id: bk.branch_id,
+                checkin_at: bk.checkin_at,
+                checkout_at: bk.checkout_at,
+                room_type_id: bk.room_type_id,
+                booking_type: bk.booking_type,
+            });
+            if (data?.results?.[0]?.is_sold_out) {
+                setAvailableRooms([]);
+            } else {
+                const rooms = data?.results?.[0]?.room_type?.availble_rooms ?? [];
+                setAvailableRooms(Array.isArray(rooms) ? rooms : []);
+            }
+        } catch {
+            setAvailableRooms([]);
+            message.error('Không thể tải danh sách phòng trống.');
+        } finally {
+            setRoomsLoading(false);
+        }
+    }, []);
+
+    const openRoomPicker = useCallback((bk: Booking) => {
+        setRoomPickerOpen(true);
+        fetchAvailableRooms(bk);
+    }, [fetchAvailableRooms]);
+
+    const handleCheckinClick = () => {
+        if (!booking) return;
+        const now = new Date();
+        const scheduledCheckin = new Date(booking.checkin_at);
+        const isEarly = now < scheduledCheckin;
+
+        if (isEarly) {
+            Modal.confirm({
+                title: 'Check-in sớm hơn dự kiến',
+                icon: null,
+                content: (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 8, paddingTop: 8 }}>
+                        <div style={{ background: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: 8, padding: '10px 12px', fontSize: 14 }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
+                                <span style={{ color: '#6b7280' }}>Ngày nhận phòng dự kiến</span>
+                                <strong style={{ color: '#111827' }}>{formatDateTime(booking.checkin_at)}</strong>
+                            </div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid #f3f4f6', paddingTop: 6 }}>
+                                <span style={{ color: '#6b7280' }}>Check-in thực tế</span>
+                                <strong style={{ color: '#d97706' }}>{formatDateTime(now.toISOString())}</strong>
+                            </div>
+                        </div>
+                        <p style={{ color: '#6b7280', fontSize: 13, margin: 0 }}>Bạn có chắc muốn tiến hành check-in sớm?</p>
+                    </div>
+                ),
+                okText: 'Xác nhận',
+                cancelText: 'Hủy',
+                okButtonProps: { style: { background: '#f59e0b', borderColor: '#f59e0b' } },
+                onOk: () => {
+                    setPendingCheckin(true);
+                    openRoomPicker(booking);
+                },
+            });
+        } else {
+            setPendingCheckin(false);
+            openRoomPicker(booking);
+        }
     };
 
-    const handleCheckout = async () => {
+    const handleConfirmCheckin = async () => {
         if (!booking) return;
         setActionLoading(true);
         try {
-            await bookingApi.updateBooking(booking.id, { status: 'checked_out', actual_checkout_at: new Date().toISOString() } as any);
-            message.success('Check-out thành công!');
+            await bookingApi.updateBooking(booking.id, {
+                status: 'checked_in',
+                actual_checkin_at: new Date().toISOString(),
+                assigned_room_id: selectedRoomId || booking.assigned_room_id || undefined,
+            } as any);
+            message.success('Check-in thành công!');
+            setRoomPickerOpen(false);
+            setSelectedRoomId('');
+            setPendingCheckin(false);
             fetchAll();
-        } catch { message.error('Check-out thất bại!'); }
-        finally { setActionLoading(false); }
+        } catch {
+            message.error('Check-in thất bại!');
+        } finally {
+            setActionLoading(false);
+        }
+    };
+
+    const handleCheckoutClick = () => {
+        if (!booking) return;
+        Modal.confirm({
+            title: 'Xác nhận Check-out',
+            icon: null,
+            content: (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8, paddingTop: 8 }}>
+                    <p style={{ color: '#6b7280', fontSize: 14 }}>
+                        Bạn có chắc muốn tiến hành <strong>check-out</strong> cho khách?
+                    </p>
+                    <p style={{ color: '#6b7280', fontSize: 14 }}>
+                        Mã đặt phòng: <strong>#{booking.booking_code}</strong>
+                    </p>
+                    <p style={{ color: '#9ca3af', fontSize: 13, fontStyle: 'italic' }}>
+                        Sau khi check-out, bạn có thể tiến hành thanh toán hóa đơn.
+                    </p>
+                </div>
+            ),
+            okText: 'Xác nhận Check-out',
+            cancelText: 'Hủy',
+            okButtonProps: { style: { background: '#8b5cf6', borderColor: '#8b5cf6' } },
+            onOk: async () => {
+                setActionLoading(true);
+                try {
+                    await bookingApi.updateBooking(booking.id, {
+                        status: 'checked_out',
+                        actual_checkout_at: new Date().toISOString(),
+                        assigned_room_id: booking.assigned_room_id || undefined,
+                    } as any);
+                    message.success('Check-out thành công!');
+                    fetchAll();
+                } catch {
+                    message.error('Check-out thất bại!');
+                } finally {
+                    setActionLoading(false);
+                }
+            },
+        });
     };
     
-    const handleStatusChange = async (newStatus: string) => {
-        if (!booking || booking.status === newStatus) return;
-        setActionLoading(true);
-        try {
-            const updatePayload: any = { status: newStatus };
-            if (newStatus === 'checked_in') updatePayload.actual_checkin_at = new Date().toISOString();
-            if (newStatus === 'checked_out') updatePayload.actual_checkout_at = new Date().toISOString();
+    // const handleStatusChange = async (newStatus: string) => {
+    //     if (!booking || booking.status === newStatus) return;
+    //     setActionLoading(true);
+    //     try {
+    //         const updatePayload: any = { status: newStatus };
+    //         if (booking.assigned_room_id) updatePayload.assigned_room_id = booking.assigned_room_id;
+    //         if (newStatus === 'checked_in') updatePayload.actual_checkin_at = new Date().toISOString();
+    //         if (newStatus === 'checked_out') updatePayload.actual_checkout_at = new Date().toISOString();
             
-            await bookingApi.updateBooking(booking.id, updatePayload);
-            message.success(`Đã chuyển trạng thái thành: ${getStatusLabel(newStatus)}`);
-            fetchAll();
-        } catch { message.error('Cập nhật trạng thái thất bại!'); }
-        finally { setActionLoading(false); }
-    };
+    //         await bookingApi.updateBooking(booking.id, updatePayload);
+    //         message.success(`Đã chuyển trạng thái thành: ${getStatusLabel(newStatus)}`);
+    //         fetchAll();
+    //     } catch { message.error('Cập nhật trạng thái thất bại!'); }
+    //     finally { setActionLoading(false); }
+    // };
 
     const handleDiscountChange = async (discountId: string | null) => {
         if (!booking) return;
@@ -168,8 +266,6 @@ const StaffBookingDetails = () => {
         } catch { message.error('Cập nhật giảm giá thất bại!'); }
         finally { setActionLoading(false); }
     };
-
-    
 
     const handleOpenEdit = () => {
         if (!booking) return;
@@ -257,6 +353,10 @@ const StaffBookingDetails = () => {
     };
 
     const handleDeleteService = async (bsId: string) => {
+        if (!bsId) {
+            message.error('Không tìm thấy dịch vụ cần xóa.');
+            return;
+        }
         try {
             await bookingServiceApi.delete(bsId);
             message.success('Đã xóa dịch vụ!');
@@ -289,21 +389,30 @@ const StaffBookingDetails = () => {
     const nights = isHourly ? 0 : Math.ceil(diffMs / (1000 * 60 * 60 * 24));
     const hours = isHourly ? Math.round(diffMs / (1000 * 60 * 60)) : 0;
 
-    const amounts = getBookingAmounts(booking);
-    const totalAmount = amounts.totalAmount;
-    const totalPaid = amounts.paidAmount;
-    const serviceTotal = bookingServices.reduce((sum, s) => sum + Number(s.total_amount || 0), 0);
-    const amountDue = Math.max(0, totalAmount + serviceTotal - totalPaid);
+    const charge = booking.charge;
+    const chargeTotal = Number(charge?.total ?? booking.total_amount ?? 0);
+    const chargeDiscount = Number(charge?.discount ?? booking.discount_amount ?? 0);
+    const chargeDeposited = Number(charge?.deposited ?? 0);
+    const chargeBalance = Number(charge?.balance ?? Math.max(0, chargeTotal - chargeDeposited));
+
+    const displayBookingServices = bookingServices.length > 0 ? bookingServices : (booking?.booking_services ?? []);
+    console.log('Booking services:', displayBookingServices);
+
+    const serviceTotal = (displayBookingServices || []).reduce((sum: number, s: any) => {
+        const amount = Number(s.total_amount );
+        return sum + (isNaN(amount) ? 0 : amount);
+    }, 0);
 
     const canCheckin = booking.status === 'confirmed';
     const canCheckout = booking.status === 'checked_in';
     const canPay = booking.status === 'checked_out';
     const isEditable = booking.status !== 'cancelled' && booking.status !== 'completed';
 
+    console.log('Booking details:', booking);
+
     return (
         <div className="min-h-screen bg-gray-50">
             <div className="max-w-5xl mx-auto px-4 py-8">
-                {/* Back */}
                 <button
                     onClick={() => navigate(backPath)}
                     className="flex items-center gap-2 text-gray-500 hover:text-amber-600 transition-colors mb-6 group cursor-pointer"
@@ -312,7 +421,6 @@ const StaffBookingDetails = () => {
                     <span className="text-sm font-medium">Quay lại danh sách đặt phòng</span>
                 </button>
 
-                {/* Header */}
                 <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 mb-5">
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                         <div>
@@ -323,7 +431,7 @@ const StaffBookingDetails = () => {
                             <h1 className="text-2xl font-bold text-gray-900 tracking-wider">#{booking.booking_code}</h1>
                             <p className="text-xs text-gray-400 mt-1">Đặt lúc: {formatDateTime(booking.created_at)}</p>
                         </div>
-                        <div className="flex items-center gap-2 self-start">
+                        {/* <div className="flex items-center gap-2 self-start">
                             <span className="text-sm text-gray-500 font-medium">Trạng thái:</span>
                             <Select 
                                 value={booking.status}
@@ -339,15 +447,14 @@ const StaffBookingDetails = () => {
                                     { value: 'cancelled', label: 'Đã hủy' },
                                 ]}
                             />
-                        </div>
+                        </div> */}
                     </div>
 
-                    {/* Action Buttons */}
                     <div className="flex flex-wrap gap-3 mt-5 pt-5 border-t border-gray-100">
                         {canCheckin && (
                             <Button
                                 type="primary" icon={<LoginOutlined />}
-                                loading={actionLoading} onClick={handleCheckin}
+                                loading={actionLoading} onClick={handleCheckinClick}
                                 style={{ background: '#10b981', borderColor: '#10b981' }} size="large"
                             >
                                 Check-in
@@ -356,7 +463,7 @@ const StaffBookingDetails = () => {
                         {canCheckout && (
                             <Button
                                 type="primary" icon={<LogoutOutlined />}
-                                loading={actionLoading} onClick={handleCheckout}
+                                loading={actionLoading} onClick={handleCheckoutClick}
                                 style={{ background: '#8b5cf6', borderColor: '#8b5cf6' }} size="large"
                             >
                                 Check-out
@@ -368,7 +475,7 @@ const StaffBookingDetails = () => {
                                 onClick={() => navigate(invoicePath)}
                                 style={{ background: '#f97316', borderColor: '#f97316' }} size="large"
                             >
-                                Thanh toán &amp; Hóa đơn
+                                Thanh toán Hóa đơn
                             </Button>
                         )}
                         {isEditable && (
@@ -383,7 +490,6 @@ const StaffBookingDetails = () => {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                    {/* Thông tin khách hàng */}
                     {customer && (
                         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
                             <h2 className="text-sm font-bold text-gray-900 uppercase tracking-wider mb-1 flex items-center gap-2">
@@ -406,13 +512,21 @@ const StaffBookingDetails = () => {
                         </div>
                     )}
 
-                    {/* Thông tin đặt phòng */}
                     <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
                         <h2 className="text-sm font-bold text-gray-900 uppercase tracking-wider mb-1 flex items-center gap-2">
                             <MdOutlineHotel className="text-amber-500 text-base" /> Thông tin đặt phòng
                         </h2>
                         <div className="mt-3">
                             <InfoRow label="Loại phòng" value={booking.room_types?.name ?? '—'} icon={<MdOutlineHotel />} />
+                            <InfoRow
+                                label="Phòng đã chọn"
+                                value={
+                                    booking.assigned_room_id
+                                                ? `Phòng ${booking.rooms?.room_number}`
+                                                : <span className="text-gray-400 font-normal italic">Chưa gán phòng</span>
+                                }
+                                icon={<BsDoorOpen />}
+                            />
                             <InfoRow label="Chi nhánh"  value={booking.branches?.name ?? '—'} icon={<FaBuilding />} />
                             <InfoRow label="Loại đặt" value={
                                 <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${isHourly ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'}`}>
@@ -432,7 +546,6 @@ const StaffBookingDetails = () => {
                             />
                             <InfoRow label="Thời lượng" value={isHourly ? `${hours} giờ` : `${nights} đêm`} icon={<HiOutlineClock />} />
                             
-                            {/* Hiển thị check-in/out thực tế rõ ràng hơn nếu đã thực hiện */}
                             {(booking.actual_checkin_at || booking.actual_checkout_at) && (
                                 <div className="mt-4 pt-4 border-t border-dashed border-gray-200">
                                     <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Thực tế</h3>
@@ -447,7 +560,6 @@ const StaffBookingDetails = () => {
                         </div>
                     </div>
 
-                    {/* Giảm giá */}
                     <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
                         <h2 className="text-sm font-bold text-gray-900 uppercase tracking-wider mb-3 flex items-center gap-2">
                             <FaTag className="text-amber-500 text-base" /> Giảm giá
@@ -463,31 +575,43 @@ const StaffBookingDetails = () => {
                                 label: `${d.code} — ${d.discount_type === 'percentage' ? d.discount_value + '%' : formatVND(d.discount_value)}`,
                             }))}
                         />
-                        {booking.discount_amount && Number(booking.discount_amount) > 0 && (
-                            <p className="text-xs text-green-600 mt-2">Đã giảm: <strong>{formatVND(booking.discount_amount)}</strong></p>
+                        {chargeDiscount > 0 && (
+                            <p className="text-xs text-green-600 mt-2">Đã giảm: <strong>{formatVND(chargeDiscount)}</strong></p>
                         )}
                     </div>
 
-                    {/* Chi phí */}
                     <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
                         <h2 className="text-sm font-bold text-gray-900 uppercase tracking-wider mb-1 flex items-center gap-2">
                             <BsReceipt className="text-amber-500 text-base" /> Tóm tắt chi phí
                         </h2>
                         <div className="mt-3">
-                            <InfoRow label="Tiền phòng" value={formatVND(totalAmount)} />
+                            <InfoRow label="Tiền phòng" value={formatVND(chargeTotal)} />
+                            {chargeDiscount > 0 && (
+                                <InfoRow
+                                    label="Giảm giá"
+                                    value={<span className="text-green-600 font-bold">− {formatVND(chargeDiscount)}</span>}
+                                />
+                            )}
                             {serviceTotal > 0 && <InfoRow label="Phí dịch vụ" value={formatVND(serviceTotal)} />}
                             <Divider style={{ margin: '8px 0' }} />
-                                <InfoRow label="Đã thanh toán"
-                                    value={<span className="text-blue-600 font-bold">− {formatVND(totalPaid)}</span>} />
+                            {/* {chargeDeposited > 0 && (
+                                <InfoRow
+                                    label="Đã thanh toán / cọc"
+                                    value={<span className="text-blue-600 font-bold">− {formatVND(chargeDeposited)}</span>}
+                                />
+                            )} */}
+                            <InfoRow
+                                    label="Đã thanh toán / cọc"
+                                    value={<span className="text-blue-600 font-bold">− {formatVND(chargeDeposited)}</span>}
+                                />
                             <div className="flex justify-between items-center py-3 mt-1 border-t-2 border-gray-100">
                                 <span className="font-bold text-gray-900">Còn lại phải trả</span>
-                                <span className="font-bold text-xl text-red-500">{formatVND(amountDue)}</span>
+                                <span className="font-bold text-xl text-red-500">{formatVND(chargeBalance + serviceTotal)}</span>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                {/* Dịch vụ thêm */}
                 <div className="mt-5 bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
                     <div className="flex items-center justify-between mb-3">
                         <h2 className="text-sm font-bold text-gray-900 uppercase tracking-wider flex items-center gap-2">
@@ -499,16 +623,16 @@ const StaffBookingDetails = () => {
                             </Button>
                         )}
                     </div>
-                    {bookingServices.length === 0 ? (
+                    {(!displayBookingServices || displayBookingServices.length === 0) ? (
                         <p className="text-sm text-gray-400 italic">Chưa có dịch vụ nào được thêm.</p>
                     ) : (
                         <Table
-                            dataSource={bookingServices} rowKey="id" pagination={false} size="small"
+                            dataSource={displayBookingServices} rowKey={(r: any) => r.id || r.services.id} pagination={false} size="small"
                             columns={[
-                                { title: 'Dịch vụ', key: 'name', render: (_, r: any) => r.services?.name ?? '—' },
+                                { title: 'Dịch vụ', key: 'name', render: (_, r: any) => r.services?.name ?? r.service?.name ?? r.name ?? '—' },
                                 { title: 'SL', dataIndex: 'quantity', key: 'quantity', width: 60 },
-                                { title: 'Đơn giá', key: 'unit_price', render: (_, r: any) => formatVND(r.unit_price) },
-                                { title: 'Thành tiền', key: 'total_amount', render: (_, r: any) => <strong>{formatVND(r.total_amount)}</strong> },
+                                { title: 'Đơn giá', key: 'unit_price', render: (_, r: any) => formatVND(r.unit_price ?? r.price ?? 0) },
+                                { title: 'Thành tiền', key: 'total_amount', render: (_, r: any) => <strong>{formatVND( r.total_amount ?? 0) }</strong> },
                                 {
                                     title: '', key: 'action', width: 50,
                                     render: (_, r: any) => isEditable ? (
@@ -521,7 +645,6 @@ const StaffBookingDetails = () => {
                 </div>
             </div>
 
-            {/* Modal Edit Booking */}
             <Modal
                 title="Chỉnh sửa thông tin đặt phòng"
                 open={isEditOpen}
@@ -562,7 +685,6 @@ const StaffBookingDetails = () => {
                 </Form>
             </Modal>
 
-            {/* Modal Edit Customer */}
             <Modal
                 title="Chỉnh sửa thông tin khách hàng"
                 open={editCustomerOpen}
@@ -593,7 +715,6 @@ const StaffBookingDetails = () => {
                 </Form>
             </Modal>
 
-            {/* Add Service Modal */}
             <Modal
                 title="Thêm dịch vụ"
                 open={addServiceOpen}
@@ -624,6 +745,68 @@ const StaffBookingDetails = () => {
                             </div>
                         ) : null;
                     })()}
+                </div>
+            </Modal>
+
+            <Modal
+                title="Chọn phòng & Xác nhận Check-in"
+                open={roomPickerOpen}
+                onCancel={() => { setRoomPickerOpen(false); setSelectedRoomId(''); setPendingCheckin(false); }}
+                onOk={handleConfirmCheckin}
+                confirmLoading={actionLoading}
+                okText="Xác nhận Check-in"
+                cancelText="Hủy"
+                okButtonProps={{
+                    style: { background: '#10b981', borderColor: '#10b981' },
+                    disabled: availableRooms.length > 0 && !selectedRoomId && !booking?.assigned_room_id,
+                }}
+                width={460}
+            >
+                <div className="flex flex-col gap-4 mt-3">
+                    {/* Thông tin ngày check-in */}
+                    <div className="bg-gray-50 rounded-lg border border-gray-200 p-3 text-sm">
+                        <div className="flex justify-between py-1">
+                            <span className="text-gray-500">Ngày nhận phòng dự kiến</span>
+                            <span className="font-semibold text-gray-800">{formatDateTime(booking?.checkin_at)}</span>
+                        </div>
+                        <div className="flex justify-between py-1 border-t border-gray-100 mt-1">
+                            <span className="text-gray-500">Check-in thực tế</span>
+                            <span className={`font-semibold ${pendingCheckin ? 'text-amber-600' : 'text-green-600'}`}>
+                                {formatDateTime(new Date().toISOString())}
+                            </span>
+                        </div>
+                    </div>
+
+                    {/* Chọn phòng */}
+                    <div>
+                        <p className="text-sm font-medium text-gray-700 mb-2">Chọn phòng</p>
+                        {roomsLoading ? (
+                            <div className="flex justify-center py-6">
+                                <Spin size="default" />
+                            </div>
+                        ) : availableRooms.length === 0 ? (
+                            <p className="text-sm text-red-500 bg-red-50 border border-red-200 rounded-lg px-3 py-2 text-center">
+                                Không có phòng trống trong thời gian này
+                            </p>
+                        ) : (
+                            <div className="grid grid-cols-4 gap-2 max-h-48 overflow-y-auto">
+                                {availableRooms.map((room) => (
+                                    <button
+                                        key={room.id}
+                                        type="button"
+                                        onClick={() => setSelectedRoomId(room.id)}
+                                        className={`py-2 px-1 rounded-lg border-2 text-sm font-semibold cursor-pointer transition-all ${
+                                            selectedRoomId === room.id
+                                                ? 'border-green-500 bg-green-50 text-green-700'
+                                                : 'border-gray-200 bg-white text-gray-700 hover:border-green-300'
+                                        }`}
+                                    >
+                                        {room.room_number}
+                                    </button>
+                                ))}
+                            </div>
+                        )}
+                    </div>
                 </div>
             </Modal>
         </div>

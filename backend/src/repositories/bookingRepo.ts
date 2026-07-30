@@ -72,6 +72,8 @@ class BookingRepository {
                 },
                 booking_services: {
                     select: {
+                        id: true,
+                        service_id: true,
                         services: {
                             select: {
                                 id: true,
@@ -138,6 +140,8 @@ class BookingRepository {
                     },
                     booking_services: {
                         select: {
+                            id: true,
+                            service_id: true,
                             services: {
                                 select: {
                                     id: true,

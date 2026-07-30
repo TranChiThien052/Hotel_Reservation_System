@@ -54,6 +54,12 @@ const tomorrowStr = () => {
   return d.toISOString().split("T")[0];
 };
 
+const hourlyTodayStr = () => {
+  const d = new Date();
+  d.setDate(d.getDate());
+  return d.toISOString().split("T")[0];
+};
+
 const steps = ["Chọn ngày", "Thông tin", "Xác nhận"];
 
 const StepBar = ({ current }: { current: number }) => (
@@ -144,7 +150,7 @@ const ClientBooking = () => {
 
   const [booking_type, setBookingType] = useState<"daily" | "hourly">("daily");
 
-  const [checkin_at, setCheckinAt] = useState(todayStr());
+  const [checkin_at, setCheckinAt] = useState(hourlyTodayStr());
   const [checkout_at, setCheckoutAt] = useState(tomorrowStr());
 
   const getCurrentTime = () => {
@@ -155,7 +161,7 @@ const ClientBooking = () => {
     const minutes = String(now.getMinutes()).padStart(2, "0");
     return `${hours}:${minutes}`;
   };
-  const [bookingDate, setBookingDate] = useState(todayStr());
+  const [bookingDate, setBookingDate] = useState(hourlyTodayStr());
   const [startTime, setStartTime] = useState(getCurrentTime());
   const [durationHours, setDurationHours] = useState(2);
 
@@ -829,7 +835,7 @@ const ClientBooking = () => {
                         <input
                           type="date"
                           value={bookingDate}
-                          min={todayStr()}
+                          min={hourlyTodayStr()}
                           onChange={(e) => setBookingDate(e.target.value)}
                           className="px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-300 bg-gray-50 cursor-pointer"
                         />

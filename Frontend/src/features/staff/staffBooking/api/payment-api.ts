@@ -23,15 +23,15 @@ export const paymentApi = {
         const res = await apiClient.get(`/payments/${id}`);
         return res.data;
     },
-    getPaymentsByBookingId: async (bookingId: string): Promise<Payment[]> => {
+    getPaymentsByBookingId: async (bookingId: string) => {
         const res = await apiClient.get(`/payments/booking/${bookingId}`);
         return res.data;
     },
-    getPaymentsByInvoiceId: async (invoiceId: string): Promise<Payment[]> => {
+    getPaymentsByInvoiceId: async (invoiceId: string) => {
         const res = await apiClient.get(`/payments/invoice/${invoiceId}`);
         return res.data;
     },
-    createPayment: async (data: PaymentData): Promise<Payment> => {
+    createPayment: async (data: PaymentData) => {
         const res = await apiClient.post('/payments', data);
         return res.data;
     },
