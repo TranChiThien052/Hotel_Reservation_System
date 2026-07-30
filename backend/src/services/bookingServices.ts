@@ -11,6 +11,7 @@ import accountServices from './accountServices';
 import historyTransactionServices from './historyTransactionServices';
 import roomPriceServices from './roomPriceServices';
 import roomServices from './roomServices';
+import roomRepo from '../repositories/roomRepo';
 
 class BookingService {
     async getAllBookings() {
@@ -456,6 +457,9 @@ class BookingService {
         if (validator.error.length > 0) {
             throw new ValidationError('400', validator.clearError());
         }
+
+        if (validatedData.status === 'completed')
+            await roomRepo.updateRoom(existingBooking.assigned_room_id, { status: 'available' });
 
         validatedData.updated_at = new Date();
         try {

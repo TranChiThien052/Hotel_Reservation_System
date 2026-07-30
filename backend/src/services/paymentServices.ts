@@ -6,6 +6,9 @@ import { Validator, ValidationError } from '../middlewares/validateData';
 import axios from 'axios';
 import crypto from 'crypto';
 import historyTransactionServices from './historyTransactionServices';
+import bookingRepo from '../repositories/bookingRepo';
+import { booking_status, payment_status } from '../generated/prisma/enums';
+import invoiceRepo from '../repositories/invoiceRepo';
 
 class PaymentService {
     async createMomoPayment(data) {
@@ -264,7 +267,13 @@ class PaymentService {
         try {
             const before = await PaymentRepository.getPaymentById(id);
             const after = await PaymentRepository.updatePayment(id, validatedData);
-            if (after)
+            if (after) {
+                if (after.is_deposit === false && after.status === payment_status.paid && after.invoice_id) {
+                    await bookingRepo.updateBooking(after.booking_id, {
+                        status: booking_status.completed,
+                        updated_at: new Date()
+                    })
+                }
                 await historyTransactionServices.createUpdateTransaction(
                     data.log_account_id,
                     "Payment",
@@ -273,6 +282,7 @@ class PaymentService {
                     after,
                     Object.keys(validatedData)
                 );
+            }
             return after;
         } catch (error: any) {
             throw new Error(error);
