@@ -9,6 +9,7 @@ import roomPriceRepo from '../repositories/roomPriceRepo';
 import holidayDateRepo from '../repositories/holidayDateRepo';
 import discountRepo from '../repositories/discountRepo';
 import paymentRepo from '../repositories/paymentRepo';
+import { booking_type } from '../generated/prisma/enums';
 
 class InvoiceService {
     async getAllInvoices() {
@@ -95,11 +96,12 @@ class InvoiceService {
         const holidayDates = await holidayDateRepo.getHolidayDatesByBranchId(booking.branch_id);
 
         let room_charge = 0;
-        if (booking.actual_checkin_at === null || booking.actual_checkout_at === null)
+        if (booking.actual_checkin_at === null || booking.actual_checkout_at === null && booking.booking_type === booking_type.daily)
             room_charge = calculateDynamicPrice(booking.checkin_at, booking.checkout_at, basePrice, roomPrice?.weekend_rate, roomPrice?.holiday_rate, holidayDates, booking.booking_type);
-        else if (booking.actual_checkin_at !== null && booking.actual_checkout_at !== null)
+        else if (booking.actual_checkin_at !== null && booking.actual_checkout_at !== null && booking.booking_type === booking_type.daily)
             room_charge = calculateDynamicPrice(booking.actual_checkin_at, booking.actual_checkout_at, basePrice, roomPrice?.weekend_rate, roomPrice?.holiday_rate, holidayDates, booking.booking_type);
-
+        else if (booking.booking_type === booking_type.hourly)
+            room_charge = calculateDynamicPrice(booking.checkin_at, booking.checkout_at, basePrice, roomPrice?.weekend_rate, roomPrice?.holiday_rate, holidayDates, booking.booking_type);
         let discount = 0;
         if (booking.discount_id !== null) {
             const discountInfo = await discountRepo.getDiscountById(booking.discount_id);
