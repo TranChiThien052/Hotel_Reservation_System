@@ -56,6 +56,8 @@ export interface Booking {
         deposited: number,
         total: number,
         discount: number,
+        service_charge: number,
+        room_charge: number,
     },
     booking_services?: Array<{
         id: string,

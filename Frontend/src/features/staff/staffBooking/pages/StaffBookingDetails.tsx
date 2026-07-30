@@ -121,12 +121,14 @@ const StaffBookingDetails = () => {
                 room_type_id: bk.room_type_id,
                 booking_type: bk.booking_type,
             });
-            if (data?.results?.[0]?.is_sold_out) {
+            console.log('Available rooms data:', data);
+            if (data?.results?.[0]?.total_rooms === 0) {
                 setAvailableRooms([]);
             } else {
                 const rooms = data?.results?.[0]?.room_type?.availble_rooms ?? [];
                 setAvailableRooms(Array.isArray(rooms) ? rooms : []);
             }
+            
         } catch {
             setAvailableRooms([]);
             message.error('Không thể tải danh sách phòng trống.');
@@ -139,6 +141,27 @@ const StaffBookingDetails = () => {
         setRoomPickerOpen(true);
         fetchAvailableRooms(bk);
     }, [fetchAvailableRooms]);
+
+    const handleConfirmCheckin = async (roomId?: string) => {
+        if (!booking) return;
+        setActionLoading(true);
+        try {
+            await bookingApi.updateBooking(booking.id, {
+                status: 'checked_in',
+                actual_checkin_at: new Date().toISOString(),
+                assigned_room_id: roomId || booking.assigned_room_id || undefined,
+            } as any);
+            message.success('Check-in thành công!');
+            setRoomPickerOpen(false);
+            setSelectedRoomId('');
+            setPendingCheckin(false);
+            fetchAll();
+        } catch {
+            message.error('Check-in thất bại!');
+        } finally {
+            setActionLoading(false);
+        }
+    };
 
     const handleCheckinClick = () => {
         if (!booking) return;
@@ -168,35 +191,41 @@ const StaffBookingDetails = () => {
                 okText: 'Xác nhận',
                 cancelText: 'Hủy',
                 okButtonProps: { style: { background: '#f59e0b', borderColor: '#f59e0b' } },
-                onOk: () => {
+                onOk: async () => {
                     setPendingCheckin(true);
+                    if (booking.assigned_room_id) {
+                        await handleConfirmCheckin(booking.assigned_room_id);
+                        return;
+                    }
                     openRoomPicker(booking);
                 },
             });
         } else {
             setPendingCheckin(false);
+            if (booking.assigned_room_id) {
+                Modal.confirm({
+                    title: 'Xác nhận Check-in',
+                    icon: null,
+                    content: (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 8, paddingTop: 8 }}>
+                            <p style={{ color: '#6b7280', fontSize: 14 }}>
+                                Bạn có chắc muốn tiến hành <strong>check-in</strong> cho khách?
+                            </p>
+                            <p style={{ color: '#6b7280', fontSize: 14 }}>
+                                Phòng đã gán: <strong>#{booking.rooms?.room_number ?? booking.assigned_room_id}</strong>
+                            </p>
+                        </div>
+                    ),
+                    okText: 'Xác nhận Check-in',
+                    cancelText: 'Hủy',
+                    okButtonProps: { style: { background: '#10b981', borderColor: '#10b981' } },
+                    onOk: async () => {
+                        await handleConfirmCheckin(booking.assigned_room_id);
+                    },
+                });
+                return;
+            }
             openRoomPicker(booking);
-        }
-    };
-
-    const handleConfirmCheckin = async () => {
-        if (!booking) return;
-        setActionLoading(true);
-        try {
-            await bookingApi.updateBooking(booking.id, {
-                status: 'checked_in',
-                actual_checkin_at: new Date().toISOString(),
-                assigned_room_id: selectedRoomId || booking.assigned_room_id || undefined,
-            } as any);
-            message.success('Check-in thành công!');
-            setRoomPickerOpen(false);
-            setSelectedRoomId('');
-            setPendingCheckin(false);
-            fetchAll();
-        } catch {
-            message.error('Check-in thất bại!');
-        } finally {
-            setActionLoading(false);
         }
     };
 
@@ -390,10 +419,13 @@ const StaffBookingDetails = () => {
     const hours = isHourly ? Math.round(diffMs / (1000 * 60 * 60)) : 0;
 
     const charge = booking.charge;
-    const chargeTotal = Number(charge?.total ?? booking.total_amount ?? 0);
+    // const chargeTotal = Number(charge?.total ?? booking.total_amount ?? 0);
     const chargeDiscount = Number(charge?.discount ?? booking.discount_amount ?? 0);
     const chargeDeposited = Number(charge?.deposited ?? 0);
-    const chargeBalance = Number(charge?.balance ?? Math.max(0, chargeTotal - chargeDeposited));
+    const chargeBalance = Number(charge?.balance ?? 0);
+    const chargeRoom = Number(charge?.room_charge ?? 0);
+    const chargeService = Number(charge?.service_charge ?? 0);
+
 
     const displayBookingServices = bookingServices.length > 0 ? bookingServices : (booking?.booking_services ?? []);
     console.log('Booking services:', displayBookingServices);
@@ -585,14 +617,14 @@ const StaffBookingDetails = () => {
                             <BsReceipt className="text-amber-500 text-base" /> Tóm tắt chi phí
                         </h2>
                         <div className="mt-3">
-                            <InfoRow label="Tiền phòng" value={formatVND(chargeTotal)} />
+                            <InfoRow label="Tiền phòng" value={formatVND(chargeRoom)} />
                             {chargeDiscount > 0 && (
                                 <InfoRow
                                     label="Giảm giá"
                                     value={<span className="text-green-600 font-bold">− {formatVND(chargeDiscount)}</span>}
                                 />
                             )}
-                            {serviceTotal > 0 && <InfoRow label="Phí dịch vụ" value={formatVND(serviceTotal)} />}
+                            {serviceTotal > 0 && <InfoRow label="Phí dịch vụ" value={formatVND(chargeService)} />}
                             <Divider style={{ margin: '8px 0' }} />
                             {/* {chargeDeposited > 0 && (
                                 <InfoRow
@@ -606,7 +638,7 @@ const StaffBookingDetails = () => {
                                 />
                             <div className="flex justify-between items-center py-3 mt-1 border-t-2 border-gray-100">
                                 <span className="font-bold text-gray-900">Còn lại phải trả</span>
-                                <span className="font-bold text-xl text-red-500">{formatVND(chargeBalance + serviceTotal)}</span>
+                                <span className="font-bold text-xl text-red-500">{formatVND(chargeBalance)}</span>
                             </div>
                         </div>
                     </div>
@@ -752,7 +784,7 @@ const StaffBookingDetails = () => {
                 title="Chọn phòng & Xác nhận Check-in"
                 open={roomPickerOpen}
                 onCancel={() => { setRoomPickerOpen(false); setSelectedRoomId(''); setPendingCheckin(false); }}
-                onOk={handleConfirmCheckin}
+                onOk={() => handleConfirmCheckin(selectedRoomId)}
                 confirmLoading={actionLoading}
                 okText="Xác nhận Check-in"
                 cancelText="Hủy"
