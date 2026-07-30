@@ -45,7 +45,7 @@ class RoomAvailabilityRepository {
             branch_id: branch_id,
             is_active: true,
             status: {
-                in: ['available']
+                notIn: ['unavailable', 'maintenance', 'occupied']
             }
         };
 
