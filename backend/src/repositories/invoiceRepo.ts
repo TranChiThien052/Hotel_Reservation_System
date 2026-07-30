@@ -39,7 +39,10 @@ class InvoiceRepository {
     async updateInvoice(id, data) {
         return await prisma.invoices.update({
             where: { id: id },
-            data: data,
+            data: {
+                ...data,
+                updated_at: new Date(),
+            },
         });
     };
 

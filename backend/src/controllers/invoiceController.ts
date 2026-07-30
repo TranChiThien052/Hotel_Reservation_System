@@ -29,6 +29,7 @@ class InvoiceController {
         return await InvoiceService.getInvoiceByBookingId(id)
             .then(invoices => res.status(200).json(invoices))
             .catch(error => {
+                console.log(error);
                 if (typeof parseInt(error) === "number") {
                     return res.status(parseInt(error.code)).json({ error: error.message });
                 }
