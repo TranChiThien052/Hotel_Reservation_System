@@ -5,6 +5,7 @@ import { IoCloseCircleOutline } from "react-icons/io5";
 import { LuDoorClosed, LuUserCog } from "react-icons/lu";
 import { MdOutlineBed, MdOutlineDashboard } from "react-icons/md";
 import { PiMoneyWavy } from "react-icons/pi";
+import { RiServiceBellLine } from "react-icons/ri";
 import { TbBrandBooking } from "react-icons/tb";
 
 export interface ManagerSideBarItem {
@@ -22,6 +23,7 @@ export const managerSideBarItems: ManagerSideBarItem[] = [
     {name: "Quản lý phòng", path: "rooms", icon: LuDoorClosed},
     {name: "Quản lý giá phòng", path: "room-prices", icon: PiMoneyWavy},
     {name: "Quản lý loại phòng", path: "roomTypes", icon: MdOutlineBed},
+    {name: "Quản lý dịch vụ", path: "services", icon: RiServiceBellLine},
     {name: "Quản lý khuyến mãi", path: "promotions", icon: GoTag},
     {name: "Lịch sử hoạt động", path: "history-transactions", icon: FaClockRotateLeft},
 ];

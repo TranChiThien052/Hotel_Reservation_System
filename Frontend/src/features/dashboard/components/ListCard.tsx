@@ -2,15 +2,20 @@ import React from 'react';
 import { FaBed } from "react-icons/fa";
 
 export const StatusBadge = ({ status }: { status: string }) => {
-  const map: Record<string, { label: string; cls: string }> = {
-    confirmed:   { label: "Đã xác nhận",  cls: "bg-blue-50 text-blue-700 border-blue-200" },
-    checked_in:  { label: "Đã check-in",  cls: "bg-green-50 text-green-700 border-green-200" },
-    checked_out: { label: "Đã trả phòng", cls: "bg-gray-100 text-gray-600 border-gray-200" },
-    pending:     { label: "Chờ xác nhận", cls: "bg-yellow-50 text-yellow-700 border-yellow-200" },
-    cancelled:   { label: "Đã hủy",       cls: "bg-red-50 text-red-600 border-red-200" },
-  };
-  const { label, cls } = map[status] ?? { label: status, cls: "bg-gray-100 text-gray-600 border-gray-200" };
-  return <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full border ${cls}`}>{label}</span>;
+  switch (status) {
+    case "confirmed":
+      return <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full border bg-blue-50 text-blue-700 border-blue-200">Đã xác nhận</span>;
+    case "checked_in":
+      return <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full border bg-green-50 text-green-700 border-green-200">Đã check-in</span>;
+    case "checked_out":
+      return <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full border bg-gray-100 text-gray-600 border-gray-200">Đã trả phòng</span>;
+    case "pending":
+      return <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full border bg-yellow-50 text-yellow-700 border-yellow-200">Chờ xác nhận</span>;
+    case "cancelled":
+      return <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full border bg-red-50 text-red-600 border-red-200">Đã hủy</span>;
+    default:
+      return <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full border bg-gray-100 text-gray-600 border-gray-200">{status}</span>;
+  }
 };
 
 export const ListCard = ({ title, icon, accent, count, children }: {

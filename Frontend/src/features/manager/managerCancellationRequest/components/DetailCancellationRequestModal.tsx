@@ -20,7 +20,6 @@ import type { CancellationRequestType } from "../types/cancellationRequest-type"
 import { cancellationRequestApi } from "../api/cancellationRequest-type";
 import { Option } from "antd/es/mentions";
 import TextArea from "antd/es/input/TextArea";
-import { bookingApi } from "@/features/staff/staffBooking/api/booking-api";
 
 
 
@@ -29,32 +28,37 @@ const formatDate = (d?: string) =>
   d ? new Date(d).toLocaleString("vi-VN") : "—";
 
 
-type CancelStatus = "pending" | "confirmed" | "failed";
-
-const CANCEL_STATUS: Record<
-  CancelStatus,
-  { label: string; color: string; icon: React.ReactNode }
-> = {
-  pending:    { label: "Chờ xử lý",  color: "orange", icon: <ClockCircleOutlined /> },
-  confirmed:   { label: "Đã duyệt",   color: "green",  icon: <CheckCircleOutlined /> },
-  failed:   { label: "Từ chối",    color: "red",    icon: <CloseCircleOutlined /> },
+const renderCancelStatusTag = (status: string) => {
+  switch (status) {
+    case "pending":
+      return <Tag icon={<ClockCircleOutlined />} color="orange">Chờ xử lý</Tag>;
+    case "confirmed":
+      return <Tag icon={<CheckCircleOutlined />} color="green">Đã duyệt</Tag>;
+    case "failed":
+      return <Tag icon={<CloseCircleOutlined />} color="red">Từ chối</Tag>;
+    default:
+      return <Tag color="default">{status}</Tag>;
+  }
 };
 
-const getCancelStatus = (s: string) =>
-  CANCEL_STATUS[s as CancelStatus] ?? { label: s, color: "default", icon: null };
-
-
-const BOOKING_STATUS: Record<string, { label: string; color: string }> = {
-  pending:     { label: "Chờ xác nhận", color: "orange" },
-  confirmed:   { label: "Đã xác nhận",  color: "blue" },
-  checked_in:  { label: "Đã check-in",  color: "cyan" },
-  checked_out: { label: "Đã check-out", color: "green" },
-  cancelled:   { label: "Đã hủy",       color: "red" },
-  no_show:     { label: "Không đến",    color: "default" },
+const renderBookingStatusTag = (status?: string) => {
+  switch (status) {
+    case "pending":
+      return <Tag color="orange">Chờ xác nhận</Tag>;
+    case "confirmed":
+      return <Tag color="blue">Đã xác nhận</Tag>;
+    case "checked_in":
+      return <Tag color="cyan">Đã check-in</Tag>;
+    case "checked_out":
+      return <Tag color="green">Đã check-out</Tag>;
+    case "cancelled":
+      return <Tag color="red">Đã hủy</Tag>;
+    case "no_show":
+      return <Tag color="default">Không đến</Tag>;
+    default:
+      return <Tag color="default">{status || "—"}</Tag>;
+  }
 };
-
-const getBookingStatus = (s: string) =>
-  BOOKING_STATUS[s] ?? { label: s, color: "default" };
 
 interface Props {
   open: boolean;
@@ -63,7 +67,7 @@ interface Props {
   onUpdated: () => void;
 }
 
-/* ─── Component ─── */
+
 const DetailCancellationRequestModal = ({
   open,
   onClose,
@@ -75,9 +79,6 @@ const DetailCancellationRequestModal = ({
   const [updating, setUpdating] = useState(false);
 
   if (!cancellationRequest) return null;
-
-  const cancelCfg  = getCancelStatus(cancellationRequest.status);
-  const bookingCfg = getBookingStatus(cancellationRequest.bookings?.status);
 
   const handleUpdate = async () => {
     if (!newStatus) {
@@ -91,21 +92,6 @@ const DetailCancellationRequestModal = ({
         notes: adminNote || cancellationRequest.notes,
       });
 
-      if (newStatus !== 'pending' && cancellationRequest.bookings) {
-        const currentBooking = cancellationRequest.bookings;
-        await bookingApi.updateBooking(cancellationRequest.booking_id, {
-          branch_id: currentBooking.branch_id,
-          customer_id: currentBooking.customer_id,
-          room_type_id: currentBooking.room_type_id,
-          booking_type: currentBooking.booking_type,
-          status: 'cancelled',
-          checkin_at: currentBooking.checkin_at,
-          checkout_at: currentBooking.checkout_at,
-          num_guests: Number(currentBooking.num_guests),
-          created_by: currentBooking.created_by || '',
-        });
-      }
-      
       message.success("Cập nhật trạng thái thành công!");
       setNewStatus("");
       setAdminNote("");
@@ -127,9 +113,7 @@ const DetailCancellationRequestModal = ({
           <span className="font-bold text-gray-800 text-base">
             Chi tiết yêu cầu hủy phòng
           </span>
-          <Tag icon={cancelCfg.icon} color={cancelCfg.color}>
-            {cancelCfg.label}
-          </Tag>
+          {renderCancelStatusTag(cancellationRequest.status)}
         </div>
       }
       open={open}
@@ -151,9 +135,7 @@ const DetailCancellationRequestModal = ({
             </div>
             <Descriptions bordered column={2} size="small" >
               <Descriptions.Item label="Trạng thái" span={1}>
-                <Tag icon={cancelCfg.icon} color={cancelCfg.color}>
-                  {cancelCfg.label}
-                </Tag>
+                {renderCancelStatusTag(cancellationRequest.status)}
               </Descriptions.Item>
 
               <Descriptions.Item label="Tiền hoàn lại" span={1}>
@@ -195,7 +177,7 @@ const DetailCancellationRequestModal = ({
               </Descriptions.Item>
 
               <Descriptions.Item label="Trạng thái" span={1}>
-                <Tag color={bookingCfg.color}>{bookingCfg.label}</Tag>
+                {renderBookingStatusTag(cancellationRequest.bookings?.status)}
               </Descriptions.Item>
 
               <Descriptions.Item label="Check-in" span={1}>
@@ -253,20 +235,30 @@ const DetailCancellationRequestModal = ({
                   onChange={setNewStatus}
                   className="flex-1"
                 >
-                  {Object.entries(CANCEL_STATUS).map(([key, cfg]) => (
-                    <Option
-                      key={key}
-                      value={key}
-                      disabled={key === cancellationRequest.status}
-                    >
-                      <div className="flex items-center gap-2">
-                        <Tag color={cfg.color} className="m-0">{cfg.label}</Tag>
-                        {key === cancellationRequest.status && (
-                          <span className="text-gray-400 text-xs">(hiện tại)</span>
-                        )}
-                      </div>
-                    </Option>
-                  ))}
+                  <Option value="pending" disabled={cancellationRequest.status === "pending"}>
+                    <div className="flex items-center gap-2">
+                      <Tag color="orange" className="m-0">Chờ xử lý</Tag>
+                      {cancellationRequest.status === "pending" && (
+                        <span className="text-gray-400 text-xs">(hiện tại)</span>
+                      )}
+                    </div>
+                  </Option>
+                  <Option value="confirmed" disabled={cancellationRequest.status === "confirmed"}>
+                    <div className="flex items-center gap-2">
+                      <Tag color="green" className="m-0">Đã duyệt</Tag>
+                      {cancellationRequest.status === "confirmed" && (
+                        <span className="text-gray-400 text-xs">(hiện tại)</span>
+                      )}
+                    </div>
+                  </Option>
+                  <Option value="failed" disabled={cancellationRequest.status === "failed"}>
+                    <div className="flex items-center gap-2">
+                      <Tag color="red" className="m-0">Từ chối</Tag>
+                      {cancellationRequest.status === "failed" && (
+                        <span className="text-gray-400 text-xs">(hiện tại)</span>
+                      )}
+                    </div>
+                  </Option>
                 </Select>
               </div>
 

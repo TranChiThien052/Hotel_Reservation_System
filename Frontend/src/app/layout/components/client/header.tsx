@@ -35,6 +35,11 @@ const header = () => {
         navigate("/", {replace: true});
     }
 
+    const handleLogout = () => {
+        dispatch(logout());
+        navigate("/login", {replace: true});
+    }
+
     const handleStaffManagementRedirect = () => {
         navigate("/staff", {replace: true});
     }
@@ -58,7 +63,7 @@ const header = () => {
       icon: <LogoutOutlined />,
       label: 'Đăng xuất',
       danger: true,
-      onClick: () => dispatch(logout()),
+      onClick: (handleLogout),
     },
   ];
 

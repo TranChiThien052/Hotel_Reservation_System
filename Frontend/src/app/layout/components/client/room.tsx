@@ -35,21 +35,6 @@ export interface RoomTypeWithPrice extends RoomType {
     room_price?: RoomPrice | null;
 }
 
-// Giữ lại RoomItem để không bị lỗi import ở các file cũ
-export interface RoomItem {
-    id: string;
-    branch_id: string;
-    room_type_id: string;
-    room_number: string;
-    floor: number;
-    status: string;
-    notes?: string;
-    basic: string[];
-    extra?: string[];
-    is_active: boolean;
-    room_types: RoomType;
-    room_price?: RoomPrice | null;
-}
 
 interface RoomProps {
     room: RoomTypeWithPrice;

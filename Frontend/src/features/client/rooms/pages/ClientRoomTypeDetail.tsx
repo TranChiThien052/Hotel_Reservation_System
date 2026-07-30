@@ -70,7 +70,7 @@ const ClientRoomTypeDetail = () => {
         <div className="min-h-screen flex items-center justify-center bg-gray-50">
             <div className="text-center">
                 <p className="text-2xl font-bold text-gray-700 mb-2">Không tìm thấy loại phòng</p>
-                <button onClick={() => navigate('/rooms')} className="mt-4 text-amber-600 underline">
+                <button onClick={() => navigate('/rooms')} className="mt-4 text-amber-600 underline cursor-pointer">
                     Quay lại danh sách phòng
                 </button>
             </div>
@@ -102,7 +102,7 @@ const ClientRoomTypeDetail = () => {
                     className="flex items-center gap-2 text-gray-500 hover:text-amber-600 transition-colors mb-6 group"
                 >
                     <IoArrowBack className="group-hover:-translate-x-1 transition-transform" />
-                    <span className="text-sm font-medium">Quay lại danh sách phòng</span>
+                    <span className="text-sm font-medium cursor-pointer">Quay lại danh sách phòng</span>
                 </button>
 
                 <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
@@ -229,12 +229,22 @@ const ClientRoomTypeDetail = () => {
                                 </div>
 
                                 {/* Nút đặt phòng */}
-                                <button
+                                {priceNum || priceHour ? (
+                                    <button
                                     onClick={handleBooking}
                                     className="w-full py-3.5 rounded-xl font-bold text-base transition-all duration-200 bg-amber-500 hover:bg-amber-600 text-white shadow-md hover:shadow-lg active:scale-[0.98] cursor-pointer"
                                 >
                                     Đặt phòng ngay
                                 </button>
+                                ): (
+                                    <button
+                                    disabled
+                                    className="w-full py-3.5 rounded-xl font-bold text-base transition-all duration-200 bg-gray-300 text-gray-500 cursor-not-allowed"
+                                >
+                                    Liên hệ để đặt phòng
+                                </button>
+                                )}
+                                
 
                                 <p className="text-xs text-center text-gray-400">
                                     Kiểm tra phòng trống & xác nhận ở bước tiếp theo

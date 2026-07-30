@@ -19,6 +19,11 @@ const BookingSuccess = () => {
   const role = user?.role || sessionStorage.getItem("zp_role");
 
   useEffect(() => {
+    const statusParam = searchParams.get("status");
+    if (statusParam && statusParam !== "1") {
+      navigate(`/booking/failed?${searchParams.toString()}`, { replace: true });
+      return;
+    }
     if (role === "staff") {
       navigate(`/staff/payment/success?${searchParams.toString()}`, {
         replace: true,
@@ -28,7 +33,7 @@ const BookingSuccess = () => {
         replace: true,
       });
     }
-  }, [user, navigate, searchParams]);
+  }, [user, navigate, searchParams, role]);
 
   const callback = useCallback(async () => {
     try {
@@ -43,11 +48,16 @@ const BookingSuccess = () => {
         checksum: searchParams.get("checksum") || "",
       });
       console.log("response", response);
+      if (response?.result_code && response.result_code !== 1) {
+        navigate(`/booking/failed?${searchParams.toString()}`, { replace: true });
+        return;
+      }
       setPaymentResult(response);
     } catch (error) {
       console.error("Error fetching payment result:", error);
+      navigate(`/booking/failed?${searchParams.toString()}`, { replace: true });
     }
-  }, [searchParams]);
+  }, [searchParams, navigate]);
 
   useEffect(() => {
     callback();

@@ -14,6 +14,10 @@ export const roomPricesApi = {
         const res = await apiClient.get(`/room-prices/${id}`);
         return res.data;
     },
+    getRoomPricesByRoomTypeId: async (roomTypeId: string) => {
+        const res = await apiClient.get(`/room-prices/room-type/${roomTypeId}`);
+        return res.data;
+    },
     createRoomPrice: async (roomPriceData: RoomPriceFormData) => {
         const res = await apiClient.post('/room-prices', roomPriceData);
         return res.data;

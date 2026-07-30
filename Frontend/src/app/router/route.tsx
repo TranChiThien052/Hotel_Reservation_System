@@ -27,6 +27,7 @@ import ClientRooms from "@/features/client/rooms/pages/ClientRooms";
 import ClientRoomTypeDetail from "@/features/client/rooms/pages/ClientRoomTypeDetail";
 import ClientBooking from "@/features/client/booking/pages/ClientBooking";
 import BookingSuccess from "@/features/client/booking/pages/BookingSuccess";
+import BookingFailed from "@/features/client/booking/pages/BookingFailed";
 import BookingHistory from "@/features/client/profile/pages/bookingHistory";
 import BookingDetails from "@/features/client/profile/pages/bookingDetails";
 import UserProfile from "@/features/client/profile/pages/userProfile";
@@ -38,6 +39,7 @@ import Dashboard from "@/features/dashboard/pages/Dashboard";
 import ManagerRoomTypes from "@/features/manager/managementRoomTypes/pages/ManagerRoomTypes";
 import Holiday from "@/features/admin/adminHolidays/pages/AdminHoliday";
 import StaffAcccount from "@/features/manager/managerStaffAccount/pages/StaffAcccount";
+import ManagerService from "@/features/manager/managerService/pages/ManagerService";
 
 const route = () => {
   return (
@@ -58,6 +60,8 @@ const route = () => {
           <Route path="booking/:id" element={<ClientBooking />} />
           <Route path="booking/room-type/:typeId" element={<ClientBooking />} />
           <Route path="booking/success" element={<BookingSuccess />} />
+          <Route path="booking/failed" element={<BookingFailed />} />
+          <Route path="booking/cancel" element={<BookingFailed />} />
 
           
           <Route path="profile" element={<UserProfile />} />
@@ -114,6 +118,7 @@ const route = () => {
             <Route path="roomTypes" element={<ManagerRoomTypes />} />
             <Route path="promotions" element={<Promotions />} />
             <Route path="accounts" element={<StaffAcccount />} />
+            <Route path="services" element={<ManagerService />} />
           </Route>
         </Route>
       </Routes>
