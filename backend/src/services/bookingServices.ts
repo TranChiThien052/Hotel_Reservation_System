@@ -61,7 +61,6 @@ class BookingService {
     };
 
     async getBookingByBranchId(id, status?) {
-        console.log(status);
         const validator = new Validator();
         validator.isUUID("Branch ID", id);
         if (validator.error.length > 0)

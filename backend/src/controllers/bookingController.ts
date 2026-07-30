@@ -37,7 +37,6 @@ class BookingController {
     async getBookingByBranchId(req, res) {
         const { id } = req.params;
         const { status } = req.query;
-        console.log(status);
         return await BookingService.getBookingByBranchId(id, status)
             .then(bookings => res.status(200).json(bookings))
             .catch(error => {
