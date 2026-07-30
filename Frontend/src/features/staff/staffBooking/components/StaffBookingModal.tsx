@@ -106,10 +106,8 @@ const StaffBookingModal = ({ open, onClose, onSuccess, branchId }: StaffBookingM
     const [selectedRoomTypeId, setSelectedRoomTypeId] = useState('');
     const [notes, setNotes] = useState('');
 
-    // Phòng available
-    const [availableRooms, setAvailableRooms] = useState<{ id: string; room_number: string }[]>([]);
-    const [selectedRoomId, setSelectedRoomId] = useState('');
-    const [roomsLoading, setRoomsLoading] = useState(false);
+    // Kiểm tra phòng trống
+    const [checkingAvailability, setCheckingAvailability] = useState(false);
 
     // Data
     const [roomTypes, setRoomTypes] = useState<any[]>([]);
@@ -167,8 +165,6 @@ const StaffBookingModal = ({ open, onClose, onSuccess, branchId }: StaffBookingM
             setDurationHours(2);
             setNumGuests(1);
             setSelectedRoomTypeId('');
-            setAvailableRooms([]);
-            setSelectedRoomId('');
             setNotes('');
             setCustomerSearch('');
             setSelectedCustomer(null);
@@ -179,6 +175,7 @@ const StaffBookingModal = ({ open, onClose, onSuccess, branchId }: StaffBookingM
             setErrorMsg('');
             setSubtotal(0);
             setCalculatingPrice(false);
+            setCheckingAvailability(false);
         }
     }, [open]);
 
@@ -251,55 +248,36 @@ const StaffBookingModal = ({ open, onClose, onSuccess, branchId }: StaffBookingM
         branchId,
     ]);
 
-    // Fetch phòng trống khi đã chọn loại phòng + thời gian
-    useEffect(() => {
-        let active = true;
-        const finalCheckin = bookingType === 'daily' ? checkinAt : hourlyCheckin;
-        const finalCheckout = bookingType === 'daily' ? checkoutAt : hourlyCheckout;
-        const ready = selectedRoomTypeId && branchId && finalCheckin && finalCheckout
-            && (bookingType === 'daily' ? nights > 0 : durationHours >= 1);
-
-        if (!ready) {
-            setAvailableRooms([]);
-            setSelectedRoomId('');
-            return;
-        }
-        setRoomsLoading(true);
-        setSelectedRoomId('');
-
-        const fetchRooms = async () => {
-            try {
-                const availableRoomData = await bookingApi.searchAvailableRooms({
-                    branch_id: branchId,
-                    checkin_at: finalCheckin,
-                    checkout_at: finalCheckout,
-                    room_type_id: selectedRoomTypeId,
-                    booking_type: bookingType,
-                });
-                
-                    console.log('Available rooms data:', availableRoomData);
-                if (!active) return;
-                if(availableRoomData?.results?.[0].is_sold_out){
-                    setAvailableRooms([]);
-                    return;
-                }
-                else{
-                    const rooms = availableRoomData?.results?.[0]?.room_type?.availble_rooms ?? [];
-                    setAvailableRooms(Array.isArray(rooms) ? rooms : []);
-                }
-
-                
-            } catch {
-                if (active) setAvailableRooms([]);
-            } finally {
-                if (active) setRoomsLoading(false);
+    // Kiểm tra phòng trống khi nhấn "Tiếp theo" ở bước 0
+    const handleCheckAvailabilityAndNext = async () => {
+        setCheckingAvailability(true);
+        setErrorMsg('');
+        try {
+            const finalCheckin = bookingType === 'daily' ? checkinAt : hourlyCheckin;
+            const finalCheckout = bookingType === 'daily' ? checkoutAt : hourlyCheckout;
+            const availableRoomData = await bookingApi.searchAvailableRooms({
+                branch_id: branchId,
+                checkin_at: finalCheckin,
+                checkout_at: finalCheckout,
+                room_type_id: selectedRoomTypeId,
+                booking_type: bookingType,
+            });
+            const availableCount = availableRoomData?.results?.[0]?.available_count ?? 0;
+            if (availableCount <= 0) {
+                setErrorMsg('Không có phòng trống trong khoảng thời gian này. Vui lòng chọn thời gian khác hoặc loại phòng khác.');
+            } else {
+                setErrorMsg('');
+                setStep(1);
             }
-        };
-        fetchRooms();
-        return () => { active = false; };
-    }, [bookingType, checkinAt, checkoutAt, hourlyCheckin, hourlyCheckout, selectedRoomTypeId, branchId, nights, durationHours]);
+        } catch (err: any) {
+            console.error(err);
+            setErrorMsg(err?.response?.data?.message ?? 'Không thể kiểm tra phòng trống. Vui lòng thử lại.');
+        } finally {
+            setCheckingAvailability(false);
+        }
+    };
 
-    const step0Valid = selectedRoomTypeId !== '' && selectedRoomId !== '' && numGuests >= 1 && (
+    const step0Valid = selectedRoomTypeId !== '' && numGuests >= 1 && (
         bookingType === 'daily' ? nights > 0 : bookingDate !== '' && startTime !== '' && durationHours >= 1
     );
     const step1Valid = isNewCustomer
@@ -364,7 +342,6 @@ const StaffBookingModal = ({ open, onClose, onSuccess, branchId }: StaffBookingM
 
             const bookingRes = await bookingApi.createBooking({
                 room_type_id: selectedRoomTypeId,
-                assigned_room_id: selectedRoomId || undefined,
                 branch_id: branchId,
                 customer_id: customerId,
                 booking_type: bookingType,
@@ -394,9 +371,9 @@ const StaffBookingModal = ({ open, onClose, onSuccess, branchId }: StaffBookingM
             await paymentApi.createPayment({
                 booking_id: createdBooking.id,
                 payment_method: 'cash',
-                amount: createdBooking?.charge?.total ?? createdBooking?.total_amount ?? 0,
+                amount: createdBooking?.charge?.total ?? 0,
                 status: 'paid',
-                is_deposit: false,
+                is_deposit: true,
                 processed_by: user?.id ?? '',
             });
             message.success('Thanh toán tiền mặt thành công!');
@@ -414,7 +391,7 @@ const StaffBookingModal = ({ open, onClose, onSuccess, branchId }: StaffBookingM
     // Step 3: Thanh toán ZaloPay
     const handlePayZaloPay = async () => {
         if (!createdBooking) return;
-        const amount = Number(createdBooking?.charge?.total ?? createdBooking?.total_amount ?? 0);
+        const amount = Number(createdBooking?.charge?.total ?? 0);
         if (amount <= 0) { message.warning('Không có số tiền thanh toán.'); return; }
         setSubmitting(true);
         try {
@@ -424,7 +401,7 @@ const StaffBookingModal = ({ open, onClose, onSuccess, branchId }: StaffBookingM
                 booking_id: createdBooking.id,
                 booking_code: createdBooking.booking_code,
                 amount,
-                is_deposit: false,
+                is_deposit: true,
             });
             if (zpRes?.order_url)
                 window.location.href = zpRes.order_url;
@@ -615,62 +592,10 @@ const StaffBookingModal = ({ open, onClose, onSuccess, branchId }: StaffBookingM
                                     </div>
                                 )}
 
-                                {/* === Chọn phòng === */}
-                                <div className="flex flex-col gap-2">
-                                    <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-                                        <MdOutlineHotel className="text-gray-400" /> Chọn phòng
-                                        {roomsLoading && <span className="text-xs font-normal text-amber-500">Đang tải...</span>}
-                                    </label>
-
-                                    {/* Chưa đủ điều kiện */}
-                                    {(!selectedRoomTypeId || (bookingType === 'daily' ? nights <= 0 : !bookingDate || !startTime)) && (
-                                        <p className="text-xs text-gray-400 text-center bg-gray-50 border border-dashed border-gray-200 rounded-xl py-3">
-                                            Chọn loại phòng và thời gian để xem phòng trống.
-                                        </p>
-                                    )}
-
-                                    {/* Đang load */}
-                                    {roomsLoading && selectedRoomTypeId && (bookingType === 'daily' ? nights > 0 : bookingDate && startTime) && (
-                                        <div className="flex justify-center py-4">
-                                            <svg className="w-6 h-6 animate-spin text-amber-400" fill="none" viewBox="0 0 24 24">
-                                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
-                                            </svg>
-                                        </div>
-                                    )}
-
-                                    {/* Không có phòng */}
-                                    {!roomsLoading && selectedRoomTypeId && (bookingType === 'daily' ? nights > 0 : bookingDate && startTime) && availableRooms.length === 0 && (
-                                        <p className="text-sm text-red-500 text-center bg-red-50 border border-red-200 rounded-xl py-3">
-                                            Không có phòng trống trong khoảng thời gian này.
-                                        </p>
-                                    )}
-
-                                    {/* Danh sách phòng */}
-                                    {!roomsLoading && availableRooms.length > 0 && (
-                                        <div className="grid grid-cols-3 gap-2">
-                                            {availableRooms.map((room) => (
-                                                <button
-                                                    key={room.id}
-                                                    type="button"
-                                                    onClick={() => setSelectedRoomId(room.id)}
-                                                    className={`flex flex-col items-center py-3 px-2 rounded-xl border-2 cursor-pointer transition-all ${
-                                                        selectedRoomId === room.id
-                                                            ? 'border-amber-500 bg-amber-50'
-                                                            : 'border-gray-200 bg-white hover:border-amber-300'
-                                                    }`}
-                                                >
-                                                    <span className="font-bold text-gray-800 text-sm">Phòng {room.room_number}</span>
-                                                    {selectedRoomId === room.id && (
-                                                        <span className="mt-1 text-xs text-amber-600 font-semibold flex items-center gap-0.5">
-                                                            <IoCheckmarkCircle /> Đã chọn
-                                                        </span>
-                                                    )}
-                                                </button>
-                                            ))}
-                                        </div>
-                                    )}
-                                </div>
+                                {/* Thông báo lỗi kiểm tra phòng */}
+                                {errorMsg && (
+                                    <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-sm text-red-600">{errorMsg}</div>
+                                )}
 
                                 {/* Số khách */}
                                 <div className="flex flex-col gap-1.5">
@@ -698,9 +623,15 @@ const StaffBookingModal = ({ open, onClose, onSuccess, branchId }: StaffBookingM
                                 </div>
 
                                 <div className="flex justify-end pt-2">
-                                    <button disabled={!step0Valid} onClick={() => setStep(1)}
-                                        className="bg-amber-500 hover:bg-amber-600 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-bold px-8 py-2.5 rounded-xl transition-colors cursor-pointer">
-                                        Tiếp theo →
+                                    <button
+                                        disabled={!step0Valid || checkingAvailability}
+                                        onClick={handleCheckAvailabilityAndNext}
+                                        className="bg-amber-500 hover:bg-amber-600 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-bold px-8 py-2.5 rounded-xl transition-colors cursor-pointer flex items-center gap-2"
+                                    >
+                                        {checkingAvailability && (
+                                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                                        )}
+                                        {checkingAvailability ? 'Đang kiểm tra...' : 'Tiếp theo →'}
                                     </button>
                                 </div>
                             </div>
@@ -951,7 +882,7 @@ const StaffBookingModal = ({ open, onClose, onSuccess, branchId }: StaffBookingM
                                     <div className="flex flex-col gap-2 text-sm">
                                         <div className="flex justify-between">
                                             <span className="text-gray-600">Tổng tiền phòng</span>
-                                            <span className="font-semibold text-gray-800">{formatVND(Number(createdBooking?.charge?.total ?? createdBooking?.total_amount ?? 0))}</span>
+                                            <span className="font-semibold text-gray-800">{formatVND(Number(createdBooking?.charge?.total ?? 0))}</span>
                                         </div>
                                         {Number(createdBooking?.charge?.discount ?? 0) > 0 && (
                                             <div className="flex justify-between">
@@ -959,16 +890,6 @@ const StaffBookingModal = ({ open, onClose, onSuccess, branchId }: StaffBookingM
                                                 <span className="font-semibold text-green-600">- {formatVND(Number(createdBooking?.charge?.discount ?? 0))}</span>
                                             </div>
                                         )}
-                                        {Number(createdBooking?.charge?.deposited ?? 0) > 0 && (
-                                            <div className="flex justify-between">
-                                                <span className="text-gray-600">Đã đặt cọc</span>
-                                                <span className="font-semibold text-blue-600">- {formatVND(Number(createdBooking?.charge?.deposited ?? 0))}</span>
-                                            </div>
-                                        )}
-                                        <div className="border-t border-gray-200 pt-2 mt-1 flex justify-between">
-                                            <span className="font-bold text-gray-800">Cần thanh toán</span>
-                                            <span className="font-bold text-xl text-amber-600">{formatVND(Number(createdBooking?.charge?.balance ?? createdBooking?.charge?.total ?? 0))}</span>
-                                        </div>
                                     </div>
                                 </div>
 
