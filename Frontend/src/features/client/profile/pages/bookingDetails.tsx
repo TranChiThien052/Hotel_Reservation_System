@@ -24,7 +24,6 @@ import {
 import { HiOutlineClock, HiOutlineXCircle } from "react-icons/hi";
 import { BsDoorOpen, BsDoorClosed, BsReceipt } from "react-icons/bs";
 import RefundModal, {
-  calcRefund,
   getBookingAmounts,
 } from "../components/RefundModal";
 
@@ -294,16 +293,16 @@ const BookingDetails = () => {
   );
   const grandTotal = amounts.totalAmount + servicesTotalAmount;
 
-  const handleAvailableTimeForRefund = () => {
-    const currentTime = Date.now();
-    const checkinTime = new Date(booking.checkin_at).getTime();
+//   const handleAvailableTimeForRefund = () => {
+//     const currentTime = Date.now();
+//     const checkinTime = new Date(booking.checkin_at).getTime();
 
-    const remainingTime = checkinTime - currentTime;
-    const twentyFourHoursInMs = 24 * 60 * 60 * 1000;
+//     const remainingTime = checkinTime - currentTime;
+//     const twentyFourHoursInMs = 24 * 60 * 60 * 1000;
 
-    // Trả về true nếu thời gian còn lại nhỏ hơn hoặc bằng 24h VÀ lớn hơn 0 (chưa qua giờ check-in)
-    return remainingTime <= twentyFourHoursInMs && remainingTime > 0;
-  };
+//     // Trả về true nếu thời gian còn lại nhỏ hơn hoặc bằng 24h VÀ lớn hơn 0 (chưa qua giờ check-in)
+//     return remainingTime <= twentyFourHoursInMs && remainingTime > 0;
+//   };
 
   /* Điều kiện hiển thị nút hoàn tiền */
   const canRequestRefund =

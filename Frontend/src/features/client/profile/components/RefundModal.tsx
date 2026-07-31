@@ -1,7 +1,5 @@
 import { useState } from 'react';
 import type { Booking } from '@/features/staff/staffBooking/types/booking-type';
-import { IoCheckmarkCircle } from 'react-icons/io5';
-import { FaExclamationTriangle } from 'react-icons/fa';
 import { MdOutlineMoneyOffCsred } from 'react-icons/md';
 
 
