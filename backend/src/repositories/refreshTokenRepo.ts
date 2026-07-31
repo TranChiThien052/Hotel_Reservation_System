@@ -14,12 +14,24 @@ class RefreshTokenRepository {
     }
 
     async getRefreshTokenByAccountId(accountId) {
+        await prisma.refresh_tokens.updateMany({
+            where: {
+                is_revoked: false,
+                expires_at: {
+                    gt: new Date(),
+                },
+            },
+            data: {
+                is_revoked: true,
+            }
+        });
         return await prisma.refresh_tokens.findMany({
             where: {
                 account_id: accountId,
                 is_revoked: false,
             },
         });
+
     }
 
     async updateRefreshToken(id, data) {

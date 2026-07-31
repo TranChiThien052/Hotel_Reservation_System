@@ -1,7 +1,25 @@
 import { prisma } from '../config/prisma';
+import { booking_status } from '../generated/prisma/enums';
 
 class RoomAvailabilityRepository {
     async getAvaibleRoomCount(branch_id, checkin, checkout, room_type_id?) {
+        await prisma.bookings.updateMany({
+            where: {
+                status: "pending",
+                expires_at: {
+                    lt: new Date(),
+                },
+                payments: {
+                    none: {
+                        status: "paid",
+                    },
+                },
+            },
+            data: {
+                status: "cancelled",
+                notes: "Đã hủy vì không thanh toán cọc",
+            },
+        });
         const roomCondition: any = {
             branch_id: branch_id,
             status: {
@@ -37,6 +55,8 @@ class RoomAvailabilityRepository {
             where: bookingCondition
         });
 
+        console.log(roomCount - bookingCount);
+
         return Number(roomCount - bookingCount);
     }
 
@@ -61,6 +81,23 @@ class RoomAvailabilityRepository {
     }
 
     async getOverlappingBookingCount(branchId: string, checkinAt: Date, checkoutAt: Date, roomTypeId?: string) {
+        await prisma.bookings.updateMany({
+            where: {
+                status: "pending",
+                expires_at: {
+                    lt: new Date(),
+                },
+                payments: {
+                    none: {
+                        status: "paid",
+                    },
+                },
+            },
+            data: {
+                status: "cancelled",
+                notes: "Đã hủy vì không thanh toán cọc",
+            },
+        });
         const whereClause: any = {
             branch_id: branchId,
             status: {
