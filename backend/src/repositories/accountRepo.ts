@@ -208,6 +208,8 @@ class AccountRepository {
             const account = await tx.accounts.create({
                 data: data.account,
             })
+            if (!account)
+                throw new Error("Failed to create account");
             const user = await tx.staff.create({
                 data: {
                     ...data.user,
