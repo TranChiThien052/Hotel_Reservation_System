@@ -538,7 +538,7 @@ class AccountService {
 
     async createAdmin() {
         const existingAdmin = await AccountRepository.getAccountByRole("admin");
-        if (existingAdmin)
+        if (existingAdmin.length > 0)
             throw new ValidationError('500', "Admin account already exists");
 
         const data = {
