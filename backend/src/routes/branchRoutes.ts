@@ -1,8 +1,19 @@
 import express from 'express';
 import BranchController from '../controllers/branchController';
 import { authorize } from '../middlewares/authorizer';
+import axios from 'axios';
 
 const router = express.Router();
+
+router.get('/provinces', async (req, res) => {
+    try {
+        const response = await axios.get('https://provinces.open-api.vn/api/v2/');
+        const result = response.data.map((province) => province.name)
+        return res.status(200).json(result);
+    } catch (error) {
+        return res.status(500).json({ message: error });
+    }
+})
 
 /**
  * @swagger

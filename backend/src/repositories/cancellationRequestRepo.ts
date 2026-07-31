@@ -68,7 +68,7 @@ class CancellationRequestRepository {
             });
             const { bookings, ...after } = updatedCancellationRequest;
             const changes = Object.keys(data);
-            const history = await tx.history_transaction.create({
+            await tx.history_transaction.create({
                 data: {
                     action: 'Update',
                     account_id: updatedCancellationRequest.resolved_by,
@@ -91,6 +91,7 @@ class CancellationRequestRepository {
                     data: {
                         status: 'cancelled',
                         updated_at: new Date(),
+                        notes: 'Đơn đặt phòng đã hủy theo yêu cầu của khách hàng',
                     }
                 });
                 await tx.history_transaction.create({
