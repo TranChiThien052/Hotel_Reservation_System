@@ -24,7 +24,7 @@ export const branchApi = {
         return res.data;
     },
     getCityOptions: async () => {
-        const res = await apiClient.get('https://provinces.open-api.vn/api/v2/');
+        const res = await apiClient.get('/branches/provinces');
         return res.data;
     }
 };

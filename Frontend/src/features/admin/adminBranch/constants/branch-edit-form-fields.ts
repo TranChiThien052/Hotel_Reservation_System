@@ -30,7 +30,7 @@ export const branchEditFormFields: FormField<BranchFormData>[] = [
                 message: "Vui lòng nhập thành phố"
             }
         ],
-        customData: (data: any[]) => data.map((item) => ({ label: item.name, value: item.name })) // Chuyển đổi dữ liệu thành format { label, value }
+        customData: (data: any[]) => data.map((item) => ({ label: item, value: item })) // Chuyển đổi dữ liệu thành format { label, value }
     },
     {
         key: "address",
