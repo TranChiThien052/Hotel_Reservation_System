@@ -59,9 +59,6 @@ const footer = () => {
             <div className="cursor-pointer w-fit hover:text-orange-400">
               Hồ bơi & Gym
             </div>
-            <div className="cursor-pointer w-fit hover:text-orange-400">
-              Hội nghị & Sự kiện
-            </div>
           </div>
 
           <div className="flex flex-col gap-4">
@@ -72,7 +69,7 @@ const footer = () => {
             </div>
             <div className="flex items-center gap-2">
               <CgMail className="text-orange-400" />
-              hoteline@aurorahotel.com
+              stu.hoteltest@gmail.com
             </div>
             <div className="flex items-center gap-2">
               <FiPhone className="text-orange-400" />
