@@ -1,7 +1,5 @@
 import { useState } from 'react';
 import type { Booking } from '@/features/staff/staffBooking/types/booking-type';
-import { IoCheckmarkCircle } from 'react-icons/io5';
-import { FaExclamationTriangle } from 'react-icons/fa';
 import { MdOutlineMoneyOffCsred } from 'react-icons/md';
 
 
@@ -167,13 +165,13 @@ const RefundModal = ({ booking, onClose, onConfirm, submitting }: RefundModalPro
                         <MdOutlineMoneyOffCsred className="text-red-500 text-2xl" />
                     </div>
                     <div>
-                        <h3 className="font-bold text-gray-900 text-lg">Yêu cầu hoàn tiền</h3>
+                        <h3 className="font-bold text-gray-900 text-lg">Yêu cầu hủy đặt phòng</h3>
                         <p className="text-xs text-gray-400">Đơn #{booking.booking_code}</p>
                     </div>
                 </div>
 
                 {/* Thông tin số tiền hoàn */}
-                <div className={`rounded-xl border-2 p-4 mb-4 ${
+                {/* <div className={`rounded-xl border-2 p-4 mb-4 ${
                     refund.isFullRefund ? 'bg-green-50 border-green-200' : 'bg-amber-50 border-amber-200'
                 }`}>
                     <div className="flex items-start gap-2">
@@ -194,10 +192,10 @@ const RefundModal = ({ booking, onClose, onConfirm, submitting }: RefundModalPro
                             </div>
                         </div>
                     </div>
-                </div>
+                </div> */}
 
                 {/* Chính sách */}
-                <div className="bg-blue-50 border border-blue-100 rounded-xl p-3 mb-4">
+                {/* <div className="bg-blue-50 border border-blue-100 rounded-xl p-3 mb-4">
                     <p className="text-xs text-blue-700 font-semibold mb-1">📋 Chính sách hoàn tiền</p>
                     <ul className="text-xs text-blue-600 space-y-1 list-disc list-inside">
                         <li>Hủy trong vòng <strong>24 giờ</strong> sau khi đặt → hoàn <strong>100%</strong></li>
@@ -205,7 +203,7 @@ const RefundModal = ({ booking, onClose, onConfirm, submitting }: RefundModalPro
                         <li>Chỉ áp dụng cho đặt phòng <strong>theo ngày</strong></li>
                         <li>Yêu cầu sẽ được gửi đến quản lý chi nhánh để xét duyệt</li>
                     </ul>
-                </div>
+                </div> */}
 
                 {/* Lý do */}
                 <div className="mb-5">

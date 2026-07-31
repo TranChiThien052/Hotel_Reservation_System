@@ -80,8 +80,8 @@ const FILTER_TABS: { key: BookingStatus; label: string }[] = [
     { key: 'all', label: 'Tất cả' },
     { key: 'pending', label: 'Chờ xác nhận' },
     { key: 'confirmed', label: 'Đã xác nhận' },
-    { key: 'checked_in', label: 'Đang lưu trú' },
-    { key: 'checked_out', label: 'Đã trả phòng' },
+    // { key: 'checked_in', label: 'Đang lưu trú' },
+    // { key: 'checked_out', label: 'Đã trả phòng' },
     { key: 'completed', label: 'Hoàn thành' },
     { key: 'cancelled', label: 'Đã hủy' },
 ];
