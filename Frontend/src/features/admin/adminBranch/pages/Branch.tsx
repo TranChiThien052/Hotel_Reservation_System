@@ -97,7 +97,7 @@ const Branches = () => {
 
   const handleOpenModal = (mode: FormModalMode, branch?: Branch) => {
     setModalMode(mode);
-    if (branch && mode === FormModalModes.UPDATE) {
+    if (branch && (mode === FormModalModes.UPDATE || mode === FormModalModes.VIEW)) {
       setEditingId(branch.id);
       setSelectedBranch({
         name: branch.name,
