@@ -216,7 +216,6 @@ class AccountRepository {
                     account_id: account.id,
                 }
             })
-            throw new Error("Rollback for test");
             return {
                 account: account,
                 user: user,
