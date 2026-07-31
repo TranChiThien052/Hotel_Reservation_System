@@ -87,9 +87,7 @@ router.get('/branch/:id', RoomPriceController.getRoomPriceByBranchId);
  *       200:
  *         description: Successful operation
  */
-router.get('/', (req, res) => {
-    authorize(req, res, ["customer", "staff", "manager", "admin"], () => RoomPriceController.getAllRoomPrices(req, res))
-});
+router.get('/', RoomPriceController.getAllRoomPrices);
 
 /**
  * @swagger
@@ -108,9 +106,7 @@ router.get('/', (req, res) => {
  *       200:
  *         description: Successful operation
  */
-router.get('/:id', (req, res) => {
-    authorize(req, res, ["customer", "staff", "manager", "admin"], () => RoomPriceController.getRoomPriceById(req, res))
-});
+router.get('/:id', RoomPriceController.getRoomPriceById);
 
 /**
  * @swagger
