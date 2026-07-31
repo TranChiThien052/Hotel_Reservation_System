@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Modal,
   Descriptions,
@@ -78,7 +78,14 @@ const DetailCancellationRequestModal = ({
   const [adminNote, setAdminNote] = useState<string>("");
   const [updating, setUpdating] = useState(false);
 
+  useEffect(() => {
+    if (open) {
+      setAdminNote(cancellationRequest?.notes || "");
+    }
+  }, [open, cancellationRequest]);
+
   if (!cancellationRequest) return null;
+  
 
   const handleUpdate = async () => {
     if (!newStatus) {
@@ -94,7 +101,7 @@ const DetailCancellationRequestModal = ({
 
       message.success("Cập nhật trạng thái thành công!");
       setNewStatus("");
-      setAdminNote("");
+      setAdminNote(cancellationRequest.notes || "");
       onUpdated();
       onClose();
     } catch (err) {
@@ -104,6 +111,7 @@ const DetailCancellationRequestModal = ({
       setUpdating(false);
     }
   };
+
 
 
   return (
@@ -148,10 +156,6 @@ const DetailCancellationRequestModal = ({
                 {cancellationRequest.reason || "—"}
               </Descriptions.Item>
 
-              <Descriptions.Item label="Ghi chú" span={2}>
-                {cancellationRequest.notes || "—"}
-              </Descriptions.Item>
-
               <Descriptions.Item label="Ngày tạo" span={1}>
                 {formatDate(cancellationRequest.created_at)}
               </Descriptions.Item>
@@ -193,7 +197,7 @@ const DetailCancellationRequestModal = ({
               </Descriptions.Item>
 
               <Descriptions.Item label="Loại đặt phòng" span={1}>
-                {cancellationRequest.bookings?.booking_type || "—"}
+                {cancellationRequest.bookings?.booking_type === 'hourly' ? 'Theo giờ': 'Theo ngày'}
               </Descriptions.Item>
 
               <Descriptions.Item label="Giá phòng gốc" span={1}>
