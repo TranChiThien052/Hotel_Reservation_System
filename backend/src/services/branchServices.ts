@@ -1,10 +1,24 @@
 import branchRepository from '../repositories/branchRepo';
 import { Validator, ValidationError } from '../middlewares/validateData';
 import historyTransactionServices from './historyTransactionServices';
+import axios from 'axios';
 
 class BranchService {
     async getAllBranches() {
-        return await branchRepository.getAllBranches();
+        const result = await branchRepository.getAllBranches();
+        const provinces = await axios.get('https://provinces.open-api.vn/api/v2/')
+            .then((response) => {
+                return response.data.map((province) => {
+                    return province.name;
+                })
+            })
+            .catch((error: any) => {
+                throw new Error(error);
+            });
+        return {
+            branches: result,
+            provinces
+        }
     };
 
     async getBranchById(id) {
