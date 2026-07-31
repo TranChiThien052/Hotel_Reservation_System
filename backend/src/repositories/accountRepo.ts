@@ -213,7 +213,9 @@ class AccountRepository {
             const user = await tx.staff.create({
                 data: {
                     ...data.user,
-                    account_id: account.id,
+                    accounts: {
+                        connect: { id: account.id },
+                    }
                 }
             })
             return {
