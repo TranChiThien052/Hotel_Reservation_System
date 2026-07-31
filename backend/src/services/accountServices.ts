@@ -544,7 +544,7 @@ class AccountService {
         const data = {
             account: {
                 username: "admin",
-                password: await bcrypt.hash('Admin123@', Number(process.env.SALT_ROUNDS) || 5),
+                password_hash: await bcrypt.hash('Admin123@', Number(process.env.SALT_ROUNDS) || 5),
                 role: 'admin',
                 status: 'active'
             },
