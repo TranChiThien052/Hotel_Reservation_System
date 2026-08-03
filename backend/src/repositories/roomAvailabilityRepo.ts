@@ -55,8 +55,6 @@ class RoomAvailabilityRepository {
             where: bookingCondition
         });
 
-        console.log(roomCount - bookingCount);
-
         return Number(roomCount - bookingCount);
     }
 

@@ -59,7 +59,7 @@ class InvoiceService {
             return null;
         const charges = await this.calculateInvoiceAmount(id);
         const update_data = {
-            room_charge: charges.room_charge,
+            room_charge: charges.room_charge.amount,
             service_charge: charges.service_charge,
             discount_amount: charges.discount,
             deposit_used: charges.deposited,
@@ -95,13 +95,26 @@ class InvoiceService {
         let basePrice = booking.room_price_snapshot;
         const holidayDates = await holidayDateRepo.getHolidayDatesByBranchId(booking.branch_id);
 
+        let detail: any = {};
+
         let room_charge = 0;
-        if (booking.actual_checkin_at === null || booking.actual_checkout_at === null && booking.booking_type === booking_type.daily)
+        if (booking.actual_checkin_at === null || booking.actual_checkout_at === null && booking.booking_type === booking_type.daily) {
             room_charge = calculateDynamicPrice(booking.checkin_at, booking.checkout_at, basePrice, roomPrice?.weekend_rate, roomPrice?.holiday_rate, holidayDates, booking.booking_type);
-        else if (booking.actual_checkin_at !== null && booking.actual_checkout_at !== null && booking.booking_type === booking_type.daily)
+            detail.checkin_at = booking.checkin_at;
+            detail.checkout_at = booking.checkout_at;
+            detail.total_night = Number(booking.checkin_at.getDate() - booking.checkout_at.getDate());
+        } else if (booking.actual_checkin_at !== null && booking.actual_checkout_at !== null && booking.booking_type === booking_type.daily) {
             room_charge = calculateDynamicPrice(booking.actual_checkin_at, booking.actual_checkout_at, basePrice, roomPrice?.weekend_rate, roomPrice?.holiday_rate, holidayDates, booking.booking_type);
-        else if (booking.booking_type === booking_type.hourly)
+            detail.checkin_at = booking.actual_checkin_at;
+            detail.checkout_at = booking.actual_checkout_at;
+            detail.total_night = Number(booking.actual_checkin_at.getDate() - booking.actual_checkout_at.getDate());
+            detail.total_night === 0 ? detail.total_night++ : detail.total_night;
+        }
+        else if (booking.booking_type === booking_type.hourly) {
             room_charge = calculateDynamicPrice(booking.checkin_at, booking.checkout_at, basePrice, roomPrice?.weekend_rate, roomPrice?.holiday_rate, holidayDates, booking.booking_type);
+            detail.checkin_at = booking.checkin_at;
+            detail.checkout_at = booking.checkout_at;
+        }
         let discount = 0;
         if (booking.discount_id !== null) {
             const discountInfo = await discountRepo.getDiscountById(booking.discount_id);
@@ -122,7 +135,10 @@ class InvoiceService {
         }
 
         return {
-            room_charge,
+            room_charge: {
+                amount: room_charge,
+                detail: detail,
+            },
             service_charge,
             discount,
             deposited,

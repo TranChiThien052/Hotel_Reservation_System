@@ -12,6 +12,7 @@ import historyTransactionServices from './historyTransactionServices';
 import roomPriceServices from './roomPriceServices';
 import roomServices from './roomServices';
 import roomRepo from '../repositories/roomRepo';
+import { room_status } from '../generated/prisma/enums';
 
 class BookingService {
     async getAllBookings() {
@@ -198,7 +199,7 @@ class BookingService {
         }
 
         if (validator.validateDateOrder(validatedData.checkin_at, validatedData.checkout_at))
-            if (new Date(validatedData.checkin_at) < new Date())
+            if (new Date(validatedData.checkin_at).getDate() < new Date().getDate())
                 validator.pushError("Check-in date must be in the future");
             else {
                 validatedData.checkin_at = new Date(validatedData.checkin_at);
@@ -337,7 +338,7 @@ class BookingService {
             }
         } else if (validatedData.checkin_at) {
             if (validator.validateDate(validatedData.checkin_at)) {
-                if (new Date(validatedData.checkin_at) < new Date()) {
+                if (new Date(validatedData.checkin_at).getDate() < new Date().getDate()) {
                     validator.pushError("Check-in date must be in the future");
                 } else if (new Date(validatedData.checkin_at) >= new Date(existingBooking.checkout_at)) {
                     validator.pushError("Check-in date must be before the existing booking's check-out date");
@@ -346,9 +347,9 @@ class BookingService {
             }
         } else if (validatedData.checkout_at) {
             if (validator.validateDate(validatedData.checkout_at)) {
-                if (new Date(validatedData.checkout_at) < new Date()) {
+                if (new Date(validatedData.checkout_at).getDate() < new Date().getDate()) {
                     validator.pushError("Check-out date must be in the future");
-                } else if (new Date(validatedData.checkout_at) <= new Date(existingBooking.checkin_at)) {
+                } else if (new Date(validatedData.checkout_at).getDate() <= new Date(existingBooking.checkin_at).getDate()) {
                     validator.pushError("Check-out date must be after the existing booking's check-in date");
                 }
                 validatedData.checkout_at = new Date(validatedData.checkout_at);
@@ -394,11 +395,16 @@ class BookingService {
             throw new ValidationError('400', validator.clearError());
         }
 
-        if (validatedData.assigned_room_id && validatedData.status === 'checked_in')
-            await roomServices.updateRoom(validatedData.assigned_room_id, { status: "occupied" });
+        if (validatedData.assigned_room_id && validatedData.status === 'checked_in') {
+            const room = await roomServices.getRoomById(validatedData.assigned_room_id);
+            if (room?.status === room_status.available)
+                await roomServices.updateRoom(validatedData.assigned_room_id, { status: "occupied" });
+            else throw new ValidationError('409', 'Room is not ready');
+        }
 
-        if (validatedData.assigned_room_id && validatedData.status === 'checked_out')
+        if (validatedData.assigned_room_id && validatedData.status === 'checked_out') {
             await roomServices.updateRoom(validatedData.assigned_room_id, { status: 'available' });
+        }
 
         const roomPrice = await RoomPriceRepository.getRoomPricesByRoomTypeId(validatedData.room_type_id);
         const holidays = await HolidayDateRepository.getHolidayDatesByBranchId(validatedData.branch_id);
@@ -458,8 +464,10 @@ class BookingService {
             throw new ValidationError('400', validator.clearError());
         }
 
-        if (validatedData.status === 'completed')
-            await roomRepo.updateRoom(existingBooking.assigned_room_id, { status: 'available' });
+        if (validatedData.status === 'completed') {
+            if (existingBooking.assigned_room_id)
+                await roomRepo.updateRoom(existingBooking.assigned_room_id, { status: 'available' });
+        }
 
         validatedData.updated_at = new Date();
         try {
