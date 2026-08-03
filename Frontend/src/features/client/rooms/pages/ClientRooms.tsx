@@ -20,7 +20,6 @@ const PRICE_RANGES = [
 const ClientRooms = () => {
   const [allRoomTypes, setAllRoomTypes] = useState<RoomTypeWithPrice[]>([]);
   const [loading, setLoading] = useState(false);
-  const [roomTypeNames, setRoomTypeNames] = useState<string[]>([]);
   const [branchData, setBranchData] = useState<Branch[]>([]);
 
  
@@ -35,6 +34,24 @@ const ClientRooms = () => {
   const [selectedGuests, setSelectedGuests] = useState("Tất cả");
   const [selectedPrice, setSelectedPrice] = useState(0);
 
+  // Danh sách tên loại phòng tự động cập nhật theo chi nhánh đã chọn
+  const roomTypeNames = Array.from(
+    new Set(
+      (selectedBranch === "Tất cả"
+        ? allRoomTypes
+        : allRoomTypes.filter((rt) => rt.branches?.name === selectedBranch)
+      ).map((rt) => rt.name)
+    )
+  );
+  const availableTypeOptions = ["Tất cả", ...roomTypeNames];
+
+  // Nếu loại phòng đang chọn không nằm trong chi nhánh mới chọn -> reset về "Tất cả"
+  useEffect(() => {
+    if (selectedType !== "Tất cả" && !roomTypeNames.includes(selectedType)) {
+      setSelectedType("Tất cả");
+    }
+  }, [selectedBranch, roomTypeNames, selectedType]);
+
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
@@ -48,9 +65,6 @@ const ClientRooms = () => {
       const rpList: any[] = Array.isArray(rpData) ? rpData : [];
       const branchList: Branch[] = Array.isArray(bData) ? bData : [];
       setBranchData(branchList);
-
-      const uniqueNames = ["Tất cả", ...Array.from(new Set<string>(rtList.map((rt) => rt.name)))];
-      setRoomTypeNames(uniqueNames);
 
       const merged: RoomTypeWithPrice[] = rtList
         .filter((rt) => rt.is_active !== false)
@@ -222,7 +236,7 @@ const ClientRooms = () => {
             <div className="mb-6">
               <p className="text-sm font-semibold text-gray-700 mb-3">Loại phòng</p>
               <div className="flex flex-col gap-2">
-                {roomTypeNames.map((type) => (
+                {availableTypeOptions.map((type) => (
                   <label
                     key={type}
                     className="flex items-center gap-2 cursor-pointer text-sm text-gray-700 hover:text-orange-500 transition-colors"
