@@ -129,6 +129,17 @@ const StaffInvoicePage = () => {
         }
     };
 
+    const handleCompleteBooking = async () => {
+        if (!booking) return;
+        try {
+            await bookingApi.updateBooking(booking.id, { status: 'completed' } as any);
+            message.success('Đã chuyển trạng thái booking thành Hoàn thành!');
+            setPaidSuccess(true);
+        } catch {
+            message.error('Cập nhật trạng thái thất bại!');
+        }
+    };
+
     if (loading) return (
         <div className="min-h-screen flex items-center justify-center bg-gray-50">
             <Spin size="large" tip="Đang tạo hóa đơn..." />
@@ -261,12 +272,24 @@ const StaffInvoicePage = () => {
                         )}
 
                         {isAlreadyPaid && (
-                            <div className="bg-green-50 border border-green-200 rounded-2xl p-5 flex items-center gap-3">
-                                <CheckCircleOutlined className="text-green-500 text-2xl" />
-                                <div>
-                                    <p className="font-bold text-green-700">Hóa đơn đã được thanh toán</p>
-                                    <p className="text-xs text-green-600">Booking đã hoàn tất, không cần thu thêm.</p>
+                            <div className="bg-green-50 border border-green-200 rounded-2xl p-5 flex items-center justify-between gap-3 flex-wrap">
+                                <div className="flex items-center gap-3">
+                                    <CheckCircleOutlined className="text-green-500 text-2xl" />
+                                    <div>
+                                        <p className="font-bold text-green-700">Hóa đơn đã được thanh toán</p>
+                                        <p className="text-xs text-green-600">Booking đã thanh toán đủ, không cần thu thêm.</p>
+                                    </div>
                                 </div>
+                                {booking.status !== 'completed' && (
+                                    <Button
+                                        type="primary"
+                                        icon={<CheckCircleOutlined />}
+                                        onClick={handleCompleteBooking}
+                                        style={{ background: '#10b981', borderColor: '#10b981' }}
+                                    >
+                                        Hoàn thành
+                                    </Button>
+                                )}
                             </div>
                         )}
                     </>
