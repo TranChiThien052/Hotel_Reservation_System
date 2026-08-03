@@ -14,7 +14,8 @@ export const managerRoomPricesFormFields: FormField<RoomPriceFormData>[] = [
                 const branchId = store.getState().auth.user?.branch_id || "";
                 return roomTypesApi.getRoomTypeByBranchId(branchId);
             },
-            customData: (data: any[]) => data.map((item) => ({label: item.name, value: item.id}))
+            customData: (data: any[]) => data.map((item) => ({label: item.name, value: item.id})),
+            hideInUpdateMode: true
         },
         {
             key: "price_per_day",

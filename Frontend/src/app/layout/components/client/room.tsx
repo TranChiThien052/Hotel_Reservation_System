@@ -3,7 +3,7 @@ import { MdStar, MdStarHalf, MdStarBorder } from 'react-icons/md';
 import { FaRegUser } from 'react-icons/fa6';
 import { useNavigate } from 'react-router-dom';
 
-// ── Types ─────────────────────────────────────────────────────────────────────
+
 export interface RoomImage {
     image_url: string;
     image_public_id: string;
@@ -30,7 +30,7 @@ export interface RoomPrice {
     effective_to?: string;
 }
 
-// RoomTypeWithPrice — type dùng cho card
+
 export interface RoomTypeWithPrice extends RoomType {
     room_price?: RoomPrice | null;
 }
@@ -40,7 +40,7 @@ interface RoomProps {
     room: RoomTypeWithPrice;
 }
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
+
 const RATING = 4.5;
 const formatVND = (n: number) => n.toLocaleString('vi-VN') + 'đ';
 
@@ -55,7 +55,7 @@ const StarRating = ({ rating }: { rating: number }) => (
     </div>
 );
 
-// ── Component ─────────────────────────────────────────────────────────────────
+
 const Room = ({ room: rt }: RoomProps) => {
     const navigate = useNavigate();
 
@@ -79,19 +79,19 @@ const Room = ({ room: rt }: RoomProps) => {
     return (
         <div className="group bg-white rounded-2xl border border-gray-200 overflow-hidden hover:shadow-xl transition-all duration-300">
 
-            {/* ── Ảnh ── */}
+            
             <div className="relative w-full aspect-video overflow-hidden">
                 <img
                     src={imgSrc}
                     alt={rt.name}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 />
-                {/* Badge số khách */}
+                
                 <div className="absolute top-3 right-3 flex items-center gap-1.5 bg-white/90 backdrop-blur-sm text-gray-700 text-xs font-medium px-2.5 py-1.5 rounded-lg shadow">
                     <FaRegUser className="text-gray-500" />
                     {rt.max_guests} khách
                 </div>
-                {/* Badge chi nhánh */}
+                
                 {rt.branches?.name && (
                     <div className="absolute top-3 left-3 bg-gray-900/75 backdrop-blur-sm text-white text-xs font-medium px-2.5 py-1.5 rounded-lg">
                         {rt.branches.name}
@@ -99,10 +99,10 @@ const Room = ({ room: rt }: RoomProps) => {
                 )}
             </div>
 
-            {/* ── Nội dung ── */}
+            
             <div className="p-5 flex flex-col gap-3">
 
-                {/* Badge loại + Stars */}
+                
                 <div className="flex items-center justify-between">
                     <span className="text-xs font-bold uppercase tracking-widest text-amber-600 bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-full">
                         {rt.name}
@@ -110,21 +110,21 @@ const Room = ({ room: rt }: RoomProps) => {
                     <StarRating rating={RATING} />
                 </div>
 
-                {/* Tiêu đề */}
+               
                 <h3 className="font-bold text-xl text-gray-900 leading-snug">
                     Phòng {rt.name}
                 </h3>
 
-                {/* Mô tả */}
+                
                 {rt.description && (
                     <p className="text-gray-500 text-sm leading-relaxed line-clamp-2">
                         {rt.description}
                     </p>
                 )}
 
-                {/* ── Giá + Nút ── */}
+                
                 <div className="flex items-end justify-between pt-3 mt-1 border-t border-gray-100">
-                    {/* Giá */}
+                    
                     <div>
                         {priceNum ? (
                             <>
@@ -148,7 +148,7 @@ const Room = ({ room: rt }: RoomProps) => {
                         )}
                     </div>
 
-                    {/* Nút xem chi tiết */}
+                    
                     <button
                         onClick={() => navigate(`/rooms/type/${rt.id}`)}
                         className="bg-gray-900 hover:bg-gray-700 text-white text-sm font-semibold px-4 py-2.5 rounded-xl transition-colors duration-200 shrink-0 cursor-pointer"

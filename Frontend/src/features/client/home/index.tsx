@@ -18,6 +18,8 @@ import { roomsAvailableApi, type SearchRoomsAvailableParams } from "../rooms/api
 
 
 
+const today = new Date().toISOString().split("T")[0];
+
 const index = () => {
   const [roomTypes, setRoomTypes] = useState<RoomTypeWithPrice[]>([]);
   const [branches, setBranches] = useState<Branch[]>([]);
@@ -94,14 +96,13 @@ const index = () => {
     } finally {
       setLoading(false);
     }
-  }
-  console.log("branches", branches);
+  };
 
-    const handleViewAllRooms = () => {
-      sessionStorage.removeItem("client_room_search_params");
-      sessionStorage.removeItem("client_room_search_results");
-      navigate("/rooms");
-    }
+  const handleViewAllRooms = () => {
+    sessionStorage.removeItem("client_room_search_params");
+    sessionStorage.removeItem("client_room_search_results");
+    navigate("/rooms");
+  };
   return (
     <div>
       <div className="relative">
@@ -126,14 +127,21 @@ const index = () => {
               <p className="text-gray-600">NHẬN PHÒNG</p>
               <input
                 className=" cursor-pointer border border-gray-300 bg-gray-100 rounded-lg p-3 w-full hover:border-orange-400"
-                type="date" onChange={(e) => setSearchParams({ ...searchParams, checkin_at: e.target.value })}
+                type="date"
+                min={today}
+                value={searchParams.checkin_at}
+                onChange={(e) => setSearchParams({ ...searchParams, checkin_at: e.target.value, checkout_at: "" })}
               />
             </div>
             <div className="flex flex-col items-center w-full gap-2 font-bold">
               <p className="text-gray-600">TRẢ PHÒNG</p>
               <input
                 className="cursor-pointer border border-gray-300 bg-gray-100 rounded-lg p-3 w-full hover:border-orange-400"
-                type="date" onChange={(e) => setSearchParams({ ...searchParams, checkout_at: e.target.value })}
+                type="date"
+                min={searchParams.checkin_at || today}
+                value={searchParams.checkout_at}
+                disabled={!searchParams.checkin_at}
+                onChange={(e) => setSearchParams({ ...searchParams, checkout_at: e.target.value })}
               />
             </div>
             <div className="flex flex-col items-center w-full gap-2 font-bold">
