@@ -5,9 +5,9 @@ import { roomPricesApi } from "@/features/admin/adminRoomsPrices/api/roomPrices-
 import Room, { type RoomTypeWithPrice } from "@/app/layout/components/client/room";
 import { branchApi } from "@/features/admin/adminBranch/api/admin-api";
 import type { Branch } from "@/features/admin/adminBranch/types/branch-type";
-import { roomsAvailableApi, type SearchRoomsAvailableParams } from "../api/rooms-api";
+import { type SearchRoomsAvailableParams } from "../api/rooms-api";
 
-// ── Constants ────────────────────────────────────────────────────────────────
+
 const GUEST_OPTIONS = ["Tất cả", "1", "2", "3", "4+"];
 const PRICE_RANGES = [
   { label: "Tất cả", min: 0, max: Infinity },
@@ -18,16 +18,17 @@ const PRICE_RANGES = [
 ];
 
 const ClientRooms = () => {
-  const [roomTypes, setRoomTypes] = useState<RoomTypeWithPrice[]>([]);
+  const [allRoomTypes, setAllRoomTypes] = useState<RoomTypeWithPrice[]>([]);
   const [loading, setLoading] = useState(false);
   const [roomTypeNames, setRoomTypeNames] = useState<string[]>([]);
   const [branchData, setBranchData] = useState<Branch[]>([]);
 
-  // Active search params & available type IDs from Home search
+ 
   const [activeSearchParams, setActiveSearchParams] = useState<SearchRoomsAvailableParams | null>(null);
-  const [availableTypeIds, setAvailableTypeIds] = useState<Set<string> | null>(null);
 
-  // Filter states
+  const [searchResults, setSearchResults] = useState<any[] | null>(null);
+
+
   const [search, setSearch] = useState("");
   const [selectedType, setSelectedType] = useState("Tất cả");
   const [selectedBranch, setSelectedBranch] = useState("Tất cả");
@@ -48,63 +49,35 @@ const ClientRooms = () => {
       const branchList: Branch[] = Array.isArray(bData) ? bData : [];
       setBranchData(branchList);
 
-      // Lấy danh sách tên loại phòng duy nhất để làm filter
       const uniqueNames = ["Tất cả", ...Array.from(new Set<string>(rtList.map((rt) => rt.name)))];
       setRoomTypeNames(uniqueNames);
 
-      // Join giá vào từng room type
       const merged: RoomTypeWithPrice[] = rtList
         .filter((rt) => rt.is_active !== false)
         .map((rt) => ({
           ...rt,
           room_price: rpList.find((rp) => rp.room_type_id === rt.id) ?? null,
         }));
+      setAllRoomTypes(merged);
 
-      setRoomTypes(merged);
-
-      // Read search session data from Home page
+      // Đọc kết quả tìm kiếm từ Home page (nếu có)
       const savedParamsStr = sessionStorage.getItem("client_room_search_params");
       const savedResultsStr = sessionStorage.getItem("client_room_search_results");
 
-      if (savedParamsStr) {
-        try {
-          const sParams: SearchRoomsAvailableParams = JSON.parse(savedParamsStr);
-          setActiveSearchParams(sParams);
+      if (savedParamsStr && savedResultsStr) {
+        const sParams: SearchRoomsAvailableParams = JSON.parse(savedParamsStr);
+        const results: any[] = JSON.parse(savedResultsStr);
+        setActiveSearchParams(sParams);
+        setSearchResults(results);
 
-          if (sParams.branch_id) {
-            const matchedBranch = branchList.find((b) => b.id === sParams.branch_id);
-            if (matchedBranch) {
-              setSelectedBranch(matchedBranch.name);
-            }
-          }
-
-          if (sParams.num_guests) {
-            const g = sParams.num_guests;
-            setSelectedGuests(g >= 4 ? "4+" : String(g));
-          }
-
-          let results: any[] = [];
-          if (savedResultsStr) {
-            results = JSON.parse(savedResultsStr);
-          } else if (sParams.branch_id && sParams.checkin_at && sParams.checkout_at) {
-            const apiRes = await roomsAvailableApi.searchRoomsAvailable(sParams);
-            results = apiRes?.results || [];
-          }
-
-          if (results && Array.isArray(results)) {
-            const availIds = new Set<string>(
-              results
-                .filter((r: any) => r.available_count > 0 && !r.is_sold_out)
-                .map((r: any) => r.room_type.id)
-            );
-            setAvailableTypeIds(availIds);
-          }
-        } catch (e) {
-          console.error("Lỗi parse sessionStorage search data:", e);
+        // Sync filter chi nhánh
+        if (sParams.branch_id) {
+          const matchedBranch = branchList.find((b) => b.id === sParams.branch_id);
+          if (matchedBranch) setSelectedBranch(matchedBranch.name);
         }
       }
     } catch (error) {
-      console.error("Lỗi khi lấy dữ liệu loại phòng:", error);
+      console.error("Lỗi khi lấy dữ liệu:", error);
     } finally {
       setLoading(false);
     }
@@ -121,47 +94,77 @@ const ClientRooms = () => {
     setSelectedGuests("Tất cả");
     setSelectedPrice(0);
     setActiveSearchParams(null);
-    setAvailableTypeIds(null);
+    setSearchResults(null);
     sessionStorage.removeItem("client_room_search_params");
     sessionStorage.removeItem("client_room_search_results");
   };
 
-  const filtered = roomTypes.filter((rt) => {
-    // Filter available room types from Home search
-    if (availableTypeIds !== null && !availableTypeIds.has(rt.id)) return false;
-
-    // Search
-    if (search && !rt.name.toLowerCase().includes(search.toLowerCase())) return false;
-
-    // Branch
-    if (selectedBranch !== "Tất cả" && rt.branches?.name !== selectedBranch) return false;
-
-    // Type
-    if (selectedType !== "Tất cả" && rt.name !== selectedType) return false;
-
-    // Guests
-    if (selectedGuests !== "Tất cả") {
-      const g = rt.max_guests ?? 0;
-      if (selectedGuests === "4+") {
-        if (g < 4) return false;
-      } else {
-        if (g !== parseInt(selectedGuests)) return false;
-      }
+  // ── Khi có kết quả search: dùng trực tiếp từ results API ──
+  // Mỗi result có: room_type { id, name, max_guests }, available_count, total_rooms, price_per_unit, is_sold_out
+  // Ta convert sang RoomTypeWithPrice để dùng component Room
+  const getDisplayList = (): RoomTypeWithPrice[] => {
+    if (searchResults !== null) {
+      // Lấy các room type còn trống (available_count > 0)
+      return searchResults
+        .filter((r) => !r.is_sold_out && r.available_count > 0)
+        .map((r) => {
+          // Tìm thông tin đầy đủ từ allRoomTypes (ảnh, mô tả,...)
+          const fullInfo = allRoomTypes.find((rt) => rt.id === r.room_type.id);
+          return {
+            ...(fullInfo ?? {}),
+            id: r.room_type.id,
+            name: r.room_type.name,
+            max_guests: r.room_type.max_guests,
+            room_price: {
+              price_per_day: r.price_per_unit,
+            },
+          } as RoomTypeWithPrice;
+        })
+        .filter((rt) => {
+          
+          if (search && !rt.name.toLowerCase().includes(search.toLowerCase())) return false;
+          
+          if (selectedType !== "Tất cả" && rt.name !== selectedType) return false;
+          
+          if (selectedGuests !== "Tất cả") {
+            const g = rt.max_guests ?? 0;
+            if (selectedGuests === "4+") { if (g < 4) return false; }
+            else { if (g !== parseInt(selectedGuests)) return false; }
+          }
+          
+          if (selectedPrice !== 0) {
+            const price = rt.room_price?.price_per_day ? Number(rt.room_price.price_per_day) : undefined;
+            if (price !== undefined) {
+              const range = PRICE_RANGES[selectedPrice];
+              if (price < range.min || price >= range.max) return false;
+            }
+          }
+          return true;
+        });
     }
 
-    // Price
-    if (selectedPrice !== 0) {
-      const price = rt.room_price?.price_per_day
-        ? Number(rt.room_price.price_per_day)
-        : undefined;
-      if (price !== undefined) {
-        const range = PRICE_RANGES[selectedPrice];
-        if (price < range.min || price >= range.max) return false;
+    
+    return allRoomTypes.filter((rt) => {
+      if (search && !rt.name.toLowerCase().includes(search.toLowerCase())) return false;
+      if (selectedBranch !== "Tất cả" && rt.branches?.name !== selectedBranch) return false;
+      if (selectedType !== "Tất cả" && rt.name !== selectedType) return false;
+      if (selectedGuests !== "Tất cả") {
+        const g = rt.max_guests ?? 0;
+        if (selectedGuests === "4+") { if (g < 4) return false; }
+        else { if (g !== parseInt(selectedGuests)) return false; }
       }
-    }
+      if (selectedPrice !== 0) {
+        const price = rt.room_price?.price_per_day ? Number(rt.room_price.price_per_day) : undefined;
+        if (price !== undefined) {
+          const range = PRICE_RANGES[selectedPrice];
+          if (price < range.min || price >= range.max) return false;
+        }
+      }
+      return true;
+    });
+  };
 
-    return true;
-  });
+  const filtered = getDisplayList();
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -196,21 +199,24 @@ const ClientRooms = () => {
               </div>
             </div>
 
-            <div className="mb-6">
-              <p className="text-sm font-semibold text-gray-700 mb-2">Chi nhánh</p>
-              <select
-                value={selectedBranch}
-                onChange={(e) => setSelectedBranch(e.target.value)}
-                className="w-full px-3 py-2 rounded-lg border border-gray-200 bg-gray-50 text-sm focus:outline-none focus:ring-2 focus:ring-orange-300 transition"
-              >
-                <option value="Tất cả">Tất cả</option>
-                {branchData?.map((branch) => (
-                  <option key={branch.id} value={branch.name}>
-                    {branch.name}
-                  </option>
-                ))}
-              </select>
-            </div>
+            {/* Chi nhánh — chỉ hiện khi không đang trong chế độ search */}
+            {!searchResults && (
+              <div className="mb-6">
+                <p className="text-sm font-semibold text-gray-700 mb-2">Chi nhánh</p>
+                <select
+                  value={selectedBranch}
+                  onChange={(e) => setSelectedBranch(e.target.value)}
+                  className="w-full px-3 py-2 rounded-lg border border-gray-200 bg-gray-50 text-sm focus:outline-none focus:ring-2 focus:ring-orange-300 transition"
+                >
+                  <option value="Tất cả">Tất cả</option>
+                  {branchData?.map((branch) => (
+                    <option key={branch.id} value={branch.name}>
+                      {branch.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
 
             {/* Room Type */}
             <div className="mb-6">
@@ -272,8 +278,9 @@ const ClientRooms = () => {
           </div>
         </aside>
 
-        {/* ── Main Content ── */}
+        
         <main className="flex-1 min-w-0">
+          {/* Banner thông báo đang tìm phòng trống */}
           {activeSearchParams && (
             <div className="mb-6 bg-orange-50 border border-orange-200 rounded-xl p-4 flex items-center justify-between shadow-sm">
               <div className="flex items-center gap-3 text-orange-900 text-sm">
@@ -305,7 +312,7 @@ const ClientRooms = () => {
             loại phòng
           </p>
 
-          {/* Loading skeleton */}
+          
           {loading && (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               {Array.from({ length: 4 }).map((_, i) => (
@@ -324,7 +331,7 @@ const ClientRooms = () => {
             </div>
           )}
 
-          {/* Grid */}
+          
           {!loading && filtered.length > 0 && (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               {filtered.map((rt) => (
@@ -333,7 +340,7 @@ const ClientRooms = () => {
             </div>
           )}
 
-          {/* Empty state */}
+          
           {!loading && filtered.length === 0 && (
             <div className="flex flex-col items-center justify-center py-24 text-gray-400">
               <svg className="w-20 h-20 mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
