@@ -45,12 +45,12 @@ const diffDays = (from: string, to: string): number => {
 
 const todayStr = () => {
   const d = new Date();
-  d.setDate(d.getDate() + 1);
+  d.setDate(d.getDate());
   return d.toISOString().split("T")[0];
 };
 const tomorrowStr = () => {
   const d = new Date();
-  d.setDate(d.getDate() + 2);
+  d.setDate(d.getDate() + 1);
   return d.toISOString().split("T")[0];
 };
 

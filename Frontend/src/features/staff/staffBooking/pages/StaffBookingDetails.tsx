@@ -22,7 +22,7 @@ import {
 } from 'react-icons/md';
 import { HiOutlineClock } from 'react-icons/hi';
 import { BsDoorOpen, BsDoorClosed, BsReceipt, BsPlus } from 'react-icons/bs';
-import { LoginOutlined, LogoutOutlined, DeleteOutlined, EditOutlined, DollarOutlined } from '@ant-design/icons';
+import { LoginOutlined, LogoutOutlined, DeleteOutlined, EditOutlined, DollarOutlined, CheckCircleOutlined } from '@ant-design/icons';
 
 const formatVND = (n: number | string) => Number(n).toLocaleString('vi-VN') + 'đ';
 const formatDate = (str?: string | null) => {
@@ -268,7 +268,24 @@ const StaffBookingDetails = () => {
             },
         });
     };
-    
+
+    const handleCompleteClick = async () => {
+        if (!booking) return;
+        setActionLoading(true);
+        try {
+            await bookingApi.updateBooking(booking.id, {
+                status: 'completed',
+                assigned_room_id: booking.assigned_room_id || undefined,
+            } as any);
+            message.success('Đã hoàn thành đơn đặt phòng!');
+            fetchAll();
+        } catch {
+            message.error('Cập nhật trạng thái thất bại!');
+        } finally {
+            setActionLoading(false);
+        }
+    };
+
     // const handleStatusChange = async (newStatus: string) => {
     //     if (!booking || booking.status === newStatus) return;
     //     setActionLoading(true);
@@ -438,6 +455,7 @@ const StaffBookingDetails = () => {
     const canCheckin = booking.status === 'confirmed';
     const canCheckout = booking.status === 'checked_in';
     const canPay = booking.status === 'checked_out';
+    const canComplete = booking.status === 'checked_out';
     const isEditable = booking.status !== 'cancelled' && booking.status !== 'completed';
 
     console.log('Booking details:', booking);
@@ -508,6 +526,15 @@ const StaffBookingDetails = () => {
                                 style={{ background: '#f97316', borderColor: '#f97316' }} size="large"
                             >
                                 Thanh toán Hóa đơn
+                            </Button>
+                        )}
+                        {canComplete && (
+                            <Button
+                                type="primary" icon={<CheckCircleOutlined />}
+                                loading={actionLoading} onClick={handleCompleteClick}
+                                style={{ background: '#10b981', borderColor: '#10b981' }} size="large"
+                            >
+                                Hoàn thành
                             </Button>
                         )}
                         {isEditable && (
