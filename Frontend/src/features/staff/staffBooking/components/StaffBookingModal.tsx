@@ -28,12 +28,12 @@ import { useNavigate } from 'react-router-dom';
 const formatVND = (n: number) => n.toLocaleString('vi-VN') + 'đ';
 const todayStr = () => {
     const d = new Date();
-    d.setDate(d.getDate() + 1);
+    d.setDate(d.getDate());
     return d.toISOString().split('T')[0];
 };
 const tomorrowStr = () => {
     const d = new Date();
-    d.setDate(d.getDate() + 2);
+    d.setDate(d.getDate() + 1);
     return d.toISOString().split('T')[0];
 };
 const hourlyTodayStr = () => {

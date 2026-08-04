@@ -1,5 +1,6 @@
 import {
   Button,
+  DatePicker,
   Dropdown,
   Input,
   message,
@@ -31,17 +32,23 @@ const StaffBooking = () => {
   const [filteredBookings, setFilteredBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [modalOpen, setModalOpen] = useState(false);
+  const [filterStatus, setFilterStatus] = useState<string | undefined>(undefined);
+  const [filterSearch, setFilterSearch] = useState<string>('');
+  const [filterDate, setFilterDate] = useState<Date | null>(null);
 
   const fetchBookings = useCallback(async () => {
     setLoading(true);
     try {
-      const data = await bookingApi.getBookingsByBranchId(
-        user?.branch_id || "",
-      );
-      setBookingsData(data);
-      setFilteredBookings(data);
+      const [active, cancelled, completed] = await Promise.all([
+        bookingApi.getBookingsByBranchId(user?.branch_id || ''),
+        bookingApi.getBookingsByBranchId(user?.branch_id || '', { status: 'cancelled' }),
+        bookingApi.getBookingsByBranchId(user?.branch_id || '', { status: 'completed' }),
+      ]);
+      const merged = [...(active ?? []), ...(cancelled ?? []), ...(completed ?? [])];
+      const all = merged.filter((b, index) => merged.findIndex((x) => x.id === b.id) === index);
+      setBookingsData(all);
     } catch (error) {
-      console.error("Error fetching bookings:", error);
+      console.error('Error fetching bookings:', error);
     } finally {
       setLoading(false);
     }
@@ -69,53 +76,50 @@ const StaffBooking = () => {
     }
   };
 
-  const filterRoomStatus = async (value: string | undefined) => {
-    if (!value) {
-      setFilteredBookings(bookingsData);
-      return;
+  // Áp dụng bộ lọc mỗi khi bookingsData, filterStatus, filterSearch, filterDate thay đổi
+  useEffect(() => {
+    let result = bookingsData;
+
+    if (filterStatus) {
+      // Khi chọn lọc theo trạng thái → chỉ hiện đúng trạng thái đó
+      result = result.filter((b) => b.status === filterStatus);
+    } else {
+      // Mặc định: ẩn các đơn đã hoàn thành / đã hủy
+      result = result.filter((b) => b.status !== 'cancelled' && b.status !== 'completed');
     }
 
-    if (value === "cancelled" || value === "completed") {
-      try {
-        const data = await bookingApi.getBookingsByBranchId(
-          user?.branch_id || "",
-          { status: value },
+    if (filterSearch.trim()) {
+      const term = filterSearch.trim().toLowerCase();
+      result = result.filter(
+        (b) =>
+          b.booking_code.toLowerCase().includes(term) ||
+          (b.rooms?.room_number ?? '').toLowerCase().includes(term),
+      );
+    }
+
+    if (filterDate) {
+      result = result.filter((b) => {
+        if (!b.checkin_at) return false;
+        const d = new Date(b.checkin_at);
+        return (
+          d.getFullYear() === filterDate.getFullYear() &&
+          d.getMonth() === filterDate.getMonth() &&
+          d.getDate() === filterDate.getDate()
         );
-        setFilteredBookings(Array.isArray(data) ? data : []);
-      } catch (error) {
-        console.error("Error filtering bookings:", error);
-      }
-      return;
+      });
     }
 
-    setFilteredBookings(bookingsData.filter((b) => b.status === value));
-  };
-
-  const handleSearch = (searchTerm: string) => {
-    if (!searchTerm) {
-      setFilteredBookings(bookingsData);
-      return;
-    }
-    setFilteredBookings(
-      bookingsData.filter((b) =>
-        b.booking_code.toLowerCase().includes(searchTerm.toLowerCase()),
-      ),
-    );
-  };
+    setFilteredBookings(result);
+  }, [bookingsData, filterStatus, filterSearch, filterDate]);
 
   const handleFilterTodayBookings = () => {
-    const today = new Date();
-    const filtered = bookingsData.filter((booking) => {
-      const checkinDate = new Date(booking.checkin_at);
-      return (
-        checkinDate.getFullYear() === today.getFullYear() &&
-        checkinDate.getMonth() === today.getMonth() &&
-        checkinDate.getDate() === today.getDate()
-      );
-    });
-    setFilteredBookings(filtered);
+    setFilterDate(new Date());
   };
-  console.log("Filtered Bookings:", filteredBookings);
+
+  const handleFilterDate = (date: any) => {
+    setFilterDate(date ? new Date(date) : null);
+  };
+  console.log('Filtered Bookings:', filteredBookings);
 
 
   const columns: TableProps<Booking>["columns"] = [
@@ -303,7 +307,9 @@ const StaffBooking = () => {
       <div className="flex ml-auto items-center">
         <Button
           onClick={() => {
-            setFilteredBookings(bookingsData);
+            setFilterStatus(undefined);
+            setFilterSearch('');
+            setFilterDate(null);
           }}
           type="default"
         >
@@ -363,42 +369,32 @@ const StaffBooking = () => {
         <div className="flex items-center gap-2 bg-gray-100 px-4 py-3 border-b border-gray-300 justify-between">
           <div className="flex items-center gap-4">
             <Input
-              placeholder="Tìm kiếm mã đặt phòng..."
+              placeholder="Tìm mã đặt phòng / số phòng..."
               prefix={<IoSearch className="text-xl" />}
-              onChange={(e) => handleSearch(e.target.value)}
+              onChange={(e) => setFilterSearch(e.target.value)}
+              allowClear
             />
             <Select
               placeholder="Lọc theo trạng thái"
               placement="topRight"
               style={{ width: 170 }}
-              onChange={filterRoomStatus}
+              onChange={(val) => setFilterStatus(val)}
               allowClear
               options={[
-                {
-                  value: "pending",
-                  label: <span className="text-amber-600">Đang chờ</span>,
-                },
-                {
-                  value: "confirmed",
-                  label: <span className="text-blue-600">Đã xác nhận</span>,
-                },
-                {
-                  value: "checked_in",
-                  label: <span className="text-cyan-600">Đã nhận phòng</span>,
-                },
-                {
-                  value: "checked_out",
-                  label: <span className="text-purple-600">Đã trả phòng</span>,
-                },
-                {
-                  value: "completed",
-                  label: <span className="text-green-600">Đã hoàn thành</span>,
-                },
-                {
-                  value: "cancelled",
-                  label: <span className="text-red-600">Đã hủy</span>,
-                },
+                { value: 'pending', label: <span className="text-amber-600">Đang chờ</span> },
+                { value: 'confirmed', label: <span className="text-blue-600">Đã xác nhận</span> },
+                { value: 'checked_in', label: <span className="text-cyan-600">Đã nhận phòng</span> },
+                { value: 'checked_out', label: <span className="text-purple-600">Đã trả phòng</span> },
+                { value: 'completed', label: <span className="text-green-600">Đã hoàn thành</span> },
+                { value: 'cancelled', label: <span className="text-red-600">Đã hủy</span> },
               ]}
+            />
+            <DatePicker
+              placeholder="Chọn ngày nhận phòng"
+              format="DD/MM/YYYY"
+              onChange={handleFilterDate}
+              allowClear
+              style={{ width: 200 }}
             />
             <Button
               onClick={handleFilterTodayBookings}
