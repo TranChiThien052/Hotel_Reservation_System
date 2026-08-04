@@ -3,13 +3,13 @@ import AccountRepository from '../repositories/accountRepo'
 import { Validator, ValidationError } from '../middlewares/validateData';
 import { calculateDynamicPrice, generateInvoiceCode } from '../middlewares/generator';
 import historyTransactionServices from './historyTransactionServices';
-import bookingRepo from '../repositories/bookingRepo';
-import bookingServiceRepo from '../repositories/bookingServiceRepo';
-import roomPriceRepo from '../repositories/roomPriceRepo';
-import holidayDateRepo from '../repositories/holidayDateRepo';
-import discountRepo from '../repositories/discountRepo';
 import paymentRepo from '../repositories/paymentRepo';
 import { booking_type } from '../generated/prisma/enums';
+import bookingServices from './bookingServices';
+import bookingServiceServices from './bookingServiceServices';
+import roomPriceServices from './roomPriceServices';
+import holidayDateServices from './holidayDateServices';
+import discountServices from './discountServices';
 
 class InvoiceService {
     async getAllInvoices() {
@@ -79,21 +79,21 @@ class InvoiceService {
     }
 
     async calculateInvoiceAmount(bookingId) {
-        const booking = await bookingRepo.getBookingById(bookingId);
+        const booking = await bookingServices.getBookingById(bookingId);
         if (!booking)
             throw new ValidationError('404', "Booking not found");
 
-        const services = await bookingServiceRepo.getBookingServicesByBookingId(bookingId);
+        const services = await bookingServiceServices.getBookingServicesByBookingId(bookingId);
 
         let service_charge = 0;
         for (const service of services) {
             service_charge += Number(service.total_amount);
         }
 
-        const roomPrice = await roomPriceRepo.getRoomPricesByRoomTypeId(booking.room_type_id);
+        const roomPrice = await roomPriceServices.getRoomPricesByRoomTypeId(booking.room_type_id);
 
         let basePrice = booking.room_price_snapshot;
-        const holidayDates = await holidayDateRepo.getHolidayDatesByBranchId(booking.branch_id);
+        const holidayDates = await holidayDateServices.getHolidayDatesByBranchId(booking.branch_id);
 
         let detail: any = {};
 
@@ -117,7 +117,7 @@ class InvoiceService {
         }
         let discount = 0;
         if (booking.discount_id !== null) {
-            const discountInfo = await discountRepo.getDiscountById(booking.discount_id);
+            const discountInfo = await discountServices.getDiscountById(booking.discount_id);
             if (discountInfo?.discount_type === 'fixed_amount')
                 discount = Number(discountInfo.discount_value);
             else if (discountInfo?.discount_type === 'percentage')
