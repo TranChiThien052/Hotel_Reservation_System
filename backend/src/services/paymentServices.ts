@@ -7,7 +7,7 @@ import axios from 'axios';
 import crypto from 'crypto';
 import historyTransactionServices from './historyTransactionServices';
 import bookingRepo from '../repositories/bookingRepo';
-import { booking_status, payment_status } from '../generated/prisma/enums';
+import { booking_status, payment_method, payment_status } from '../generated/prisma/enums';
 import invoiceRepo from '../repositories/invoiceRepo';
 
 class PaymentService {
@@ -255,6 +255,11 @@ class PaymentService {
 
         if (validator.error.length > 0) {
             throw new ValidationError('400', validator.clearError());
+        }
+
+        if (validatedData.payment_method === payment_method.cash) {
+            validatedData.status = payment_status.paid;
+            validatedData.paid_at = new Date();
         }
 
         if (validatedData.processed_by) {
