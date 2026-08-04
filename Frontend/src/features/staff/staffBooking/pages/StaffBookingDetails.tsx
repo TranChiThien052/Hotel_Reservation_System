@@ -23,6 +23,7 @@ import {
 import { HiOutlineClock } from 'react-icons/hi';
 import { BsDoorOpen, BsDoorClosed, BsReceipt, BsPlus } from 'react-icons/bs';
 import { LoginOutlined, LogoutOutlined, DeleteOutlined, EditOutlined, DollarOutlined, CheckCircleOutlined } from '@ant-design/icons';
+import { invoiceApi } from '../api/invoice-api';
 
 const formatVND = (n: number | string) => Number(n).toLocaleString('vi-VN') + 'đ';
 const formatDate = (str?: string | null) => {
@@ -80,18 +81,20 @@ const StaffBookingDetails = () => {
     const [roomsLoading, setRoomsLoading] = useState(false);
     const [selectedRoomId, setSelectedRoomId] = useState('');
     const [pendingCheckin, setPendingCheckin] = useState(false);
+    const [calculatingInvoice, setCalculatingInvoice] = useState<any>();
 
     const fetchAll = useCallback(async () => {
         if (!id) return;
         setLoading(true);
         try {
-            const [bookingData, services, bookingServiceRows, allDiscounts, allBranches, allRoomTypes] = await Promise.all([
+            const [bookingData, services, bookingServiceRows, allDiscounts, allBranches, allRoomTypes, calculatedInvoice] = await Promise.all([
                 bookingApi.getBookingById(id),
                 servicesApi.getAllServices(),
                 bookingServiceApi.getByBookingId(id),
                 promotionApi.getPromotions(),
                 branchApi.getBranches(),
-                roomTypesApi.getRoomTypes()
+                roomTypesApi.getRoomTypes(),
+                invoiceApi.calculateInvoice(id)
             ]);
             setBooking(bookingData);
             setAllServices(services);
@@ -99,6 +102,7 @@ const StaffBookingDetails = () => {
             setDiscounts(allDiscounts);
             setBranches(allBranches);
             setRoomTypes(allRoomTypes);
+            setCalculatingInvoice(calculatedInvoice);
         } catch (err) {
             console.error(err);
             message.error('Không thể tải dữ liệu đặt phòng.');
@@ -435,12 +439,12 @@ const StaffBookingDetails = () => {
     const nights = isHourly ? 0 : Math.ceil(diffMs / (1000 * 60 * 60 * 24));
     const hours = isHourly ? Math.round(diffMs / (1000 * 60 * 60)) : 0;
 
-    const charge = booking.charge;
+    const charge = calculatingInvoice || booking.charge || {};
     const chargeTotal = Number(charge?.total ?? 0);
     const chargeDiscount = Number(charge?.discount ?? 0);
     const chargeDeposited = Number(charge?.deposited ?? 0);
     const chargeBalance = Number(charge?.balance ?? 0);
-    const chargeRoom = Number(charge?.room_charge ?? 0);
+    const chargeRoom = Number(charge?.room_charge?.amount ?? 0);
     const chargeService = Number(charge?.service_charge ?? 0);
 
 

@@ -106,7 +106,6 @@ export const managerRoomPricesFormFields: FormField<RoomPriceFormData>[] = [
             type: FormFieldTypes.DATE_PICKER,
             rules: [
                 {
-                    required: true,
                     validator: (formdata: RoomPrice) => {
                         if (!formdata.effective_from || !formdata.effective_to) {
                             return true;

@@ -28,4 +28,8 @@ export const invoiceApi = {
         const res = await apiClient.delete(`/invoices/${id}`);
         return res.data;
     },
+    calculateInvoice: async (bookingId: string) => {
+        const res = await apiClient.get(`/invoices/calculate/${bookingId}`);
+        return res.data;
+    }
 };
