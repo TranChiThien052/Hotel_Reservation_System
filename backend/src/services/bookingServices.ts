@@ -278,7 +278,7 @@ class BookingService {
                     result.created_at,
                 )
             }
-            return result;
+            return await this.getBookingById(result.id);
         } catch (error: any) {
             if (error.message.includes("Overbooking"))
                 throw new ValidationError('409', error.message);
