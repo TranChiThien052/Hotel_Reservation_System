@@ -76,7 +76,7 @@ export const sendConfirmBookingEmail = async (to, name, booking) => {
       <p>Cảm ơn bạn đã đặt phòng tại khách sạn của chúng tôi! Đơn đặt phòng của bạn đã được xác nhận thành công.</p>
       <h3>Thông tin đặt phòng</h3>
       <div style="background:#F9FAFB;border-radius:8px;padding:16px 20px;margin:20px 0">
-        <p style="margin:4px 0"><strong>Mã đơn đặt phòng:</strong> ${booking.booking_code}</p>
+        <p style="margin:4px 0"><strong>Mã đơn đặt phòng: #${booking.booking_code.toUpperCase()}</strong></p>
         <p style="margin:4px 0"><strong>Ngày nhận phòng dự kiến:</strong> ${formatDateVN(booking.checkin_at)}</p>
         <p style="margin:4px 0"><strong>Ngày trả phòng dự kiến:</strong> ${formatDateVN(booking.checkout_at)}</p>
         <p style="margin:4px 0"><strong>Tổng tiền phòng dự kiến:</strong> ${formatCurrency(booking.total_amount)}</p>
@@ -133,7 +133,7 @@ function renderBookingServicesHtml(services) {
       const total = service.unit_price * service.quantity;
       return `
       <tr style="border-bottom:1px solid #F3F4F6">
-        <td style="padding:10px 0;font-size:14px">${service.name}</td>
+        <td style="padding:10px 0;font-size:14px">${service.services.name}</td>
         <td style="padding:10px 0;font-size:14px;text-align:right">${formatCurrency(service.unit_price)}</td>
         <td style="padding:10px 0;font-size:14px;text-align:center">${service.quantity}</td>
         <td style="padding:10px 0;font-size:14px;text-align:right;font-weight:600">${formatCurrency(total)}</td>

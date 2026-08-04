@@ -11,7 +11,10 @@ import { sendConfirmBookingEmail } from "./emailServices";
 import customerServices from "./customerServices";
 
 class ZalopayService {
-    async createPayment(is_deposit, amount, booking_id, booking_code) {
+    async createPayment(is_deposit, amount, booking_id) {
+        const booking = await bookingServices.getBookingById(booking_id);
+        if (!booking)
+            throw new ValidationError('404', 'Booking not found');
         const items = [];
         const transID = Math.floor(Math.random() * 1000000);
         const app_trans_id = `${moment().format('YYMMDD')}_${transID}`;
@@ -55,7 +58,7 @@ class ZalopayService {
             //khi thanh toán xong, zalopay server sẽ POST đến url này để thông báo cho server của mình
 
             callback_url: process.env.CALLBACK_URL + '/payments/zalopay/callback',
-            description: `Payment for the booking ${booking_code} - #${transID}`,
+            description: `Payment for the booking #${booking.booking_code.toUpperCase()}`,
             bank_code: '',
             mac: '',
         };
