@@ -5,12 +5,16 @@ import { ZLPconfig } from "../config/zaloPay";
 import bookingServices from "./bookingServices";
 import paymentServices from "./paymentServices";
 import { booking_status, payment_method, payment_status } from "../generated/prisma/enums";
-import invoiceRepo from "../repositories/invoiceRepo";
 import { ValidationError } from "../middlewares/validateData";
 import invoiceServices from "./invoiceServices";
+import { sendConfirmBookingEmail } from "./emailServices";
+import customerServices from "./customerServices";
 
 class ZalopayService {
-    async createPayment(is_deposit, amount, booking_id, booking_code) {
+    async createPayment(is_deposit, amount, booking_id) {
+        const booking = await bookingServices.getBookingById(booking_id);
+        if (!booking)
+            throw new ValidationError('404', 'Booking not found');
         const items = [];
         const transID = Math.floor(Math.random() * 1000000);
         const app_trans_id = `${moment().format('YYMMDD')}_${transID}`;
@@ -54,7 +58,7 @@ class ZalopayService {
             //khi thanh toán xong, zalopay server sẽ POST đến url này để thông báo cho server của mình
 
             callback_url: process.env.CALLBACK_URL + '/payments/zalopay/callback',
-            description: `Payment for the booking ${booking_code} - #${transID}`,
+            description: `Payment for the booking #${booking.booking_code.toUpperCase()}`,
             bank_code: '',
             mac: '',
         };
@@ -105,12 +109,15 @@ class ZalopayService {
                     updated_at: new Date()
                 });
                 if (updatedPayment.is_deposit === true) {
-                    await bookingServices.updateBooking(updatedPayment.booking_id, {
+                    const updatedBooking = await bookingServices.updateBooking(updatedPayment.booking_id, {
                         status: booking_status.confirmed,
                         deposit_paid_at: updatedPayment.updated_at,
                         updated_at: new Date(),
                         expires_at: null,
                     });
+                    const customer = await customerServices.getCustomerById(updatedBooking.customer_id);
+                    if (customer?.email)
+                        await sendConfirmBookingEmail(customer?.email, customer?.full_name, updatedBooking);
                 } else if (updatedPayment.is_deposit === false) {
                     await bookingServices.updateBooking(updatedPayment.booking_id, {
                         status: booking_status.completed,

@@ -330,7 +330,7 @@ class BookingService {
 
         if (validatedData.checkin_at && validatedData.checkout_at) {
             if (validator.validateDateOrder(validatedData.checkin_at, validatedData.checkout_at)) {
-                if (new Date(validatedData.checkin_at) < new Date()) {
+                if (new Date(validatedData.checkin_at).getDate() < new Date().getDate()) {
                     validator.pushError("Check-in date must be in the future");
                 }
                 validatedData.checkin_at = new Date(validatedData.checkin_at);

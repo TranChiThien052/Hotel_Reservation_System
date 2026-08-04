@@ -26,6 +26,22 @@ class BookingServiceService {
         return await BookingServiceRepository.getBookingServicesByBookingId(bookingId);
     };
 
+    async calculateBookingServicesByBookingId(bookingId) {
+        const validator = new Validator();
+        if (!validator.isUUID("Booking's ID", bookingId)) {
+            throw new ValidationError('400', validator.clearError());
+        }
+        const services = await BookingServiceRepository.getBookingServicesByBookingId(bookingId);
+        let total_amount = services.reduce((acc, cur) => {
+            acc += Number(cur.total_amount);
+            return acc;
+        }, 0);
+        return {
+            services,
+            total_amount,
+        }
+    };
+
     async createBookingService(data) {
         const validatedData = {
             ...(data.booking_id && { booking_id: data.booking_id }),

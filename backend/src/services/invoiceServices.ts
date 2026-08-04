@@ -172,7 +172,7 @@ class InvoiceService {
 
         const charges = await this.calculateInvoiceAmount(validatedData.booking_id);
 
-        validatedData.room_charge = charges.room_charge;
+        validatedData.room_charge = charges.room_charge.amount;
         validatedData.service_charge = charges.service_charge;
         validatedData.discount_amount = charges.discount;
         validatedData.deposit_used = charges.deposited;
@@ -266,6 +266,8 @@ class InvoiceService {
     async deleteInvoice(id) {
         return await InvoiceRepository.deleteInvoice(id);
     };
+
+
 }
 
 export default new InvoiceService();
