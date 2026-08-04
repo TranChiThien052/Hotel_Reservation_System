@@ -42,20 +42,18 @@ class ZalopayService {
         const newPayment = await paymentServices.createPayment(payment_data);
 
         const embed_data = {
-            //sau khi hoàn tất thanh toán sẽ đi vào link này (thường là link web thanh toán thành công của mình)
             redirecturl: process.env.FRONTEND_URL + '/booking/success',
             payment_id: newPayment.id,
         };
 
         const order = {
             app_id: Number(ZLPconfig.app_id),
-            app_trans_id, // translation missing: vi.docs.shared.sample_code.comments.app_trans_id
+            app_trans_id,
             app_user: 'Aurora Hotel',
-            app_time: Date.now(), // miliseconds
+            app_time: Date.now(),
             item: JSON.stringify(items),
             embed_data: JSON.stringify(embed_data),
             amount: amount,
-            //khi thanh toán xong, zalopay server sẽ POST đến url này để thông báo cho server của mình
 
             callback_url: process.env.CALLBACK_URL + '/payments/zalopay/callback',
             description: `Payment for the booking #${booking.booking_code.toUpperCase()}`,
@@ -63,7 +61,6 @@ class ZalopayService {
             mac: '',
         };
 
-        // appid|app_trans_id|appuser|amount|apptime|embeddata|item
         const data =
             ZLPconfig.app_id +
             '|' +
@@ -89,16 +86,11 @@ class ZalopayService {
             let reqMac = req.body.mac;
 
             let mac = crypto.createHmac('sha256', String(ZLPconfig.key2)).update(dataStr).digest('hex');
-            console.log('mac =', mac);
 
-            // kiểm tra callback hợp lệ (đến từ ZaloPay server)
             if (reqMac !== mac) {
-                // callback không hợp lệ
                 result.return_code = -1;
                 result.return_message = 'mac not equal';
             } else {
-                // thanh toán thành công
-                // merchant cập nhật trạng thái cho đơn hàng ở đây
                 let dataJson = JSON.parse(dataStr);
                 const paymentData = JSON.parse(dataJson.embed_data);
                 const payment_id = paymentData['payment_id'];
@@ -131,11 +123,10 @@ class ZalopayService {
             }
         } catch (ex: any) {
             console.log('lỗi:::' + ex.message);
-            result.return_code = 0; // ZaloPay server sẽ callback lại (tối đa 3 lần)
+            result.return_code = 0;
             result.return_message = ex.message;
         }
 
-        // thông báo kết quả cho ZaloPay server
         return res.json(result);
     }
 
@@ -149,10 +140,10 @@ class ZalopayService {
         }
         let postData: any = {
             app_id: Number(ZLPconfig.app_id),
-            app_trans_id: deposit_payment.transaction_ref, // Input your app_trans_id lấy transref từ payment
+            app_trans_id: deposit_payment.transaction_ref,
         };
 
-        let data = String(postData.app_id) + '|' + String(postData.app_trans_id) + '|' + String(ZLPconfig.key1); // appid|app_trans_id|key1
+        let data = String(postData.app_id) + '|' + String(postData.app_trans_id) + '|' + String(ZLPconfig.key1);
         postData.mac = crypto.createHmac('sha256', String(ZLPconfig.key1)).update(data).digest('hex');
 
         let postConfig = {
@@ -168,20 +159,6 @@ class ZalopayService {
             const result = await axios(postConfig);
             console.log(result.data);
             return res.status(200).json(result.data);
-            /**
-             * kết quả mẫu
-              {
-                "return_code": 1, // 1 : Thành công, 2 : Thất bại, 3 : Đơn hàng chưa thanh toán hoặc giao dịch đang xử lý
-                "return_message": "",
-                "sub_return_code": 1,
-                "sub_return_message": "",
-                "is_processing": false,
-                "amount": 50000,
-                "zp_trans_id": 240331000000175,
-                "server_time": 1711857138483,
-                "discount_amount": 0
-              }
-            */
         } catch (error) {
             console.log('lỗi');
             console.log(error);
