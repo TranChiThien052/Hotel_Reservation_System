@@ -5,9 +5,10 @@ import { ZLPconfig } from "../config/zaloPay";
 import bookingServices from "./bookingServices";
 import paymentServices from "./paymentServices";
 import { booking_status, payment_method, payment_status } from "../generated/prisma/enums";
-import invoiceRepo from "../repositories/invoiceRepo";
 import { ValidationError } from "../middlewares/validateData";
 import invoiceServices from "./invoiceServices";
+import { sendConfirmBookingEmail } from "./emailServices";
+import customerServices from "./customerServices";
 
 class ZalopayService {
     async createPayment(is_deposit, amount, booking_id, booking_code) {
@@ -105,12 +106,15 @@ class ZalopayService {
                     updated_at: new Date()
                 });
                 if (updatedPayment.is_deposit === true) {
-                    await bookingServices.updateBooking(updatedPayment.booking_id, {
+                    const updatedBooking = await bookingServices.updateBooking(updatedPayment.booking_id, {
                         status: booking_status.confirmed,
                         deposit_paid_at: updatedPayment.updated_at,
                         updated_at: new Date(),
                         expires_at: null,
                     });
+                    const customer = await customerServices.getCustomerById(updatedBooking.customer_id);
+                    if (customer?.email)
+                        await sendConfirmBookingEmail(customer?.email, customer?.full_name, updatedBooking);
                 } else if (updatedPayment.is_deposit === false) {
                     await bookingServices.updateBooking(updatedPayment.booking_id, {
                         status: booking_status.completed,
