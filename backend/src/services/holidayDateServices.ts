@@ -8,6 +8,10 @@ class HolidayDateService {
         return await HolidayDateRepository.getAllHolidayDates();
     };
 
+    async getHolidayDatesByBranchId(branchId) {
+        return await HolidayDateRepository.getHolidayDatesByBranchId(branchId);
+    };
+
     async getHolidayDateById(id) {
         const validator = new Validator();
         if (!validator.isUUID("Holiday Date ID", id)) {
