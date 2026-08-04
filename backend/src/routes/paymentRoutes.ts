@@ -153,10 +153,10 @@ router.get('/vnpay/check-payment', (req, res) => {
  *                        type: string
  */
 router.post('/zalopay/create', async (req, res) => {
-    const { amount, is_deposit, booking_id, booking_code } = req.body;
+    const { amount, is_deposit, booking_id } = req.body;
     try {
         const zalopay = new ZalopayService();
-        const result = await zalopay.createPayment(is_deposit, amount, booking_id, booking_code);
+        const result = await zalopay.createPayment(is_deposit, amount, booking_id);
         res.status(201).json(result.data);
     }
     catch (error) {
