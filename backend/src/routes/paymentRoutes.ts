@@ -3,9 +3,14 @@ import crypto from 'crypto';
 import { ZLPconfig } from '../config/zaloPay';
 import PaymentController from '../controllers/paymentController';
 import ZalopayService from '../services/zalopayServices';
+import { VNPay, ignoreLogger, ProductCode, VnpLocale, dateFormat, HashAlgorithm } from 'vnpay';
+import paymentServices from '../services/paymentServices';
+import { authorize } from '../middlewares/authorizer';
 
 const router = express.Router();
 
+
+router.get('/revenue',PaymentController.getRevenue)
 /**
  * @swagger
  * /payments/booking/{id}:
@@ -72,16 +77,10 @@ router.get('/', PaymentController.getAllPayments);
  */
 router.get('/:id', PaymentController.getPaymentById);
 
-/**
- * 
- */
-router.post('/momo', PaymentController.createMomoPayments);
-
-import { VNPay, ignoreLogger, ProductCode, VnpLocale, dateFormat, HashAlgorithm } from 'vnpay';
-import paymentServices from '../services/paymentServices';
-import { payment_method } from '../generated/prisma/enums';
-import bookingServices from '../services/bookingServices';
-import { authorize } from '../middlewares/authorizer';
+// /**
+//  * 
+//  */
+// router.post('/momo', PaymentController.createMomoPayments);
 router.post('/vnpay/create', async (req, res) => {
     const vnPay = new VNPay({
         tmnCode: String(process.env.VNPAY_TMN_CODE),

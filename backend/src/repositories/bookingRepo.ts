@@ -1,5 +1,6 @@
 import { prisma } from '../config/prisma';
 import { Prisma } from '../generated/prisma/client';
+import paymentServices from '../services/paymentServices';
 
 class BookingRepository {
     async getAllBookings() {
@@ -223,13 +224,15 @@ class BookingRepository {
         })
         const checkinsCount = checkins.length;
         const checkoutsCount = checkouts.length;
-
+        const revenue = await paymentServices.getRevenueReport(Date.now(), Date.now(), branch_id);
+       
         return {
+            revenue,
             checkinsCount,
             checkoutsCount,
             checkins,
             checkouts
-        }
+        };
     }
 
     async getBookingByCode(code) {

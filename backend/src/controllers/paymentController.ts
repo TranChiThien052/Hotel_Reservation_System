@@ -3,13 +3,13 @@ import BookingService from '../services/bookingServices';
 import { ValidationError } from '../middlewares/validateData';
 
 class PaymentController {
-    async createMomoPayments(req, res) {
-        const { booking_id, invoice_id, payment_method, status, amount, is_deposit, transaction_ref, processed_by, notes } = req.body;
-        const data = { booking_id, invoice_id, payment_method, status, amount, is_deposit, transaction_ref, processed_by, notes };
-        return await PaymentService.createMomoPayment(data)
-            .then(payment => res.status(200).json(payment))
-            .catch(error => res.status(500).json({ error: error.message }));
-    }
+    // async createMomoPayments(req, res) {
+    //     const { booking_id, invoice_id, payment_method, status, amount, is_deposit, transaction_ref, processed_by, notes } = req.body;
+    //     const data = { booking_id, invoice_id, payment_method, status, amount, is_deposit, transaction_ref, processed_by, notes };
+    //     return await PaymentService.createMomoPayment(data)
+    //         .then(payment => res.status(200).json(payment))
+    //         .catch(error => res.status(500).json({ error: error.message }));
+    // }
 
     async getAllPayments(req, res) {
         return await PaymentService.getAllPayments()
@@ -110,6 +110,18 @@ class PaymentController {
                 res.status(500).json({ error: error.message });
             });
     };
+
+    async getRevenue(req, res) {
+        const { start, end, branch_id } = req.query;
+        return PaymentService.getRevenueReport(start, end, branch_id)
+            .then(result => res.status(200).json(result))
+            .catch(error => {
+                console.log(error);
+                if (typeof parseInt(error.code) === 'number')
+                    return res.status(parseInt(error.code)).json({ error });
+                res.status(500).json({error: 'Internal Server Error'})
+            })
+    }
 }
 
 export default new PaymentController();

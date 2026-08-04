@@ -8,74 +8,74 @@ import crypto from 'crypto';
 import historyTransactionServices from './historyTransactionServices';
 import bookingRepo from '../repositories/bookingRepo';
 import { booking_status, payment_method, payment_status } from '../generated/prisma/enums';
-import invoiceRepo from '../repositories/invoiceRepo';
+import branchServices from './branchServices';
 
 class PaymentService {
-    async createMomoPayment(data) {
-        //https://developers.momo.vn/#/docs/en/aiov2/?id=payment-method
-        //parameters
-        var partnerCode = "MOMO";
-        var accessKey = "F8BBA842ECF85";
-        var secretkey = "K951B6PE1waDMi640xX08PD3vg6EkVlz";
-        var requestId = partnerCode + new Date().getTime();
-        var orderId = requestId;
-        var orderInfo = "pay with MoMo";
-        var redirectUrl = "https://momo.vn/return";
-        var ipnUrl = "https://callback.url/notify";
-        // var ipnUrl = redirectUrl = "https://webhook.site/454e7b77-f177-4ece-8236-ddf1c26ba7f8";
-        var amount = data.amount;
-        var requestType = "captureWallet"
-        var extraData = ""; //pass empty value if your merchant does not have stores
+    // async createMomoPayment(data) {
+    //     //https://developers.momo.vn/#/docs/en/aiov2/?id=payment-method
+    //     //parameters
+    //     var partnerCode = "MOMO";
+    //     var accessKey = "F8BBA842ECF85";
+    //     var secretkey = "K951B6PE1waDMi640xX08PD3vg6EkVlz";
+    //     var requestId = partnerCode + new Date().getTime();
+    //     var orderId = requestId;
+    //     var orderInfo = "pay with MoMo";
+    //     var redirectUrl = "https://momo.vn/return";
+    //     var ipnUrl = "https://callback.url/notify";
+    //     // var ipnUrl = redirectUrl = "https://webhook.site/454e7b77-f177-4ece-8236-ddf1c26ba7f8";
+    //     var amount = data.amount;
+    //     var requestType = "captureWallet"
+    //     var extraData = ""; //pass empty value if your merchant does not have stores
 
-        //before sign HMAC SHA256 with format
-        //accessKey=$accessKey&amount=$amount&extraData=$extraData&ipnUrl=$ipnUrl&orderId=$orderId&orderInfo=$orderInfo&partnerCode=$partnerCode&redirectUrl=$redirectUrl&requestId=$requestId&requestType=$requestType
-        var rawSignature = "accessKey=" + accessKey + "&amount=" + amount + "&extraData=" + extraData + "&ipnUrl=" + ipnUrl + "&orderId=" + orderId + "&orderInfo=" + orderInfo + "&partnerCode=" + partnerCode + "&redirectUrl=" + redirectUrl + "&requestId=" + requestId + "&requestType=" + requestType
-        //puts raw signature
-        console.log("--------------------RAW SIGNATURE----------------")
-        console.log(rawSignature)
-        //signature
-        var signature = crypto.createHmac('sha256', secretkey)
-            .update(rawSignature)
-            .digest('hex');
-        console.log("--------------------SIGNATURE----------------")
-        console.log(signature)
+    //     //before sign HMAC SHA256 with format
+    //     //accessKey=$accessKey&amount=$amount&extraData=$extraData&ipnUrl=$ipnUrl&orderId=$orderId&orderInfo=$orderInfo&partnerCode=$partnerCode&redirectUrl=$redirectUrl&requestId=$requestId&requestType=$requestType
+    //     var rawSignature = "accessKey=" + accessKey + "&amount=" + amount + "&extraData=" + extraData + "&ipnUrl=" + ipnUrl + "&orderId=" + orderId + "&orderInfo=" + orderInfo + "&partnerCode=" + partnerCode + "&redirectUrl=" + redirectUrl + "&requestId=" + requestId + "&requestType=" + requestType
+    //     //puts raw signature
+    //     console.log("--------------------RAW SIGNATURE----------------")
+    //     console.log(rawSignature)
+    //     //signature
+    //     var signature = crypto.createHmac('sha256', secretkey)
+    //         .update(rawSignature)
+    //         .digest('hex');
+    //     console.log("--------------------SIGNATURE----------------")
+    //     console.log(signature)
 
-        //json object send to MoMo endpoint
-        const requestBody = JSON.stringify({
-            partnerCode: partnerCode,
-            accessKey: accessKey,
-            requestId: requestId,
-            amount: amount,
-            orderId: orderId,
-            orderInfo: orderInfo,
-            orderExpireTime: 30,
-            redirectUrl: redirectUrl,
-            ipnUrl: ipnUrl,
-            extraData: extraData,
-            requestType: requestType,
-            signature: signature,
-            lang: 'en'
-        });
+    //     //json object send to MoMo endpoint
+    //     const requestBody = JSON.stringify({
+    //         partnerCode: partnerCode,
+    //         accessKey: accessKey,
+    //         requestId: requestId,
+    //         amount: amount,
+    //         orderId: orderId,
+    //         orderInfo: orderInfo,
+    //         orderExpireTime: 30,
+    //         redirectUrl: redirectUrl,
+    //         ipnUrl: ipnUrl,
+    //         extraData: extraData,
+    //         requestType: requestType,
+    //         signature: signature,
+    //         lang: 'en'
+    //     });
 
-        // axios options
-        const option = {
-            method: 'POST',
-            url: 'https://test-payment.momo.vn/v2/gateway/api/create',
-            headers: {
-                'Content-Type': 'application/json',
-                'Content-Length': Buffer.byteLength(requestBody)
-            },
-            data: requestBody
-        }
+    //     // axios options
+    //     const option = {
+    //         method: 'POST',
+    //         url: 'https://test-payment.momo.vn/v2/gateway/api/create',
+    //         headers: {
+    //             'Content-Type': 'application/json',
+    //             'Content-Length': Buffer.byteLength(requestBody)
+    //         },
+    //         data: requestBody
+    //     }
 
-        let result;
-        try {
-            result = await axios(option);
-            return result.data;
-        } catch (error) {
-            throw new ValidationError('500', "Server error: " + error);
-        }
-    }
+    //     let result;
+    //     try {
+    //         result = await axios(option);
+    //         return result.data;
+    //     } catch (error) {
+    //         throw new ValidationError('500', "Server error: " + error);
+    //     }
+    // }
 
     async getAllPayments() {
         return await PaymentRepository.getAllPayments();
@@ -300,6 +300,26 @@ class PaymentService {
 
     async getPaymentByTransactionRef(transactionRef) {
         return await PaymentRepository.getPaymentByTransactionRef(transactionRef);
+    }
+
+    async getRevenueReport(start, end, branch_id?) {
+        const validator = new Validator();
+        validator.validateDate(start);
+        validator.validateDate(end);
+        if (branch_id && validator.isUUID("Branch ID", branch_id)) {
+            const branch = await branchServices.getBranchById(branch_id);
+            if (!branch)
+                throw new ValidationError('404', "Branch not exist");
+        }
+        if (validator.error.length > 0)
+            throw new ValidationError('400', validator.clearError());
+        const startDate = new Date(start);
+        startDate.setHours(0, 0, 0, 0);
+        const endDate = new Date(end);
+        endDate.setHours(23, 59, 59, 999);
+        if (startDate.getDate() < endDate.getDate())
+            throw new ValidationError('400', 'Start date must be before end date');
+        return PaymentRepository.getRevenue(startDate, endDate, branch_id);
     }
 }
 

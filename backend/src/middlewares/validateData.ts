@@ -177,6 +177,28 @@ class Validator {
         return true;
     }
 
+    minLength(typeOfData, data, minLength) {
+        if (data === undefined || data === null || data === "") {
+            return false;
+        }
+        if (String(data).length < minLength) {
+            this.error.push(`${typeOfData} must be at least ${minLength} characters`);
+            return false;
+        }
+        return true;
+    }
+
+    maxLength(typeOfData, data, maxLength) {
+        if (data === undefined || data === null || data === "") {
+            return false;
+        }
+        if (String(data).length > maxLength) {
+            this.error.push(`${typeOfData} must not exceed ${maxLength} characters`);
+            return false;
+        }
+        return true;
+    }
+
     isPositiveNumber(typeOfData, data) {
         if (data === undefined || data === null) {
             return true;
