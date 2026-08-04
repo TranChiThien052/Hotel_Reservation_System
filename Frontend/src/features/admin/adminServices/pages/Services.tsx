@@ -63,7 +63,7 @@ const Services = () => {
     try {
       await servicesApi.updateService(id, updatedFields as ServiceFormData);
       message.success("Cập nhật trạng thái dịch vụ thành công!");
-      fetchServices(); // Tải lại dữ liệu sau khi cập nhật trạng thái
+      fetchServices();
     } catch (error) {
       message.error(
         "Có lỗi xảy ra khi cập nhật trạng thái dịch vụ. Vui lòng thử lại.",
@@ -78,7 +78,7 @@ const Services = () => {
       try {
         await servicesApi.createService(values);
         message.success("Thêm dịch vụ thành công!");
-        fetchServices(); // Tải lại dữ liệu sau khi thêm mới
+        fetchServices(); 
         services.close();
       } catch (error) {
         message.error("Có lỗi xảy ra khi thêm dịch vụ. Vui lòng thử lại.");
@@ -90,7 +90,7 @@ const Services = () => {
       try {
         await servicesApi.updateService(services.selectedRecord.id, values);
         message.success("Cập nhật dịch vụ thành công!");
-        fetchServices(); // Tải lại dữ liệu sau khi cập nhật
+        fetchServices(); 
         services.close();
       } catch (error) {
         message.error("Có lỗi xảy ra khi cập nhật dịch vụ. Vui lòng thử lại.");
@@ -145,7 +145,7 @@ const Services = () => {
       key: "is_active",
       dataIndex: "is_active",
       render: (text, record: Service) => {
-        // Tạo items động với onClick cho từng branch
+        
         const dynamicStatusItems: MenuProps["items"] = [
           {
             key: "active",
@@ -162,7 +162,7 @@ const Services = () => {
         return (
           <Dropdown
             menu={{ items: dynamicStatusItems }}
-            trigger={["click"]} //Click để hiển thị
+            trigger={["click"]}
             placement="bottomLeft"
           >
             <Tag color={text ? "green" : "red"} style={{ cursor: "pointer" }}>

@@ -15,7 +15,6 @@ export const cancellationApi = {
     },
 
     getByBookingId: async (bookingId: string) => {
-        // Lấy tất cả và filter theo booking_id
         const res = await apiClient.get('/cancellation-requests');
         const all = Array.isArray(res.data) ? res.data : [];
         return all.filter((r: any) => r.booking_id === bookingId);

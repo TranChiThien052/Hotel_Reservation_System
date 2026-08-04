@@ -43,7 +43,7 @@ const ClientRoomTypeDetail = () => {
 
             setRoomType(rtData);
 
-            // Giá
+           
             const foundPrice = (Array.isArray(allPrices) ? allPrices : []).find(
                 (rp: any) => rp.room_type_id === typeId
             );
@@ -87,7 +87,6 @@ const ClientRoomTypeDetail = () => {
         ? Math.round(priceNum / (1 - weekendRate / 100))
         : null;
 
-    // Chuyển sang trang booking theo loại phòng, kiểm tra phòng trống sẽ thực hiện tại đó
     const handleBooking = () => {
         if (typeId) navigate(`/booking/room-type/${typeId}`);
     };
@@ -96,7 +95,6 @@ const ClientRoomTypeDetail = () => {
         <div className="min-h-screen bg-gray-50">
             <div className="max-w-6xl mx-auto px-6 py-8">
 
-                {/* Back */}
                 <button
                     onClick={() => navigate('/rooms')}
                     className="flex items-center gap-2 text-gray-500 hover:text-amber-600 transition-colors mb-6 group"
@@ -107,17 +105,14 @@ const ClientRoomTypeDetail = () => {
 
                 <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
 
-                    {/* ── Ảnh + Info ── */}
                     <div className="lg:col-span-3 flex flex-col gap-6">
 
-                        {/* Ảnh chính */}
                         <div className="relative bg-gray-100 rounded-2xl overflow-hidden aspect-video">
                             <img
                                 src={imgSrc}
                                 alt={roomType.name}
                                 className="w-full h-full object-cover"
                             />
-                            {/* Điều hướng ảnh */}
                             {images.length > 1 && (
                                 <>
                                     <button
@@ -146,7 +141,6 @@ const ClientRoomTypeDetail = () => {
                             )}
                         </div>
 
-                        {/* Thumbnail strip */}
                         {images.length > 1 && (
                             <div className="flex gap-2 overflow-x-auto pb-1">
                                 {images.map((img, i) => (
@@ -161,7 +155,6 @@ const ClientRoomTypeDetail = () => {
                             </div>
                         )}
 
-                        {/* Thông tin loại phòng */}
                         <div className="bg-white rounded-2xl border border-gray-200 p-6 flex flex-col gap-4">
                             <div className="flex items-center justify-between">
                                 <span className="text-xs font-bold uppercase tracking-widest text-amber-600 bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-full">
@@ -176,7 +169,6 @@ const ClientRoomTypeDetail = () => {
                                 <p className="text-sm text-gray-500">Chi nhánh: <span className="font-semibold text-gray-700">{roomType.branches.name}</span></p>
                             )}
 
-                            {/* Thông tin nhanh */}
                             <div className="flex flex-wrap gap-4 text-sm text-gray-600 pt-2">
                                 <div className="flex items-center gap-1.5 bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-200">
                                     <FaRegUser className="text-amber-500" />
@@ -184,17 +176,14 @@ const ClientRoomTypeDetail = () => {
                                 </div>
                             </div>
 
-                            {/* Mô tả */}
                             {roomType.description && (
                                 <p className="text-gray-600 leading-relaxed">{roomType.description}</p>
                             )}
                         </div>
                     </div>
 
-                    {/* ── Sidebar: Giá + Đặt phòng ── */}
                     <div className="lg:col-span-2 flex flex-col gap-6">
 
-                        {/* Card giá */}
                         <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 sticky top-24 flex flex-col gap-5">
                             <h2 className="text-lg font-bold text-gray-900">Giá phòng</h2>
 
@@ -228,7 +217,6 @@ const ClientRoomTypeDetail = () => {
                                     <p>✓ Phòng phù hợp sẽ được chọn tự động</p>
                                 </div>
 
-                                {/* Nút đặt phòng */}
                                 {priceNum || priceHour ? (
                                     <button
                                     onClick={handleBooking}

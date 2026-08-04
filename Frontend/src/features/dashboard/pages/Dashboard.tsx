@@ -14,17 +14,13 @@ import { useAppSelector } from "@/app/store/hooks";
 import { roomsApi } from "@/features/admin/adminRooms/api/rooms-api";
 import type { Room } from "@/features/admin/adminRooms/types/rooms-type";
 import { bookingApi } from "@/features/staff/staffBooking/api/booking-api";
-import type { Booking } from "@/features/staff/staffBooking/types/booking-type";
 import { FcCancel } from "react-icons/fc";
 import type { CancellationRequestType } from "@/features/manager/managerCancellationRequest/types/cancellationRequest-type";
 import { cancellationRequestApi } from "@/features/manager/managerCancellationRequest/api/cancellationRequest-type";
+import { TfiMoney } from "react-icons/tfi";
+import type { BookingToday } from "../types/bookingToday-types";
 
-export interface BookingToday {
-  checkins: Booking[];
-  checkouts: Booking[];
-  checkinsCount: number;
-  checkoutsCount: number;
-}
+
 
 const formatTime = (dateStr: string) => {
   const d = new Date(dateStr);
@@ -40,6 +36,18 @@ const formatDate = (dateStr: string) => {
   });
 };
 
+const defaultBookings: BookingToday = {
+  checkins: [],
+  checkouts: [],
+  checkinsCount: 0,
+  checkoutsCount: 0,
+  revenue: {
+    actual_revenue: 0,
+    bank_transfer_revenue: 0,
+    cash_revenue: 0,
+    deposit_revenue: 0,
+  },
+};
 
 
 const Dashboard = () => {
@@ -48,7 +56,7 @@ const Dashboard = () => {
   const branchName = user?.branches?.name ?? "Chi nhánh";
 
   const [rooms, setRooms] = useState<Room[]>([]);
-  const [bookings, setBookings] = useState<BookingToday>({ checkins: [], checkouts: [], checkinsCount: 0, checkoutsCount: 0 });
+  const [bookings, setBookings] = useState<BookingToday>(defaultBookings);
   const [loading, setLoading] = useState(true);
   const [lastRefresh, setLastRefresh] = useState(new Date());
   const [cancelledRequests, setCancelledRequests] = useState<CancellationRequestType[]>([]);
@@ -87,17 +95,18 @@ const Dashboard = () => {
   }, [fetchAll]);
 
 
-  // ── Room stats ──
+ 
   const activeRooms = rooms.filter((r) => r.is_active);
   const totalRooms = activeRooms.length;
   const occupiedRooms = activeRooms.filter((r) => r.status === "occupied").length;
   const availableRooms = activeRooms.filter((r) => r.status === "available").length;
 
-  // ── Booking stats ──
 
   const inHouseGuests = [...bookings.checkins, ...bookings.checkouts].filter(
     (b, index, self) => b.status === "checked_in" && self.findIndex((t) => t.id === b.id) === index
   );
+
+  const totalRevenue = bookings.revenue.actual_revenue || 0;
   const totalBookingsToday = bookings.checkinsCount + bookings.checkoutsCount;
   const todayCheckins = bookings.checkins;
   const todayCheckouts = bookings.checkouts;
@@ -115,7 +124,7 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
-      {/* Header */}
+      
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
@@ -136,7 +145,6 @@ const Dashboard = () => {
         </button>
       </div>
 
-      {/* Section 1: Room status */}
       <p className="text-[11px] font-bold uppercase tracking-widest text-gray-400 mb-3">Tình trạng phòng hôm nay</p>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
         <StatCard icon={<FaHotel />} label="Tổng số phòng" value={totalRooms} color="text-blue-600" bg="bg-blue-50" />
@@ -144,16 +152,15 @@ const Dashboard = () => {
         <StatCard icon={<FaCheckCircle />} label="Còn trống"value={availableRooms} color="text-green-600"  bg="bg-green-50" />
       </div>
 
-      {/* Section 2: Booking stats */}
-      <p className="text-[11px] font-bold uppercase tracking-widest text-gray-400 mb-3">Booking trong ngày</p>
+      <p className="text-[11px] font-bold uppercase tracking-widest text-gray-400 mb-3">Trong ngày</p>
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
         <StatCard icon={<FaSignInAlt />}  label="Tổng booking hôm nay" value={totalBookingsToday} color="text-emerald-600" bg="bg-emerald-50" />
         <StatCard icon={<FcCancel />} label="Yêu cầu hủy" value={cancelledRequests.length} color="text-rose-600" bg="bg-rose-50" />
+        <StatCard icon={<TfiMoney />} label="Doanh thu hôm nay" value={totalRevenue} color="text-green-600" bg="bg-green-50" />
       </div>
 
-      {/* Section 3: Detail lists */}
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-5">
-        {/* Check-in list */}
+        
         <ListCard title="Danh sách Check-in hôm nay" icon={<FaSignInAlt />} accent="text-emerald-500" count={todayCheckins.length}>
           {todayCheckins.length === 0 ? <EmptyRow label="Không có khách check-in hôm nay" /> : (
             todayCheckins.map((b) => (
@@ -171,7 +178,6 @@ const Dashboard = () => {
           )}
         </ListCard>
 
-        {/* Check-out list */}
         <ListCard title="Danh sách Check-out hôm nay" icon={<FaSignOutAlt />} accent="text-rose-400" count={todayCheckouts.length}>
           {todayCheckouts.length === 0 ? <EmptyRow label="Không có khách check-out hôm nay" /> : (
             todayCheckouts.map((b) => (
@@ -189,7 +195,6 @@ const Dashboard = () => {
           )}
         </ListCard>
 
-        {/* In-house guests */}
         <ListCard title="Khách đang lưu trú" icon={<FaUsers />} accent="text-indigo-500" count={inHouseGuests.length}>
           {inHouseGuests.length === 0 ? <EmptyRow label="Không có khách đang lưu trú" /> : (
             inHouseGuests.map((b) => (

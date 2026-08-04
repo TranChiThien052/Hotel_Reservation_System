@@ -177,7 +177,7 @@ const Login = () => {
   const fieldCls =
     "border-b border-gray-300 pb-1 transition-colors duration-300 focus-within:border-gray-900";
 
-  // Chiều rộng card tùy mode
+
   const cardWidth =
     displayed === "login" ? "max-w-md" : "max-w-lg";
 

@@ -185,7 +185,7 @@ const ClientBooking = () => {
   })();
   console.log("authUser", authUser);
 
-  // Thông tin khách hàng
+  
   const [guestForm, setGuestForm] = useState({
     full_name: authUser?.customers?.full_name ?? "",
     phone: authUser?.customers?.phone ?? "",
@@ -394,7 +394,7 @@ const ClientBooking = () => {
             (sum, item) => sum + item.service.price * item.quantity,
             0,
           );
-        // Kiểm tra giá trị đơn hàng tối thiểu
+        
         if (
           minOrderValue > 0 &&
           currentOrderValue > 0 &&
@@ -494,7 +494,7 @@ const ClientBooking = () => {
     (sum, item) => sum + item.service.price * item.quantity,
     0,
   );
-  // Kiểm tra điều kiện đơn hàng tối thiểu
+  
   const discountEligible =
     !discount ||
     discount.min_order_value <= 0 ||
@@ -517,7 +517,7 @@ const ClientBooking = () => {
         durationHours >= 1 &&
         num_guests >= 1;
 
-  // Nếu đã có customer
+  
   const step1Valid = existingCustomer
     ? true
     : guestForm.full_name.trim() !== "" &&
@@ -712,13 +712,13 @@ const ClientBooking = () => {
                   thời gian đặt phòng
                 </h2>
 
-                {/* ── Loại đặt phòng ── */}
+                
                 <div className="flex flex-col gap-2">
                   <label className="text-sm font-medium text-gray-700">
                     Loại đặt phòng
                   </label>
                   <div className="grid grid-cols-2 gap-3">
-                    {/* Theo ngày */}
+                    
                     <button
                       type="button"
                       onClick={() => setBookingType("daily")}
@@ -744,7 +744,7 @@ const ClientBooking = () => {
                       )}
                     </button>
 
-                    {/* Theo giờ */}
+                    
                     <button
                       type="button"
                       onClick={() => setBookingType("hourly")}
@@ -946,7 +946,7 @@ const ClientBooking = () => {
                 </div>
 
                 <div className="flex flex-col gap-3 pt-2">
-                  {/* Thông báo lỗi phòng trống */}
+                 
                   {availabilityError && (
                     <div className="flex items-start gap-2 text-sm text-red-700 bg-red-50 border border-red-200 px-4 py-3 rounded-xl">
                       <span className="mt-0.5 text-red-500">⚠</span>
@@ -1181,7 +1181,7 @@ const ClientBooking = () => {
                   />
                 </div>
 
-                {/* Dịch vụ đi kèm */}
+                
                 <div className="flex flex-col gap-2 mt-2 overflow-hidden">
                   <label className="text-sm font-medium text-gray-700 flex items-center gap-1.5">
                     <MdOutlineNotes className="text-gray-400" /> Dịch vụ đi kèm
@@ -1453,7 +1453,7 @@ const ClientBooking = () => {
                   )}
                 </div>
 
-                {/* Dịch vụ đã chọn */}
+               
                 {bookingServices.length > 0 && (
                   <div className="flex flex-col gap-3 p-4 bg-gray-50 rounded-xl border border-gray-100">
                     <p className="text-xs font-semibold uppercase tracking-wider text-gray-400">
@@ -1480,7 +1480,7 @@ const ClientBooking = () => {
                   </div>
                 )}
 
-                {/* Hình thức thanh toán */}
+              
                 <div className="flex flex-col gap-3 p-4 bg-gray-50 rounded-xl border border-gray-100">
                   <p className="text-xs font-semibold uppercase tracking-wider text-gray-400">
                     Hình thức thanh toán
@@ -1587,10 +1587,10 @@ const ClientBooking = () => {
             )}
           </div>
 
-          {/* Booking summary card */}
+          
           <div className="lg:col-span-1">
             <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 sticky top-24 flex flex-col gap-4">
-              {/* Room type thumbnail */}
+              
               <div className="flex gap-3 items-start">
                 <img
                   src={imgSrc}
@@ -1613,7 +1613,7 @@ const ClientBooking = () => {
 
               <hr className="border-gray-100" />
 
-              {/* Price */}
+            
               <div className="flex flex-col gap-2 text-sm">
                 {booking_type === "daily" ? (
                   <div className="flex flex-col gap-1 text-gray-600">

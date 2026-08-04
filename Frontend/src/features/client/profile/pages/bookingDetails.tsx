@@ -152,7 +152,7 @@ const BookingDetails = () => {
   const [error, setError] = useState("");
   const [bookingServices, setBookingServices] = useState<BookingService[]>([]);
 
-  /* Hoàn tiền */
+  
   const [showRefundModal, setShowRefundModal] = useState(false);
   const [refundSubmitting, setRefundSubmitting] = useState(false);
   const [refundSuccess, setRefundSuccess] = useState(false);
@@ -304,7 +304,7 @@ const BookingDetails = () => {
 //     return remainingTime <= twentyFourHoursInMs && remainingTime > 0;
 //   };
 
-  /* Điều kiện hiển thị nút hoàn tiền */
+  
   const canRequestRefund =
     !isHourly &&
     (booking.status === "pending" || booking.status === "confirmed") &&
@@ -328,7 +328,7 @@ const BookingDetails = () => {
           </span>
         </button>
 
-        {/* Header card */}
+        
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 mb-5">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
@@ -349,7 +349,7 @@ const BookingDetails = () => {
           </div>
         </div>
 
-        {/* Thông báo yêu cầu hoàn tiền đã gửi */}
+        
         {(existingCancelRequest || refundSuccess) && (
           <div
             className={`mb-5 p-4 rounded-2xl border-2 ${
@@ -425,7 +425,7 @@ const BookingDetails = () => {
           </div>
         )}
 
-        {/* Refund error */}
+        
         {refundError && (
           <div className="mb-5 p-3 bg-red-50 border border-red-200 rounded-xl text-sm text-red-600">
             {refundError}
@@ -433,7 +433,7 @@ const BookingDetails = () => {
         )}
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-          {/* Thông tin phòng */}
+          
           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
             <h2 className="text-sm font-bold text-gray-900 uppercase tracking-wider mb-1 flex items-center gap-2">
               <MdOutlineHotel className="text-amber-500 text-base" />
@@ -469,7 +469,7 @@ const BookingDetails = () => {
             </div>
           </div>
 
-          {/* Thời gian */}
+          
           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
             <h2 className="text-sm font-bold text-gray-900 uppercase tracking-wider mb-1 flex items-center gap-2">
               <FaRegCalendarAlt className="text-amber-500 text-base" />
@@ -516,7 +516,7 @@ const BookingDetails = () => {
             </div>
           </div>
 
-          {/* Thông tin khách hàng */}
+          
           {customer && (
             <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
               <h2 className="text-sm font-bold text-gray-900 uppercase tracking-wider mb-1 flex items-center gap-2">
@@ -552,7 +552,7 @@ const BookingDetails = () => {
             </div>
           )}
 
-          {/* Dịch vụ đã đặt */}
+         
           {bookingServices.length > 0 ? (
             <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
               <h2 className="text-sm font-bold text-gray-900 uppercase tracking-wider mb-1 flex items-center gap-2">
@@ -600,7 +600,7 @@ const BookingDetails = () => {
             </div>
           )}
 
-          {/* Chi phí */}
+       
           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 md:col-span-2">
             <h2 className="text-sm font-bold text-gray-900 uppercase tracking-wider mb-1 flex items-center gap-2">
               <BsReceipt className="text-amber-500 text-base" />
@@ -696,7 +696,7 @@ const BookingDetails = () => {
           </div>
         </div>
 
-        {/* Ghi chú */}
+        
         {booking.notes && (
           <div className="mt-5 bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
             <h2 className="text-sm font-bold text-gray-900 uppercase tracking-wider mb-3 flex items-center gap-2">
@@ -709,7 +709,7 @@ const BookingDetails = () => {
           </div>
         )}
 
-        {/* Chính sách hoàn tiền preview (chỉ hiện khi chưa có yêu cầu) */}
+        
         {/* {canRequestRefund && refundInfo && (
                     <div className="mt-5 bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
                         <h2 className="text-sm font-bold text-gray-900 uppercase tracking-wider mb-3 flex items-center gap-2">
@@ -735,7 +735,7 @@ const BookingDetails = () => {
                     </div>
                 )} */}
 
-        {/* Actions */}
+        
         <div className="mt-5 flex flex-wrap justify-between items-center gap-3">
           <button
             onClick={() => navigate("/my-bookings")}
@@ -745,7 +745,7 @@ const BookingDetails = () => {
           </button>
 
           <div className="flex items-center gap-3 flex-wrap">
-            {/* Thông báo trạng thái */}
+           
             {booking.status === "pending" &&
               !canRequestRefund &&
               !existingCancelRequest && (
@@ -754,7 +754,7 @@ const BookingDetails = () => {
                 </p>
               )}
 
-            {/* Nút yêu cầu hoàn tiền */}
+           
             {canRequestRefund && (
               <button
                 onClick={() => setShowRefundModal(true)}
@@ -765,7 +765,7 @@ const BookingDetails = () => {
               </button>
             )}
 
-            {/* Thông báo đơn theo giờ không được hoàn */}
+            
             {isHourly &&
               (booking.status === "pending" ||
                 booking.status === "confirmed") && (
@@ -777,7 +777,7 @@ const BookingDetails = () => {
         </div>
       </div>
 
-      {/* Modal hoàn tiền */}
+     
       {showRefundModal && (
         <RefundModal
           booking={booking}

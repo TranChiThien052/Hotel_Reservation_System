@@ -13,7 +13,7 @@ interface Props {
 const HistoryTransactionDetailModal = ({ open, onClose, transaction }: Props) => {
   if (!transaction) return null;
 
-  // Format JSON metadata if any
+ 
   const formattedMetadata = transaction.metadata 
     ? JSON.stringify(transaction.metadata, null, 2)
     : "Không có dữ liệu";

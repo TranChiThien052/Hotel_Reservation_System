@@ -51,7 +51,7 @@ const RoomPrices = () => {
       try {
         await roomPricesApi.createRoomPrice(values);
         message.success("Thêm giá phòng thành công!");
-        fetchRoomPrices(); // Tải lại dữ liệu sau khi thêm mới
+        fetchRoomPrices(); 
         roomPrices.close();
       } catch (error) {
         message.error("Có lỗi xảy ra khi thêm giá phòng. Vui lòng thử lại.");
@@ -66,7 +66,7 @@ const RoomPrices = () => {
           values,
         );
         message.success("Cập nhật giá phòng thành công!");
-        fetchRoomPrices(); // Tải lại dữ liệu sau khi cập nhật
+        fetchRoomPrices(); 
         roomPrices.close();
       } catch (error) {
         message.error(

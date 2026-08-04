@@ -47,7 +47,7 @@ const index = () => {
       const rpList: any[] = Array.isArray(rpData) ? rpData : [];
       const branchList: any[] = Array.isArray(branchData) ? branchData : [];
 
-      // Join giá vào từng room type
+     
       const merged: RoomTypeWithPrice[] = rtList
         .filter((rt) => rt.is_active !== false)
         .map((rt) => ({
