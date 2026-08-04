@@ -911,7 +911,7 @@ const StaffBookingModal = ({ open, onClose, onSuccess, branchId }: StaffBookingM
                                             <p className="font-bold text-green-800 text-sm">Thanh toán tại quầy</p>
                                             <p className="text-xs text-green-600">Khách thanh toán tiền mặt ngay bây giờ</p>
                                         </div>
-                                        <span className="text-green-700 font-bold text-sm">{formatVND(Number(createdBooking?.charge?.balance ?? createdBooking?.charge?.total ?? 0))}</span>
+                                        {/* <span className="text-green-700 font-bold text-sm">{formatVND(Number(createdBooking?.charge?.balance ?? createdBooking?.charge?.total ?? 0))}</span> */}
                                     </button>
 
                                     {/* ZaloPay */}
@@ -928,7 +928,7 @@ const StaffBookingModal = ({ open, onClose, onSuccess, branchId }: StaffBookingM
                                             <p className="font-bold text-blue-800 text-sm">Thanh toán ZaloPay</p>
                                             <p className="text-xs text-blue-600">Chuyển hướng đến cổng thanh toán ZaloPay</p>
                                         </div>
-                                        <span className="text-blue-700 font-bold text-sm">{formatVND(Number(createdBooking?.charge?.balance ?? createdBooking?.charge?.total ?? 0))}</span>
+                                        {/* <span className="text-blue-700 font-bold text-sm">{formatVND(Number(createdBooking?.charge?.balance ?? createdBooking?.charge?.total ?? 0))}</span> */}
                                     </button>
 
                                     {/* Nhận phòng chưa thanh toán */}

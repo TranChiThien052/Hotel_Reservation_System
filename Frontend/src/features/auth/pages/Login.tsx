@@ -439,7 +439,7 @@ const Login = () => {
             </div>
           )}
 
-          {/* ── QUÊN MẬT KHẨU ──────────────────────────────────────── */}
+          
           {displayed === "forgot" && (
             <div className="px-12 py-10">
               <h2 className="mb-3 text-center text-3xl font-bold tracking-wider text-gray-950">
