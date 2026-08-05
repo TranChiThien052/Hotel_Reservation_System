@@ -433,7 +433,7 @@ const Rooms = () => {
             ? "Chỉnh sửa phòng"
             : "Chi tiết phòng"
         }
-        fields={roomsFormFields}
+        fields={(formData) => roomsFormFields(formData?.branch_id)}
         initialValues={room.selectedRecord || defaultRoomData}
         onSubmit={handleSubmitForm}
       />

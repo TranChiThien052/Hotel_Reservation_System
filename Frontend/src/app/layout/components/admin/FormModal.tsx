@@ -10,7 +10,7 @@ interface FormModalProps<T extends object> {
   onClose: () => void;
   mode: FormModalMode;
   title: string;
-  fields: FormField<any>[];
+  fields: FormField<any>[] | ((formData: any) => FormField<any>[]);
   initialValues: T;
   onSubmit?: (values: T) => void;
 }
@@ -41,12 +41,14 @@ const FormModal = <T extends object>({
   const isViewMode = mode === FormModalModes.VIEW;
   const isUpdateMode = mode === FormModalModes.UPDATE;
 
-  const activeFields = fields.filter((fields) => {
-    if (isUpdateMode && fields.hideInUpdateMode) {
+  const resolvedFields = typeof fields === 'function' ? fields(formData) : fields;
+
+  const activeFields = resolvedFields.filter((field) => {
+    if (isUpdateMode && field.hideInUpdateMode) {
       return false;
     }
     return true;
-  })
+  });
 
   
   const handleChange = (key: string, value: unknown) => {
@@ -71,7 +73,7 @@ const FormModal = <T extends object>({
 
     
     const submitData = { ...formData };
-    fields.forEach((field) => {
+    resolvedFields.forEach((field) => {
       if (isUpdateMode && field.hideInUpdateMode) {
         delete submitData[field.key];
       }

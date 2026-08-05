@@ -387,7 +387,7 @@ const columns: TableProps<Room>["columns"] = [
             ? "Chi tiết phòng"
             : ""
         }
-        fields={roomsFormFields}
+        fields={(formData) => roomsFormFields(formData?.branch_id)}
         initialValues={staffRooms.selectedRecord || defaultRoomData}
       />
     </div>
