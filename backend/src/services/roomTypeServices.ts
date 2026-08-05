@@ -152,15 +152,7 @@ class RoomTypeService {
         }
         const uploadedFiles = await uploadImage(data.files);
         try {
-            const result = await RoomImageRepository.createRoomImages(data.id, uploadedFiles);
-            if (result)
-                await historyTransactionServices.createCreateTransaction(
-                    data.log_account_id,
-                    "Room Image",
-                    result[0].room_type_id,
-                    result[0]
-                );
-            return result;
+            return await RoomImageRepository.createRoomImages(data.id, uploadedFiles);
         } catch (error: any) {
             throw new Error(error);
         }
