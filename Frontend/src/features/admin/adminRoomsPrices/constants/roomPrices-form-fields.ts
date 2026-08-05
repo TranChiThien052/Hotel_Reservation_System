@@ -11,7 +11,7 @@ export const roomPricesFormFields: FormField<RoomPriceFormData>[] = [
         placeholder: "Chọn loại phòng",
         type: FormFieldTypes.SELECT_FETCH,
         fetchOptions: roomTypesApi.getRoomTypes,
-        customData: (data: any[]) => data.map((item) => ({label: item.name, value: item.id})),
+        customData: (data: any[]) => data.map((item) => ({label: item.name + " - " + item.branches.name, value: item.id})),
         hideInUpdateMode: true
     },
     {
