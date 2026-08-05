@@ -34,7 +34,7 @@ const SelectFetchCustom: React.FC<SelectFetchCustomProps> = ({ fetchOptions, cus
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [fetchOptions]);
 
   return <SelectCustom loading={loading} options={options} {...props} />;
 };

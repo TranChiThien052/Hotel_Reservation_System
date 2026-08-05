@@ -4,7 +4,7 @@ import { FormFieldTypes } from "@/shared/types/type-form-field";
 import { roomTypesApi } from "../../adminRoomTypes/api/roomTypes-api";
 import { branchApi } from "../../adminBranch/api/admin-api";
 
-export const roomsFormFields: FormField<RoomFormData>[] = [
+export const roomsFormFields = (branchId?: string): FormField<RoomFormData>[] => [
     {
         key: "branch_id",
         label: "Chi nhánh",
@@ -49,7 +49,7 @@ export const roomsFormFields: FormField<RoomFormData>[] = [
         label: "Loại phòng",
         placeholder: "Chọn loại phòng",
         type: FormFieldTypes.SELECT_FETCH,
-        fetchOptions: roomTypesApi.getRoomTypes,
+        fetchOptions: branchId ? () => roomTypesApi.getRoomTypeByBranchId(branchId!) : undefined,
         customData: (data: any[]) => data.map((item) => ({label: item.name, value: item.id})),
         rules: [
             {
