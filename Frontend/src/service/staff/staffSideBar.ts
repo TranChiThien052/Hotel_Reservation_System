@@ -12,7 +12,7 @@ export interface StaffSideBarItem {
 
 export const staffSideBarItems: StaffSideBarItem[] = [
     {name: "Dashboard", path: "dashboard", icon: MdOutlineDashboard},
-    {name: "Quản lý phòng", path: "rooms", icon: LuDoorClosed},
     {name: "Quản lý đặt phòng", path: "bookings", icon: TbBrandBooking},
+    {name: "Quản lý phòng", path: "rooms", icon: LuDoorClosed},
     {name: "Quản lý yêu cầu hủy", path: "cancellation-requests", icon: IoCloseCircleOutline},
 ];

@@ -9,6 +9,7 @@ import {
 } from "react-icons/fa";
 import { FiRefreshCw } from "react-icons/fi";
 import { ListCard, EmptyRow, StatusBadge } from "../components/ListCard";
+import { RevenueCard } from "../components/RevenueCard";
 import { StatCard } from "../components/Statcard";
 import { useAppSelector } from "@/app/store/hooks";
 import { roomsApi } from "@/features/admin/adminRooms/api/rooms-api";
@@ -159,7 +160,7 @@ const Dashboard = () => {
         <StatCard icon={<TfiMoney />} label="Doanh thu hôm nay" value={totalRevenue} color="text-green-600" bg="bg-green-50" />
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-5">
+      <div className={"grid grid-cols-1 " + (user?.role === "manager" ? "xl:grid-cols-4" : "xl:grid-cols-3") + " gap-5"}>
         
         <ListCard title="Danh sách Check-in hôm nay" icon={<FaSignInAlt />} accent="text-emerald-500" count={todayCheckins.length}>
           {todayCheckins.length === 0 ? <EmptyRow label="Không có khách check-in hôm nay" /> : (
@@ -211,6 +212,9 @@ const Dashboard = () => {
             ))
           )}
         </ListCard>
+        {user?.role === "manager" && (
+          <RevenueCard branchId={branchId} />
+        )}
       </div>
     </div>
   );
