@@ -111,6 +111,18 @@ class PaymentController {
             });
     };
 
+    async getRevenueCustom(req, res) {
+        const { get_by, year, quarter, month, branch_id } = req.query;
+        return await PaymentService.getRevenueReport_Custom(get_by, year, quarter, month, branch_id)
+            .then(response => res.status(200).json(response))
+            .catch(error => {
+                console.log(error);
+                if (typeof parseInt(error.code) === 'number')
+                    return res.status(parseInt(error.code)).json({ error })
+                res.status(500).json({ error: error.message });
+            })
+    }
+
     async getRevenue(req, res) {
         const { start, end, branch_id } = req.query;
         return PaymentService.getRevenueReport(start, end, branch_id)
