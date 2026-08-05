@@ -56,6 +56,22 @@ class PaymentRepository {
         });
     };
 
+    async getCustomRevenue(start, end, branch_id?) {
+        const condition: any = {};
+        condition.paid_at = {
+            lte: end,
+            gte: start,
+        }
+        condition.status = payment_status.paid;
+        if (branch_id) {
+            condition.bookings = {};
+            condition.bookings.branch_id = branch_id;
+        }
+        return await prisma.payments.findMany({
+            where: condition,
+        });
+    }
+
     async getRevenue(start, end, branch_id?) {
         const condition: any = {};
         condition.paid_at = {

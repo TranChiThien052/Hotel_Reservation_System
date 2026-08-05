@@ -98,7 +98,7 @@ class InvoiceService {
         let detail: any = {};
 
         let room_charge = 0;
-        if (booking.actual_checkin_at === null || booking.actual_checkout_at === null && booking.booking_type === booking_type.daily) {
+        if ((booking.actual_checkin_at === null || booking.actual_checkout_at === null) && booking.booking_type === booking_type.daily) {
             room_charge = calculateDynamicPrice(booking.checkin_at, booking.checkout_at, basePrice, roomPrice?.weekend_rate, roomPrice?.holiday_rate, holidayDates, booking.booking_type);
             detail.checkin_at = booking.checkin_at;
             detail.checkout_at = booking.checkout_at;

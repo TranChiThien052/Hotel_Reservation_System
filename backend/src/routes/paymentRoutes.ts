@@ -10,6 +10,7 @@ import { authorize } from '../middlewares/authorizer';
 const router = express.Router();
 
 
+router.get('/report',PaymentController.getRevenueCustom)
 router.get('/revenue',PaymentController.getRevenue)
 /**
  * @swagger

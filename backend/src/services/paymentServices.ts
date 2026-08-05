@@ -302,6 +302,123 @@ class PaymentService {
         return await PaymentRepository.getPaymentByTransactionRef(transactionRef);
     }
 
+    async getRevenueReport_Custom(get_by, year, quarter?, month?, branch_id?) {
+        const validator = new Validator();
+        const method = ['year', 'quarter', 'month'];
+        if (!method.includes(get_by))
+            throw new ValidationError('400', 'Invalid get by method');
+        const getYear = new Date(year).getFullYear();
+        if (getYear > new Date().getFullYear())
+            throw new ValidationError('400', 'Invalid year');
+        if (branch_id) {
+            if (validator.isUUID("Branch ID", branch_id)) {
+                const branch = await branchServices.getBranchById(branch_id);
+                if (!branch)
+                    throw new ValidationError('404', 'Branch not found')
+            }
+        }
+        if (quarter) 
+            if (quarter <= 0 || quarter > 4) 
+                throw new ValidationError('400', 'Invalid quarter');
+        if (month) 
+            if (month <= 0 || month > 12)
+                throw new ValidationError('400', 'Invalid month');
+        const startDate = new Date(Number(year), 0, 1, 0, 0, 0);
+        const endDate = new Date(Number(year), 11, 31, 23, 59, 999);
+        const payments = await PaymentRepository.getCustomRevenue(startDate, endDate, branch_id);
+        const result  = payments.reduce((acc, curr) => {
+            const month = (curr.paid_at ? new Date(curr.paid_at).getMonth() : 0) + 1;
+            let quarter = 0;
+            if (month >= 0 && month <= 3)
+                quarter = 1;
+            else if (month <= 6)
+                quarter = 2;
+            else if (month <= 9)
+                quarter = 3;
+            else if (month <= 12)
+                quarter = 4;
+
+            acc.total += Number(curr.amount);
+            if (!acc.revenue_by_month[month])
+                acc.revenue_by_month[month] = {};
+            acc.revenue_by_month[month].total = (acc.revenue_by_month[month].total ? acc.revenue_by_month[month].total : 0) + Number(curr.amount);
+            if (!acc.revenue_by_quarter[quarter])
+                acc.revenue_by_quarter[quarter] = {};
+            acc.revenue_by_quarter[quarter].total = (acc.revenue_by_quarter[quarter].total ? acc.revenue_by_quarter[quarter].total : 0) + Number(curr.amount);
+
+            if (curr.payment_method === payment_method.cash) {
+                acc.cash += Number(curr.amount);
+                acc.revenue_by_month[month].cash = (acc.revenue_by_month[month].cash ? acc.revenue_by_month[month].cash : 0) + Number(curr.amount);
+                acc.revenue_by_quarter[quarter].cash = (acc.revenue_by_quarter[quarter].cash ? acc.revenue_by_quarter[quarter].cash : 0) + Number(curr.amount);
+            }
+
+            if (curr.payment_method === payment_method.bank_transfer) {
+                acc.transfer += Number(curr.amount);
+                acc.revenue_by_month[month].transfer = (acc.revenue_by_month[month].transfer ? acc.revenue_by_month[month].transfer : 0) + Number(curr.amount);
+                acc.revenue_by_quarter[quarter].transfer = (acc.revenue_by_quarter[quarter].transfer ? acc.revenue_by_quarter[quarter].transfer : 0) + Number(curr.amount);
+            }
+
+            return acc;
+            }, {
+                total: 0, 
+                cash: 0, 
+                transfer: 0, 
+                revenue_by_quarter: { 
+                    1: {}, 
+                    2: {}, 
+                    3: {}, 
+                    4: {},
+                }, 
+                revenue_by_month: { 
+                    1: {}, 
+                    2: {}, 
+                    3: {}, 
+                    4: {}, 
+                    5: {}, 
+                    6: {}, 
+                    7: {}, 
+                    8: {}, 
+                    9: {}, 
+                    10: {}, 
+                    11: {}, 
+                    12: {},
+                }
+            }
+        );
+        switch (get_by) {
+            case 'year':
+                return result;
+                break;
+            case 'quarter':
+                const revenue_by_month = {};
+                if (quarter == 1) {
+                    for (let i = 1; i <= 3; i ++)
+                        revenue_by_month[i] = result.revenue_by_month[i];
+                } else if (quarter == 2) {
+                    for (let i = 4; i <= 6; i ++)
+                        revenue_by_month[i] = result.revenue_by_month[i];
+                } else if (quarter == 3) {
+                    for (let i = 7; i <= 9; i ++)
+                        revenue_by_month[i] = result.revenue_by_month[i];
+                } else if (quarter == 4) {
+                    for (let i = 10; i <= 12; i ++)
+                        revenue_by_month[i] = result.revenue_by_month[i];
+                }
+                return {
+                    total: result.revenue_by_quarter[quarter],
+                    revenue_by_month: revenue_by_month,
+                };
+                break;
+            case 'month':
+                return {
+                    total: result.revenue_by_month[month],
+                }
+                break;
+            default:
+                break;
+        }
+    }
+
     async getRevenueReport(start, end, branch_id?) {
         const validator = new Validator();
         validator.validateDate(start);
@@ -309,7 +426,7 @@ class PaymentService {
         if (branch_id && validator.isUUID("Branch ID", branch_id)) {
             const branch = await branchServices.getBranchById(branch_id);
             if (!branch)
-                throw new ValidationError('404', "Branch not exist");
+                throw new ValidationError('404', "Branch not found");
         }
         if (validator.error.length > 0)
             throw new ValidationError('400', validator.clearError());
