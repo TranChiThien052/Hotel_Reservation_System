@@ -20,8 +20,8 @@ const BranchCard = ({ branch, image }: BranchCardProps) => {
 
       
       <div className="p-5 flex flex-col justify-center gap-2 flex-1">
-        <div>
-          <h3 className="text-lg font-bold text-gray-800">{branch.name}</h3>
+        <div className="flex justify-between gap-1">
+          <h3 className="text-lg font-bold text-gray-800">Chi nhánh {branch.name}</h3>
           <span className="inline-block text-xs font-medium text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full mt-1">
             {branch.city}
           </span>
@@ -42,14 +42,18 @@ const BranchCard = ({ branch, image }: BranchCardProps) => {
             <span>{branch.email}</span>
           </div>
         </div>
+        <hr />
 
-        {branch.description ? (
-          <p className="text-xs text-gray-400 leading-relaxed line-clamp-2 mt-1">
+            <div>Mô tả</div>
+        <div className="pl-2">
+            {branch.description ? (
+          <p className="text-xs text-gray-600 leading-relaxed text-justify">
             {branch.description}
           </p>
         ) : (
-            <p className="text-xs text-gray-400 italic mt-1">Không có mô tả</p>
+            <p className="text-xs text-gray-400 italic">Không có mô tả</p>
         )}
+        </div>
       </div>
     </div>
   );
