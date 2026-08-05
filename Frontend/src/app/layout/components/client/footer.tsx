@@ -1,7 +1,6 @@
 
 import { BiLogoFacebook } from "react-icons/bi";
 import { FaInstagram } from "react-icons/fa";
-import { GrLocation } from "react-icons/gr";
 import { FiPhone } from "react-icons/fi";
 import { CgMail } from "react-icons/cg";
 import {  FaXTwitter } from "react-icons/fa6";
