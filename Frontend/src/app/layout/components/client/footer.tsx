@@ -63,10 +63,10 @@ const footer = () => {
 
           <div className="flex flex-col gap-4">
             <div className="font-bold text-xl">Liên hệ</div>
-            <div className="flex items-center gap-2">
+            {/* <div className="flex items-center gap-2">
               <GrLocation className="text-orange-400" />
               180 Cao Lỗ, Q.8, TP.HCM
-            </div>
+            </div> */}
             <div className="flex items-center gap-2">
               <CgMail className="text-orange-400" />
               stu.hoteltest@gmail.com

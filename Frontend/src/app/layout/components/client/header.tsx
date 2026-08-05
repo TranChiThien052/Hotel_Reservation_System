@@ -108,7 +108,7 @@ const header = () => {
                         ) : (
                             <button 
                                 onClick={handleLoginRedirect} 
-                                className='bg-orange-400 hover:bg-orange-500 text-white px-4 py-2 rounded-lg cursor-pointer text-base font-medium flex items-center gap-2 transition-colors border-none'
+                                className='bg-gray-200 hover:bg-gray-300  text-black px-4 py-2 rounded-lg cursor-pointer text-base font-medium flex items-center gap-2 transition-colors border-none'
                             >
                                 Đăng nhập
                             </button>
