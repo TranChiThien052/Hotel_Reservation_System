@@ -26,16 +26,16 @@ const FormModal = <T extends object>({
 }: FormModalProps<T>) => {
   const [formData, setFormData] = useState<any>(initialValues);
 
-  // Lưu lại giá trị initialValues trước đó để so sánh
+
   const [prevInitialValues, setPrevInitialValues] = useState<T>(initialValues);
 
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  // Nếu dữ liệu truyền vào thay đổi, ta cập nhật lại state formData
+ 
   if (initialValues !== prevInitialValues) {
     setPrevInitialValues(initialValues);
     setFormData(initialValues);
-    setErrors({}); // Reset lỗi khi dữ liệu mới được load vào
+    setErrors({});
   }
 
   const isViewMode = mode === FormModalModes.VIEW;
@@ -48,10 +48,10 @@ const FormModal = <T extends object>({
     return true;
   })
 
-  // Xử lý thay đổi form 
+  
   const handleChange = (key: string, value: unknown) => {
     setFormData((prev: any) => ({ ...prev, [key]: value }));
-    // Xóa lỗi khi người dùng bắt đầu sửa
+   
     if (errors[key]) {
       setErrors((prev) => {
         const newErrors = { ...prev };
@@ -69,7 +69,7 @@ const FormModal = <T extends object>({
     }
     setErrors({});
 
-    // Xử lý submit dữ liệu, loại bỏ các trường bị ẩn trong chế độ UPDATE
+    
     const submitData = { ...formData };
     fields.forEach((field) => {
       if (isUpdateMode && field.hideInUpdateMode) {

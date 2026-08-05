@@ -1,7 +1,7 @@
 import apiClient from "@/shared/lib/axios"
 import type { BranchFormData } from "../types/branch-type";
 
-// Branch API calls
+
 export const branchApi = {
     getBranches: async () => {
         const res = await apiClient.get('/branches');
@@ -28,24 +28,3 @@ export const branchApi = {
         return res.data;
     }
 };
-
-// // Room Type API calls
-// export const getRoomTypes = async () => {
-//     const res = await apiClient.get('/room-types');
-//     return res.data;
-// }
-
-// export const getRoomTypeById = async (id: string) => {
-//     const res = await apiClient.get(`/room-types/${id}`);
-//     return res.data;
-// }
-
-// export const updateRoomType = async (roomTypeId: string, roomTypeData: RoomType) => {
-//     const res = await apiClient.put(`/room-types/${roomTypeId}`, roomTypeData);
-//     return res.data;
-// }
-
-// export const createRoomType = async (roomTypeData: RoomType) => {
-//     const res = await apiClient.post('/room-types', roomTypeData);
-//     return res.data;
-// }

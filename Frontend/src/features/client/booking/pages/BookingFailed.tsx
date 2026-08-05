@@ -20,14 +20,14 @@ const BookingFailed = () => {
   const user = useAppSelector((s) => s.auth.user);
   const role = user?.role || sessionStorage.getItem("zp_role");
 
-  // Query parameters from ZaloPay redirect
+
   const statusParam = searchParams.get("status");
   const reasonParam = searchParams.get("reason");
   const apptransid = searchParams.get("apptransid") || paymentResult?.payments?.transaction_ref || "";
   const rawAmount = searchParams.get("amount") || paymentResult?.payments?.amount;
   const amount = rawAmount ? Number(rawAmount) : null;
 
-  // Is this a user cancellation?
+ 
   const isCancelled = statusParam === "-49" || reasonParam === "cancel" || reasonParam === "user_cancel";
 
   useEffect(() => {
@@ -82,11 +82,11 @@ const BookingFailed = () => {
     <div className="min-h-screen bg-linear-to-br from-red-50 via-white to-amber-50 flex items-center justify-center px-4 py-12">
       <div className="bg-white rounded-3xl shadow-2xl p-8 sm:p-10 max-w-lg w-full flex flex-col items-center gap-6 border border-gray-100 relative overflow-hidden">
         
-        {/* Decorative background glow */}
+        
         <div className={`absolute -top-24 -right-24 w-48 h-48 rounded-full blur-3xl opacity-30 ${isCancelled ? 'bg-amber-400' : 'bg-rose-500'}`} />
         <div className={`absolute -bottom-24 -left-24 w-48 h-48 rounded-full blur-3xl opacity-30 ${isCancelled ? 'bg-orange-300' : 'bg-red-400'}`} />
 
-        {/* Status Icon Header */}
+       
         <div className="relative">
           <div className={`w-24 h-24 rounded-full flex items-center justify-center shadow-inner ${isCancelled ? 'bg-amber-100 text-amber-500' : 'bg-rose-100 text-rose-500'}`}>
             {isCancelled ? (
@@ -100,7 +100,7 @@ const BookingFailed = () => {
           </div>
         </div>
 
-        {/* Title & Description */}
+       
         <div className="text-center">
           <h1 className="text-2xl sm:text-3xl font-extrabold text-gray-900 mb-2">
             {isCancelled ? "Giao dịch đã bị hủy" : "Thanh toán không thành công"}
@@ -119,7 +119,7 @@ const BookingFailed = () => {
           </p>
         </div>
 
-        {/* Detailed Information Box */}
+        
         <div className="w-full bg-gray-50 rounded-2xl p-5 flex flex-col gap-3 text-sm border border-gray-100">
           <div className="flex items-center justify-between">
             <span className="text-gray-500">Trạng thái:</span>
@@ -164,7 +164,7 @@ const BookingFailed = () => {
           )}
         </div>
 
-        {/* Helper Note Box */}
+       
         <div className="w-full bg-amber-50/80 border border-amber-200/80 rounded-xl p-4 text-xs text-amber-800 leading-relaxed flex items-start gap-3">
           <IoHelpCircleOutline className="text-amber-600 text-lg shrink-0 mt-0.5" />
           <div>
@@ -175,7 +175,7 @@ const BookingFailed = () => {
           </div>
         </div>
 
-        {/* Action Buttons */}
+        
         <div className="w-full flex flex-col gap-3 pt-2">
           <button
             onClick={() => navigate("/rooms")}

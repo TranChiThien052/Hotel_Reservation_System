@@ -1,6 +1,5 @@
 import { staffSideBarItems } from "@/service/staff/staffSideBar"
 import { NavLink, Outlet } from "react-router-dom"
-// import AdminHeader from "./admin/AdminHeader"
 import AdminFooter from "./admin/AdminFooter"
 import EmployeeHeader from "./EmployeeHeader"
 

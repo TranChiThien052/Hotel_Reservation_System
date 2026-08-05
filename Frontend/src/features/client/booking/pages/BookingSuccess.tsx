@@ -76,7 +76,7 @@ const BookingSuccess = () => {
   return (
     <div className="min-h-screen bg-linear-to-br from-amber-50 via-white to-green-50 flex items-center justify-center px-4 py-12">
       <div className="bg-white rounded-3xl shadow-2xl p-10 max-w-lg w-full flex flex-col items-center gap-6">
-        {/* Icon thành công */}
+        
         <div className="relative">
           <div className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center">
             <IoCheckmarkCircle className="text-green-500 text-6xl" />
@@ -86,7 +86,7 @@ const BookingSuccess = () => {
           </div>
         </div>
 
-        {/* Tiêu đề */}
+        
         <div className="text-center">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
             Đặt phòng thành công!

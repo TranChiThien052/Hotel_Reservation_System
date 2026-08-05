@@ -7,6 +7,7 @@ import { MdStar, MdStarHalf, MdStarBorder } from 'react-icons/md';
 import { FaRegUser, FaChevronLeft, FaChevronRight } from 'react-icons/fa6';
 import { IoArrowBack } from 'react-icons/io5';
 import fallbackImg from '@/assets/images/Deluxe.jpg';
+import { useAppSelector } from '@/app/store/hooks';
 
 const RATING = 4.5;
 
@@ -26,6 +27,8 @@ const StarRating = ({ rating }: { rating: number }) => (
 const ClientRoomTypeDetail = () => {
     const { typeId } = useParams<{ typeId: string }>();
     const navigate = useNavigate();
+    const user = useAppSelector(state => state.auth.user);
+    const isStaff = user?.role === "staff" || user?.role === "manager" || user?.role === "admin";
 
     const [roomType, setRoomType] = useState<RoomType | null>(null);
     const [price, setPrice] = useState<any>(null);
@@ -43,7 +46,7 @@ const ClientRoomTypeDetail = () => {
 
             setRoomType(rtData);
 
-            // Giá
+           
             const foundPrice = (Array.isArray(allPrices) ? allPrices : []).find(
                 (rp: any) => rp.room_type_id === typeId
             );
@@ -83,11 +86,11 @@ const ClientRoomTypeDetail = () => {
     const priceNum = price?.price_per_day ? Number(price.price_per_day) : null;
     const priceHour = price?.price_per_hour ? Number(price.price_per_hour) : null;
     const weekendRate = price?.weekend_rate ? Number(price.weekend_rate) : 0;
+    const holidayRate = price?.holiday_rate ? Number(price.holiday_rate) : 0;
     const originalPrice = priceNum && weekendRate > 0
         ? Math.round(priceNum / (1 - weekendRate / 100))
         : null;
 
-    // Chuyển sang trang booking theo loại phòng, kiểm tra phòng trống sẽ thực hiện tại đó
     const handleBooking = () => {
         if (typeId) navigate(`/booking/room-type/${typeId}`);
     };
@@ -96,7 +99,6 @@ const ClientRoomTypeDetail = () => {
         <div className="min-h-screen bg-gray-50">
             <div className="max-w-6xl mx-auto px-6 py-8">
 
-                {/* Back */}
                 <button
                     onClick={() => navigate('/rooms')}
                     className="flex items-center gap-2 text-gray-500 hover:text-amber-600 transition-colors mb-6 group"
@@ -107,17 +109,14 @@ const ClientRoomTypeDetail = () => {
 
                 <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
 
-                    {/* ── Ảnh + Info ── */}
                     <div className="lg:col-span-3 flex flex-col gap-6">
 
-                        {/* Ảnh chính */}
                         <div className="relative bg-gray-100 rounded-2xl overflow-hidden aspect-video">
                             <img
                                 src={imgSrc}
                                 alt={roomType.name}
                                 className="w-full h-full object-cover"
                             />
-                            {/* Điều hướng ảnh */}
                             {images.length > 1 && (
                                 <>
                                     <button
@@ -146,7 +145,6 @@ const ClientRoomTypeDetail = () => {
                             )}
                         </div>
 
-                        {/* Thumbnail strip */}
                         {images.length > 1 && (
                             <div className="flex gap-2 overflow-x-auto pb-1">
                                 {images.map((img, i) => (
@@ -161,7 +159,6 @@ const ClientRoomTypeDetail = () => {
                             </div>
                         )}
 
-                        {/* Thông tin loại phòng */}
                         <div className="bg-white rounded-2xl border border-gray-200 p-6 flex flex-col gap-4">
                             <div className="flex items-center justify-between">
                                 <span className="text-xs font-bold uppercase tracking-widest text-amber-600 bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-full">
@@ -176,7 +173,6 @@ const ClientRoomTypeDetail = () => {
                                 <p className="text-sm text-gray-500">Chi nhánh: <span className="font-semibold text-gray-700">{roomType.branches.name}</span></p>
                             )}
 
-                            {/* Thông tin nhanh */}
                             <div className="flex flex-wrap gap-4 text-sm text-gray-600 pt-2">
                                 <div className="flex items-center gap-1.5 bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-200">
                                     <FaRegUser className="text-amber-500" />
@@ -184,17 +180,14 @@ const ClientRoomTypeDetail = () => {
                                 </div>
                             </div>
 
-                            {/* Mô tả */}
                             {roomType.description && (
                                 <p className="text-gray-600 leading-relaxed">{roomType.description}</p>
                             )}
                         </div>
                     </div>
 
-                    {/* ── Sidebar: Giá + Đặt phòng ── */}
                     <div className="lg:col-span-2 flex flex-col gap-6">
 
-                        {/* Card giá */}
                         <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 sticky top-24 flex flex-col gap-5">
                             <h2 className="text-lg font-bold text-gray-900">Giá phòng</h2>
 
@@ -210,26 +203,39 @@ const ClientRoomTypeDetail = () => {
                                     {priceHour && (
                                         <p className="text-sm text-gray-500">{formatVND(priceHour)} <span className="text-gray-400">/ giờ</span></p>
                                     )}
-                                    {weekendRate > 0 && (
+                                    <div className="flex gap-2 flex-wrap">
+                                        {weekendRate > 0 && (
                                         <span className="text-xs text-orange-600 bg-orange-50 border border-orange-200 px-2 py-1 rounded-full w-fit">
                                             +{weekendRate}% cuối tuần
                                         </span>
                                     )}
+                                    {holidayRate > 0 && (
+                                        <span className="text-xs text-orange-600 bg-orange-50 border border-orange-200 px-2 py-1 rounded-full w-fit">
+                                            +{holidayRate}% ngày lễ
+                                        </span>
+                                    )}
+                                    </div>
                                 </div>
                             ) : (
                                 <p className="text-gray-400 italic text-sm">Liên hệ để biết giá</p>
                             )}
 
                             <div className="border-t border-gray-100 pt-4 flex flex-col gap-3">
-                                {/* Ghi chú */}
+                                
                                 <div className="text-xs text-gray-400 bg-gray-50 border border-gray-100 rounded-xl px-4 py-3 leading-relaxed">
-                                    <p>✓ Ngày nhận / trả phòng được chọn ở bước tiếp theo</p>
-                                    <p>✓ Hệ thống sẽ kiểm tra phòng trống sau khi bạn chọn ngày</p>
-                                    <p>✓ Phòng phù hợp sẽ được chọn tự động</p>
+                                    <p> Ngày nhận / trả phòng được chọn ở bước tiếp theo</p>
+                                    <p> Hệ thống sẽ kiểm tra phòng trống sau khi bạn chọn ngày</p>
+                                    <p> Phòng phù hợp sẽ được chọn tự động</p>
                                 </div>
-
-                                {/* Nút đặt phòng */}
-                                {priceNum || priceHour ? (
+                                {isStaff ? (
+                                    <button
+                                        disabled
+                                        className="w-full py-3.5 rounded-xl font-bold text-base transition-all duration-200 bg-gray-300 text-gray-500 cursor-not-allowed"
+                                    >
+                                        Nhân viên không thể đặt phòng
+                                    </button>
+                                ) : (
+                                priceNum || priceHour ? (
                                     <button
                                     onClick={handleBooking}
                                     className="w-full py-3.5 rounded-xl font-bold text-base transition-all duration-200 bg-amber-500 hover:bg-amber-600 text-white shadow-md hover:shadow-lg active:scale-[0.98] cursor-pointer"
@@ -243,7 +249,7 @@ const ClientRoomTypeDetail = () => {
                                 >
                                     Liên hệ để đặt phòng
                                 </button>
-                                )}
+                                ))}
                                 
 
                                 <p className="text-xs text-center text-gray-400">

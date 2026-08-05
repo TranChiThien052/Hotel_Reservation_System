@@ -1,4 +1,4 @@
-// import Logo from "../assets/icons/Logo.png";
+
 import { BiLogoFacebook } from "react-icons/bi";
 import { FaInstagram } from "react-icons/fa";
 import { GrLocation } from "react-icons/gr";

@@ -77,7 +77,7 @@ const Rooms = () => {
         ),
       );
       message.success("Cập nhật trạng thái phòng thành công");
-      fetchRooms(); // Gọi lại fetchRooms để cập nhật danh sách phòng sau khi thay đổi trạng thái
+      fetchRooms(); 
     } catch (error) {
       message.error("Cập nhật trạng thái phòng thất bại");
       console.error("Update error:", error);
@@ -88,23 +88,23 @@ const Rooms = () => {
 
   const handleSubmitForm = async (values: RoomFormData) => {
     if (room.mode === FormModalModes.CREATE) {
-      // Xử lý tạo mới phòng
+      
 
       try {
         await roomsApi.createRoom(values);
         message.success("Tạo phòng mới thành công");
-        fetchRooms(); // Gọi lại fetchRooms để cập nhật danh sách phòng
+        fetchRooms(); 
         room.close();
       } catch (error) {
         message.error("Tạo phòng mới thất bại");
         console.error("Create error:", error);
       }
     } else if (room.mode === FormModalModes.UPDATE && room.selectedRecord) {
-      // Xử lý cập nhật phòng
+     
       try {
         await roomsApi.updateRoom(room.selectedRecord.id, values);
         message.success("Cập nhật phòng thành công");
-        fetchRooms(); // Gọi lại fetchRooms để cập nhật danh sách phòng
+        fetchRooms(); 
         room.close();
       } catch (error) {
         message.error("Cập nhật phòng thất bại");
@@ -172,7 +172,7 @@ const Rooms = () => {
       dataIndex: "status",
       key: "status",
       render: (text, record: Room) => {
-        // Tạo items động với onClick cho từng branch
+       
         const dynamicStatusItems: MenuProps["items"] = [
           {
             key: "Available",
@@ -209,7 +209,7 @@ const Rooms = () => {
         return (
           <Dropdown
             menu={{ items: dynamicStatusItems }}
-            trigger={["click"]} //Click để hiển thị
+            trigger={["click"]}
             placement="bottomLeft"
           >
             <Tag
@@ -247,7 +247,7 @@ const Rooms = () => {
       key: "is_active",
       dataIndex: "is_active",
       render: (text, record: Room) => {
-        // Tạo items động với onClick cho từng branch
+       
         const dynamicStatusItems: MenuProps["items"] = [
           {
             key: "active",
@@ -264,7 +264,7 @@ const Rooms = () => {
         return (
           <Dropdown
             menu={{ items: dynamicStatusItems }}
-            trigger={["click"]} //Click để hiển thị
+            trigger={["click"]} 
             placement="bottomLeft"
           >
             <Tag color={text ? "green" : "red"} style={{ cursor: "pointer" }}>

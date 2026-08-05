@@ -33,23 +33,23 @@ const DynamicForm = <T extends object>({
             placeholder={field.placeholder}
             value={String(value ?? "")}
             onChange={(e) => onChange(key, e.target.value)}
-            disabled={disabled} // Thêm disabled
+            disabled={disabled} 
             {...(field.componentProps ?? {})}
           />
         );
 
       case FormFieldTypes.IMAGE_UPLOAD:
-        // Cần lấy ra mảng URL string để hiển thị preview
+       
         const existingUrls = Array.isArray(value)
           ? value
               .map(
-                (img: any) => (typeof img === "string" ? img : img.image_url), // ← xử lý RoomImage[]
+                (img: any) => (typeof img === "string" ? img : img.image_url),
               )
               .filter(Boolean)
           : [];
         return (
           <UploadImageCustom
-            value={existingUrls} // ← truyền URL ảnh cũ
+            value={existingUrls} 
             onChange={(files) => onChange(key, files)}
             disabled={disabled}
             maxCount={5}
@@ -62,7 +62,7 @@ const DynamicForm = <T extends object>({
             placeholder={field.placeholder}
             value={String(value ?? "")}
             onChange={(e) => onChange(key, e.target.value)}
-            disabled={disabled} // Thêm disabled
+            disabled={disabled} 
           />
         );
 
@@ -74,7 +74,7 @@ const DynamicForm = <T extends object>({
             options={field.options}
             onChange={(value) => onChange(key, value)}
             allowClear
-            disabled={disabled} // Thêm disabled
+            disabled={disabled} 
           />
         );
 
@@ -83,7 +83,7 @@ const DynamicForm = <T extends object>({
           <Checkbox
             checked={Boolean(value)}
             onChange={(e) => onChange(key, e.target.checked)}
-            disabled={disabled} // Thêm disabled
+            disabled={disabled}
           >
             {field.label}
           </Checkbox>
@@ -96,7 +96,7 @@ const DynamicForm = <T extends object>({
             placeholder={field.placeholder}
             value={String(value ?? "")}
             onChange={(e) => onChange(key, Number(e.target.value))}
-            disabled={disabled} // Thêm disabled
+            disabled={disabled} 
           />
         );
 
@@ -107,7 +107,7 @@ const DynamicForm = <T extends object>({
             placeholder={field.placeholder}
             value={String(value ?? "")}
             onChange={(e) => onChange(key, e.target.value)}
-            disabled={disabled} // Thêm disabled
+            disabled={disabled}
           />
         );
 
@@ -118,7 +118,7 @@ const DynamicForm = <T extends object>({
             placeholder={field.placeholder}
             value={String(value ?? "")}
             onChange={(e) => onChange(key, e.target.value)}
-            disabled={disabled} // Thêm disabled
+            disabled={disabled}
           />
         );
 
@@ -129,7 +129,7 @@ const DynamicForm = <T extends object>({
             value={value ? dayjs(value as any) : null}
             onChange={(d: Dayjs | null) => onChange(key, d ? d.toDate() : null)}
             disabled={disabled}
-            // call user-provided disabledDate function with current values
+            
             disabledDate={(current: Dayjs) =>
               field.componentProps?.disabledDate
                 ? field.componentProps.disabledDate(current, values)
@@ -146,7 +146,7 @@ const DynamicForm = <T extends object>({
             placeholder={field.placeholder}
             value={String(value ?? "")}
             onChange={(e) => onChange(key, e.target.value)}
-            disabled={disabled} // Thêm disabled
+            disabled={disabled} 
           />
         );
 
@@ -156,7 +156,7 @@ const DynamicForm = <T extends object>({
             placeholder={field.placeholder}
             value={String(value ?? "")}
             onChange={(e) => onChange(key, e.target.value)}
-            disabled={disabled} // Thêm disabled
+            disabled={disabled}
             {...(field.componentProps ?? {})}
           />
         );
@@ -168,7 +168,7 @@ const DynamicForm = <T extends object>({
             value={value}
             options={field.options}
             onChange={(value) => onChange(key, value)}
-            disabled={disabled} // Thêm disabled
+            disabled={disabled}
           />
         );
 
@@ -189,7 +189,7 @@ const DynamicForm = <T extends object>({
             fetchOptions={field.fetchOptions}
             value={(value as any) || undefined}
             onChange={(value) => onChange(key, value)}
-            disabled={disabled} // Thêm disabled
+            disabled={disabled}
             customData={field.customData}
           />
         );
@@ -211,7 +211,7 @@ const DynamicForm = <T extends object>({
             placeholder={field.placeholder}
             value={String(value ?? "")}
             onChange={(e) => onChange(key, e.target.value)}
-            disabled={disabled} // Thêm disabled
+            disabled={disabled} 
           />
         );
 

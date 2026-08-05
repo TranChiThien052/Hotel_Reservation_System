@@ -394,7 +394,7 @@ const StaffBooking = () => {
               format="DD/MM/YYYY"
               onChange={handleFilterDate}
               allowClear
-              style={{ width: 200 }}
+              style={{ width: 300 }}
             />
             <Button
               onClick={handleFilterTodayBookings}

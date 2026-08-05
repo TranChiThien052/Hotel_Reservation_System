@@ -34,7 +34,6 @@ const ClientRooms = () => {
   const [selectedGuests, setSelectedGuests] = useState("Tất cả");
   const [selectedPrice, setSelectedPrice] = useState(0);
 
-  // Danh sách tên loại phòng tự động cập nhật theo chi nhánh đã chọn
   const roomTypeNames = Array.from(
     new Set(
       (selectedBranch === "Tất cả"
@@ -45,7 +44,6 @@ const ClientRooms = () => {
   );
   const availableTypeOptions = ["Tất cả", ...roomTypeNames];
 
-  // Nếu loại phòng đang chọn không nằm trong chi nhánh mới chọn -> reset về "Tất cả"
   useEffect(() => {
     if (selectedType !== "Tất cả" && !roomTypeNames.includes(selectedType)) {
       setSelectedType("Tất cả");
@@ -74,7 +72,7 @@ const ClientRooms = () => {
         }));
       setAllRoomTypes(merged);
 
-      // Đọc kết quả tìm kiếm từ Home page (nếu có)
+      
       const savedParamsStr = sessionStorage.getItem("client_room_search_params");
       const savedResultsStr = sessionStorage.getItem("client_room_search_results");
 
@@ -84,7 +82,7 @@ const ClientRooms = () => {
         setActiveSearchParams(sParams);
         setSearchResults(results);
 
-        // Sync filter chi nhánh
+        
         if (sParams.branch_id) {
           const matchedBranch = branchList.find((b) => b.id === sParams.branch_id);
           if (matchedBranch) setSelectedBranch(matchedBranch.name);
@@ -113,16 +111,12 @@ const ClientRooms = () => {
     sessionStorage.removeItem("client_room_search_results");
   };
 
-  // ── Khi có kết quả search: dùng trực tiếp từ results API ──
-  // Mỗi result có: room_type { id, name, max_guests }, available_count, total_rooms, price_per_unit, is_sold_out
-  // Ta convert sang RoomTypeWithPrice để dùng component Room
+
   const getDisplayList = (): RoomTypeWithPrice[] => {
     if (searchResults !== null) {
-      // Lấy các room type còn trống (available_count > 0)
       return searchResults
         .filter((r) => !r.is_sold_out && r.available_count > 0)
         .map((r) => {
-          // Tìm thông tin đầy đủ từ allRoomTypes (ảnh, mô tả,...)
           const fullInfo = allRoomTypes.find((rt) => rt.id === r.room_type.id);
           return {
             ...(fullInfo ?? {}),
@@ -184,10 +178,9 @@ const ClientRooms = () => {
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-6 py-8 flex gap-8">
 
-        {/* ── Sidebar Filter ── */}
         <aside className="w-72 shrink-0">
           <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 sticky top-24">
-            {/* Header */}
+            
             <div className="flex items-center justify-between mb-6">
               <span className="text-xl font-bold text-gray-800">Bộ lọc</span>
               <button
@@ -198,7 +191,7 @@ const ClientRooms = () => {
               </button>
             </div>
 
-            {/* Search */}
+            
             <div className="mb-6">
               <p className="text-sm font-semibold text-gray-700 mb-2">Tìm kiếm</p>
               <div className="relative">
@@ -213,7 +206,7 @@ const ClientRooms = () => {
               </div>
             </div>
 
-            {/* Chi nhánh — chỉ hiện khi không đang trong chế độ search */}
+            
             {!searchResults && (
               <div className="mb-6">
                 <p className="text-sm font-semibold text-gray-700 mb-2">Chi nhánh</p>
@@ -232,7 +225,7 @@ const ClientRooms = () => {
               </div>
             )}
 
-            {/* Room Type */}
+            
             <div className="mb-6">
               <p className="text-sm font-semibold text-gray-700 mb-3">Loại phòng</p>
               <div className="flex flex-col gap-2">
@@ -254,7 +247,7 @@ const ClientRooms = () => {
               </div>
             </div>
 
-            {/* Guests */}
+            
             <div className="mb-6">
               <p className="text-sm font-semibold text-gray-700 mb-2">Số khách tối đa</p>
               <select
@@ -268,7 +261,7 @@ const ClientRooms = () => {
               </select>
             </div>
 
-            {/* Price Range */}
+            
             <div>
               <p className="text-sm font-semibold text-gray-700 mb-3">Khoảng giá / đêm</p>
               <div className="flex flex-col gap-2">
@@ -294,7 +287,7 @@ const ClientRooms = () => {
 
         
         <main className="flex-1 min-w-0">
-          {/* Banner thông báo đang tìm phòng trống */}
+          
           {activeSearchParams && (
             <div className="mb-6 bg-orange-50 border border-orange-200 rounded-xl p-4 flex items-center justify-between shadow-sm">
               <div className="flex items-center gap-3 text-orange-900 text-sm">

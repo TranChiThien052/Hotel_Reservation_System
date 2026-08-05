@@ -47,7 +47,7 @@ const Branches = () => {
     FormModalModes.CREATE,
   );
   const [editingId, setEditingId] = useState<string>("");
-  // const navigate = useNavigate();
+ 
 
   const fetchBranches = useCallback(async () => {
     setLoading(true);
@@ -86,7 +86,7 @@ const Branches = () => {
         ),
       );
       message.success("Cập nhật trạng thái chi nhánh thành công");
-      await fetchBranches(); // Gọi lại fetchBranches để cập nhật danh sách chi nhánh
+      await fetchBranches();
     } catch (error) {
       message.error("Cập nhật trạng thái chi nhánh thất bại");
       console.error("Update error:", error);
@@ -117,22 +117,22 @@ const Branches = () => {
   const handleSubmitForm = async (formData: BranchFormData) => {
     if (modalMode === FormModalModes.CREATE) {
       console.log("Creating new branch with data:", formData);
-      // Xử lý tạo mới chi nhánh
+      
       try {
         await branchApi.createBranch(formData);
         message.success("Tạo chi nhánh thành công");
-        await fetchBranches(); // Gọi lại fetchBranches để cập nhật danh sách chi nhánh
+        await fetchBranches(); 
       } catch (error) {
         message.error("Tạo chi nhánh thất bại");
         console.error("Create error:", error);
       }
     } else if (modalMode === FormModalModes.UPDATE && selectedBranch) {
       console.log("Updating branch with ID:", editingId, "Data:", formData);
-      // Xử lý cập nhật chi nhánh
+      
       try {
         await branchApi.updateBranch(editingId, formData);
         message.success("Cập nhật chi nhánh thành công");
-        await fetchBranches(); // Gọi lại fetchBranches để cập nhật danh sách chi nhánh
+        await fetchBranches();
       } catch (error) {
         message.error("Cập nhật chi nhánh thất bại");
         console.error("Update error:", error);
@@ -198,7 +198,7 @@ const Branches = () => {
       key: "is_active",
       dataIndex: "is_active",
       render: (text, record: Branch) => {
-        // Tạo items động với onClick cho từng branch
+        
         const dynamicStatusItems: MenuProps["items"] = [
           {
             key: "active",
@@ -215,7 +215,7 @@ const Branches = () => {
         return (
           <Dropdown
             menu={{ items: dynamicStatusItems }}
-            trigger={["click"]} //Click để hiển thị
+            trigger={["click"]} 
             placement="bottomLeft"
           >
             <Tag color={text ? "green" : "red"} style={{ cursor: "pointer" }}>

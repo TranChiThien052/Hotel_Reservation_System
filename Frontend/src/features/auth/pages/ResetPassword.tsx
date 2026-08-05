@@ -78,7 +78,7 @@ const ResetPassword = () => {
             <div className="relative z-10 w-full max-w-md overflow-hidden rounded-3xl bg-white shadow-2xl">
                 <div className="px-12 py-10">
 
-                    {/* Token không hợp lệ (không có token) */}
+                   
                     {!token ? (
                         <div className="flex flex-col items-center gap-5 text-center">
                             <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center">
@@ -97,7 +97,7 @@ const ResetPassword = () => {
                             </button>
                         </div>
                     ) : success ? (
-                        /* Thành công */
+                        
                         <div className="flex flex-col items-center gap-5 text-center">
                             <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
                                 <IoCheckmarkCircleOutline className="text-green-500 text-4xl" />
@@ -114,7 +114,7 @@ const ResetPassword = () => {
                             </button>
                         </div>
                     ) : (
-                        /* Form đặt lại mật khẩu */
+                        
                         <>
                             <h2 className="mb-3 text-center text-3xl font-bold tracking-wider text-gray-950">
                                 ĐẶT LẠI MẬT KHẨU
@@ -156,30 +156,7 @@ const ResetPassword = () => {
                                     />
                                 </div>
 
-                                {/* Strength hint */}
-                                {newPassword && (
-                                    <div className="flex gap-1.5">
-                                        {[...Array(4)].map((_, i) => {
-                                            const len = newPassword.length;
-                                            const active =
-                                                i === 0 ? len >= 1 :
-                                                i === 1 ? len >= 6 :
-                                                i === 2 ? len >= 10 :
-                                                len >= 14 && /[A-Z]/.test(newPassword) && /[0-9]/.test(newPassword);
-                                            const color =
-                                                i === 0 ? "bg-red-400" :
-                                                i === 1 ? "bg-orange-400" :
-                                                i === 2 ? "bg-yellow-400" :
-                                                "bg-green-500";
-                                            return (
-                                                <div
-                                                    key={i}
-                                                    className={`h-1 flex-1 rounded-full transition-all ${active ? color : "bg-gray-200"}`}
-                                                />
-                                            );
-                                        })}
-                                    </div>
-                                )}
+
 
                                 <Button
                                     type="primary"

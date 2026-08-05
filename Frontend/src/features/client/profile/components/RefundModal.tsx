@@ -12,7 +12,6 @@ export interface RefundInfo {
     isFullRefund: boolean;
     reason: string;
 }
-
 export interface BookingAmounts {
     subtotal: number;
     totalAmount: number;
@@ -42,7 +41,6 @@ export const getBookingAmounts = (booking: Booking): BookingAmounts => {
     const rawSubtotal = Number(booking.subtotal ?? 0);
     const rawTotal = Number(booking.total_amount ?? 0);
 
-    // Tự động tính lại nếu Backend trả về 0 (do bug updateBooking ở BE)
     const subtotal = rawSubtotal > 0 ? rawSubtotal : computedSubtotal;
     const totalAmount = rawTotal > 0 ? rawTotal : computedTotal;
 
@@ -50,14 +48,12 @@ export const getBookingAmounts = (booking: Booking): BookingAmounts => {
     const computedDeposit = Math.ceil((totalAmount * 0.3) / 1000) * 1000;
     const depositAmount = rawDeposit > 0 ? rawDeposit : computedDeposit;
 
-    // Lấy danh sách các khoản thanh toán thành công
     const validPayments = booking.payments
         ? booking.payments.filter(p => !p.status || p.status === 'paid' || p.status === 'success' || p.status === 'completed')
         : [];
 
     const paidPaymentsSum = validPayments.reduce((sum, p) => sum + Number(p.amount || 0), 0);
 
-    // Kiểm tra thanh toán 100%
     const hasFullPayment = validPayments.some(p => p.is_deposit === false || Number(p.amount || 0) >= totalAmount - 1000);
     const isCompletedOrCheckedOut = ['completed', 'checked_out'].includes(booking.status);
 
@@ -154,12 +150,12 @@ const RefundModal = ({ booking, onClose, onConfirm, submitting }: RefundModalPro
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
-            {/* Backdrop */}
+           
             <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
 
-            {/* Modal card */}
+            
             <div className="relative bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 z-10">
-                {/* Header */}
+                
                 <div className="flex items-center gap-3 mb-5">
                     <div className="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center shrink-0">
                         <MdOutlineMoneyOffCsred className="text-red-500 text-2xl" />
@@ -170,7 +166,7 @@ const RefundModal = ({ booking, onClose, onConfirm, submitting }: RefundModalPro
                     </div>
                 </div>
 
-                {/* Thông tin số tiền hoàn */}
+                
                 {/* <div className={`rounded-xl border-2 p-4 mb-4 ${
                     refund.isFullRefund ? 'bg-green-50 border-green-200' : 'bg-amber-50 border-amber-200'
                 }`}>
@@ -194,7 +190,7 @@ const RefundModal = ({ booking, onClose, onConfirm, submitting }: RefundModalPro
                     </div>
                 </div> */}
 
-                {/* Chính sách */}
+               
                 {/* <div className="bg-blue-50 border border-blue-100 rounded-xl p-3 mb-4">
                     <p className="text-xs text-blue-700 font-semibold mb-1">📋 Chính sách hoàn tiền</p>
                     <ul className="text-xs text-blue-600 space-y-1 list-disc list-inside">
@@ -205,7 +201,7 @@ const RefundModal = ({ booking, onClose, onConfirm, submitting }: RefundModalPro
                     </ul>
                 </div> */}
 
-                {/* Lý do */}
+                
                 <div className="mb-5">
                     <label className="text-sm font-medium text-gray-700 block mb-1.5">
                         Lý do hủy phòng <span className="text-red-400">*</span>
@@ -219,7 +215,7 @@ const RefundModal = ({ booking, onClose, onConfirm, submitting }: RefundModalPro
                     />
                 </div>
 
-                {/* Buttons */}
+                
                 <div className="flex gap-3">
                     <button
                         onClick={onClose}

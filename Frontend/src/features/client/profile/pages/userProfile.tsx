@@ -83,7 +83,6 @@ const UserProfile = () => {
     const fetchProfile = useCallback(async () => {
         if (!customerId) { 
             setLoading(false); 
-            setEditing(true); // Tự động bật chế độ chỉnh sửa/tạo mới nếu chưa có thông tin
             return; 
         }
         setLoading(true);
@@ -140,7 +139,6 @@ const UserProfile = () => {
                 await customersApi.createCustomer(newCustomerData);
                 setSuccessMsg('Tạo thông tin cá nhân thành công!');
                 setEditing(false);
-                // Tải lại thông tin cá nhân để redux cập nhật customerId mới
                 await dispatch(getMeThunk()).unwrap();
                 setTimeout(() => setSuccessMsg(''), 3000);
             }
@@ -167,7 +165,7 @@ const UserProfile = () => {
         setErrorMsg('');
     };
 
-    // Chưa init
+    
     if (!initialized) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -176,7 +174,7 @@ const UserProfile = () => {
         );
     }
 
-    // Chưa đăng nhập
+    
     if (!user) {
         return (
             <div className="min-h-[80vh] flex items-center justify-center bg-gray-50 px-4">
@@ -197,7 +195,7 @@ const UserProfile = () => {
         );
     }
 
-    // Không phải customer
+    
     if (user.role !== 'customer') {
         return (
             <div className="min-h-[80vh] flex items-center justify-center bg-gray-50 px-4">
@@ -221,7 +219,7 @@ const UserProfile = () => {
     return (
         <div className="min-h-screen bg-gray-50">
             <div className="max-w-3xl mx-auto px-4 py-8">
-                {/* Profile header banner */}
+               
                 <div className="bg-linear-to-br from-amber-500 to-orange-500 rounded-2xl p-6 mb-6 shadow-lg">
                     <div className="flex items-center gap-4">
                         <div className="w-18 h-18 bg-white/20 rounded-full flex items-center justify-center border-3 border-white/40 shadow-md p-4">
@@ -239,7 +237,7 @@ const UserProfile = () => {
                     </div>
                 </div>
 
-                {/* Quick nav */}
+                
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
                     <button
                         onClick={() => navigate('/my-bookings')}
@@ -268,7 +266,7 @@ const UserProfile = () => {
                     </div>
                 </div>
 
-                {/* Profile form */}
+                
                 <div className="bg-white rounded-2xl border border-gray-100 shadow-sm">
                     {/* Card header */}
                     <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
@@ -287,7 +285,7 @@ const UserProfile = () => {
                         )}
                     </div>
 
-                    {/* Form body */}
+                   
                     <div className="p-6">
                         {loading ? (
                             <div className="flex items-center justify-center py-10">
@@ -295,7 +293,7 @@ const UserProfile = () => {
                             </div>
                         ) : (
                             <>
-                                {/* Success / Error messages */}
+                                
                                 {successMsg && (
                                     <div className="mb-4 flex items-center gap-2 p-3 bg-green-50 border border-green-200 rounded-xl text-sm text-green-700">
                                         <IoCheckmarkCircle className="text-green-500 text-lg shrink-0" />
@@ -381,7 +379,7 @@ const UserProfile = () => {
                                     </div>
                                 </div>
 
-                                {/* Thông tin chỉ xem */}
+                               
                                 {!editing && profile && (
                                     <div className="mt-4 p-4 bg-gray-50 rounded-xl border border-gray-100">
                                         <p className="text-xs text-gray-400 mb-2 font-medium uppercase tracking-wider">Thông tin bổ sung</p>
@@ -402,7 +400,7 @@ const UserProfile = () => {
                                     </div>
                                 )}
 
-                                {/* Action buttons when editing */}
+                                
                                 {editing && (
                                     <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-gray-100">
                                         {customerId && (

@@ -162,7 +162,7 @@ const Accounts = () => {
       key: "status",
       dataIndex: "status",
       render: (text, record: Account) => {
-        // Tạo items động với onClick cho từng branch
+        
         const dynamicStatusItems: MenuProps["items"] = [
           {
             key: "active",
@@ -179,7 +179,7 @@ const Accounts = () => {
         return (
           <Dropdown
             menu={{ items: dynamicStatusItems }}
-            trigger={["click"]} //Click để hiển thị
+            trigger={["click"]} 
             placement="bottomLeft"
           >
             <Tag color={text === "active" ? "green" : "red"} style={{ cursor: "pointer" }}>
