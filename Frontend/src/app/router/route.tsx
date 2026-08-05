@@ -1,5 +1,5 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import Index from "@/features/client/home/index";
+import Index from "@/features/client/home/pages/index";
 import ClientLayout from "@/app/layout/ClientLayout";
 import AdminLayout from "@/app/layout/AdminLayout";
 import Branches from "@/features/admin/adminBranch/pages/Branch";
@@ -40,6 +40,7 @@ import ManagerRoomTypes from "@/features/manager/managementRoomTypes/pages/Manag
 import Holiday from "@/features/admin/adminHolidays/pages/AdminHoliday";
 import StaffAcccount from "@/features/manager/managerStaffAccount/pages/StaffAcccount";
 import ManagerService from "@/features/manager/managerService/pages/ManagerService";
+import AboutBranch from "@/features/client/home/pages/AboutBranch";
 
 const route = () => {
   return (
@@ -67,6 +68,7 @@ const route = () => {
           <Route path="profile" element={<UserProfile />} />
           <Route path="my-bookings" element={<BookingHistory />} />
           <Route path="my-bookings/:id" element={<BookingDetails />} />
+          <Route path="branches" element={<AboutBranch />} />
         </Route>
 
 

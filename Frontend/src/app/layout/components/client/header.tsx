@@ -80,6 +80,7 @@ const header = () => {
             </div>
             <div className='flex gap-8 absolute left-1/2 -translate-x-1/2 text-lg font-medium'>
                 <NavLink className={navLinkClass} to="/" end>Trang chủ</NavLink>
+                <NavLink className={navLinkClass} to="/branches">Chi nhánh</NavLink>
                 <NavLink className={navLinkClass} to="/rooms">Phòng nghỉ</NavLink>
                 <NavLink className={navLinkClass} to="/my-bookings">Đặt phòng của tôi</NavLink>
             </div>
