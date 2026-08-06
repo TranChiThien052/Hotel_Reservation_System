@@ -3,8 +3,19 @@ import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import routes from './routes/index';
 import { swaggerUi, swaggerSpec } from './swagger';
+import { getTransporter } from './services/emailServices';
 
 const app = express();
+
+const transporter = getTransporter();
+
+transporter.verify((error, success) => {
+    if (error) {
+        console.error("❌ SMTP connection failed:", error.message);
+    } else {
+        console.log("✅ SMTP server is ready to send emails");
+    }
+});
 
 app.use(cors({
     origin: (origin, callback) => {
