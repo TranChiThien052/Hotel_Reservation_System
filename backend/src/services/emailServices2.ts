@@ -1,36 +1,15 @@
-import nodemailer from 'nodemailer';
-import type { Transporter } from 'nodemailer';
+import { Resend } from 'resend';
 import bookingServiceServices from './bookingServiceServices';
 import { ValidationError } from '../middlewares/validateData';
 
-let transporter: Transporter;
+let resend: Resend;
 
-export const getTransporter = () => {
-  console.log(process.env.SMTP_PORT);
-  if (!transporter) {
-    transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST,
-      port: Number(process.env.SMTP_PORT),
-      secure: Number(process.env.SMTP_PORT) === 465,
-      auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS,
-      },
-      connectionTimeout: 10000,
-      greetingTimeout: 10000,
-      socketTimeout: 10000,
-    });
-
-    transporter.verify((error, success) => {
-      if (error) {
-        console.error("❌ SMTP connection failed:", error.message);
-      } else {
-        console.log("✅ SMTP server is ready to send emails");
-      }
-    });
+const getResendClient = () => {
+  if (!resend) {
+    resend = new Resend(process.env.RESEND_API_KEY);
   }
-  return transporter;
-}
+  return resend;
+};
 
 interface SendEmailOption {
   to: string;
@@ -39,18 +18,22 @@ interface SendEmailOption {
   text?: string;
 }
 
-export const sendEmail = async (options) => {
-  const t = getTransporter();
-  await t.sendMail({
-    from: `"${process.env.APP_NAME}" <${process.env.FROM_EMAIL}>`,
+export const sendEmail = async (options: SendEmailOption) => {
+  const client = getResendClient();
+  const { error } = await client.emails.send({
+    from: `stu.hoteltest@thientran052.dev`,
     to: options.to,
     subject: options.subject,
     html: options.html,
     text: options.text ?? options.html.replace(/<[^>]*>/g, ''),
   });
-}
 
-export const sendPasswordResetEmail = async (to, name, token) => {
+  if (error) {
+    throw new ValidationError('500', 'Failed to send email: ' + error.message);
+  }
+};
+
+export const sendPasswordResetEmail = async (to: string, name: string, token: string) => {
   const resetUrl = `${process.env.FRONTEND_URL}/reset-password?token=${token}`;
   try {
     await sendEmail({
@@ -79,9 +62,9 @@ export const sendPasswordResetEmail = async (to, name, token) => {
     console.log(error.message);
     throw new ValidationError('500', 'Failed to send password reset email: ' + error.message);
   }
-}
+};
 
-export const sendConfirmBookingEmail = async (to, name, booking) => {
+export const sendConfirmBookingEmail = async (to: string, name: string, booking: any) => {
   const bookingServices = await bookingServiceServices.getBookingServicesByBookingId(booking.id);
   const total_amount_services = (await bookingServiceServices.calculateBookingServicesByBookingId(booking.id)).total_amount;
   const bookingServicesHtml = renderBookingServicesHtml(bookingServices);
@@ -123,9 +106,9 @@ export const sendConfirmBookingEmail = async (to, name, booking) => {
     </div>
     `,
   });
-}
+};
 
-function formatDateVN(dateInput) {
+function formatDateVN(dateInput: string | Date) {
   const date = new Date(dateInput);
   return new Intl.DateTimeFormat('vi-VN', {
     timeZone: 'Asia/Ho_Chi_Minh',
@@ -135,7 +118,7 @@ function formatDateVN(dateInput) {
   }).format(date);
 }
 
-function formatCurrency(amount) {
+function formatCurrency(amount: number | string) {
   const num = Number(amount);
   if (isNaN(num)) return '0 đ';
 
@@ -146,7 +129,7 @@ function formatCurrency(amount) {
   return `${formatted} đ`;
 }
 
-function renderBookingServicesHtml(services) {
+function renderBookingServicesHtml(services: any[]) {
   return services
     .map((service) => {
       const total = service.unit_price * service.quantity;

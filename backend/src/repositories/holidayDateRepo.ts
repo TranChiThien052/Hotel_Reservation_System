@@ -8,6 +8,13 @@ class HolidayDateRepository {
     async getHolidayDateById(id) {
         return await prisma.holiday_dates.findUnique({
             where: { id: id },
+            include: {
+                branches: {
+                    select: {
+                        name: true,
+                    }
+                }
+            }
         });
     };
 
@@ -19,12 +26,26 @@ class HolidayDateRepository {
                     { branch_id: null },
                 ],
             },
+            include: {
+                branches: {
+                    select: {
+                        name: true,
+                    },
+                },
+            },
         });
     };
 
     async getHolidayDatesByDate(date) {
         return await prisma.holiday_dates.findMany({
             where: { date: date },
+            include: {
+                branches: {
+                    select: {
+                        name: true,
+                    },
+                },
+            },
         });
     };
 
