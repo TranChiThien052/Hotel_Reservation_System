@@ -19,6 +19,9 @@ export const roomPricesFormFields: FormField<RoomPriceFormData>[] = [
         label: "Giá theo ngày",
         placeholder: "Nhập giá theo ngày",
         type: FormFieldTypes.NUMBER,
+        componentProps: {
+            min: 1000
+        },
         rules: [
             {
                 required: true,
@@ -38,6 +41,9 @@ export const roomPricesFormFields: FormField<RoomPriceFormData>[] = [
         label: "Giá theo giờ",
         placeholder: "Nhập giá theo giờ",
         type: FormFieldTypes.NUMBER,
+        componentProps: {
+            min: 1000
+        },
         rules: [
             {
                 required: true,

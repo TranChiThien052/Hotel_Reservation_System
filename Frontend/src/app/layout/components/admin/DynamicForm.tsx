@@ -97,6 +97,8 @@ const DynamicForm = <T extends object>({
             value={String(value ?? "")}
             onChange={(e) => onChange(key, Number(e.target.value))}
             disabled={disabled} 
+            min={field.componentProps?.min}
+            max={field.componentProps?.max}
           />
         );
 

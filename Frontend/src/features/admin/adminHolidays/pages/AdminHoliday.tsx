@@ -51,6 +51,8 @@ const AdminHoliday = () => {
         fetchHolidayData();
     }, [fetchHolidayData]);
 
+    console.log("holidaysData", holidaysData);
+
     const handleSubmitForm = async (formData: HolidayFormData) => {
         if (holiday.mode === FormModalModes.CREATE) {
             try {
