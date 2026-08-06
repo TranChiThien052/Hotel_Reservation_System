@@ -1,6 +1,7 @@
 import nodemailer from 'nodemailer';
 import type { Transporter } from 'nodemailer';
 import bookingServiceServices from './bookingServiceServices';
+import { ValidationError } from '../middlewares/validateData';
 
 let transporter: Transporter;
 
@@ -38,28 +39,32 @@ export const sendEmail = async (options) => {
 
 export const sendPasswordResetEmail = async (to, name, token) => {
   const resetUrl = `${process.env.FRONTEND_URL}/reset-password?token=${token}`;
-  await sendEmail({
-    to,
-    subject: `[${process.env.APP_NAME}] Đặt lại mật khẩu`,
-    html: `
-      <div style="font-family:Arial,sans-serif;max-width:560px;margin:0 auto;color:#333">
-        <h2 style="color:#4F46E5">Đặt lại mật khẩu</h2>
-        <p>Xin chào <strong>${name}</strong>,</p>
-        <p>Nhấn nút bên dưới để đặt lại mật khẩu. Link có hiệu lực trong <strong>30 phút</strong>.</p>
-        <div style="margin:28px 0">
-          <a href="${resetUrl}"
-             style="background:#4F46E5;color:#fff;padding:12px 24px;
-                    border-radius:6px;text-decoration:none;font-size:15px">
-            Đặt lại mật khẩu
-          </a>
+  try {
+    await sendEmail({
+      to,
+      subject: `[${process.env.APP_NAME}] Đặt lại mật khẩu`,
+      html: `
+        <div style="font-family:Arial,sans-serif;max-width:560px;margin:0 auto;color:#333">
+          <h2 style="color:#4F46E5">Đặt lại mật khẩu</h2>
+          <p>Xin chào <strong>${name}</strong>,</p>
+          <p>Nhấn nút bên dưới để đặt lại mật khẩu. Link có hiệu lực trong <strong>30 phút</strong>.</p>
+          <div style="margin:28px 0">
+            <a href="${resetUrl}"
+               style="background:#4F46E5;color:#fff;padding:12px 24px;
+                      border-radius:6px;text-decoration:none;font-size:15px">
+              Đặt lại mật khẩu
+            </a>
+          </div>
+          <p style="color:#999;font-size:13px">
+            Nếu bạn không yêu cầu, hãy bỏ qua email này.<br/>
+            Link: <a href="${resetUrl}">${resetUrl}</a>
+          </p>
         </div>
-        <p style="color:#999;font-size:13px">
-          Nếu bạn không yêu cầu, hãy bỏ qua email này.<br/>
-          Link: <a href="${resetUrl}">${resetUrl}</a>
-        </p>
-      </div>
-    `,
-  });
+      `,
+    });
+  } catch (error) {
+    throw new ValidationError('500', 'Failed to send password reset email:\n' + error);
+  }
 }
 
 export const sendConfirmBookingEmail = async (to, name, booking) => {
