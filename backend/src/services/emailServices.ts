@@ -1,14 +1,14 @@
 import nodemailer from 'nodemailer';
+import type { Transporter } from 'nodemailer';
 import bookingServiceServices from './bookingServiceServices';
 import { ValidationError } from '../middlewares/validateData';
-import dns from 'dns';
-import type SMTPTransport from "nodemailer/lib/smtp-transport";
 
-let transporter: nodemailer.Transporter;
+let transporter: Transporter;
 
 export const getTransporter = () => {
+  console.log(process.env.SMTP_PORT);
   if (!transporter) {
-    const options: SMTPTransport.Options = {
+    transporter = nodemailer.createTransport({
       host: process.env.SMTP_HOST,
       port: Number(process.env.SMTP_PORT),
       secure: Number(process.env.SMTP_PORT) === 465,
@@ -19,14 +19,9 @@ export const getTransporter = () => {
       connectionTimeout: 10000,
       greetingTimeout: 10000,
       socketTimeout: 10000,
-      lookup: (hostname: string, opts: any, callback: any) => {
-        dns.lookup(hostname, { family: 4 }, callback);
-      },
-    };
+    });
 
-    transporter = nodemailer.createTransport(options);
-
-    transporter.verify((error) => {
+    transporter.verify((error, success) => {
       if (error) {
         console.error("❌ SMTP connection failed:", error.message);
       } else {
@@ -34,7 +29,6 @@ export const getTransporter = () => {
       }
     });
   }
-
   return transporter;
 }
 
