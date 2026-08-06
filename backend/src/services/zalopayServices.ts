@@ -7,7 +7,7 @@ import paymentServices from "./paymentServices";
 import { booking_status, payment_method, payment_status } from "../generated/prisma/enums";
 import { ValidationError } from "../middlewares/validateData";
 import invoiceServices from "./invoiceServices";
-import { sendConfirmBookingEmail } from "./emailServices";
+import { sendConfirmBookingEmail } from "./emailServices2";
 import customerServices from "./customerServices";
 
 class ZalopayService {
