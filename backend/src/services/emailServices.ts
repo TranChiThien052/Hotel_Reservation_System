@@ -5,15 +5,28 @@ import { ValidationError } from '../middlewares/validateData';
 
 let transporter: Transporter;
 
-const getTransporter = () => {
+export const getTransporter = () => {
+  console.log(process.env.SMTP_PORT);
   if (!transporter) {
     transporter = nodemailer.createTransport({
       host: process.env.SMTP_HOST,
       port: Number(process.env.SMTP_PORT),
+      secure: Number(process.env.SMTP_PORT) === 465,
       auth: {
         user: process.env.SMTP_USER,
         pass: process.env.SMTP_PASS,
       },
+      connectionTimeout: 10000,
+      greetingTimeout: 10000,
+      socketTimeout: 10000,
+    });
+
+    transporter.verify((error, success) => {
+      if (error) {
+        console.error("❌ SMTP connection failed:", error.message);
+      } else {
+        console.log("✅ SMTP server is ready to send emails");
+      }
     });
   }
   return transporter;
@@ -62,8 +75,9 @@ export const sendPasswordResetEmail = async (to, name, token) => {
         </div>
       `,
     });
-  } catch (error) {
-    throw new ValidationError('500', 'Failed to send password reset email:\n' + error);
+  } catch (error: any) {
+    console.log(error.message);
+    throw new ValidationError('500', 'Failed to send password reset email: ' + error.message);
   }
 }
 
