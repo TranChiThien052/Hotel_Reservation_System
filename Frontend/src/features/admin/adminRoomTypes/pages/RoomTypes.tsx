@@ -101,6 +101,17 @@ const roomTypes = () => {
       }
     };
 
+    // Xóa ảnh khỏi server ngay khi user click nút xóa trong Upload
+    const handleRemoveImage = async (img_url: string, public_id: string) => {
+      try {
+        await roomTypesApi.deleteRoomTypeImage(img_url, public_id);
+        message.success("Đã xóa ảnh thành công");
+      } catch (error) {
+        message.error("Xóa ảnh thất bại, vui lòng thử lại");
+        console.error("Delete image error:", error);
+      }
+    };
+
     const handleFilterStatus = (status: string) => {
     if (!status) {
       setFilteredRoomTypes(roomTypesData);
@@ -285,6 +296,7 @@ const roomTypes = () => {
           fields={roomTypeFormFields}
           initialValues={roomType.selectedRecord || defaultRoomTypeData}
           onSubmit={handleSubmitForm}
+          onRemoveImage={handleRemoveImage}
           />
       </div>
     );

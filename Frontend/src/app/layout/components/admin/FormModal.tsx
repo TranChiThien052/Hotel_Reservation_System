@@ -13,6 +13,8 @@ interface FormModalProps<T extends object> {
   fields: FormField<any>[] | ((formData: any) => FormField<any>[]);
   initialValues: T;
   onSubmit?: (values: T) => void;
+  /** Callback được gọi khi user xóa ảnh đã có trên server */
+  onRemoveImage?: (img_url: string, public_id: string) => void;
 }
 
 const FormModal = <T extends object>({
@@ -23,6 +25,7 @@ const FormModal = <T extends object>({
   fields,
   initialValues,
   onSubmit,
+  onRemoveImage,
 }: FormModalProps<T>) => {
   const [formData, setFormData] = useState<any>(initialValues);
 
@@ -112,6 +115,7 @@ const FormModal = <T extends object>({
             onChange={(key, val) => handleChange(key as string, val)}
             disabled={isViewMode}
             errors={errors}
+            onRemoveImage={onRemoveImage}
           />
         </div>
 

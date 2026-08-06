@@ -12,12 +12,6 @@ export const holidayFormFields: FormField<HolidayFormData>[] = [
         type: FormFieldTypes.SELECT_FETCH,
         fetchOptions: branchApi.getBranches,
         customData: (data: any[]) => data.map((item) => ({label: item.name, value: item.id})),
-        rules: [
-            {
-                required: true,
-                message: "Vui lòng chọn chi nhánh",
-            },
-        ],
     },
     {
         key: "name",
