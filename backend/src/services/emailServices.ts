@@ -2,6 +2,9 @@ import nodemailer from 'nodemailer';
 import type { Transporter } from 'nodemailer';
 import bookingServiceServices from './bookingServiceServices';
 import { ValidationError } from '../middlewares/validateData';
+import dns from 'dns';
+
+dns.setDefaultResultOrder("ipv4first");
 
 let transporter: Transporter;
 
@@ -19,7 +22,6 @@ export const getTransporter = () => {
       connectionTimeout: 10000,
       greetingTimeout: 10000,
       socketTimeout: 10000,
-      family: 4,
     });
 
     transporter.verify((error, success) => {
