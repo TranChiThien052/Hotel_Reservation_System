@@ -8,7 +8,7 @@ import bcrypt from 'bcrypt';
 import accountRepo from '../repositories/accountRepo';
 import { generateToken, hashToken } from '../middlewares/generator';
 import ResetPasswordTokenRepo from '../repositories/resetPasswordTokenRepo';
-import { sendPasswordResetEmail } from '../services/emailServices'
+import { sendPasswordResetEmail } from '../services/emailServices2'
 import CustomerRepository from '../repositories/customerRepo';
 import historyTransactionServices from './historyTransactionServices';
 
