@@ -1,5 +1,6 @@
 import app from './app';
 import dotenv from 'dotenv';
+import dns from 'dns';
 import { getTransporter } from './services/emailServices';
 
 dns.setDefaultResultOrder("ipv4first");
