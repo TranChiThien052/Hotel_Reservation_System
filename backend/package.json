@@ -32,6 +32,7 @@
     "multer-storage-cloudinary": "^4.0.0",
     "nodemailer": "^9.0.1",
     "pg": "^8.21.0",
+    "resend": "^6.18.1",
     "swagger-jsdoc": "^6.3.0",
     "swagger-ui-express": "^5.0.1",
     "typescript": "^6.0.3",
