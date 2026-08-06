@@ -2,7 +2,15 @@ import { prisma } from '../config/prisma';
 
 class HolidayDateRepository {
     async getAllHolidayDates() {
-        return await prisma.holiday_dates.findMany();
+        return await prisma.holiday_dates.findMany({
+            include: {
+                branches: {
+                    select: {
+                        name: true,
+                    }
+                }
+            }
+        });
     };
 
     async getHolidayDateById(id) {
