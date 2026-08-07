@@ -13,6 +13,7 @@ import roomPriceServices from './roomPriceServices';
 import roomServices from './roomServices';
 import roomRepo from '../repositories/roomRepo';
 import { room_status } from '../generated/prisma/enums';
+import discountServices from './discountServices';
 
 class BookingService {
     async getAllBookings() {
@@ -199,7 +200,7 @@ class BookingService {
         }
 
         if (validator.validateDateOrder(validatedData.checkin_at, validatedData.checkout_at))
-            if (new Date(validatedData.checkin_at).getDate() < new Date().getDate())
+            if (new Date(validatedData.checkin_at).getTime() < new Date().getTime())
                 validator.pushError("Check-in date must be in the future");
             else {
                 validatedData.checkin_at = new Date(validatedData.checkin_at);
@@ -330,15 +331,19 @@ class BookingService {
 
         if (validatedData.checkin_at && validatedData.checkout_at) {
             if (validator.validateDateOrder(validatedData.checkin_at, validatedData.checkout_at)) {
-                if (new Date(validatedData.checkin_at).getDate() < new Date().getDate()) {
+                if (new Date(validatedData.checkin_at).getTime() < new Date().getTime()) {
                     validator.pushError("Check-in date must be in the future");
                 }
                 validatedData.checkin_at = new Date(validatedData.checkin_at);
                 validatedData.checkout_at = new Date(validatedData.checkout_at);
+                if (validatedData.booking_type === 'daily') {
+                    validatedData.checkin_at.setHours(13, 0, 0, 0);
+                    validatedData.checkout_at.setHours(12, 0, 0, 0);
+                }
             }
         } else if (validatedData.checkin_at) {
             if (validator.validateDate(validatedData.checkin_at)) {
-                if (new Date(validatedData.checkin_at).getDate() < new Date().getDate()) {
+                if (new Date(validatedData.checkin_at).getTime() < new Date().getTime()) {
                     validator.pushError("Check-in date must be in the future");
                 } else if (new Date(validatedData.checkin_at) >= new Date(existingBooking.checkout_at)) {
                     validator.pushError("Check-in date must be before the existing booking's check-out date");
@@ -347,9 +352,9 @@ class BookingService {
             }
         } else if (validatedData.checkout_at) {
             if (validator.validateDate(validatedData.checkout_at)) {
-                if (new Date(validatedData.checkout_at).getDate() < new Date().getDate()) {
+                if (new Date(validatedData.checkout_at).getTime() < new Date().getTime()) {
                     validator.pushError("Check-out date must be in the future");
-                } else if (new Date(validatedData.checkout_at).getDate() <= new Date(existingBooking.checkin_at).getDate()) {
+                } else if (new Date(validatedData.checkout_at).getTime() <= new Date(existingBooking.checkin_at).getTime()) {
                     validator.pushError("Check-out date must be after the existing booking's check-in date");
                 }
                 validatedData.checkout_at = new Date(validatedData.checkout_at);
@@ -448,14 +453,44 @@ class BookingService {
 
         validatedData.total_amount = validatedData.subtotal;
 
-        if (validatedData.discount_id) {
-            if (validator.isUUID("Discount ID", validatedData.discount_id)) {
-                const discount = await DiscountRepository.getDiscountById(validatedData.discount_id);
-                if (!discount) {
-                    validator.pushError("Discount not found");
-                } else {
-                    validatedData.discount_amount = generateDiscountAmount(Number(validatedData.subtotal), discount.discount_type, Number(discount.discount_value));
-                    validatedData.total_amount -= validatedData.discount_amount;
+        const discount_id = validatedData.discount_id || existingBooking.discount_id;
+
+        if (discount_id) {
+            const isDiscountChanged = validatedData.discount_id && validatedData.discount_id !== existingBooking.discount_id;
+
+            if (isDiscountChanged) {
+                if (validator.isUUID("Discount ID", discount_id)) {
+                    const discount = await discountServices.getDiscountById(discount_id);
+                    if (!discount || discount.is_active === false) {
+                        validator.pushError("Discount is not available");
+                    } else if (discount.valid_to && discount.valid_to.getTime() < new Date().getTime()) {
+                        validator.pushError("Discount is expired");
+                    } else if (discount.valid_from && discount.valid_from.getTime() > new Date().getTime()) {
+                        validator.pushError("Discount is not available yet");
+                    } else if (discount.usage_limit && (discount.used_count && discount.used_count >= discount.usage_limit)) {
+                        validator.pushError("Discount is expired");
+                    } else {
+                        validatedData.discount_amount = generateDiscountAmount(Number(validatedData.subtotal), discount.discount_type, Number(discount.discount_value));
+                        validatedData.total_amount -= validatedData.discount_amount;
+
+                        if (validatedData.status !== 'pending' && existingBooking.status !== 'pending') {
+                            await discountServices.updateDiscount(discount.id, { used_count: discount.used_count ? discount.used_count + 1 : 1 });
+                        } else if (validatedData.status === 'confirmed' && existingBooking.status !== 'confirmed') {
+                            await discountServices.updateDiscount(discount.id, { used_count: discount.used_count ? discount.used_count + 1 : 1 });
+                        }
+                    }
+                }
+            } else if (existingBooking.discount_amount) {
+                validatedData.discount_amount = Number(existingBooking.discount_amount);
+                validatedData.total_amount -= validatedData.discount_amount;
+
+                if (validatedData.status === 'confirmed' && existingBooking.status !== 'confirmed') {
+                    if (validator.isUUID("Discount ID", discount_id)) {
+                        const discount = await discountServices.getDiscountById(discount_id);
+                        if (discount) {
+                            await discountServices.updateDiscount(discount.id, { used_count: discount.used_count ? discount.used_count + 1 : 1 });
+                        }
+                    }
                 }
             }
         }
