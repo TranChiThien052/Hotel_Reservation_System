@@ -103,9 +103,9 @@ const UploadMultiImageCustom = ({
       disabled={disabled}
     >
       {fileList.length < maxCount && !disabled && (
-        <button style={{ border: 0, background: "none" }} type="button">
+        <button className="border-0 bg-transparent cursor-pointer" type="button">
           <PlusOutlined />
-          <div style={{ marginTop: 8, fontSize: 12 }}>
+          <div className="mt-2 text-xs">
             Tải ảnh ({fileList.length}/{maxCount})
           </div>
         </button>

@@ -220,7 +220,7 @@ const ManagerRooms = () => {
                         ? "blue"
                       : "blue"
               }
-              style={{ cursor: "pointer" }}
+              className="cursor-pointer"
             >
               {text === "available"
                 ? "Khả dụng"
@@ -261,7 +261,7 @@ const ManagerRooms = () => {
             trigger={["click"]} //Click để hiển thị
             placement="bottomLeft"
           >
-            <Tag color={text ? "green" : "red"} style={{ cursor: "pointer" }}>
+            <Tag color={text ? "green" : "red"} className="cursor-pointer">
               {text ? "Hoạt động" : "Ngừng hoạt động"}
             </Tag>
           </Dropdown>
@@ -352,7 +352,7 @@ const ManagerRooms = () => {
             <Select
               placeholder="Trạng thái"
               placement="topRight"
-              style={{ width: 120 }}
+              className="w-[120px]"
               onChange={filterStatus}
               allowClear
               value={statusValue}
@@ -371,7 +371,7 @@ const ManagerRooms = () => {
             <Select
               placeholder="Tình trạng"
               placement="topRight"
-              style={{ width: 120 }}
+              className="w-[120px]"
               onChange={filterRoomStatus}
               allowClear
               value={roomStatusValue}

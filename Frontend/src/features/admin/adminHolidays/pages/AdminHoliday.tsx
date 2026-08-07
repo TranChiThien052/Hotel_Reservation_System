@@ -90,7 +90,7 @@ const AdminHoliday = () => {
     {
       title: "Chi nhánh",
       key: "branch_id",
-      render: (_, record) => <p>{record.branch_id}</p>,
+      render: (_, record) => <p>{record.branches?.name || "—"}</p>,
     },
     {
       title: "Ngày lễ",

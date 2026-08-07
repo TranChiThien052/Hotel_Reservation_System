@@ -117,7 +117,7 @@ const CancellationRequest = () => {
       align: "center",
       render: (_, record) => (
         <Space size="middle">
-          <Button type="dashed" size="small" onClick={() => handleOpenDetail(record)}>
+          <Button type="primary" size="small" onClick={() => handleOpenDetail(record)}>
             Chi tiết
           </Button>
         </Space>

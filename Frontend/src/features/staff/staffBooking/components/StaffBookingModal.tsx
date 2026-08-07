@@ -695,7 +695,7 @@ const StaffBookingModal = ({ open, onClose, onSuccess, branchId }: StaffBookingM
                                 ) : (
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                         <div className="sm:col-span-2 flex flex-col gap-1.5">
-                                            <label className="text-sm font-medium text-gray-700">Họ và tên *</label>
+                                            <label className="text-sm font-medium text-gray-700">Họ và tên <span className="text-red-500">*</span></label>
                                             <div className="relative">
                                                 <MdOutlinePersonOutline className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-lg" />
                                                 <input type="text" value={guestForm.full_name} onChange={(e) => setGuestForm((f) => ({ ...f, full_name: e.target.value }))}
@@ -703,7 +703,7 @@ const StaffBookingModal = ({ open, onClose, onSuccess, branchId }: StaffBookingM
                                             </div>
                                         </div>
                                         <div className="flex flex-col gap-1.5">
-                                            <label className="text-sm font-medium text-gray-700">Số điện thoại *</label>
+                                            <label className="text-sm font-medium text-gray-700">Số điện thoại <span className="text-red-500">*</span></label>
                                             <div className="relative">
                                                 <MdOutlinePhone className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-lg" />
                                                 <input type="tel" value={guestForm.phone} onChange={(e) => setGuestForm((f) => ({ ...f, phone: e.target.value }))}
@@ -711,7 +711,7 @@ const StaffBookingModal = ({ open, onClose, onSuccess, branchId }: StaffBookingM
                                             </div>
                                         </div>
                                         <div className="flex flex-col gap-1.5">
-                                            <label className="text-sm font-medium text-gray-700">Email *</label>
+                                            <label className="text-sm font-medium text-gray-700">Email <span className="text-red-500">*</span></label>
                                             <div className="relative">
                                                 <MdOutlineMail className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-lg" />
                                                 <input type="email" value={guestForm.email} onChange={(e) => setGuestForm((f) => ({ ...f, email: e.target.value }))}
@@ -719,7 +719,7 @@ const StaffBookingModal = ({ open, onClose, onSuccess, branchId }: StaffBookingM
                                             </div>
                                         </div>
                                         <div className="flex flex-col gap-1.5">
-                                            <label className="text-sm font-medium text-gray-700">CCCD / Hộ chiếu *</label>
+                                            <label className="text-sm font-medium text-gray-700">CCCD / Hộ chiếu <span className="text-red-500">*</span></label>
                                             <div className="relative">
                                                 <MdOutlineCreditCard className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-lg" />
                                                 <input type="text" value={guestForm.id_card_number} onChange={(e) => setGuestForm((f) => ({ ...f, id_card_number: e.target.value }))}
@@ -727,7 +727,7 @@ const StaffBookingModal = ({ open, onClose, onSuccess, branchId }: StaffBookingM
                                             </div>
                                         </div>
                                         <div className="flex flex-col gap-1.5">
-                                            <label className="text-sm font-medium text-gray-700">Ngày sinh *</label>
+                                            <label className="text-sm font-medium text-gray-700">Ngày sinh <span className="text-red-500">*</span></label>
                                             <div className="relative">
                                                 <MdOutlineCake className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-lg" />
                                                 <input type="date" value={guestForm.date_of_birth} onChange={(e) => setGuestForm((f) => ({ ...f, date_of_birth: e.target.value }))}

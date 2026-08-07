@@ -1,6 +1,9 @@
 export interface Holiday {
     id: string;
     branch_id: string;
+    branches: {
+        name: string;
+    };
     date: string;
     name: string;
 }

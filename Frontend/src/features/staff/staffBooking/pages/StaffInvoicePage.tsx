@@ -181,7 +181,7 @@ const StaffInvoicePage = () => {
                         <Button
                             type="primary" size="large"
                             onClick={() => navigate(backPath)}
-                            style={{ background: '#f97316', borderColor: '#f97316', minWidth: 200 }}
+                            className="!bg-orange-500 !border-orange-500 min-w-50"
                         >
                             Về danh sách đặt phòng
                         </Button>
@@ -220,14 +220,14 @@ const StaffInvoicePage = () => {
                                 <InfoRow label="Giảm giá" value={<span className="text-green-600">− {formatVND(invoice.discount_amount)}</span>} />
                             )}
 
-                            <Divider style={{ margin: '8px 0' }} />
+                            <Divider className="my-2" />
                             <InfoRow label="Tổng cộng" value={<strong>{formatVND(invoice.total_amount - (invoice.discount_amount || 0))}</strong>} />
 
                             {Number(invoice.deposit_used ?? 0) > 0 && (
                                 <InfoRow label="Tiền đã trả" value={<span className="text-blue-600">− {formatVND(invoice.deposit_used)}</span>} />
                             )}
 
-                            <Divider style={{ margin: '8px 0' }} />
+                            <Divider className="my-2" />
                             <div className="flex justify-between items-center py-3 mt-1">
                                 <span className="font-bold text-gray-900 text-base">Còn lại cần thu</span>
                                 <span className={`font-bold text-2xl ${isAlreadyPaid ? 'text-green-500' : 'text-red-500'}`}>
@@ -246,11 +246,7 @@ const StaffInvoicePage = () => {
                                     <Button
                                         size="large" icon={<DollarOutlined />}
                                         onClick={() => setConfirmCashOpen(true)}
-                                        style={{
-                                            background: 'linear-gradient(90deg,#10b981,#34d399)',
-                                            borderColor: '#10b981', color: '#fff',
-                                            fontWeight: 700, height: 56, fontSize: 16,
-                                        }}
+                                        className="!bg-gradient-to-r !from-emerald-500 !to-emerald-400 !border-emerald-500 !text-white font-bold h-14 text-base"
                                         block
                                     >
                                         Thanh toán Tiền mặt
@@ -258,11 +254,7 @@ const StaffInvoicePage = () => {
                                     <Button
                                         size="large" icon={<MobileOutlined />}
                                         loading={payingZalo} onClick={handleZaloPayPayment}
-                                        style={{
-                                            background: 'linear-gradient(90deg,#0068ff,#0049c6)',
-                                            borderColor: '#0068ff', color: '#fff',
-                                            fontWeight: 700, height: 56, fontSize: 16,
-                                        }}
+                                        className="!bg-gradient-to-r !from-blue-600 !to-blue-800 !border-blue-600 !text-white font-bold h-14 text-base"
                                         block
                                     >
                                         Thanh toán ZaloPay
@@ -285,7 +277,7 @@ const StaffInvoicePage = () => {
                                         type="primary"
                                         icon={<CheckCircleOutlined />}
                                         onClick={handleCompleteBooking}
-                                        style={{ background: '#10b981', borderColor: '#10b981' }}
+                                        className="!bg-emerald-500 !border-emerald-500"
                                     >
                                         Hoàn thành
                                     </Button>
@@ -304,7 +296,7 @@ const StaffInvoicePage = () => {
                 onOk={handleCashPayment}
                 confirmLoading={payingCash}
                 okText="Xác nhận thu tiền" cancelText="Hủy"
-                okButtonProps={{ style: { background: '#10b981', borderColor: '#10b981' } }}
+                okButtonProps={{ className: '!bg-emerald-500 !border-emerald-500' }}
             >
                 <div className="py-2">
                     <p className="text-gray-600 mb-3">

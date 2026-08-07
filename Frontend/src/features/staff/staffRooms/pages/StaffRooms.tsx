@@ -191,7 +191,7 @@ const columns: TableProps<Room>["columns"] = [
                           ? "purple"
                       : "blue"
               }
-              style={{ cursor: "pointer" }}
+              className="cursor-pointer"
             >
               {text === "available"
                 ? "Khả dụng"
@@ -232,7 +232,7 @@ const columns: TableProps<Room>["columns"] = [
             trigger={["click"]} //Click để hiển thị
             placement="bottomLeft"
           >
-            <Tag color={text ? "green" : "red"} style={{ cursor: "pointer" }}>
+            <Tag color={text ? "green" : "red"} className="cursor-pointer">
               {text ? "Đang hoạt động" : "Không hoạt động"}
             </Tag>
           </Dropdown>
@@ -314,7 +314,7 @@ const columns: TableProps<Room>["columns"] = [
             <Select
               placeholder="Trạng thái"
               placement="topRight"
-              style={{ width: 120 }}
+              className="w-[120px]"
               onChange={filterStatus}
               allowClear
               value={statusValue}
@@ -333,7 +333,7 @@ const columns: TableProps<Room>["columns"] = [
             <Select
               placeholder="Tình trạng"
               placement="topRight"
-              style={{ width: 120 }}
+              className="w-[120px]"
               onChange={filterRoomStatus}
               allowClear
               value={roomStatusValue}

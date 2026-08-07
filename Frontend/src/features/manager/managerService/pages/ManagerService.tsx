@@ -163,7 +163,7 @@ const ManagerService = () => {
             trigger={["click"]} //Click để hiển thị
             placement="bottomLeft"
           >
-            <Tag color={text ? "green" : "red"} style={{ cursor: "pointer" }}>
+            <Tag color={text ? "green" : "red"} className="cursor-pointer">
               {text ? "Khả dụng" : "Không khả dụng"}
             </Tag>
           </Dropdown>
@@ -247,7 +247,7 @@ const ManagerService = () => {
             <Select
               placeholder="Trạng thái"
               placement="topRight"
-              style={{ width: 120 }}
+              className="w-[120px]"
               onChange={handleFilterStatus}
               allowClear
               options={[

@@ -178,23 +178,23 @@ const StaffBookingDetails = () => {
                 title: 'Check-in sớm hơn dự kiến',
                 icon: null,
                 content: (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 8, paddingTop: 8 }}>
-                        <div style={{ background: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: 8, padding: '10px 12px', fontSize: 14 }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
-                                <span style={{ color: '#6b7280' }}>Ngày nhận phòng dự kiến</span>
-                                <strong style={{ color: '#111827' }}>{formatDateTime(booking.checkin_at)}</strong>
+                    <div className="flex flex-col gap-2 pt-2">
+                        <div className="bg-gray-50 border border-gray-200 rounded-lg px-3 py-[10px] text-sm">
+                            <div className="flex justify-between mb-1.5">
+                                <span className="text-gray-500">Ngày nhận phòng dự kiến</span>
+                                <strong className="text-gray-900">{formatDateTime(booking.checkin_at)}</strong>
                             </div>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid #f3f4f6', paddingTop: 6 }}>
-                                <span style={{ color: '#6b7280' }}>Check-in thực tế</span>
-                                <strong style={{ color: '#d97706' }}>{formatDateTime(now.toISOString())}</strong>
+                            <div className="flex justify-between border-t border-gray-100 pt-1.5">
+                                <span className="text-gray-500">Check-in thực tế</span>
+                                <strong className="text-amber-600">{formatDateTime(now.toISOString())}</strong>
                             </div>
                         </div>
-                        <p style={{ color: '#6b7280', fontSize: 13, margin: 0 }}>Bạn có chắc muốn tiến hành check-in sớm?</p>
+                        <p className="text-gray-500 text-[13px] m-0">Bạn có chắc muốn tiến hành check-in sớm?</p>
                     </div>
                 ),
                 okText: 'Xác nhận',
                 cancelText: 'Hủy',
-                okButtonProps: { style: { background: '#f59e0b', borderColor: '#f59e0b' } },
+                okButtonProps: { className: '!bg-amber-500 !border-amber-500' },
                 onOk: async () => {
                     setPendingCheckin(true);
                     if (booking.assigned_room_id) {
@@ -211,18 +211,18 @@ const StaffBookingDetails = () => {
                     title: 'Xác nhận Check-in',
                     icon: null,
                     content: (
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: 8, paddingTop: 8 }}>
-                            <p style={{ color: '#6b7280', fontSize: 14 }}>
+                        <div className="flex flex-col gap-2 pt-2">
+                            <p className="text-gray-500 text-sm">
                                 Bạn có chắc muốn tiến hành <strong>check-in</strong> cho khách?
                             </p>
-                            <p style={{ color: '#6b7280', fontSize: 14 }}>
+                            <p className="text-gray-500 text-sm">
                                 Phòng đã gán: <strong>#{booking.rooms?.room_number ?? booking.assigned_room_id}</strong>
                             </p>
                         </div>
                     ),
                     okText: 'Xác nhận Check-in',
                     cancelText: 'Hủy',
-                    okButtonProps: { style: { background: '#10b981', borderColor: '#10b981' } },
+                    okButtonProps: { className: '!bg-emerald-500 !border-emerald-500' },
                     onOk: async () => {
                         await handleConfirmCheckin(booking.assigned_room_id);
                     },
@@ -239,21 +239,21 @@ const StaffBookingDetails = () => {
             title: 'Xác nhận Check-out',
             icon: null,
             content: (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 8, paddingTop: 8 }}>
-                    <p style={{ color: '#6b7280', fontSize: 14 }}>
+                <div className="flex flex-col gap-2 pt-2">
+                    <p className="text-gray-500 text-sm">
                         Bạn có chắc muốn tiến hành <strong>check-out</strong> cho khách?
                     </p>
-                    <p style={{ color: '#6b7280', fontSize: 14 }}>
+                    <p className="text-gray-500 text-sm">
                         Mã đặt phòng: <strong>#{booking.booking_code}</strong>
                     </p>
-                    <p style={{ color: '#9ca3af', fontSize: 13, fontStyle: 'italic' }}>
+                    <p className="text-gray-400 text-[13px] italic">
                         Sau khi check-out, bạn có thể tiến hành thanh toán hóa đơn.
                     </p>
                 </div>
             ),
             okText: 'Xác nhận Check-out',
             cancelText: 'Hủy',
-            okButtonProps: { style: { background: '#8b5cf6', borderColor: '#8b5cf6' } },
+            okButtonProps: { className: '!bg-purple-500 !border-purple-500' },
             onOk: async () => {
                 setActionLoading(true);
                 try {
@@ -414,6 +414,42 @@ const StaffBookingDetails = () => {
         } catch { message.error('Xóa dịch vụ thất bại!'); }
     };
 
+    const handleNoShow = async () => {
+        if (!booking) return;
+        Modal.confirm({
+            title: 'Xác nhận No-show',
+            icon: null,
+            content: (
+                <div className="flex flex-col gap-2 pt-2">
+                    <p className="text-gray-500 text-sm">
+                        Bạn có chắc muốn đánh dấu đơn đặt phòng này là <strong>No-show</strong>?
+                    </p>
+                    <p className="text-gray-500 text-sm">
+                        Mã đặt phòng: <strong>#{booking.booking_code}</strong>
+                    </p>
+                </div>
+            ),
+            okText: 'Xác nhận No-show',
+            cancelText: 'Hủy',
+            okButtonProps: { className: '!bg-red-500 !border-red-500' },
+            onOk: async () => {
+                setActionLoading(true);
+                try {
+                    await bookingApi.updateBooking(booking.id, {
+                        status: 'cancelled',
+                        assigned_room_id: booking.assigned_room_id || undefined,
+                    } as any);
+                    message.success('Đã đánh dấu là No-show!');
+                    fetchAll();
+                } catch {
+                    message.error('Đánh dấu No-show thất bại!');
+                } finally {
+                    setActionLoading(false);
+                }
+            },
+        });
+    };
+
     if (loading) return (
         <div className="min-h-screen flex items-center justify-center bg-gray-50">
             <Spin size="large" tip="Đang tải..." />
@@ -509,7 +545,7 @@ const StaffBookingDetails = () => {
                             <Button
                                 type="primary" icon={<LoginOutlined />}
                                 loading={actionLoading} onClick={handleCheckinClick}
-                                style={{ background: '#10b981', borderColor: '#10b981' }} size="large"
+                                className="!bg-emerald-500 !border-emerald-500" size="large"
                             >
                                 Check-in
                             </Button>
@@ -518,7 +554,7 @@ const StaffBookingDetails = () => {
                             <Button
                                 type="primary" icon={<LogoutOutlined />}
                                 loading={actionLoading} onClick={handleCheckoutClick}
-                                style={{ background: '#8b5cf6', borderColor: '#8b5cf6' }} size="large"
+                                className="!bg-purple-500 !border-purple-500" size="large"
                             >
                                 Check-out
                             </Button>
@@ -527,7 +563,7 @@ const StaffBookingDetails = () => {
                             <Button
                                 type="primary" icon={<DollarOutlined />}
                                 onClick={() => navigate(invoicePath)}
-                                style={{ background: '#f97316', borderColor: '#f97316' }} size="large"
+                                className="!bg-orange-500 !border-orange-500" size="large"
                             >
                                 Thanh toán Hóa đơn
                             </Button>
@@ -536,7 +572,7 @@ const StaffBookingDetails = () => {
                             <Button
                                 type="primary" icon={<CheckCircleOutlined />}
                                 loading={actionLoading} onClick={handleCompleteClick}
-                                style={{ background: '#10b981', borderColor: '#10b981' }} size="large"
+                                className="!bg-emerald-500 !border-emerald-500" size="large"
                             >
                                 Hoàn thành
                             </Button>
@@ -629,7 +665,7 @@ const StaffBookingDetails = () => {
                         </h2>
                         <Select
                             allowClear placeholder="Chọn mã giảm giá..."
-                            style={{ width: '100%' }}
+                            className="w-full"
                             disabled={!isEditable || actionLoading}
                             value={booking.discount_id || undefined}
                             onChange={handleDiscountChange}
@@ -656,7 +692,7 @@ const StaffBookingDetails = () => {
                                 />
                             )}
                             {serviceTotal > 0 && <InfoRow label="Phí dịch vụ" value={formatVND(chargeService)} />}
-                            <Divider style={{ margin: '8px 0' }} />
+                            <Divider className="my-2" />
                             {/* {chargeDeposited > 0 && (
                                 <InfoRow
                                     label="Đã thanh toán / cọc"
@@ -667,7 +703,7 @@ const StaffBookingDetails = () => {
                                 label="Tổng cộng"
                                 value={<strong className="text-gray-900 text-xl">{formatVND(chargeTotal)}</strong>}
                             />  
-                            <Divider style={{ margin: '8px 0' }} />
+                            <Divider className="my-2" />
                             <InfoRow
                                     label="Đã thanh toán / cọc"
                                     value={<span className="text-blue-600 font-bold">− {formatVND(chargeDeposited)}</span>}
@@ -736,14 +772,14 @@ const StaffBookingDetails = () => {
                             <Select options={[{ value: 'hourly', label: 'Theo giờ' }, { value: 'daily', label: 'Theo ngày' }]} />
                         </Form.Item>
                         <Form.Item name="num_guests" label="Số khách" rules={[{ required: true }]}>
-                            <InputNumber min={1} style={{ width: '100%' }} />
+                            <InputNumber min={1} className="w-full" />
                         </Form.Item>
 
                         <Form.Item name="checkin_at" label="Giờ nhận phòng dự kiến" rules={[{ required: true }]}>
-                            <DatePicker showTime format="DD/MM/YYYY HH:mm" style={{ width: '100%' }} />
+                            <DatePicker showTime format="DD/MM/YYYY HH:mm" className="w-full" />
                         </Form.Item>
                         <Form.Item name="checkout_at" label="Giờ trả phòng dự kiến" rules={[{ required: true }]}>
-                            <DatePicker showTime format="DD/MM/YYYY HH:mm" style={{ width: '100%' }} />
+                            <DatePicker showTime format="DD/MM/YYYY HH:mm" className="w-full" />
                         </Form.Item>
                     </div>
 
@@ -795,7 +831,7 @@ const StaffBookingDetails = () => {
                     <div>
                         <label className="text-sm font-medium text-gray-700 mb-1 block">Chọn dịch vụ</label>
                         <Select
-                            style={{ width: '100%' }} placeholder="Tìm dịch vụ..." showSearch
+                            className="w-full" placeholder="Tìm dịch vụ..." showSearch
                             value={selectedServiceId || undefined} onChange={(v) => setSelectedServiceId(v)}
                             optionFilterProp="label"
                             options={allServices.map((s: any) => ({ value: s.id, label: `${s.name} — ${formatVND(s.price)}` }))}
@@ -803,7 +839,7 @@ const StaffBookingDetails = () => {
                     </div>
                     <div>
                         <label className="text-sm font-medium text-gray-700 mb-1 block">Số lượng</label>
-                        <InputNumber min={1} max={100} value={serviceQty} onChange={(v) => setServiceQty(v ?? 1)} style={{ width: '100%' }} />
+                        <InputNumber min={1} max={100} value={serviceQty} onChange={(v) => setServiceQty(v ?? 1)} className="w-full" />
                     </div>
                     {selectedServiceId && (() => {
                         const svc = allServices.find((s: any) => s.id === selectedServiceId);
@@ -825,7 +861,7 @@ const StaffBookingDetails = () => {
                 okText="Xác nhận Check-in"
                 cancelText="Hủy"
                 okButtonProps={{
-                    style: { background: '#10b981', borderColor: '#10b981' },
+                    className: '!bg-emerald-500 !border-emerald-500',
                     disabled: availableRooms.length > 0 && !selectedRoomId && !booking?.assigned_room_id,
                 }}
                 width={460}

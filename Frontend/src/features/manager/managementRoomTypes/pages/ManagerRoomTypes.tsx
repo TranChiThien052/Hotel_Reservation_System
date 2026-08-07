@@ -38,7 +38,7 @@ const ManagerRoomTypes = () => {
   const fetchRoomTypes = useCallback(async () => {
     setLoading(true);
     try {
-      const data = await roomTypesApi.getRoomTypes();
+      const data = await roomTypesApi.getRoomTypeById(user?.branch_id || "");
       setRoomTypesData(Array.isArray(data) ? data : []);
       setFilteredRoomTypes(Array.isArray(data) ? data : []);
     } catch (error) {
@@ -177,7 +177,7 @@ const ManagerRoomTypes = () => {
             trigger={["click"]} //Click để hiển thị
             placement="bottomLeft"
           >
-            <Tag color={text ? "green" : "red"} style={{ cursor: "pointer" }}>
+            <Tag color={text ? "green" : "red"} className="cursor-pointer">
               {text ? "Hoạt động" : "Ngừng hoạt động"}
             </Tag>
           </Dropdown>
@@ -261,7 +261,7 @@ const ManagerRoomTypes = () => {
               <Select
               placeholder="Trạng thái"
               placement="topRight"
-              style={{ width: 120 }}
+              className="w-[120px]"
               onChange={handleFilterStatus}
               allowClear
               options={[

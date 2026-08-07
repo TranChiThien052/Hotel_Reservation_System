@@ -179,7 +179,7 @@ const roomTypes = () => {
             trigger={["click"]} 
             placement="bottomLeft"
           >
-            <Tag color={text ? "green" : "red"} style={{ cursor: "pointer" }}>
+            <Tag color={text ? "green" : "red"} className="cursor-pointer">
               {text ? "Hoạt động" : "Ngừng hoạt động"}
             </Tag>
           </Dropdown>
@@ -263,7 +263,7 @@ const roomTypes = () => {
               <Select
               placeholder="Trạng thái"
               placement="topRight"
-              style={{ width: 120 }}
+              className="w-[120px]"
               onChange={handleFilterStatus}
               allowClear
               options={[

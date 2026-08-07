@@ -37,6 +37,10 @@ const formatDate = (dateStr: string) => {
   });
 };
 
+const formatCurrency = (amount: number) => {
+  return amount.toLocaleString("vi-VN", { style: "currency", currency: "VND" });
+}
+
 const defaultBookings: BookingToday = {
   checkins: [],
   checkouts: [],
@@ -157,7 +161,7 @@ const Dashboard = () => {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
         <StatCard icon={<FaSignInAlt />}  label="Tổng booking hôm nay" value={totalBookingsToday} color="text-emerald-600" bg="bg-emerald-50" />
         <StatCard icon={<FcCancel />} label="Yêu cầu hủy" value={cancelledRequests.length} color="text-rose-600" bg="bg-rose-50" />
-        <StatCard icon={<TfiMoney />} label="Doanh thu hôm nay" value={totalRevenue} color="text-green-600" bg="bg-green-50" />
+        <StatCard icon={<TfiMoney />} label="Doanh thu hôm nay" value={formatCurrency(totalRevenue)} color="text-green-600" bg="bg-green-50" />
       </div>
 
       <div className={"grid grid-cols-1 " + (user?.role === "manager" ? "xl:grid-cols-4" : "xl:grid-cols-3") + " gap-5"}>

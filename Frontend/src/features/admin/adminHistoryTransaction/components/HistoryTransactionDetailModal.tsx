@@ -48,7 +48,7 @@ const HistoryTransactionDetailModal = ({ open, onClose, transaction }: Props) =>
     >
       <div className="mt-4 flex flex-col gap-4">
         <Descriptions bordered column={1} size="small" labelStyle={{ width: "150px", fontWeight: "bold", backgroundColor: "#f9fafb" }}>
-          <Descriptions.Item label="Mã giao dịch (ID)">
+          <Descriptions.Item label="Mã">
             <span>{String(transaction.id)}</span>
           </Descriptions.Item>
           
@@ -74,7 +74,7 @@ const HistoryTransactionDetailModal = ({ open, onClose, transaction }: Props) =>
             {transaction.accounts?.branches?.name || "Hệ thống chung"}
           </Descriptions.Item>
 
-          <Descriptions.Item label="Mục tiêu (Target)">
+          <Descriptions.Item label="Đối tượng">
             <span className="text-gray-600">{transaction.target_type}</span> {transaction.target_id && `(ID: ${transaction.target_id})`}
           </Descriptions.Item>
 

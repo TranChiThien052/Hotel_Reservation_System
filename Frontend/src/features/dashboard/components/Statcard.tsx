@@ -24,7 +24,7 @@ export const OccupancyRing = ({ pct }: { pct: number }) => {
         <circle cx="48" cy="48" r={r} fill="none" stroke="#f3f4f6" strokeWidth="10" />
         <circle cx="48" cy="48" r={r} fill="none" stroke={color} strokeWidth="10"
           strokeDasharray={`${dash} ${circ - dash}`} strokeDashoffset={circ / 4}
-          strokeLinecap="round" style={{ transition: "stroke-dasharray 0.6s ease" }} />
+          strokeLinecap="round" className="transition-[stroke-dasharray] duration-700 ease-in-out" />
         <text x="48" y="53" textAnchor="middle" fontSize="16" fontWeight="700" fill="#1f2937">{pct}%</text>
       </svg>
       <p className="text-xs text-gray-500 font-medium">Tỷ lệ lấp đầy</p>

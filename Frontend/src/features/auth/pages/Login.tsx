@@ -208,7 +208,7 @@ const Login = () => {
                   <Alert
                     type="error"
                     showIcon
-                    message="Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin."
+                    message="Đăng nhập thất bại. Vui lòng thử lại."
                   />
                 )}
 
@@ -259,8 +259,7 @@ const Login = () => {
                   type="primary"
                   htmlType="submit"
                   loading={loading}
-                  style={{ backgroundColor: "#030712" }}
-                  className="mt-6 h-12 w-full rounded-xl border-none font-bold text-white shadow-md hover:bg-gray-800!"
+                  className="mt-6 h-12 w-full rounded-xl border-none font-bold text-white shadow-md !bg-gray-950 hover:!bg-gray-800"
                 >
                   Đăng nhập
                 </Button>
@@ -419,8 +418,7 @@ const Login = () => {
                   htmlType="submit"
                   loading={regLoading}
                   disabled={regSuccess}
-                  style={{ backgroundColor: "#030712" }}
-                  className="mt-6 h-12 w-full rounded-xl border-none font-bold text-white shadow-md hover:bg-gray-800!"
+                  className="mt-6 h-12 w-full rounded-xl border-none font-bold text-white shadow-md !bg-gray-950 hover:!bg-gray-800"
                 >
                   Tạo tài khoản
                 </Button>
@@ -498,8 +496,7 @@ const Login = () => {
                       type="primary"
                       htmlType="submit"
                       loading={forgotLoading}
-                      style={{ backgroundColor: "#030712" }}
-                      className="h-12 w-full rounded-xl border-none font-bold text-white shadow-md hover:bg-gray-800!"
+                      className="h-12 w-full rounded-xl border-none font-bold text-white shadow-md !bg-gray-950 hover:!bg-gray-800"
                     >
                       Gửi link đặt lại mật khẩu
                     </Button>

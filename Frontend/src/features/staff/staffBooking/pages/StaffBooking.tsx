@@ -244,7 +244,7 @@ const StaffBooking = () => {
                             ? "purple"
                             : "default"
               }
-              style={{ cursor: "pointer" }}
+              className="cursor-pointer"
             >
               {text === "pending"
                 ? "Đang chờ"
@@ -377,7 +377,7 @@ const StaffBooking = () => {
             <Select
               placeholder="Lọc theo trạng thái"
               placement="topRight"
-              style={{ width: 170 }}
+              className="w-[170px]"
               onChange={(val) => setFilterStatus(val)}
               allowClear
               options={[
@@ -394,7 +394,7 @@ const StaffBooking = () => {
               format="DD/MM/YYYY"
               onChange={handleFilterDate}
               allowClear
-              style={{ width: 300 }}
+              className="w-[300px]"
             />
             <Button
               onClick={handleFilterTodayBookings}

@@ -185,7 +185,7 @@ const StaffAcccount = () => {
             trigger={["click"]} //Click để hiển thị
             placement="bottomLeft"
           >
-            <Tag color={text === "active" ? "green" : "red"} style={{ cursor: "pointer" }}>
+            <Tag color={text === "active" ? "green" : "red"} className="cursor-pointer">
               {text === "active" ? "Hoạt động" : "Ngưng hoạt động"}
             </Tag>
           </Dropdown>
@@ -291,7 +291,7 @@ const StaffAcccount = () => {
             <Select
               placeholder="Trạng thái"
               placement="topRight"
-              style={{ width: 120 }}
+              className="w-[120px]"
               onChange={filterStatus}
               allowClear
               options={[
