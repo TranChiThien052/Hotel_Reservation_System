@@ -132,7 +132,15 @@ class AccountService {
             throw new ValidationError('400', validator.clearError());
         }
         const RefreshTokenRepo = new RefreshTokenRepository();
-        const decoded = jwt.verify(oldRefreshToken, process.env.JWT_SECRET);
+
+        let decoded;
+
+        try {
+            decoded = jwt.verify(oldRefreshToken, process.env.JWT_SECRET);
+        } catch (error) {
+            throw new ValidationError('401', "Token is expired");
+        }
+
         const refreshTokens = await RefreshTokenRepo.getRefreshTokenByAccountId(decoded.account_id);
         const validRefreshToken = refreshTokens.find(token => token.expires_at > new Date() && !token.is_revoked);
 
