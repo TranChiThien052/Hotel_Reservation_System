@@ -58,6 +58,9 @@ class RoomService {
             validator.isBoolean("Is Active", validatedData.is_active);
         }
 
+        if (validatedData.room_charge[0] != validatedData.floor)
+            validator.pushError('Room number is not match with floor');
+
         if (validator.error.length > 0) {
             throw new ValidationError('400', validator.clearError());
         }
@@ -74,12 +77,16 @@ class RoomService {
             throw new ValidationError('400', "Invalid room type ID");
         }
 
+        const existingRoomsFromBranch = await RoomRepository.getRoomsByBranchId(validatedData.branch_id);
+        if (existingRoomsFromBranch.some(room => room.room_number === validatedData.room_number))
+            throw new ValidationError('409', 'Room number already exists in this branch');
+
         try {
             const result = await RoomRepository.createRoom(validatedData);
             if (result)
                 await historyTransactionServices.createCreateTransaction(
                     data.log_account_id ?? null,
-                    "Room",
+                    "Phòng",
                     result.id,
                     result
                 );
@@ -104,7 +111,6 @@ class RoomService {
 
         const validator = new Validator();
 
-        // Type validation for PUT
         if (validatedData.branch_id) {
             validator.isUUID("Branch ID", validatedData.branch_id);
         }
@@ -130,6 +136,8 @@ class RoomService {
         if (validatedData.is_active !== undefined) {
             validator.isBoolean("Is Active", validatedData.is_active);
         }
+        if (validatedData.room_number[0] != validatedData.floor)
+            validator.pushError('Room number is not match with floor');
 
         if (validator.error.length > 0) {
             throw new ValidationError('400', validator.clearError());
@@ -140,12 +148,16 @@ class RoomService {
             throw new ValidationError('404', "Room not found");
         }
 
+        const existingRoomFromBranch = await RoomRepository.getRoomsByBranchId(existingRoom.branch_id);
+        if (existingRoomFromBranch.some(room => room.room_number === validatedData.room_number && room.id !== id))
+            throw new ValidationError('409', 'Room number already exists in this branch');
+
         try {
             const after = await RoomRepository.updateRoom(id, validatedData);
             if (after)
                 await historyTransactionServices.createUpdateTransaction(
                     data.log_account_id,
-                    "Room",
+                    "Phòng",
                     id,
                     existingRoom,
                     after,

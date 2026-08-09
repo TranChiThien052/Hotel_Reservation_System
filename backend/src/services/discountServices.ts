@@ -85,7 +85,7 @@ class DiscountServices {
             if (result)
                 await historyTransactionServices.createCreateTransaction(
                     data.log_account_id ?? null,
-                    "Discount",
+                    "Mã khuyến mãi",
                     result.id,
                     result
                 )
@@ -154,7 +154,7 @@ class DiscountServices {
             if (result)
                 await historyTransactionServices.createUpdateTransaction(
                     data.log_account_id ?? null,
-                    "Discount",
+                    "Mã khuyến mãi",
                     id,
                     existingDiscount,
                     result,

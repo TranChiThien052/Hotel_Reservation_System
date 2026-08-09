@@ -291,7 +291,7 @@ class AccountService {
 
         await historyTransactionServices.createCreateTransaction(
             data.log_account_id ?? null,
-            "account",
+            "Tài khoản nhân viên",
             result.created_account.id,
             result
         );
@@ -360,7 +360,7 @@ class AccountService {
 
         await historyTransactionServices.createCreateTransaction(
             data.log_account_id ?? null,
-            "account",
+            "Tài khoản khách hàng",
             result.created_account.id,
             result
         );
@@ -474,7 +474,7 @@ class AccountService {
         const result = await AccountRepository.createAccount(validatedData);
         await historyTransactionServices.createCreateTransaction(
             data.log_account_id,
-            "account",
+            "Tài khoản",
             result.id,
             result
         );
@@ -530,7 +530,7 @@ class AccountService {
         const after = await AccountRepository.updateAccount(id, validatedData);
         await historyTransactionServices.createUpdateTransaction(
             data.log_account_id,
-            "account",
+            "Tài khoản",
             id,
             before,
             after,

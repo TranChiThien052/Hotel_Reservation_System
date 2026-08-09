@@ -70,7 +70,7 @@ class CustomerService {
             if (result)
                 await historyTransactionServices.createCreateTransaction(
                     data.log_account_id ?? null,
-                    "Customer",
+                    "Khách hàng",
                     result.id,
                     result
                 )
@@ -145,7 +145,7 @@ class CustomerService {
             if (result)
                 await historyTransactionServices.createUpdateTransaction(
                     data.log_account_id ?? null,
-                    "Customer",
+                    "Khách hàng",
                     id,
                     before,
                     result,

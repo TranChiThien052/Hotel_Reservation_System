@@ -99,7 +99,7 @@ class RoomPriceService {
             if (result)
                 await historyTransactionServices.createCreateTransaction(
                     data.log_account_id,
-                    "Room Price",
+                    "Giá phòng",
                     result.id,
                     result
                 );
@@ -171,7 +171,7 @@ class RoomPriceService {
             if (after)
                 await historyTransactionServices.createUpdateTransaction(
                     data.log_account_id,
-                    "Room Price",
+                    "Giá phòng",
                     id,
                     existingRoomPrice,
                     after,

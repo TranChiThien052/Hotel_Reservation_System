@@ -274,7 +274,7 @@ class BookingService {
             if (result) {
                 await historyTransactionServices.createCreateTransaction(
                     data.log_account_id,
-                    "Booking",
+                    "Đơn đặt phòng",
                     result.id,
                     result.created_at,
                 )
@@ -511,7 +511,7 @@ class BookingService {
             if (after) {
                 await historyTransactionServices.createUpdateTransaction(
                     data.log_account_id,
-                    "Booking",
+                    "Đơn đặt phòng",
                     id,
                     before,
                     after,

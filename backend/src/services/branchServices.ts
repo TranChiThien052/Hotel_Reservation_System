@@ -24,13 +24,11 @@ class BranchService {
 
         const validator = new Validator();
 
-        // Required fields for POST
         if (validator.isEmpty("Name", validatedData.name))
             throw new ValidationError("400", "Name is required");
         if (validator.isEmpty("Address", validatedData.address))
             throw new ValidationError("400", "Address is required");
 
-        // Type validation
         validator.isString("Name", validatedData.name);
         validator.isString("Address", validatedData.address);
         validator.maxLength("Name", validatedData.name, 150);
@@ -80,7 +78,7 @@ class BranchService {
             if (result)
                 await historyTransactionServices.createCreateTransaction(
                     data.log_account_id ?? null,
-                    "Branch",
+                    "Chi nhánh",
                     result.id,
                     result
                 )
@@ -102,7 +100,6 @@ class BranchService {
             ...(data.is_active !== undefined && { is_active: data.is_active }),
         }
 
-        // Type validation for PUT
         if (validatedData.name) {
             validator.isString("Name", validatedData.name);
             validator.maxLength("Name", validatedData.name, 150);
@@ -164,7 +161,7 @@ class BranchService {
             if (result)
                 await historyTransactionServices.createUpdateTransaction(
                     data.log_account_id ?? null,
-                    "Branch",
+                    "Chi nhánh",
                     id,
                     before,
                     result,

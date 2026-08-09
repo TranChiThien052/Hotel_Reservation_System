@@ -66,7 +66,7 @@ class RoomServiceService {
             if (result)
                 await historyTransactionServices.createCreateTransaction(
                     data.log_account_id,
-                    "Room Service",
+                    "Dịch vụ phòng",
                     result.id,
                     result
                 );
@@ -126,7 +126,7 @@ class RoomServiceService {
             if (after)
                 await historyTransactionServices.createUpdateTransaction(
                     data.log_account_id,
-                    "Room Service",
+                    "Dịch vụ phòng",
                     id,
                     existingService,
                     after,

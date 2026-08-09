@@ -56,7 +56,7 @@ class HolidayDateService {
             if (result)
                 await historyTransactionServices.createCreateTransaction(
                     data.log_account_id ?? null,
-                    "Holiday Date",
+                    "Ngày lễ",
                     result.id,
                     result
                 )
@@ -116,7 +116,7 @@ class HolidayDateService {
             if (after)
                 await historyTransactionServices.createUpdateTransaction(
                     data.log_account_id ?? null,
-                    "Holiday Date",
+                    "Ngày lễ",
                     id,
                     before,
                     after,
