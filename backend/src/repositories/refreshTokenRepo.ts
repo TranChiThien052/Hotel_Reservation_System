@@ -18,7 +18,7 @@ class RefreshTokenRepository {
             where: {
                 is_revoked: false,
                 expires_at: {
-                    gt: new Date(),
+                    lt: new Date(),
                 },
             },
             data: {
