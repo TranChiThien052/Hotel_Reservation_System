@@ -43,7 +43,7 @@ const EmployeeHeader = () => {
           <SlUser className="text-orange-500 text-4xl" />
           <Dropdown menu={{ items: menuItems }} placement="bottomRight">
           <div className="flex items-center gap-2 cursor-pointer">
-            {/* <UserAvatar size={46} /> */}
+       
 
             <div className="flex flex-col leading-tight">
               <span className="text-orange-500 text-xl font-medium">

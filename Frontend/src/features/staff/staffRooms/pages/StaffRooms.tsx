@@ -104,7 +104,7 @@ const handleSearch = (searchTerm: string) => {
         ),
       );
       message.success("Cập nhật trạng thái phòng thành công");
-      fetchRooms(); // Gọi lại fetchRooms để cập nhật danh sách phòng sau khi thay đổi trạng thái
+      fetchRooms();
     } catch (error) {
       message.error("Cập nhật trạng thái phòng thất bại");
       console.error("Update error:", error);
@@ -137,7 +137,7 @@ const columns: TableProps<Room>["columns"] = [
       dataIndex: "status",
       key: "status",
       render: (text, record: Room) => {
-        // Tạo items động với onClick cho từng branch
+        
         const dynamicStatusItems: MenuProps["items"] = [
           {
             key: "Available",
@@ -174,7 +174,7 @@ const columns: TableProps<Room>["columns"] = [
         return (
           <Dropdown
             menu={{ items: dynamicStatusItems }}
-            trigger={["click"]} //Click để hiển thị
+            trigger={["click"]}
             placement="bottomLeft"
           >
             <Tag
@@ -212,7 +212,7 @@ const columns: TableProps<Room>["columns"] = [
       key: "is_active",
       dataIndex: "is_active",
       render: (text, record: Room) => {
-        // Tạo items động với onClick cho từng branch
+      
         const dynamicStatusItems: MenuProps["items"] = [
           {
             key: "active",
@@ -229,7 +229,7 @@ const columns: TableProps<Room>["columns"] = [
         return (
           <Dropdown
             menu={{ items: dynamicStatusItems }}
-            trigger={["click"]} //Click để hiển thị
+            trigger={["click"]} 
             placement="bottomLeft"
           >
             <Tag color={text ? "green" : "red"} className="cursor-pointer">
@@ -314,7 +314,7 @@ const columns: TableProps<Room>["columns"] = [
             <Select
               placeholder="Trạng thái"
               placement="topRight"
-              className="w-[120px]"
+              className="w-30"
               onChange={filterStatus}
               allowClear
               value={statusValue}
@@ -333,7 +333,7 @@ const columns: TableProps<Room>["columns"] = [
             <Select
               placeholder="Tình trạng"
               placement="topRight"
-              className="w-[120px]"
+              className="w-30"
               onChange={filterRoomStatus}
               allowClear
               value={roomStatusValue}

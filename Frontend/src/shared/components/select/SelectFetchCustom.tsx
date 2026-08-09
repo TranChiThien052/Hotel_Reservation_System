@@ -4,7 +4,7 @@ import SelectCustom from './SelectCustom';
 
 export interface SelectFetchCustomProps extends SelectProps {
   fetchOptions?: () => Promise<any>;
-  customData?: any; // Dữ liệu tùy chỉnh nếu cần thiết
+  customData?: any; 
 }
 
 const SelectFetchCustom: React.FC<SelectFetchCustomProps> = ({ fetchOptions, customData, ...props }) => {

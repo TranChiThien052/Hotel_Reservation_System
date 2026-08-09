@@ -76,15 +76,15 @@ const StaffBooking = () => {
     }
   };
 
-  // Áp dụng bộ lọc mỗi khi bookingsData, filterStatus, filterSearch, filterDate thay đổi
+ 
   useEffect(() => {
     let result = bookingsData;
 
     if (filterStatus) {
-      // Khi chọn lọc theo trạng thái → chỉ hiện đúng trạng thái đó
+      
       result = result.filter((b) => b.status === filterStatus);
     } else {
-      // Mặc định: ẩn các đơn đã hoàn thành / đã hủy
+      
       result = result.filter((b) => b.status !== 'cancelled' && b.status !== 'completed');
     }
 
@@ -377,7 +377,7 @@ const StaffBooking = () => {
             <Select
               placeholder="Lọc theo trạng thái"
               placement="topRight"
-              className="w-[170px]"
+              className="w-42"
               onChange={(val) => setFilterStatus(val)}
               allowClear
               options={[
@@ -394,7 +394,7 @@ const StaffBooking = () => {
               format="DD/MM/YYYY"
               onChange={handleFilterDate}
               allowClear
-              className="w-[300px]"
+              className="w-75"
             />
             <Button
               onClick={handleFilterTodayBookings}

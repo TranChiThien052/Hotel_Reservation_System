@@ -5,7 +5,7 @@ import { roomPricesApi } from "@/features/admin/adminRoomsPrices/api/roomPrices-
 import Room, { type RoomTypeWithPrice } from "@/app/layout/components/client/room";
 import { branchApi } from "@/features/admin/adminBranch/api/admin-api";
 import type { Branch } from "@/features/admin/adminBranch/types/branch-type";
-import { type SearchRoomsAvailableParams } from "../api/rooms-api";
+import type { SearchRoomsAvailableParams } from "../types/roomsClient-type";
 
 
 const GUEST_OPTIONS = ["Tất cả", "1", "2", "3", "4+"];

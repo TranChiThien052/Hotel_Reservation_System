@@ -24,6 +24,7 @@ import { HiOutlineClock } from 'react-icons/hi';
 import { BsDoorOpen, BsDoorClosed, BsReceipt, BsPlus } from 'react-icons/bs';
 import { LoginOutlined, LogoutOutlined, DeleteOutlined, EditOutlined, DollarOutlined, CheckCircleOutlined } from '@ant-design/icons';
 import { invoiceApi } from '../api/invoice-api';
+import { ImCancelCircle } from 'react-icons/im';
 
 const formatVND = (n: number | string) => Number(n).toLocaleString('vi-VN') + 'đ';
 const formatDate = (str?: string | null) => {
@@ -179,7 +180,7 @@ const StaffBookingDetails = () => {
                 icon: null,
                 content: (
                     <div className="flex flex-col gap-2 pt-2">
-                        <div className="bg-gray-50 border border-gray-200 rounded-lg px-3 py-[10px] text-sm">
+                        <div className="bg-gray-50 border border-gray-200 rounded-lg px-3 py-3 text-sm">
                             <div className="flex justify-between mb-1.5">
                                 <span className="text-gray-500">Ngày nhận phòng dự kiến</span>
                                 <strong className="text-gray-900">{formatDateTime(booking.checkin_at)}</strong>
@@ -417,19 +418,19 @@ const StaffBookingDetails = () => {
     const handleNoShow = async () => {
         if (!booking) return;
         Modal.confirm({
-            title: 'Xác nhận No-show',
+            title: 'Xác nhận khách không đến nhập phòng',
             icon: null,
             content: (
                 <div className="flex flex-col gap-2 pt-2">
                     <p className="text-gray-500 text-sm">
-                        Bạn có chắc muốn đánh dấu đơn đặt phòng này là <strong>No-show</strong>?
+                        Bạn có chắc muốn đánh dấu đơn đặt phòng này là <strong>khách không đến nhập phòng</strong>?
                     </p>
                     <p className="text-gray-500 text-sm">
                         Mã đặt phòng: <strong>#{booking.booking_code}</strong>
                     </p>
                 </div>
             ),
-            okText: 'Xác nhận No-show',
+            okText: 'Xác nhận',
             cancelText: 'Hủy',
             okButtonProps: { className: '!bg-red-500 !border-red-500' },
             onOk: async () => {
@@ -437,12 +438,12 @@ const StaffBookingDetails = () => {
                 try {
                     await bookingApi.updateBooking(booking.id, {
                         status: 'cancelled',
-                        assigned_room_id: booking.assigned_room_id || undefined,
-                    } as any);
-                    message.success('Đã đánh dấu là No-show!');
+                        notes: 'Khách không đến nhập phòng',
+                    } as Booking);
+                    message.success('Đã đánh dấu là khách không đến nhập phòng!');
                     fetchAll();
                 } catch {
-                    message.error('Đánh dấu No-show thất bại!');
+                    message.error('Đánh dấu khách không đến nhập phòng thất bại!');
                 } finally {
                     setActionLoading(false);
                 }
@@ -548,6 +549,15 @@ const StaffBookingDetails = () => {
                                 className="!bg-emerald-500 !border-emerald-500" size="large"
                             >
                                 Check-in
+                            </Button>
+                        )}
+                        {canCheckin && (
+                            <Button
+                            type='primary' icon={<ImCancelCircle />}
+                            loading={actionLoading} onClick={handleNoShow}
+                            className="!bg-red-500 !border-red-500" size="large"
+                            >
+                                Khách không đến
                             </Button>
                         )}
                         {canCheckout && (
@@ -867,7 +877,7 @@ const StaffBookingDetails = () => {
                 width={460}
             >
                 <div className="flex flex-col gap-4 mt-3">
-                    {/* Thông tin ngày check-in */}
+                    
                     <div className="bg-gray-50 rounded-lg border border-gray-200 p-3 text-sm">
                         <div className="flex justify-between py-1">
                             <span className="text-gray-500">Ngày nhận phòng dự kiến</span>
@@ -881,7 +891,7 @@ const StaffBookingDetails = () => {
                         </div>
                     </div>
 
-                    {/* Chọn phòng */}
+                   
                     <div>
                         <p className="text-sm font-medium text-gray-700 mb-2">Chọn phòng</p>
                         {roomsLoading ? (

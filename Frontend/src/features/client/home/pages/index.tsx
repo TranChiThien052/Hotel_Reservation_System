@@ -14,7 +14,8 @@ import Spa from "@/assets/images/Spa.jpg";
 import type { Branch } from "@/features/admin/adminBranch/types/branch-type";
 import { branchApi } from "@/features/admin/adminBranch/api/admin-api";
 import message from "antd/es/message";
-import { roomsAvailableApi, type SearchRoomsAvailableParams } from "../../rooms/api/rooms-api";
+import { roomsAvailableApi } from "../../rooms/api/rooms-api";
+import type { SearchRoomsAvailableParams } from "../../rooms/types/roomsClient-type";
 
 
 

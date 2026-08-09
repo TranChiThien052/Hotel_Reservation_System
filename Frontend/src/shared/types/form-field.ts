@@ -10,7 +10,7 @@ export interface FormField<T> {
   fetchOptions?: () => Promise<any>;
   defaultValue?: any;
   rules?: any[];
-  customData?: (data: any) => any; // Hàm tùy chỉnh để xử lý dữ liệu nếu cần thiết\
-  componentProps?: Record<string, any>; // Thuộc tính tùy chỉnh cho component, ví dụ như DatePicker, Select
-  hideInUpdateMode?: boolean; // Thêm thuộc tính để ẩn trường trong chế độ UPDATE
+  customData?: (data: any) => any;
+  componentProps?: Record<string, any>; 
+  hideInUpdateMode?: boolean; 
 }

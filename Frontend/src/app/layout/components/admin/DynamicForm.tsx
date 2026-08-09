@@ -5,7 +5,6 @@ import type { FormField } from "@/shared/types/form-field";
 import { FormFieldTypes } from "@/shared/types/type-form-field";
 import { Checkbox, DatePicker, Input, Select } from "antd";
 import dayjs, { Dayjs } from "dayjs";
-import CustomerSelectWithAdd from "@/shared/components/input/CustomerSelectWithAdd";
 import type { ExistingImage } from "@/shared/components/upload/UploadImageCustom";
 
 type DynamicFormProps<T extends object> = {
@@ -14,7 +13,6 @@ type DynamicFormProps<T extends object> = {
   onChange: (key: keyof T, value: unknown) => void;
   errors?: Record<string, string>;
   disabled?: boolean;
-  /** Callback được gọi khi user xóa ảnh đã có trên server (IMAGE_UPLOAD field) */
   onRemoveImage?: (img_url: string, public_id: string) => void;
 };
 
@@ -43,12 +41,11 @@ const DynamicForm = <T extends object>({
         );
 
       case FormFieldTypes.IMAGE_UPLOAD:
-        // Giữ lại toàn bộ object ExistingImage (để có public_id khi xóa)
         const existingImages: ExistingImage[] = Array.isArray(value)
           ? value
               .map((img: any) =>
                 typeof img === "string"
-                  ? null  // không hỗ trợ dạng string thuần
+                  ? null  
                   : { image_url: img.image_url, image_public_id: img.image_public_id }
               )
               .filter((img): img is ExistingImage => img !== null)
@@ -182,16 +179,6 @@ const DynamicForm = <T extends object>({
         );
 
       case FormFieldTypes.SELECT_FETCH:
-        if (field.componentProps?.allowAddCustomer) {
-          return (
-            <CustomerSelectWithAdd
-              value={(value as any) || undefined}
-              onChange={(val) => onChange(key, val)}
-              disabled={disabled}
-              placeholder={field.placeholder}
-            />
-          );
-        }
         return (
           <SelectFetchCustom
             placeholder={field.placeholder}
