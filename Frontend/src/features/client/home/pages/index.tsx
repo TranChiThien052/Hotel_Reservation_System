@@ -14,7 +14,8 @@ import Spa from "@/assets/images/Spa.jpg";
 import type { Branch } from "@/features/admin/adminBranch/types/branch-type";
 import { branchApi } from "@/features/admin/adminBranch/api/admin-api";
 import message from "antd/es/message";
-import { roomsAvailableApi, type SearchRoomsAvailableParams } from "../../rooms/api/rooms-api";
+import { roomsAvailableApi } from "../../rooms/api/rooms-api";
+import type { SearchRoomsAvailableParams } from "../../rooms/types/roomsClient-type";
 
 
 
@@ -109,7 +110,7 @@ const index = () => {
         <img className="w-full" src={Banner} alt="Banner" />
         <div className="absolute inset-0 bg-black opacity-50"></div>
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white text-center ">
-          <h1 className="text-6xl font-bold pb-4">Trãi nghiệm nghỉ dưỡng </h1>
+          <h1 className="text-6xl font-bold pb-4">Trải nghiệm nghỉ dưỡng </h1>
           <p className="text-6xl font-bold text-orange-400 pb-4">
             đẳng cấp 5 sao
           </p>

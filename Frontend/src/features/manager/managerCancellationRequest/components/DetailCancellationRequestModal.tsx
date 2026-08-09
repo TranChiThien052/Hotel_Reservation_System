@@ -102,8 +102,8 @@ const DetailCancellationRequestModal = ({
       message.success("Cập nhật trạng thái thành công!");
       setNewStatus("");
       setAdminNote(cancellationRequest.notes || "");
-      onUpdated();
       onClose();
+      onUpdated();
     } catch (err) {
       console.error(err);
       message.error("Có lỗi xảy ra, vui lòng thử lại.");
@@ -134,7 +134,7 @@ const DetailCancellationRequestModal = ({
       <Spin spinning={updating}>
         <div className="flex flex-col gap-5 pt-3">
 
-          {/* ── 1. Yêu cầu hủy ── */}
+          
           <div>
             <div className="flex items-center gap-2 mb-3">
               <FileTextOutlined className="text-blue-500" />
@@ -166,7 +166,7 @@ const DetailCancellationRequestModal = ({
             </Descriptions>
           </div>
 
-          {/* ── 2. Thông tin đặt phòng ── */}
+          
           <div>
             <div className="flex items-center gap-2 mb-3">
               <HomeOutlined className="text-blue-500" />
@@ -226,8 +226,9 @@ const DetailCancellationRequestModal = ({
             </Descriptions>
           </div>
 
-          {/* ── 3. Cập nhật trạng thái ── */}
-          <div>
+          
+          {cancellationRequest.status === "pending" && (
+            <div>
             <Divider className="my-1" />
             <p className="font-semibold text-gray-700 mb-3">Cập nhật trạng thái yêu cầu</p>
             <div className="flex flex-col gap-3">
@@ -247,20 +248,14 @@ const DetailCancellationRequestModal = ({
                       )}
                     </div>
                   </Option>
-                  <Option value="confirmed" disabled={cancellationRequest.status === "confirmed"}>
+                  <Option value="confirmed">
                     <div className="flex items-center gap-2">
-                      <Tag color="green" className="m-0">Đã duyệt</Tag>
-                      {cancellationRequest.status === "confirmed" && (
-                        <span className="text-gray-400 text-xs">(hiện tại)</span>
-                      )}
+                      <Tag color="green" className="m-0">Duyệt</Tag>
                     </div>
                   </Option>
-                  <Option value="failed" disabled={cancellationRequest.status === "failed"}>
+                  <Option value="failed">
                     <div className="flex items-center gap-2">
                       <Tag color="red" className="m-0">Từ chối</Tag>
-                      {cancellationRequest.status === "failed" && (
-                        <span className="text-gray-400 text-xs">(hiện tại)</span>
-                      )}
                     </div>
                   </Option>
                 </Select>
@@ -290,6 +285,7 @@ const DetailCancellationRequestModal = ({
               </div>
             </div>
           </div>
+          )}
 
         </div>
       </Spin>

@@ -162,8 +162,7 @@ const ResetPassword = () => {
                                     type="primary"
                                     htmlType="submit"
                                     loading={loading}
-                                    style={{ backgroundColor: "#030712" }}
-                                    className="h-12 w-full rounded-xl border-none font-bold text-white shadow-md hover:bg-gray-800!"
+                                    className="h-12 w-full rounded-xl border-none font-bold text-white shadow-md !bg-gray-950 hover:!bg-gray-800"
                                 >
                                     Xác nhận đặt lại mật khẩu
                                 </Button>

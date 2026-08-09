@@ -33,7 +33,7 @@ const AmenitiesInput = ({
 
   return (
     <div className="flex flex-col gap-3">
-      <Space.Compact style={{ width: '100%' }}>
+      <Space.Compact className="w-full">
         <Input
           placeholder={placeholder}
           value={inputValue}

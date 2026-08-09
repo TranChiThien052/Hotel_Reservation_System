@@ -572,7 +572,7 @@ const ClientBooking = () => {
         );
       }
 
-      const depositAmount = Math.round(total * 0.3);
+      const depositAmount = Math.round(subtotal * 0.3);
       if (paymentMode === "full" && total > 0) {
         try {
           const paymentResponse = await paymentApi.createZaloPayPayment(
@@ -1529,7 +1529,7 @@ const ClientBooking = () => {
                           Đặt cọc 30%
                         </p>
                         <p className="text-xs text-gray-400">
-                          Đặt cọc — {formatVND(Math.round(total * 0.3))} · Còn
+                          Đặt cọc — {formatVND(Math.round(subtotal * 0.3))} · Còn
                           lại thanh toán khi nhận phòng
                         </p>
                       </div>

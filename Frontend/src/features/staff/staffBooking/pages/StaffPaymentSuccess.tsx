@@ -18,7 +18,7 @@ const StaffPaymentSuccess = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
 
-    // Booking list path based on role
+
     const bookingListPath =
         role === 'manager' ? '/manager/bookings' : '/staff/bookings';
 
@@ -64,7 +64,7 @@ const StaffPaymentSuccess = () => {
         <div className="min-h-screen bg-linear-to-br from-amber-50 via-white to-green-50 flex items-center justify-center px-4 py-12">
             <div className="bg-white rounded-3xl shadow-2xl p-10 max-w-lg w-full flex flex-col items-center gap-6">
 
-                {/* Icon */}
+                
                 <div className="relative">
                     <div className={`w-24 h-24 rounded-full flex items-center justify-center ${isSuccess && !error ? 'bg-green-100' : 'bg-red-100'}`}>
                         {isSuccess && !error
@@ -79,7 +79,7 @@ const StaffPaymentSuccess = () => {
                     )}
                 </div>
 
-                {/* Title */}
+                
                 <div className="text-center">
                     <h1 className="text-3xl font-bold text-gray-900 mb-2">
                         {isSuccess && !error ? 'Thanh toán thành công!' : 'Thanh toán thất bại'}
@@ -92,7 +92,7 @@ const StaffPaymentSuccess = () => {
                     </p>
                 </div>
 
-                {/* Payment details */}
+               
                 {isSuccess && paymentResult?.payments && (
                     <div className="w-full bg-gray-50 rounded-2xl p-5 flex flex-col gap-3 text-sm border border-gray-100">
                         {paymentResult.payments.amount && (
@@ -122,7 +122,7 @@ const StaffPaymentSuccess = () => {
                     </div>
                 )}
 
-                {/* Info box */}
+               
                 {isSuccess && (
                     <div className="w-full bg-blue-50 border border-blue-200 rounded-xl p-4 text-xs text-blue-700 leading-relaxed flex items-start gap-2">
                         <BsReceipt className="text-blue-500 text-lg shrink-0 mt-0.5" />
@@ -135,7 +135,7 @@ const StaffPaymentSuccess = () => {
                     </div>
                 )}
 
-                {/* Buttons */}
+                
                 <div className="w-full flex flex-col gap-3">
                     {isSuccess && bookingId && (
                         <button

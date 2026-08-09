@@ -95,7 +95,7 @@ const StaffBookingModal = ({ open, onClose, onSuccess, branchId }: StaffBookingM
     const [submitting, setSubmitting] = useState(false);
     const [errorMsg, setErrorMsg] = useState('');
 
-    // Step 0
+    
     const [bookingType, setBookingType] = useState<'daily' | 'hourly'>('daily');
     const [checkinAt, setCheckinAt] = useState(todayStr());
     const [checkoutAt, setCheckoutAt] = useState(tomorrowStr());
@@ -106,15 +106,15 @@ const StaffBookingModal = ({ open, onClose, onSuccess, branchId }: StaffBookingM
     const [selectedRoomTypeId, setSelectedRoomTypeId] = useState('');
     const [notes, setNotes] = useState('');
 
-    // Kiểm tra phòng trống
+    
     const [checkingAvailability, setCheckingAvailability] = useState(false);
 
-    // Data
+    
     const [roomTypes, setRoomTypes] = useState<any[]>([]);
     const [roomPrices, setRoomPrices] = useState<any[]>([]);
     const [dataLoading, setDataLoading] = useState(false);
 
-    // Step 1
+    
     const [allCustomers, setAllCustomers] = useState<any[]>([]);
     const [customerSearch, setCustomerSearch] = useState('');
     const [selectedCustomer, setSelectedCustomer] = useState<any>(null);
@@ -125,7 +125,7 @@ const StaffBookingModal = ({ open, onClose, onSuccess, branchId }: StaffBookingM
         nationality: 'Việt Nam', date_of_birth: '', address: '',
     });
 
-    // Step 3 - Created booking
+    
     const [createdBooking, setCreatedBooking] = useState<any>(null);
 
     const fetchData = useCallback(async () => {
@@ -248,7 +248,7 @@ const StaffBookingModal = ({ open, onClose, onSuccess, branchId }: StaffBookingM
         branchId,
     ]);
 
-    // Kiểm tra phòng trống khi nhấn "Tiếp theo" ở bước 0
+    
     const handleCheckAvailabilityAndNext = async () => {
         setCheckingAvailability(true);
         setErrorMsg('');
@@ -289,10 +289,10 @@ const StaffBookingModal = ({ open, onClose, onSuccess, branchId }: StaffBookingM
         return c.full_name?.toLowerCase().includes(q) || c.phone?.toLowerCase().includes(q) || c.email?.toLowerCase().includes(q);
     });
 
-    // Kiểm tra trùng lặp khi nhập phone hoặc CCCD (chỉ khi đang ở chế độ tạo mới)
+    
     useEffect(() => {
         if (!isNewCustomer) { setDuplicateCustomer(null); return; }
-        const phoneNorm = guestForm.phone.trim().replace(/\s+/g, ''); // Loại bỏ khoảng trắng
+        const phoneNorm = guestForm.phone.trim().replace(/\s+/g, '');
         const idCardNorm = guestForm.id_card_number.trim();
         if (!phoneNorm && !idCardNorm) { setDuplicateCustomer(null); return; }
 
@@ -304,14 +304,14 @@ const StaffBookingModal = ({ open, onClose, onSuccess, branchId }: StaffBookingM
         setDuplicateCustomer(found ?? null);
     }, [guestForm.phone, guestForm.id_card_number, isNewCustomer, allCustomers]);
 
-    // Step 2 → Step 3: Tạo booking rồi chuyển sang bước thanh toán
+    
     const handleCreateBooking = async () => {
         setSubmitting(true);
         setErrorMsg('');
         try {
             let customerId = selectedCustomer?.id ?? null;
             if (isNewCustomer || !customerId) {
-                // Kiểm tra trùng lặp: phone hoặc CCCD đã tồn tại trong database chưa
+                
                 const phoneNorm = guestForm.phone.trim().replace(/\s+/g, '');
                 const idCardNorm = guestForm.id_card_number.trim();
                 const existing = allCustomers.find((c: any) => {
@@ -365,7 +365,7 @@ const StaffBookingModal = ({ open, onClose, onSuccess, branchId }: StaffBookingM
 
     console.log('createdBooking:', createdBooking);
 
-    // Step 3: Thanh toán tiền mặt
+    
     const handlePayCash = async () => {
         if (!createdBooking) return;
         setSubmitting(true);
@@ -390,7 +390,7 @@ const StaffBookingModal = ({ open, onClose, onSuccess, branchId }: StaffBookingM
         }
     };
 
-    // Step 3: Thanh toán ZaloPay
+    
     const handlePayZaloPay = async () => {
         if (!createdBooking) return;
         const amount = Number(createdBooking?.charge?.total ?? 0);
@@ -417,7 +417,7 @@ const StaffBookingModal = ({ open, onClose, onSuccess, branchId }: StaffBookingM
         }
     };
 
-    // Step 3: Nhận phòng chưa thanh toán
+    
     const handleCheckinUnpaid = async () => {
         if (!createdBooking) return;
         message.success('Đặt phòng thành công! Khách hàng sẽ thanh toán sau.');
@@ -426,7 +426,7 @@ const StaffBookingModal = ({ open, onClose, onSuccess, branchId }: StaffBookingM
         navigate(`/${role}/bookings/${createdBooking.id}`);
     };
 
-    // Step 3: Hủy booking
+    
     const handleCancelBooking = async () => {
         if (!createdBooking) return;
         setSubmitting(true);
@@ -458,10 +458,10 @@ const StaffBookingModal = ({ open, onClose, onSuccess, branchId }: StaffBookingM
                     <div className="flex justify-center py-10"><Spin size="large" tip="Đang tải dữ liệu..." /></div>
                 ) : (
                     <>
-                        {/* STEP 0 */}
+                        
                         {step === 0 && (
                             <div className="flex flex-col gap-5">
-                                {/* Loại đặt */}
+                                
                                 <div className="flex flex-col gap-2">
                                     <label className="text-sm font-semibold text-gray-700">Loại đặt phòng</label>
                                     <div className="grid grid-cols-2 gap-3">
@@ -487,7 +487,7 @@ const StaffBookingModal = ({ open, onClose, onSuccess, branchId }: StaffBookingM
                                     </div>
                                 </div>
 
-                                {/* Loại phòng */}
+                               
                                 <div className="flex flex-col gap-1.5">
                                     <label className="text-sm font-semibold text-gray-700 flex items-center gap-1.5">
                                         <MdOutlineHotel className="text-gray-400" /> Loại phòng
@@ -534,7 +534,7 @@ const StaffBookingModal = ({ open, onClose, onSuccess, branchId }: StaffBookingM
                                     )}
                                 </div>
 
-                                {/* Thời gian */}
+                               
                                 {bookingType === 'daily' ? (
                                     <div className="grid grid-cols-2 gap-4">
                                         <div className="flex flex-col gap-1.5">
@@ -594,12 +594,12 @@ const StaffBookingModal = ({ open, onClose, onSuccess, branchId }: StaffBookingM
                                     </div>
                                 )}
 
-                                {/* Thông báo lỗi kiểm tra phòng */}
+                                
                                 {errorMsg && (
                                     <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-sm text-red-600">{errorMsg}</div>
                                 )}
 
-                                {/* Số khách */}
+                                
                                 <div className="flex flex-col gap-1.5">
                                     <label className="text-sm font-semibold text-gray-700 flex items-center gap-1.5">
                                         <FaRegUser className="text-gray-400" /> Số khách
@@ -614,7 +614,7 @@ const StaffBookingModal = ({ open, onClose, onSuccess, branchId }: StaffBookingM
                                     </div>
                                 </div>
 
-                                {/* Ghi chú */}
+                               
                                 <div className="flex flex-col gap-1.5">
                                     <label className="text-sm font-semibold text-gray-700 flex items-center gap-1.5">
                                         <MdOutlineNotes className="text-gray-400" /> Ghi chú
@@ -639,7 +639,7 @@ const StaffBookingModal = ({ open, onClose, onSuccess, branchId }: StaffBookingM
                             </div>
                         )}
 
-                        {/* STEP 1 */}
+                        
                         {step === 1 && (
                             <div className="flex flex-col gap-5">
                                 <div className="flex gap-3">
@@ -695,7 +695,7 @@ const StaffBookingModal = ({ open, onClose, onSuccess, branchId }: StaffBookingM
                                 ) : (
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                         <div className="sm:col-span-2 flex flex-col gap-1.5">
-                                            <label className="text-sm font-medium text-gray-700">Họ và tên *</label>
+                                            <label className="text-sm font-medium text-gray-700">Họ và tên <span className="text-red-500">*</span></label>
                                             <div className="relative">
                                                 <MdOutlinePersonOutline className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-lg" />
                                                 <input type="text" value={guestForm.full_name} onChange={(e) => setGuestForm((f) => ({ ...f, full_name: e.target.value }))}
@@ -703,7 +703,7 @@ const StaffBookingModal = ({ open, onClose, onSuccess, branchId }: StaffBookingM
                                             </div>
                                         </div>
                                         <div className="flex flex-col gap-1.5">
-                                            <label className="text-sm font-medium text-gray-700">Số điện thoại *</label>
+                                            <label className="text-sm font-medium text-gray-700">Số điện thoại <span className="text-red-500">*</span></label>
                                             <div className="relative">
                                                 <MdOutlinePhone className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-lg" />
                                                 <input type="tel" value={guestForm.phone} onChange={(e) => setGuestForm((f) => ({ ...f, phone: e.target.value }))}
@@ -711,7 +711,7 @@ const StaffBookingModal = ({ open, onClose, onSuccess, branchId }: StaffBookingM
                                             </div>
                                         </div>
                                         <div className="flex flex-col gap-1.5">
-                                            <label className="text-sm font-medium text-gray-700">Email *</label>
+                                            <label className="text-sm font-medium text-gray-700">Email <span className="text-red-500">*</span></label>
                                             <div className="relative">
                                                 <MdOutlineMail className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-lg" />
                                                 <input type="email" value={guestForm.email} onChange={(e) => setGuestForm((f) => ({ ...f, email: e.target.value }))}
@@ -719,7 +719,7 @@ const StaffBookingModal = ({ open, onClose, onSuccess, branchId }: StaffBookingM
                                             </div>
                                         </div>
                                         <div className="flex flex-col gap-1.5">
-                                            <label className="text-sm font-medium text-gray-700">CCCD / Hộ chiếu *</label>
+                                            <label className="text-sm font-medium text-gray-700">CCCD / Hộ chiếu <span className="text-red-500">*</span></label>
                                             <div className="relative">
                                                 <MdOutlineCreditCard className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-lg" />
                                                 <input type="text" value={guestForm.id_card_number} onChange={(e) => setGuestForm((f) => ({ ...f, id_card_number: e.target.value }))}
@@ -727,7 +727,7 @@ const StaffBookingModal = ({ open, onClose, onSuccess, branchId }: StaffBookingM
                                             </div>
                                         </div>
                                         <div className="flex flex-col gap-1.5">
-                                            <label className="text-sm font-medium text-gray-700">Ngày sinh *</label>
+                                            <label className="text-sm font-medium text-gray-700">Ngày sinh <span className="text-red-500">*</span></label>
                                             <div className="relative">
                                                 <MdOutlineCake className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-lg" />
                                                 <input type="date" value={guestForm.date_of_birth} onChange={(e) => setGuestForm((f) => ({ ...f, date_of_birth: e.target.value }))}
@@ -753,7 +753,7 @@ const StaffBookingModal = ({ open, onClose, onSuccess, branchId }: StaffBookingM
                                     </div>
                                 )}
 
-                                {/* Cảnh báo trùng lặp khách hàng */}
+                               
                                 {isNewCustomer && duplicateCustomer && (
                                     <div className="flex flex-col gap-2 p-3.5 bg-amber-50 border-2 border-amber-400 rounded-xl">
                                         <div className="flex items-start gap-2">
@@ -802,10 +802,10 @@ const StaffBookingModal = ({ open, onClose, onSuccess, branchId }: StaffBookingM
                             </div>
                         )}
 
-                        {/* STEP 2 - Xác nhận */}
+                        
                         {step === 2 && (
                             <div className="flex flex-col gap-4">
-                                {/* Summary thời gian */}
+                                
                                 <div className="flex flex-col gap-3 p-4 bg-gray-50 rounded-xl border border-gray-100">
                                     <div className="flex items-center gap-2">
                                         <p className="text-xs font-semibold uppercase tracking-wider text-gray-400">Thời gian lưu trú</p>
@@ -835,7 +835,6 @@ const StaffBookingModal = ({ open, onClose, onSuccess, branchId }: StaffBookingM
                                     </p>
                                 </div>
 
-                                {/* Summary khách hàng */}
                                 <div className="flex flex-col gap-3 p-4 bg-gray-50 rounded-xl border border-gray-100">
                                     <p className="text-xs font-semibold uppercase tracking-wider text-gray-400">Thông tin khách hàng</p>
                                     <div className="grid grid-cols-2 gap-3 text-sm">
@@ -866,10 +865,10 @@ const StaffBookingModal = ({ open, onClose, onSuccess, branchId }: StaffBookingM
                             </div>
                         )}
 
-                        {/* STEP 3 - Thanh toán */}
+                        
                         {step === 3 && createdBooking && (
                             <div className="flex flex-col gap-5">
-                                {/* Booking info header */}
+                                
                                 <div className="flex items-center gap-3 p-4 bg-green-50 border border-green-200 rounded-xl">
                                     <IoCheckmarkCircle className="text-green-500 text-3xl shrink-0" />
                                     <div>
@@ -878,7 +877,7 @@ const StaffBookingModal = ({ open, onClose, onSuccess, branchId }: StaffBookingM
                                     </div>
                                 </div>
 
-                                {/* Charge breakdown */}
+                                
                                 <div className="flex flex-col gap-3 p-4 bg-gray-50 rounded-xl border border-gray-100">
                                     <p className="text-xs font-semibold uppercase tracking-wider text-gray-400">Chi tiết thanh toán</p>
                                     <div className="flex flex-col gap-2 text-sm">
@@ -895,11 +894,11 @@ const StaffBookingModal = ({ open, onClose, onSuccess, branchId }: StaffBookingM
                                     </div>
                                 </div>
 
-                                {/* Payment options */}
+                               
                                 <div className="flex flex-col gap-3">
                                     <p className="text-xs font-semibold uppercase tracking-wider text-gray-400">Chọn hình thức thanh toán</p>
 
-                                    {/* Thanh toán tiền mặt */}
+                                    
                                     <button
                                         type="button"
                                         disabled={submitting}
@@ -916,7 +915,7 @@ const StaffBookingModal = ({ open, onClose, onSuccess, branchId }: StaffBookingM
                                         <span className="text-green-700 font-bold text-sm">{formatVND(Number(createdBooking?.charge?.balance ?? createdBooking?.charge?.total ?? 0))}</span>
                                     </button>
 
-                                    {/* ZaloPay */}
+                                  
                                     <button
                                         type="button"
                                         disabled={submitting}
@@ -933,7 +932,7 @@ const StaffBookingModal = ({ open, onClose, onSuccess, branchId }: StaffBookingM
                                         <span className="text-blue-700 font-bold text-sm">{formatVND(Number(createdBooking?.charge?.balance ?? createdBooking?.charge?.total ?? 0))}</span>
                                     </button>
 
-                                    {/* Nhận phòng chưa thanh toán */}
+                                    
                                     <button
                                         type="button"
                                         disabled={submitting}
@@ -950,7 +949,7 @@ const StaffBookingModal = ({ open, onClose, onSuccess, branchId }: StaffBookingM
                                     </button>
                                 </div>
 
-                                {/* Cancel */}
+                               
                                 <div className="pt-1">
                                     <button
                                         type="button"

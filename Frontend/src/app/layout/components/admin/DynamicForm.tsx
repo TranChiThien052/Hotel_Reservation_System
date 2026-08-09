@@ -5,7 +5,7 @@ import type { FormField } from "@/shared/types/form-field";
 import { FormFieldTypes } from "@/shared/types/type-form-field";
 import { Checkbox, DatePicker, Input, Select } from "antd";
 import dayjs, { Dayjs } from "dayjs";
-import CustomerSelectWithAdd from "@/shared/components/input/CustomerSelectWithAdd";
+import type { ExistingImage } from "@/shared/components/upload/UploadImageCustom";
 
 type DynamicFormProps<T extends object> = {
   fields: FormField<T>[];
@@ -13,6 +13,7 @@ type DynamicFormProps<T extends object> = {
   onChange: (key: keyof T, value: unknown) => void;
   errors?: Record<string, string>;
   disabled?: boolean;
+  onRemoveImage?: (img_url: string, public_id: string) => void;
 };
 
 const DynamicForm = <T extends object>({
@@ -21,6 +22,7 @@ const DynamicForm = <T extends object>({
   onChange,
   errors = {},
   disabled = false,
+  onRemoveImage,
 }: DynamicFormProps<T>) => {
   const renderField = (field: FormField<T>) => {
     const key = field.key;
@@ -39,18 +41,20 @@ const DynamicForm = <T extends object>({
         );
 
       case FormFieldTypes.IMAGE_UPLOAD:
-       
-        const existingUrls = Array.isArray(value)
+        const existingImages: ExistingImage[] = Array.isArray(value)
           ? value
-              .map(
-                (img: any) => (typeof img === "string" ? img : img.image_url),
+              .map((img: any) =>
+                typeof img === "string"
+                  ? null  
+                  : { image_url: img.image_url, image_public_id: img.image_public_id }
               )
-              .filter(Boolean)
+              .filter((img): img is ExistingImage => img !== null)
           : [];
         return (
           <UploadImageCustom
-            value={existingUrls} 
+            value={existingImages}
             onChange={(files) => onChange(key, files)}
+            onRemoveExisting={onRemoveImage}
             disabled={disabled}
             maxCount={5}
           />
@@ -97,6 +101,8 @@ const DynamicForm = <T extends object>({
             value={String(value ?? "")}
             onChange={(e) => onChange(key, Number(e.target.value))}
             disabled={disabled} 
+            min={field.componentProps?.min}
+            max={field.componentProps?.max}
           />
         );
 
@@ -173,16 +179,6 @@ const DynamicForm = <T extends object>({
         );
 
       case FormFieldTypes.SELECT_FETCH:
-        if (field.componentProps?.allowAddCustomer) {
-          return (
-            <CustomerSelectWithAdd
-              value={(value as any) || undefined}
-              onChange={(val) => onChange(key, val)}
-              disabled={disabled}
-              placeholder={field.placeholder}
-            />
-          );
-        }
         return (
           <SelectFetchCustom
             placeholder={field.placeholder}

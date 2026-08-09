@@ -3,89 +3,108 @@ import { PlusOutlined } from "@ant-design/icons";
 import { message, Upload } from "antd";
 import type { GetProp, UploadFile, UploadProps } from "antd";
 
-// Lấy kiểu FileType từ Ant Design
+
 type FileType = Parameters<GetProp<UploadProps, "beforeUpload">>[0];
 
-// ─── Props ─────────────────────────────────────────────────────────────────
-export interface UploadMultiImageCustomProps {
-  value?: string[]; // Mảng URL ảnh hiện tại
-  onChange?: (file: File[]) => void; // Callback trả mảng URL về Form
-  disabled?: boolean;
-  maxCount?: number; // Mặc định 5
+
+export interface ExistingImage {
+  image_url: string;
+  image_public_id: string;
 }
 
-// ─── Component ─────────────────────────────────────────────────────────────
+
+export interface UploadMultiImageCustomProps {
+
+  value?: ExistingImage[];
+
+  onChange?: (files: File[]) => void;
+
+  onRemoveExisting?: (img_url: string, public_id: string) => void;
+  disabled?: boolean;
+  maxCount?: number;
+}
+
+
 const UploadMultiImageCustom = ({
   value = [],
   onChange,
+  onRemoveExisting,
   disabled = false,
   maxCount = 5,
 }: UploadMultiImageCustomProps) => {
-  // Khởi tạo fileList từ các URL ảnh đã có (khi mở form Edit)
-  const [fileList, setFileList] = useState<UploadFile[]>(() =>
-  (value ?? []).map((url, i) => ({
-    uid:    `existing-${i}`,
-    name:   `image-${i + 1}.png`,
-    status: 'done' as const,
-    url,
-  }))
-);
 
-  // ─── 1. Validate trước khi upload ────────────────────────────────────────
+  const [fileList, setFileList] = useState<UploadFile[]>(() =>
+    (value ?? []).map((img, i) => ({
+      uid: `existing-${i}`,
+      name: `image-${i + 1}.png`,
+      status: "done" as const,
+      url: img.image_url,
+
+      response: { image_url: img.image_url, image_public_id: img.image_public_id },
+    }))
+  );
+
+
   const beforeUpload = (file: FileType) => {
     const isImage = file.type.startsWith("image/");
     if (!isImage) {
       message.error("Chỉ được tải lên file hình ảnh!");
-      return Upload.LIST_IGNORE; // Bỏ qua file này, không thêm vào list
+      return Upload.LIST_IGNORE;
     }
-
     const isLt5M = file.size / 1024 / 1024 < 5;
     if (!isLt5M) {
       message.error("Kích thước ảnh phải nhỏ hơn 5MB!");
       return Upload.LIST_IGNORE;
     }
-
     if (fileList.length >= maxCount) {
       message.warning(`Chỉ được tải lên tối đa ${maxCount} ảnh!`);
       return Upload.LIST_IGNORE;
     }
-
-    return true; // Cho phép upload
+    return true;
   };
 
-  // ─── 2. Custom request (không cần server thật) ───────────────────────────
 
   const customRequest: UploadProps["customRequest"] = async (options) => {
     options.onSuccess?.({});
   };
 
-  // ─── 3. Xử lý sau khi danh sách file thay đổi ───────────────────────────
+
+  const handleRemove = (file: UploadFile) => {
+
+    const meta = file.response as ExistingImage | undefined;
+    if (meta?.image_url && meta?.image_public_id && onRemoveExisting) {
+      onRemoveExisting(meta.image_url, meta.image_public_id);
+    }
+    return true; 
+  };
+
+
   const handleChange: UploadProps["onChange"] = ({ fileList: newList }) => {
     setFileList(newList);
-    // Lấy File object thật từ originFileObj
-    const files = newList
-    .filter((f) => f.originFileObj)           // chỉ cần có file thật
-    .map((f) => f.originFileObj as File);
-  onChange?.(files); // ← Trả File[] về cho form state
+
+    const newFiles = newList
+      .filter((f) => f.originFileObj)
+      .map((f) => f.originFileObj as File);
+    onChange?.(newFiles);
   };
 
   return (
     <Upload
       accept="image/*"
-      listType="picture-card" // Hiển thị dạng lưới ảnh thumbnail
-      multiple // Cho phép chọn nhiều file cùng lúc
+      listType="picture-card"
+      multiple
       maxCount={maxCount}
       fileList={fileList}
       beforeUpload={beforeUpload}
       customRequest={customRequest}
+      onRemove={handleRemove}
       onChange={handleChange}
       disabled={disabled}
     >
-      {/* Ẩn nút "+" khi đã đủ số lượng hoặc bị disable */}
       {fileList.length < maxCount && !disabled && (
-        <button style={{ border: 0, background: "none" }} type="button">
+        <button className="border-0 bg-transparent cursor-pointer" type="button">
           <PlusOutlined />
-          <div style={{ marginTop: 8, fontSize: 12 }}>
+          <div className="mt-2 text-xs">
             Tải ảnh ({fileList.length}/{maxCount})
           </div>
         </button>
