@@ -33,7 +33,7 @@ class HistoryTransactionRepository {
                         role: true,
                     }
                 }
-            }
+            },
         });
     };
 
@@ -69,7 +69,8 @@ class HistoryTransactionRepository {
                         role: true,
                     }
                 }
-            }
+            },
+            orderBy: { created_at: 'desc' },
         });
     }
 

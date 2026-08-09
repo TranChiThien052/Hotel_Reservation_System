@@ -3,8 +3,6 @@ import BookingRepository from '../repositories/bookingRepo';
 import InvoiceRepository from '../repositories/invoiceRepo';
 import AccountRepository from '../repositories/accountRepo';
 import { Validator, ValidationError } from '../middlewares/validateData';
-import axios from 'axios';
-import crypto from 'crypto';
 import historyTransactionServices from './historyTransactionServices';
 import bookingRepo from '../repositories/bookingRepo';
 import { booking_status, payment_method, payment_status } from '../generated/prisma/enums';
@@ -191,7 +189,7 @@ class PaymentService {
             if (result)
                 await historyTransactionServices.createCreateTransaction(
                     data.log_account_id,
-                    "Payment",
+                    "Thông tin hanh toán",
                     result.id,
                     result
                 );
@@ -281,7 +279,7 @@ class PaymentService {
                 }
                 await historyTransactionServices.createUpdateTransaction(
                     data.log_account_id,
-                    "Payment",
+                    "Thông tin hanh toán",
                     id,
                     before,
                     after,
@@ -317,16 +315,16 @@ class PaymentService {
                     throw new ValidationError('404', 'Branch not found')
             }
         }
-        if (quarter) 
-            if (quarter <= 0 || quarter > 4) 
+        if (quarter)
+            if (quarter <= 0 || quarter > 4)
                 throw new ValidationError('400', 'Invalid quarter');
-        if (month) 
+        if (month)
             if (month <= 0 || month > 12)
                 throw new ValidationError('400', 'Invalid month');
         const startDate = new Date(Number(year), 0, 1, 0, 0, 0);
         const endDate = new Date(Number(year), 11, 31, 23, 59, 999);
         const payments = await PaymentRepository.getCustomRevenue(startDate, endDate, branch_id);
-        const result  = payments.reduce((acc, curr) => {
+        const result = payments.reduce((acc, curr) => {
             const month = (curr.paid_at ? new Date(curr.paid_at).getMonth() : 0) + 1;
             let quarter = 0;
             if (month >= 0 && month <= 3)
@@ -359,31 +357,31 @@ class PaymentService {
             }
 
             return acc;
-            }, {
-                total: 0, 
-                cash: 0, 
-                transfer: 0, 
-                revenue_by_quarter: { 
-                    1: {}, 
-                    2: {}, 
-                    3: {}, 
-                    4: {},
-                }, 
-                revenue_by_month: { 
-                    1: {}, 
-                    2: {}, 
-                    3: {}, 
-                    4: {}, 
-                    5: {}, 
-                    6: {}, 
-                    7: {}, 
-                    8: {}, 
-                    9: {}, 
-                    10: {}, 
-                    11: {}, 
-                    12: {},
-                }
+        }, {
+            total: 0,
+            cash: 0,
+            transfer: 0,
+            revenue_by_quarter: {
+                1: {},
+                2: {},
+                3: {},
+                4: {},
+            },
+            revenue_by_month: {
+                1: {},
+                2: {},
+                3: {},
+                4: {},
+                5: {},
+                6: {},
+                7: {},
+                8: {},
+                9: {},
+                10: {},
+                11: {},
+                12: {},
             }
+        }
         );
         switch (get_by) {
             case 'year':
@@ -392,16 +390,16 @@ class PaymentService {
             case 'quarter':
                 const revenue_by_month = {};
                 if (quarter == 1) {
-                    for (let i = 1; i <= 3; i ++)
+                    for (let i = 1; i <= 3; i++)
                         revenue_by_month[i] = result.revenue_by_month[i];
                 } else if (quarter == 2) {
-                    for (let i = 4; i <= 6; i ++)
+                    for (let i = 4; i <= 6; i++)
                         revenue_by_month[i] = result.revenue_by_month[i];
                 } else if (quarter == 3) {
-                    for (let i = 7; i <= 9; i ++)
+                    for (let i = 7; i <= 9; i++)
                         revenue_by_month[i] = result.revenue_by_month[i];
                 } else if (quarter == 4) {
-                    for (let i = 10; i <= 12; i ++)
+                    for (let i = 10; i <= 12; i++)
                         revenue_by_month[i] = result.revenue_by_month[i];
                 }
                 return {

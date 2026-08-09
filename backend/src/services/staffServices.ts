@@ -74,7 +74,7 @@ class StaffService {
             if (result) {
                 await historyTransactionServices.createCreateTransaction(
                     validatedData.log_account_id,
-                    "Staff",
+                    "Nhân viên",
                     result.account_id,
                     result
                 );
@@ -142,7 +142,7 @@ class StaffService {
         if (result) {
             await historyTransactionServices.createUpdateTransaction(
                 data.log_account_id,
-                "Staff",
+                "Nhân viên",
                 result.account_id,
                 before,
                 result,

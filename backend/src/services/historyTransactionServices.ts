@@ -93,7 +93,7 @@ class HistoryTransactionService {
             action: "create",
             target_type,
             target_id,
-            description: `Create ${target_type} with id ${target_id}`,
+            description: `Tạo mới ${target_type} với id ${target_id}`,
             metadata: {
                 created
             }
@@ -111,7 +111,7 @@ class HistoryTransactionService {
             action: "update",
             target_type,
             target_id,
-            description: `Update ${target_type} with id ${target_id}`,
+            description: `Cập nhật thông tin ${target_type} với id ${target_id}`,
             metadata: {
                 before,
                 after,
@@ -131,7 +131,7 @@ class HistoryTransactionService {
             action: "delete",
             target_type,
             target_id,
-            description: `Delete ${target_type} with id ${target_id}`,
+            description: `Xóa thông tin ${target_type} với id ${target_id}`,
             metadata: {
                 deleted
             }

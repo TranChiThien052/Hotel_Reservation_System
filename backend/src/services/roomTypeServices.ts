@@ -73,7 +73,7 @@ class RoomTypeService {
             if (result)
                 await historyTransactionServices.createCreateTransaction(
                     data.log_account_id,
-                    "Room Type",
+                    "Loại phòng",
                     result.id,
                     result
                 );
@@ -134,7 +134,7 @@ class RoomTypeService {
             if (after)
                 await historyTransactionServices.createUpdateTransaction(
                     data.log_account_id,
-                    "Room Type",
+                    "Loại phòng",
                     id,
                     existingRoomType,
                     after,
@@ -160,19 +160,11 @@ class RoomTypeService {
 
     async deleteRoomTypeImage(data) {
         try {
-            const result = await prisma.$transaction(async () => {
+            return await prisma.$transaction(async () => {
                 await deleteImage(data.public_id);
                 const deleteResult = await RoomImageRepository.deleteRoomTypeImage(data.img_url);
                 return deleteResult;
             })
-            if (result)
-                await historyTransactionServices.createDeleteTransaction(
-                    data.log_account_id,
-                    "Room Image",
-                    result.room_type_id,
-                    result
-                );
-            return result;
         } catch (error: any) {
             throw new Error(error);
         }
