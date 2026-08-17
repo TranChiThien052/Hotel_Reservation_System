@@ -17,7 +17,6 @@ const defaultEmployeeData: EmployeeFormData = {
   full_name: "",
   phone: "",
   position: "",
-  account_id: "",
 };
 
 const managementEmployees = () => {
@@ -134,12 +133,12 @@ const managementEmployees = () => {
             Danh sách các nhân viên trong hệ thống khách sạn Aurora
           </p>
         </div>
-        <div
+        {/* <div
           className="flex items-center gap-2 bg-orange-400 hover:bg-orange-500 text-white px-4 py-2 rounded-lg cursor-pointer text-lg font-medium"
           onClick={() => employee.openCreate()}
         >
           <CiCirclePlus /> Thêm nhân viên mới
-        </div>
+        </div> */}
       </div>
 
       <div className="grid grid-cols-3 gap-5 w-2/3 mx-auto mt-4">

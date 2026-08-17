@@ -38,7 +38,7 @@ const ManagerRoomTypes = () => {
   const fetchRoomTypes = useCallback(async () => {
     setLoading(true);
     try {
-      const data = await roomTypesApi.getRoomTypeById(user?.branch_id || "");
+      const data = await roomTypesApi.getRoomTypeByBranchId(user?.branch_id || "");
       setRoomTypesData(Array.isArray(data) ? data : []);
       setFilteredRoomTypes(Array.isArray(data) ? data : []);
     } catch (error) {
@@ -67,7 +67,7 @@ const ManagerRoomTypes = () => {
           ),
         );
         message.success("Cập nhật trạng thái loại phòng thành công");
-        fetchRoomTypes(); // Tải lại dữ liệu sau khi cập nhật trạng thái
+        fetchRoomTypes(); 
       } catch (error) {
         message.error("Cập nhật trạng thái loại phòng thất bại");
         console.error("Update error:", error);
@@ -78,30 +78,29 @@ const ManagerRoomTypes = () => {
 
     const handleSubmitForm = async (values: RoomTypeFormData) => {
       if (roomType.mode === FormModalModes.CREATE) {
-        // Xử lý tạo mới loại phòng
         values.branch_id = user?.branch_id ?? ""; 
         try {
           await roomTypesApi.createRoomType(values);
           message.success("Tạo loại phòng mới thành công");
-          fetchRoomTypes(); // Tải lại dữ liệu sau khi tạo mới
+          fetchRoomTypes(); 
           roomType.close();
         } catch (error) {
           message.error("Tạo loại phòng mới thất bại");
           console.error("Create error:", error);
         }
       } else if (roomType.mode === FormModalModes.UPDATE && roomType.selectedRecord) {
-        // Xử lý cập nhật loại phòng
+        
         try {
-          const {roomImages, ...textData} = values; // Tách roomImages ra khỏi textData
+          const {roomImages, ...textData} = values; 
           await roomTypesApi.updateRoomType(roomType.selectedRecord.id, textData as RoomTypeFormData);
 
-          const newFiles = (roomImages ?? []).filter((img): img is File => img instanceof File); // Lọc ra các file mới (File thật)\
+          const newFiles = (roomImages ?? []).filter((img): img is File => img instanceof File); 
 
           if (newFiles.length > 0) {
             await roomTypesApi.addRoomTypeImage(roomType.selectedRecord.id, newFiles);
           }
           message.success("Cập nhật loại phòng thành công");
-          fetchRoomTypes(); // Tải lại dữ liệu sau khi cập nhật
+          fetchRoomTypes(); 
           roomType.close();
         } catch (error) {
           message.error("Cập nhật loại phòng thất bại");
@@ -157,7 +156,7 @@ const ManagerRoomTypes = () => {
       key: "is_active",
       dataIndex: "is_active",
       render: (text, record: RoomType) => {
-        // Tạo items động với onClick cho từng branch
+        
         const dynamicStatusItems: MenuProps["items"] = [
           {
             key: "active",
@@ -174,7 +173,7 @@ const ManagerRoomTypes = () => {
         return (
           <Dropdown
             menu={{ items: dynamicStatusItems }}
-            trigger={["click"]} //Click để hiển thị
+            trigger={["click"]} 
             placement="bottomLeft"
           >
             <Tag color={text ? "green" : "red"} className="cursor-pointer">
@@ -261,7 +260,7 @@ const ManagerRoomTypes = () => {
               <Select
               placeholder="Trạng thái"
               placement="topRight"
-              className="w-[120px]"
+              className="w-30"
               onChange={handleFilterStatus}
               allowClear
               options={[

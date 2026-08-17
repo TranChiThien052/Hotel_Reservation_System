@@ -68,13 +68,13 @@ const Room = ({ room: rt }: RoomProps) => {
     const priceHour = rt.room_price?.price_per_hour
         ? Number(rt.room_price.price_per_hour)
         : null;
-    const weekendRate = rt.room_price?.weekend_rate
-        ? Number(rt.room_price.weekend_rate)
-        : 0;
-    const originalPrice =
-        priceNum && weekendRate > 0
-            ? Math.round(priceNum / (1 - weekendRate / 100))
-            : null;
+    // const weekendRate = rt.room_price?.weekend_rate
+    //     ? Number(rt.room_price.weekend_rate)
+    //     : 0;
+    // const originalPrice =
+    //     priceNum && weekendRate > 0
+    //         ? Math.round(priceNum / (1 - weekendRate / 100))
+    //         : null;
 
     return (
         <div className="group bg-white rounded-2xl border border-gray-200 overflow-hidden hover:shadow-xl transition-all duration-300">
@@ -132,11 +132,11 @@ const Room = ({ room: rt }: RoomProps) => {
                                     <span className="text-2xl font-bold text-amber-500">
                                         {formatVND(priceNum)}
                                     </span>
-                                    {originalPrice && (
+                                    {/* {originalPrice && (
                                         <span className="text-sm text-gray-400 line-through">
                                             {formatVND(originalPrice)}
                                         </span>
-                                    )}
+                                    )} */}
                                 </div>
                                 <p className="text-xs text-gray-400 mt-0.5">/ đêm</p>
                             </>

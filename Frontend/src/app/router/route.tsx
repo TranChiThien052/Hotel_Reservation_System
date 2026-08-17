@@ -41,6 +41,7 @@ import Holiday from "@/features/admin/adminHolidays/pages/AdminHoliday";
 import StaffAcccount from "@/features/manager/managerStaffAccount/pages/StaffAcccount";
 import ManagerService from "@/features/manager/managerService/pages/ManagerService";
 import AboutBranch from "@/features/client/home/pages/AboutBranch";
+import ManagerDiscounts from "@/features/manager/managerDiscounts/pages/ManagerDiscounts";
 
 const route = () => {
   return (
@@ -118,7 +119,7 @@ const route = () => {
             <Route path="history-transactions" element={<ManagerHistoryTransactions />} />
             <Route path="dashboard" element={<Dashboard />} />
             <Route path="roomTypes" element={<ManagerRoomTypes />} />
-            <Route path="promotions" element={<Promotions />} />
+            <Route path="promotions" element={<ManagerDiscounts />} />
             <Route path="accounts" element={<StaffAcccount />} />
             <Route path="services" element={<ManagerService />} />
           </Route>
