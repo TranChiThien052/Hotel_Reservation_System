@@ -1,8 +1,8 @@
 import RoomRepository from '../repositories/roomRepo';
-import BranchRepository from '../repositories/branchRepo';
-import RoomTypeRepository from '../repositories/roomTypeRepo';
 import { Validator, ValidationError } from '../middlewares/validateData';
 import historyTransactionServices from './historyTransactionServices';
+import branchServices from './branchServices';
+import roomTypeServices from './roomTypeServices';
 
 class RoomService {
     async getAllRooms() {
@@ -10,11 +10,16 @@ class RoomService {
     };
 
     async getRoomsByBranchId(id) {
-        const allRooms = await RoomRepository.getAllRooms();
-        return allRooms.filter(room => room.branch_id === id);
+        const branch = await branchServices.getBranchById(id);
+        if (!branch)
+            throw new ValidationError("404", "Branch not found");
+        return await RoomRepository.getRoomsByBranchId(id);
     };
 
     async getRoomById(id) {
+        const validator = new Validator();
+        if (!validator.isUUID("Room ID", id))
+            throw new ValidationError("400", validator.clearError());
         return await RoomRepository.getRoomById(id);
     };
 
@@ -33,10 +38,12 @@ class RoomService {
 
         const validator = new Validator();
 
-        if (!validator.isEmpty("Branch ID", validatedData.branch_id))
-            validator.isUUID("Branch ID", validatedData.branch_id);
-        if (!validator.isEmpty("Room Type ID", validatedData.room_type_id))
-            validator.isUUID("Room Type ID", validatedData.room_type_id);
+        const branch = await branchServices.getBranchById(validatedData.branch_id);
+        if (!branch)
+            throw new ValidationError("404", "Branch not found");
+        const roomType = await roomTypeServices.getRoomTypeById(validatedData.room_type_id);
+        if (!roomType)
+            throw new ValidationError("404", "Room Type not found");
         if (!validator.isEmpty("Room Number", validatedData.room_number))
             validator.isString("Room Number", validatedData.room_number);
         if (!validator.isEmpty("Status", validatedData.status))
@@ -65,18 +72,6 @@ class RoomService {
             throw new ValidationError('400', validator.clearError());
         }
 
-        const branches = await BranchRepository.getBranchById(validatedData.branch_id);
-
-        if (!branches) {
-            throw new ValidationError('400', "Invalid branch ID");
-        }
-
-        const roomTypes = await RoomTypeRepository.getRoomTypeById(validatedData.room_type_id);
-
-        if (!roomTypes) {
-            throw new ValidationError('400', "Invalid room type ID");
-        }
-
         const existingRoomsFromBranch = await RoomRepository.getRoomsByBranchId(validatedData.branch_id);
         if (existingRoomsFromBranch.some(room => room.room_number === validatedData.room_number))
             throw new ValidationError('409', 'Room number already exists in this branch');
@@ -97,6 +92,10 @@ class RoomService {
     };
 
     async updateRoom(id, data) {
+        const existingRoom = await this.getRoomById(id);
+        if (!existingRoom)
+            throw new ValidationError("404", "Room not found");
+
         const validatedData = {
             ...(data.branch_id && { branch_id: data.branch_id }),
             ...(data.room_type_id && { room_type_id: data.room_type_id }),
@@ -110,12 +109,15 @@ class RoomService {
         };
 
         const validator = new Validator();
-
         if (validatedData.branch_id) {
-            validator.isUUID("Branch ID", validatedData.branch_id);
+            const branch = await branchServices.getBranchById(validatedData.branch_id);
+            if (!branch)
+                throw new ValidationError("404", "Branch not found");
         }
         if (validatedData.room_type_id) {
-            validator.isUUID("Room Type ID", validatedData.room_type_id);
+            const roomType = await roomTypeServices.getRoomTypeById(validatedData.room_type_id);
+            if (!roomType)
+                throw new ValidationError("404", "Room Type not found");
         }
         if (validatedData.room_number) {
             validator.isString("Room Number", validatedData.room_number);
@@ -136,16 +138,11 @@ class RoomService {
         if (validatedData.is_active !== undefined) {
             validator.isBoolean("Is Active", validatedData.is_active);
         }
-        if (validatedData.room_number[0] != validatedData.floor)
+        if (validatedData.room_number !== undefined && validatedData.floor !== undefined && validatedData.room_number[0] != validatedData.floor)
             validator.pushError('Room number is not match with floor');
 
         if (validator.error.length > 0) {
             throw new ValidationError('400', validator.clearError());
-        }
-
-        const existingRoom = await RoomRepository.getRoomById(id);
-        if (!existingRoom) {
-            throw new ValidationError('404', "Room not found");
         }
 
         const existingRoomFromBranch = await RoomRepository.getRoomsByBranchId(existingRoom.branch_id);

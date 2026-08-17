@@ -155,7 +155,7 @@ class Validator {
     }
 
     isString(typeOfData, data) {
-        if (data === undefined || data === null) {
+        if (data === undefined || data === null || data === '') {
             return true;
         }
         if (typeof data !== 'string') {

@@ -128,7 +128,8 @@ class AccountRepository {
             where: {
                 AND: [
                     { branch_id: id },
-                    { role: 'staff' }
+                    { role: 'staff' },
+                    { staff: { isNot: null } }
                 ]
             },
             include: {

@@ -1,7 +1,7 @@
 import RoomServiceRepository from '../repositories/roomServiceRepo';
-import BranchRepository from '../repositories/branchRepo';
 import { Validator, ValidationError } from '../middlewares/validateData';
 import historyTransactionServices from './historyTransactionServices';
+import branchServices from './branchServices';
 
 class RoomServiceService {
     async getAllServices() {
@@ -9,6 +9,9 @@ class RoomServiceService {
     };
 
     async getServiceById(id) {
+        const validator = new Validator();
+        if (!validator.isUUID("Service ID", id))
+            throw new ValidationError("400", validator.clearError());
         return await RoomServiceRepository.getServiceById(id);
     };
 
@@ -55,9 +58,9 @@ class RoomServiceService {
         }
 
         if (validatedData.branch_id) {
-            const branchExists = await BranchRepository.getBranchById(validatedData.branch_id);
+            const branchExists = await branchServices.getBranchById(validatedData.branch_id);
             if (!branchExists) {
-                throw new ValidationError('400', "Invalid branch ID or branch does not exist");
+                throw new ValidationError('404', "Branch not found");
             }
         }
 
@@ -110,9 +113,9 @@ class RoomServiceService {
         }
 
         if (validatedData.branch_id) {
-            const branch = await BranchRepository.getBranchById(validatedData.branch_id);
+            const branch = await branchServices.getBranchById(validatedData.branch_id);
             if (!branch) {
-                throw new ValidationError('400', "Invalid branch ID or branch does not exist");
+                throw new ValidationError('404', "Branch not found");
             }
         }
 

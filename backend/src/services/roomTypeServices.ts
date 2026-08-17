@@ -5,6 +5,7 @@ import RoomImageRepository from '../repositories/roomImageRepo';
 import { deleteImage, uploadImage } from '../middlewares/uploader';
 import { prisma } from '../config/prisma';
 import historyTransactionServices from './historyTransactionServices';
+import branchServices from './branchServices';
 
 class RoomTypeService {
     async getAllRoomTypes() {
@@ -12,20 +13,16 @@ class RoomTypeService {
     };
 
     async getRoomTypeById(id) {
+        const validator = new Validator();
+        if (!validator.isUUID("Room Type ID", id))
+            throw new ValidationError("400", validator.clearError());
         return await RoomTypeRepository.getRoomTypeById(id);
     };
 
     async getRoomTypesByBranchId(branchId) {
-        const validator = new Validator();
-        if (validator.isUUID("Branch ID", branchId)) {
-            const branchExists = await BranchRepository.getBranchById(branchId);
-            if (!branchExists) {
-                throw new ValidationError('400', "Invalid branch ID");
-            }
-        }
-
-        if (validator.error.length > 0) {
-            throw new ValidationError('400', validator.clearError());
+        const branchExists = await branchServices.getBranchById(branchId);
+        if (!branchExists) {
+            throw new ValidationError('404', "Branch not found");
         }
 
         return await RoomTypeRepository.getRoomTypesByBranchId(branchId);
@@ -42,8 +39,9 @@ class RoomTypeService {
 
         const validator = new Validator();
 
-        if (!validator.isEmpty("Branch ID", validatedData.branch_id))
-            validator.isUUID("Branch ID", validatedData.branch_id);
+        const branch = await branchServices.getBranchById(validatedData.branch_id);
+        if (!branch)
+            throw new ValidationError("404", "Branch not found");
         if (!validator.isEmpty("Name", validatedData.name))
             validator.isString("Name", validatedData.name);
 
@@ -61,11 +59,6 @@ class RoomTypeService {
 
         if (validator.error.length > 0) {
             throw new ValidationError('400', validator.clearError());
-        }
-
-        const branchExists = await BranchRepository.getBranchById(validatedData.branch_id);
-        if (!branchExists) {
-            throw new ValidationError('400', "Invalid branch ID");
         }
 
         try {
@@ -89,6 +82,9 @@ class RoomTypeService {
     };
 
     async updateRoomType(id, data) {
+        const existingRoomType = await this.getRoomTypeById(id);
+        if (!existingRoomType)
+            throw new ValidationError("404", "Room Type not found");
         const validatedData = {
             ...(data.branch_id && { branch_id: data.branch_id }),
             ...(data.name && { name: data.name }),
@@ -100,11 +96,9 @@ class RoomTypeService {
         const validator = new Validator();
 
         if (validatedData.branch_id) {
-            if (validator.isUUID("Branch ID", validatedData.branch_id)) {
-                const branchExists = await BranchRepository.getBranchById(validatedData.branch_id);
-                if (!branchExists) {
-                    validator.pushError("Invalid branch ID");
-                }
+            const branchExists = await BranchRepository.getBranchById(validatedData.branch_id);
+            if (!branchExists) {
+                throw new ValidationError("404", "Branch not found");
             }
         }
         if (validatedData.name) {
@@ -122,11 +116,6 @@ class RoomTypeService {
 
         if (validator.error.length > 0) {
             throw new ValidationError('400', validator.clearError());
-        }
-
-        const existingRoomType = await RoomTypeRepository.getRoomTypeById(id);
-        if (!existingRoomType) {
-            throw new ValidationError('404', "Room type not found");
         }
 
         try {

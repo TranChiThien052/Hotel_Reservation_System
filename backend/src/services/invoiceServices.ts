@@ -1,5 +1,4 @@
 import InvoiceRepository from '../repositories/invoiceRepo';
-import AccountRepository from '../repositories/accountRepo'
 import { Validator, ValidationError } from '../middlewares/validateData';
 import { calculateDynamicPrice, generateInvoiceCode } from '../middlewares/generator';
 import historyTransactionServices from './historyTransactionServices';
@@ -10,6 +9,7 @@ import bookingServiceServices from './bookingServiceServices';
 import roomPriceServices from './roomPriceServices';
 import holidayDateServices from './holidayDateServices';
 import discountServices from './discountServices';
+import accountServices from './accountServices';
 
 class InvoiceService {
     async getAllInvoices() {
@@ -18,20 +18,15 @@ class InvoiceService {
 
     async getInvoiceById(id) {
         const validator = new Validator();
-        if (!validator.isEmpty("Invoice ID", id)) {
-            validator.isUUID("Invoice ID", id);
-        }
-
-        if (validator.error.length > 0) {
+        if (!validator.isUUID("Invoice ID", id))
             throw new ValidationError('400', validator.clearError());
-        }
 
-        const old_invoice = await InvoiceRepository.getInvoiceById(id);
+        const existingInvoice = await InvoiceRepository.getInvoiceById(id);
 
-        if (old_invoice) {
-            const charges = await this.calculateInvoiceAmount(old_invoice.booking_id);
+        if (existingInvoice) {
+            const charges = await this.calculateInvoiceAmount(existingInvoice.booking_id);
             const update_data = {
-                room_charge: charges.room_charge,
+                room_charge: charges.room_charge.amount,
                 service_charge: charges.service_charge,
                 discount_amount: charges.discount,
                 deposit_used: charges.deposited,
@@ -39,20 +34,16 @@ class InvoiceService {
                 amount_due: charges.balance < 0 ? 0 : charges.balance,
                 refund_amount: charges.balance < 0 ? Math.abs(charges.balance) : 0,
             }
-            await InvoiceRepository.updateInvoice(old_invoice.id, update_data);
-            return { ...old_invoice, ...update_data };
+            return await InvoiceRepository.updateInvoice(existingInvoice.id, update_data);
         }
 
         throw new ValidationError('404', "Invoice not found");
     };
 
     async getInvoiceByBookingId(id) {
-        const validator = new Validator();
-        if (!validator.isEmpty("Booking ID", id)) {
-            validator.isUUID("Booking ID", id);
-        }
-        if (validator.error.length > 0)
-            throw new ValidationError('400', validator.clearError());
+        const existingBooking = await bookingServices.getBookingById(id);
+        if (!existingBooking)
+            throw new ValidationError('404', "Branch not found");
         const old_invoices = await InvoiceRepository.getInvoicesByBookingId(id);
         const old_invoice = old_invoices[0];
         if (!old_invoice)
@@ -68,14 +59,10 @@ class InvoiceService {
             refund_amount: charges.balance < 0 ? Math.abs(charges.balance) : 0,
         }
         try {
-            await InvoiceRepository.updateInvoice(old_invoice.id, update_data);
+            return await InvoiceRepository.updateInvoice(old_invoice.id, update_data);
         } catch (error) {
             throw new ValidationError('500', "Internal server error");
         }
-        return {
-            ...old_invoice,
-            ...update_data,
-        };
     }
 
     async calculateInvoiceAmount(bookingId) {
@@ -156,15 +143,15 @@ class InvoiceService {
 
         const validator = new Validator();
 
-        if (!validator.isEmpty("Booking ID", validatedData.booking_id))
-            validator.isUUID("Booking ID", validatedData.booking_id);
-        if (!validator.isEmpty("Issued By", validatedData.issued_by))
-            if (validator.isUUID("Issued By", validatedData.issued_by)) {
-                const staffAccount = await AccountRepository.getAccountById(validatedData.issued_by);
-                if (!staffAccount) {
-                    throw new ValidationError('404', "Account not found");
-                }
+        const booking = await bookingServices.getBookingById(validatedData.booking_id);
+        if (!booking)
+            throw new ValidationError("404", "Branch not found")
+        if (validatedData.issued_by) {
+            const staffAccount = await accountServices.getAccountById(validatedData.issued_by);
+            if (!staffAccount) {
+                throw new ValidationError('404', "Account not found");
             }
+        }
 
         if (validator.error.length > 0) {
             throw new ValidationError('400', validator.clearError());
@@ -204,10 +191,9 @@ class InvoiceService {
 
     async updateInvoice(id, data) {
         const validator = new Validator();
-        const existingInvoice = await InvoiceRepository.getInvoiceById(id);
-        if (!existingInvoice) {
-            throw new ValidationError('404', "Invoice not found");
-        }
+        const existingInvoice = await this.getInvoiceById(id);
+        if (!existingInvoice)
+            throw new ValidationError("404", "Invoice not found");
 
         const validatedData = {
             ...(data.room_charge && { room_charge: data.room_charge }),

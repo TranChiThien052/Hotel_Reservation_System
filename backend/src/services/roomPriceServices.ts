@@ -1,8 +1,9 @@
 import RoomPriceRepository from '../repositories/roomPriceRepo';
-import RoomTypeRepository from '../repositories/roomTypeRepo'
 import { Validator, ValidationError } from '../middlewares/validateData';
 import historyTransactionServices from './historyTransactionServices';
 import roomPriceRepo from '../repositories/roomPriceRepo';
+import roomTypeServices from './roomTypeServices';
+import branchServices from './branchServices';
 
 class RoomPriceService {
     async getAllRoomPrices() {
@@ -10,9 +11,12 @@ class RoomPriceService {
     };
 
     async getRoomPricesByRoomTypeId(id) {
+        const roomType = await roomTypeServices.getRoomTypeById(id);
+        if (!roomType)
+            throw new ValidationError("404", "Room type not found")
         const roomPrice = await RoomPriceRepository.getRoomPricesByRoomTypeId(id);
         if (!roomPrice) {
-            throw new ValidationError('404', "Room price not found for the given room type ID");
+            throw new ValidationError('404', "Room price not found");
         }
         return roomPrice;
     };
@@ -26,11 +30,9 @@ class RoomPriceService {
     };
 
     async getRoomPriceByBranchId(id) {
-        const validator = new Validator();
-        if (!validator.isEmpty("Branch ID", id))
-            validator.isUUID("Branch ID", id);
-        if (validator.error.length > 0)
-            throw new ValidationError("400", validator.clearError());
+        const branch = await branchServices.getBranchById(id);
+        if (!branch)
+            throw new ValidationError("404", "Branch not found");
         return roomPriceRepo.getRoomPriceByBranchId(id);
     }
 
@@ -47,8 +49,9 @@ class RoomPriceService {
 
         const validator = new Validator();
 
-        if (!validator.isEmpty("Room Type ID", validatedData.room_type_id))
-            validator.isUUID("Room Type ID", validatedData.room_type_id);
+        const roomType = await roomTypeServices.getRoomTypeById(validatedData.room_type_id);
+        if (!roomType)
+            throw new ValidationError("404", "Room Type not found");
 
         if (validatedData.price_per_day) {
             validator.isDecimal("Price Per Day", validatedData.price_per_day);
@@ -87,11 +90,6 @@ class RoomPriceService {
 
         if (validator.error.length > 0) {
             throw new ValidationError('400', validator.clearError());
-        }
-
-        const roomTypeExists = await RoomTypeRepository.getRoomTypeById(validatedData.room_type_id);
-        if (!roomTypeExists) {
-            throw new ValidationError('400', "Room type ID not found");
         }
 
         try {
@@ -110,6 +108,9 @@ class RoomPriceService {
     };
 
     async updateRoomPrice(id, data) {
+        const existingPrice = await this.getRoomPriceById(id);
+        if (!existingPrice)
+            throw new ValidationError("404", "Room Price not found");
         const validatedData = {
             ...(data.price_per_day && { price_per_day: data.price_per_day }),
             ...(data.price_per_hour && { price_per_hour: data.price_per_hour }),
@@ -160,12 +161,6 @@ class RoomPriceService {
             throw new ValidationError('400', validator.clearError());
         }
 
-        const existingRoomPrice = await RoomPriceRepository.getRoomPriceById(id);
-
-        if (!existingRoomPrice) {
-            throw new ValidationError('400', "Room price not found");
-        }
-
         try {
             const after = await RoomPriceRepository.updateRoomPrice(id, validatedData);
             if (after)
@@ -173,7 +168,7 @@ class RoomPriceService {
                     data.log_account_id,
                     "Giá phòng",
                     id,
-                    existingRoomPrice,
+                    existingPrice,
                     after,
                     Object.keys(validatedData)
                 );

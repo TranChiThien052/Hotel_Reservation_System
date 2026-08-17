@@ -1,19 +1,16 @@
 import BookingRepository from '../repositories/bookingRepo';
 import { Validator, ValidationError } from '../middlewares/validateData';
 import { calculateDynamicPrice, generateBookingCode, generateDiscountAmount } from '../middlewares/generator';
-import DiscountRepository from '../repositories/discountRepo';
-import RoomPriceRepository from '../repositories/roomPriceRepo';
-import BranchRepository from '../repositories/branchRepo';
-import CustomerRepository from '../repositories/customerRepo';
-import RoomTypeRepository from '../repositories/roomTypeRepo';
-import HolidayDateRepository from '../repositories/holidayDateRepo';
 import accountServices from './accountServices';
 import historyTransactionServices from './historyTransactionServices';
 import roomPriceServices from './roomPriceServices';
 import roomServices from './roomServices';
-import roomRepo from '../repositories/roomRepo';
 import { room_status } from '../generated/prisma/enums';
 import discountServices from './discountServices';
+import branchServices from './branchServices';
+import customerServices from './customerServices';
+import roomTypeServices from './roomTypeServices';
+import holidayDateServices from './holidayDateServices';
 
 class BookingService {
     async getAllBookings() {
@@ -22,9 +19,7 @@ class BookingService {
 
     async getBookingById(id) {
         const validator = new Validator();
-        if (!validator.isEmpty("ID", id))
-            validator.isUUID("ID", id);
-        if (validator.error.length > 0)
+        if (!validator.isUUID("ID", id))
             throw new ValidationError("400", validator.clearError());
         try {
             const booking = await BookingRepository.getBookingById(id);
@@ -59,24 +54,21 @@ class BookingService {
 
     async getBookingByCode(code) {
         const validator = new Validator();
-        validator.isEmpty("Booking Code", code);
-        if (validator.error.length > 0)
+        if (validator.isEmpty("Booking Code", code))
             throw new ValidationError('400', validator.clearError());
         return await BookingRepository.getBookingByCode(code);
     };
 
     async getBookingByBranchId(id, status?) {
         const validator = new Validator();
-        validator.isUUID("Branch ID", id);
-        if (validator.error.length > 0)
+        if (!validator.isUUID("Branch ID", id))
             throw new ValidationError('400', validator.clearError());
         return await BookingRepository.getBookingsByBranchId(id, status);
     }
 
     async getBookingByCustomerId(id) {
         const validator = new Validator();
-        validator.isUUID("Customer ID", id);
-        if (validator.error.length > 0)
+        if (!validator.isUUID("Customer ID", id))
             throw new ValidationError('400', validator.clearError());
         try {
             const result = await BookingRepository.getBookingsByCustomerId(id);
@@ -121,7 +113,7 @@ class BookingService {
             throw new ValidationError('404', 'Room price not found');
         }
 
-        const holidays = await HolidayDateRepository.getHolidayDatesByBranchId(branch_id);
+        const holidays = await holidayDateServices.getHolidayDatesByBranchId(branch_id);
         const holidayDates = holidays.map((h: any) => new Date(h.date).toDateString());
 
         let price;
@@ -161,71 +153,73 @@ class BookingService {
         };
 
         const validator = new Validator();
-        if (!validator.isEmpty("Branch ID", validatedData.branch_id)) {
-            if (validator.isUUID("Branch ID", validatedData.branch_id)) {
-                const branch = await BranchRepository.getBranchById(validatedData.branch_id);
-                if (!branch) {
-                    throw new ValidationError('404', 'Branch not found');
-                }
-            }
+
+        const branch = await branchServices.getBranchById(validatedData.branch_id);
+        if (!branch) {
+            throw new ValidationError('404', 'Branch not found');
         }
-        if (!validator.isEmpty("Customer ID", validatedData.customer_id)) {
-            if (validator.isUUID("Customer ID", validatedData.customer_id)) {
-                const customer = await CustomerRepository.getCustomerById(validatedData.customer_id);
-                if (!customer) {
-                    throw new ValidationError('404', 'Customer not found');
-                }
-            }
+
+        const customer = await customerServices.getCustomerById(validatedData.customer_id);
+        if (!customer) {
+            throw new ValidationError('404', 'Customer not found');
         }
-        if (!validator.isEmpty("Room Type ID", validatedData.room_type_id)) {
-            if (validator.isUUID("Room Type ID", validatedData.room_type_id)) {
-                const roomPrice = await RoomTypeRepository.getRoomTypeById(validatedData.room_type_id);
-                if (!roomPrice) {
-                    throw new ValidationError('404', 'Room type not found');
-                }
-            }
+
+        const roomType = await roomTypeServices.getRoomTypeById(validatedData.room_type_id);
+        if (!roomType) {
+            throw new ValidationError('404', 'Room type not found');
         }
+
+        const roomPrice = await roomPriceServices.getRoomPricesByRoomTypeId(validatedData.room_type_id);
+        if (!roomPrice) {
+            throw new ValidationError('404', 'No room price found for the specified room type');
+        }
+
+        if (validatedData.created_by) {
+            const staff = await accountServices.getAccountById(validatedData.created_by);
+            if (!staff)
+                throw new ValidationError('404', "Staff's account not found");
+        }
+
         if (!validator.isEmpty("Booking Type", validatedData.booking_type))
             validator.validateBookingType(validatedData.booking_type);
         if (!validator.isEmpty("Checkin At", validatedData.checkin_at))
             validator.validateDate(validatedData.checkin_at);
         if (!validator.isEmpty("Checkout At", validatedData.checkout_at))
             validator.validateDate(validatedData.checkout_at);
-        if (validatedData.created_by) {
-            if (validator.isUUID("Created By", validatedData.created_by)) {
-                const staff = await accountServices.getAccountById(validatedData.created_by);
-                if (!staff)
-                    throw new ValidationError('404', "Staff's account not found");
+
+        if (validator.validateDateOrder(validatedData.checkin_at, validatedData.checkout_at)) {
+            let checkin = new Date(validatedData.checkin_at);
+            let checkout = new Date(validatedData.checkout_at);
+            let current = new Date();
+            if (validatedData.booking_type == 'daily') {
+                checkin.setHours(0, 0, 0, 0);
+                current.setHours(0, 0, 0, 0);
+                if (checkin.getTime() < current.getTime())
+                    validatedData.pushError("Check-in date must be in the future");
+                else {
+                    checkin.setHours(13, 0, 0, 0);
+                    checkout.setHours(12, 0, 0, 0);
+                    validatedData.checkin_at = checkin;
+                    validatedData.checkout_at = checkout;
+                }
+            } else if (validatedData.booking_type == 'hourly') {
+                if (checkin.getTime() < current.getTime())
+                    validatedData.pushError("Check-in time must be in the future");
+                else {
+                    validatedData.checkin_at = checkin;
+                    validatedData.checkout_at = checkout;
+                }
             }
         }
-
-        if (validator.validateDateOrder(validatedData.checkin_at, validatedData.checkout_at))
-            if (new Date(validatedData.checkin_at).getTime() < new Date().getTime())
-                validator.pushError("Check-in date must be in the future");
-            else {
-                validatedData.checkin_at = new Date(validatedData.checkin_at);
-                validatedData.checkout_at = new Date(validatedData.checkout_at);
-            }
 
         if (validatedData.num_guests) {
             validator.isPositiveNumber("Number of Guests", validatedData.num_guests);
         }
 
-        if (validator.error.length > 0) {
-            throw new ValidationError('400', validator.clearError());
-        }
-
         const validatingInfo = await BookingRepository.getValidatingInformation();
-
         validatedData.booking_code = generateBookingCode(8);
-
         while (validatingInfo.some(booking => booking.booking_code === validatedData.booking_code)) {
             validatedData.booking_code = generateBookingCode(8);
-        }
-
-        const roomPrice = await RoomPriceRepository.getRoomPricesByRoomTypeId(validatedData.room_type_id);
-        if (!roomPrice) {
-            throw new ValidationError('404', 'No room price found for the specified room type');
         }
 
         if (validatedData.booking_type === "daily")
@@ -233,7 +227,7 @@ class BookingService {
         else
             validatedData.room_price_snapshot = roomPrice.price_per_hour;
 
-        const holidays = await HolidayDateRepository.getHolidayDatesByBranchId(validatedData.branch_id);
+        const holidays = await holidayDateServices.getHolidayDatesByBranchId(validatedData.branch_id);
         const holidayDates = holidays.map((h: any) => new Date(h.date).toDateString());
 
         validatedData.subtotal = calculateDynamicPrice(
@@ -245,11 +239,11 @@ class BookingService {
             holidayDates,
             validatedData.booking_type
         );
+
         validatedData.total_amount = validatedData.subtotal;
 
         if (validatedData.discount_id) {
-            validator.isUUID("Discount ID", validatedData.discount_id);
-            const discount = await DiscountRepository.getDiscountById(validatedData.discount_id);
+            const discount = await discountServices.getDiscountById(validatedData.discount_id);
             if (!discount) {
                 throw new ValidationError("404", "Discount not found");
             } else {
@@ -302,19 +296,15 @@ class BookingService {
             ...(data.discount_id && { discount_id: data.discount_id }),
             ...(data.deposit_amount && { deposit_amount: data.deposit_amount }),
             ...(data.deposit_paid_at && { deposit_paid_at: data.deposit_paid_at }),
-            ...(data.expires_at && { expires_at: data.expires_at }),
+            ...(data.expires_at !== undefined && { expires_at: data.expires_at }),
             ...(data.notes && { notes: data.notes }),
         };
 
         const validator = new Validator();
 
-        const existingBooking = await BookingRepository.getBookingById(id);
+        const existingBooking = await this.getBookingById(id);
         if (!existingBooking) {
             throw new ValidationError('404', 'Booking not found');
-        }
-
-        if (validatedData.assigned_room_id) {
-            validator.isUUID("Assigned Room ID", validatedData.assigned_room_id);
         }
 
         if (validatedData.booking_type) {
@@ -331,33 +321,68 @@ class BookingService {
 
         if (validatedData.checkin_at && validatedData.checkout_at) {
             if (validator.validateDateOrder(validatedData.checkin_at, validatedData.checkout_at)) {
-                if (new Date(validatedData.checkin_at).getTime() < new Date().getTime()) {
-                    validator.pushError("Check-in date must be in the future");
-                }
-                validatedData.checkin_at = new Date(validatedData.checkin_at);
-                validatedData.checkout_at = new Date(validatedData.checkout_at);
-                if (validatedData.booking_type === 'daily') {
-                    validatedData.checkin_at.setHours(13, 0, 0, 0);
-                    validatedData.checkout_at.setHours(12, 0, 0, 0);
+                let checkin = new Date(validatedData.checked_in);
+                let checkout = new Date(validatedData.checkout_at);
+                let current = new Date();
+                if (validatedData.booking_type == 'daily' || existingBooking.booking_type == 'daily') {
+                    checkin.setHours(0, 0, 0, 0);
+                    current.setHours(0, 0, 0, 0);
+                    if (checkin.getTime() < current.getTime())
+                        validator.pushError("Check-in date must be in the future");
+
+                    checkin.setHours(13, 0, 0, 0);
+                    checkout.setHours(12, 0, 0, 0);
+                    validatedData.checkin_at = checkin;
+                    validatedData.checkout_at = checkout;
+                } else {
+                    if (checkin.getTime() < current.getTime())
+                        validator.pushError("Check-in time must be in the future");
+                    validatedData.checkin_at = checkin;
+                    validatedData.checkout_at = checkout;
                 }
             }
         } else if (validatedData.checkin_at) {
             if (validator.validateDate(validatedData.checkin_at)) {
-                if (new Date(validatedData.checkin_at).getTime() < new Date().getTime()) {
-                    validator.pushError("Check-in date must be in the future");
-                } else if (new Date(validatedData.checkin_at) >= new Date(existingBooking.checkout_at)) {
-                    validator.pushError("Check-in date must be before the existing booking's check-out date");
+                let current = new Date();
+                let checkin = new Date(validatedData.checkin_at);
+                let checkout = new Date(existingBooking.checkout_at);
+                if (validatedData.booking_type == 'daily' || existingBooking.booking_type == 'daily') {
+                    current.setHours(0, 0, 0, 0);
+                    checkin.setHours(0, 0, 0, 0);
+                    checkout.setHours(0, 0, 0, 0);
+                    if (current.getTime() > checkin.getTime())
+                        validator.pushError("Check-in date must be in the future");
+                    else if (checkout.getTime() <= checkin.getTime())
+                        validator.pushError("Check-in date must be before the check-out date")
+                    checkin.setHours(13, 0, 0, 0);
+                } else {
+                    if (current.getTime() > checkin.getTime())
+                        validator.pushError("Check-in time must be in the future");
+                    else if (checkout.getTime() <= checkin.getTime())
+                        validator.pushError("Check-in time must be before the check-out time")
                 }
-                validatedData.checkin_at = new Date(validatedData.checkin_at);
+                validatedData.checkin_at = checkin;
             }
         } else if (validatedData.checkout_at) {
             if (validator.validateDate(validatedData.checkout_at)) {
-                if (new Date(validatedData.checkout_at).getTime() < new Date().getTime()) {
-                    validator.pushError("Check-out date must be in the future");
-                } else if (new Date(validatedData.checkout_at).getTime() <= new Date(existingBooking.checkin_at).getTime()) {
-                    validator.pushError("Check-out date must be after the existing booking's check-in date");
+                let current = new Date();
+                let checkin = new Date(existingBooking.checkin_at);
+                let checkout = new Date(validatedData.checkout_at);
+                if (validatedData.booking_type == 'daily' || existingBooking.booking_type == 'daily') {
+                    current.setHours(0, 0, 0, 0);
+                    checkin.setHours(0, 0, 0, 0);
+                    checkout.setHours(0, 0, 0, 0);
+                    if (current.getTime() > checkout.getTime())
+                        validator.pushError("Check-out date must be in the future");
+                    else if (checkout.getTime() <= checkin.getTime())
+                        validator.pushError("Check-out date must be after the existing booking's check-in date");
+                } else {
+                    if (current.getTime() > checkout.getTime())
+                        validator.pushError("Check-out time must be in the future");
+                    else if (checkout.getTime() <= checkin.getTime())
+                        validator.pushError("Check-out time must be after the existing booking's check-in time");
                 }
-                validatedData.checkout_at = new Date(validatedData.checkout_at);
+                validatedData.checkout_at = checkout;
             }
         }
 
@@ -411,42 +436,65 @@ class BookingService {
             await roomServices.updateRoom(validatedData.assigned_room_id, { status: 'available' });
         }
 
-        const roomPrice = await RoomPriceRepository.getRoomPricesByRoomTypeId(validatedData.room_type_id);
-        const holidays = await HolidayDateRepository.getHolidayDatesByBranchId(validatedData.branch_id);
-        const holidayDates = holidays.map((h: any) => new Date(h.date).toDateString());
+        const roomTypeId = validatedData.room_type_id ?? existingBooking.room_type_id;
+        const branchId = validatedData.branch_id ?? existingBooking.branch_id;
+
+        let roomPrice;
+        let holidayDates;
+
+        if (roomTypeId) {
+            roomPrice = await roomPriceServices.getRoomPricesByRoomTypeId(roomTypeId);
+        }
+
+        if (branchId) {
+            const holidays = await holidayDateServices.getHolidayDatesByBranchId(branchId);
+            holidayDates = holidays.map((h: any) => new Date(h.date).toDateString());
+        }
 
         if (validatedData.actual_checkin_at && validatedData.actual_checkout_at) {
             let room_price_snapshot = validatedData.room_price_snapshot ?? existingBooking.room_price_snapshot;
-            validatedData.subtotal = calculateDynamicPrice(
-                validatedData.actual_checkin_at,
-                validatedData.actual_checkout_at,
-                Number(room_price_snapshot),
-                Number(roomPrice?.weekend_rate),
-                Number(roomPrice?.holiday_rate),
-                holidayDates,
-                existingBooking.booking_type
-            );
+            if (roomPrice && room_price_snapshot) {
+                validatedData.subtotal = calculateDynamicPrice(
+                    validatedData.actual_checkin_at,
+                    validatedData.actual_checkout_at,
+                    Number(room_price_snapshot),
+                    Number(roomPrice?.weekend_rate),
+                    Number(roomPrice?.holiday_rate),
+                    holidayDates,
+                    existingBooking.booking_type
+                );
+            } else {
+                validatedData.subtotal = Number(existingBooking.subtotal);
+            }
         } else if (validatedData.checkin_at && validatedData.checkout_at) {
             let room_price_snapshot = validatedData.room_price_snapshot ?? existingBooking.room_price_snapshot;
-            validatedData.subtotal = calculateDynamicPrice(
-                validatedData.checkin_at,
-                validatedData.checkout_at,
-                Number(room_price_snapshot),
-                Number(roomPrice?.weekend_rate),
-                Number(roomPrice?.holiday_rate),
-                holidayDates,
-                existingBooking.booking_type
-            );
+            if (roomPrice && room_price_snapshot) {
+                validatedData.subtotal = calculateDynamicPrice(
+                    validatedData.checkin_at,
+                    validatedData.checkout_at,
+                    Number(room_price_snapshot),
+                    Number(roomPrice?.weekend_rate),
+                    Number(roomPrice?.holiday_rate),
+                    holidayDates,
+                    existingBooking.booking_type
+                );
+            } else {
+                validatedData.subtotal = Number(existingBooking.subtotal);
+            }
         } else if (validatedData.room_price_snapshot) {
-            validatedData.subtotal = calculateDynamicPrice(
-                validatedData.checkin_at,
-                validatedData.checkout_at,
-                Number(validatedData.room_price_snapshot),
-                Number(roomPrice?.weekend_rate),
-                Number(roomPrice?.holiday_rate),
-                holidayDates,
-                existingBooking.booking_type
-            );
+            if (roomPrice) {
+                validatedData.subtotal = calculateDynamicPrice(
+                    validatedData.checkin_at ?? existingBooking.checkin_at,
+                    validatedData.checkout_at ?? existingBooking.checkout_at,
+                    Number(validatedData.room_price_snapshot),
+                    Number(roomPrice?.weekend_rate),
+                    Number(roomPrice?.holiday_rate),
+                    holidayDates,
+                    existingBooking.booking_type
+                );
+            } else {
+                validatedData.subtotal = Number(existingBooking.subtotal);
+            }
         } else {
             validatedData.subtotal = Number(existingBooking.subtotal);
         }
@@ -463,13 +511,16 @@ class BookingService {
                     const discount = await discountServices.getDiscountById(discount_id);
                     if (!discount || discount.is_active === false) {
                         validator.pushError("Discount is not available");
-                    } else if (discount.valid_to && discount.valid_to.getTime() < new Date().getTime()) {
-                        validator.pushError("Discount is expired");
-                    } else if (discount.valid_from && discount.valid_from.getTime() > new Date().getTime()) {
-                        validator.pushError("Discount is not available yet");
-                    } else if (discount.usage_limit && (discount.used_count && discount.used_count >= discount.usage_limit)) {
-                        validator.pushError("Discount is expired");
                     } else {
+                        if (discount.valid_to && discount.valid_to.getTime() < new Date().getTime()) {
+                            validator.pushError("Discount is expired");
+                        }
+                        if (discount.valid_from && discount.valid_from.getTime() > new Date().getTime()) {
+                            validator.pushError("Discount is not available yet");
+                        }
+                        if (discount.usage_limit && (discount.used_count && discount.used_count >= discount.usage_limit)) {
+                            validator.pushError("Discount is expired");
+                        }
                         validatedData.discount_amount = generateDiscountAmount(Number(validatedData.subtotal), discount.discount_type, Number(discount.discount_value));
                         validatedData.total_amount -= validatedData.discount_amount;
 
@@ -485,11 +536,9 @@ class BookingService {
                 validatedData.total_amount -= validatedData.discount_amount;
 
                 if (validatedData.status === 'confirmed' && existingBooking.status !== 'confirmed') {
-                    if (validator.isUUID("Discount ID", discount_id)) {
-                        const discount = await discountServices.getDiscountById(discount_id);
-                        if (discount) {
-                            await discountServices.updateDiscount(discount.id, { used_count: discount.used_count ? discount.used_count + 1 : 1 });
-                        }
+                    const discount = await discountServices.getDiscountById(discount_id);
+                    if (discount) {
+                        await discountServices.updateDiscount(discount.id, { used_count: discount.used_count ? discount.used_count + 1 : 1 });
                     }
                 }
             }
@@ -501,7 +550,7 @@ class BookingService {
 
         if (validatedData.status === 'completed') {
             if (existingBooking.assigned_room_id)
-                await roomRepo.updateRoom(existingBooking.assigned_room_id, { status: 'available' });
+                await roomServices.updateRoom(existingBooking.assigned_room_id, { status: 'available' });
         }
 
         validatedData.updated_at = new Date();

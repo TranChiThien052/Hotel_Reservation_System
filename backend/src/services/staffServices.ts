@@ -1,8 +1,8 @@
 import StaffRepository from '../repositories/staffRepo';
-import AccountRepository from '../repositories/accountRepo';
-import BranchRepository from '../repositories/branchRepo';
 import { Validator, ValidationError } from '../middlewares/validateData';
 import historyTransactionServices from './historyTransactionServices';
+import branchServices from './branchServices';
+import accountServices from './accountServices';
 
 class StaffService {
     async getAllStaff() {
@@ -10,22 +10,23 @@ class StaffService {
     };
 
     async getStaffById(id) {
+        const validator = new Validator();
+        if (!validator.isUUID("Staff ID", id))
+            throw new ValidationError("400", validator.clearError());
         return await StaffRepository.getStaffById(id);
     };
 
     async getStaffByBranchId(branch_id) {
-        const validator = new Validator();
-        if (!validator.isEmpty("Branch ID", branch_id))
-            validator.isUUID("Branch ID", branch_id)
-        if (validator.error.length > 0)
-            throw new ValidationError('400', validator.clearError())
-        const branch = await BranchRepository.getBranchById(branch_id)
+        const branch = await branchServices.getBranchById(branch_id);
         if (!branch)
-            throw new ValidationError('404', "Branch not found")
+            throw new ValidationError("404", "Branch not found");
         return await StaffRepository.getStaffByBranchId(branch_id);
     };
 
     async getStaffByAccountId(account_id) {
+        const account = await accountServices.getAccountById(account_id);
+        if (!account)
+            throw new ValidationError("404", "Account not found");
         return await StaffRepository.getStaffByAccountId(account_id);
     };
 
@@ -39,16 +40,17 @@ class StaffService {
         };
 
         const validator = new Validator();
-        if (validator.isEmpty("Branch ID", validatedData.branch_id))
-            throw new ValidationError('400', "Branch ID is required");
-        if (validator.isEmpty("Account ID", validatedData.account_id))
-            throw new ValidationError('400', "Account ID is required");
-        if (validator.isEmpty("Full Name", validatedData.full_name))
-            throw new ValidationError('400', "Full Name is required");
 
-        validator.isUUID("Branch ID", validatedData.branch_id);
-        validator.isUUID("Account ID", validatedData.account_id);
-        validator.isString("Full Name", validatedData.full_name);
+        const branch = await branchServices.getBranchById(validatedData.branch_id);
+        if (!branch)
+            throw new ValidationError("404", "Branch not found");
+        if (validatedData.account_id) {
+            const account = await accountServices.getAccountById(validatedData.account_id);
+            if (!account)
+                throw new ValidationError("404", "Account not found");
+        }
+        if (!validator.isEmpty("Full Name", validatedData.full_name))
+            validator.isString("Full Name", validatedData.full_name);
 
         if (validatedData.phone) {
             validator.validatePhoneNumber(validatedData.phone);
@@ -66,7 +68,7 @@ class StaffService {
         const duplicatePhoneStaff = validatingAccount.find(account => account.phone === validatedData.phone);
 
         if (duplicatePhoneStaff) {
-            throw new ValidationError('400', "Phone number already exists");
+            throw new ValidationError('409', "Phone number already exists");
         }
 
         try {
@@ -86,6 +88,9 @@ class StaffService {
     };
 
     async updateStaff(id, data) {
+        const existingStaff = await this.getStaffById(id);
+        if (!existingStaff)
+            throw new ValidationError("404", "Staff not found");
         const validatedData = {
             ...(data.branch_id && { branch_id: data.branch_id }),
             ...(data.full_name && { full_name: data.full_name }),
@@ -95,9 +100,9 @@ class StaffService {
 
         const validator = new Validator();
 
-        if (validatedData.branch_id) {
-            validator.isUUID("Branch ID", validatedData.branch_id);
-        }
+        const branch = await branchServices.getBranchById(validatedData.branch_id);
+        if (!branch)
+            throw new ValidationError("404", "Branch not found");
         if (validatedData.full_name) {
             validator.isString("Full Name", validatedData.full_name);
         }
@@ -113,22 +118,17 @@ class StaffService {
         }
 
         const validatingInformation = await StaffRepository.getValidatingInformation();
-        const currentStaff = validatingInformation.find(staff => staff.id === id);
         const duplicatePhoneStaff = validatingInformation.find(staff => staff.phone === validatedData.phone && staff.id !== id);
 
         if (duplicatePhoneStaff) {
-            throw new ValidationError('400', "Phone number already exists");
+            throw new ValidationError('409', "Phone number already exists");
         }
 
         if (validator.error.length > 0) {
             throw new ValidationError('400', validator.clearError());
         }
 
-        if (!currentStaff) {
-            throw new ValidationError('404', "Staff not found");
-        }
-
-        const before = await StaffRepository.getStaffById(id);
+        const before = existingStaff;
         const result = await StaffRepository.updateStaff(id, validatedData);
 
         if (result) {
@@ -136,10 +136,7 @@ class StaffService {
                 ...(validatedData.position && { role: validatedData.position }),
                 ...(validatedData.branch_id && { branch_id: validatedData.branch_id }),
             };
-            await AccountRepository.updateAccount(result.account_id, updateData);
-        }
-
-        if (result) {
+            await accountServices.updateAccount(result.account_id, { ...updateData, log_account_id: data.log_account_id });
             await historyTransactionServices.createUpdateTransaction(
                 data.log_account_id,
                 "Nhân viên",

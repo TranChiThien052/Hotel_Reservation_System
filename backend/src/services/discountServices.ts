@@ -1,7 +1,7 @@
 import DiscountRepository from '../repositories/discountRepo';
-import BranchRepository from '../repositories/branchRepo';
 import { Validator, ValidationError } from '../middlewares/validateData';
 import historyTransactionServices from './historyTransactionServices';
+import branchServices from './branchServices';
 
 class DiscountServices {
     async getAllDiscounts() {
@@ -9,6 +9,9 @@ class DiscountServices {
     };
 
     async getDiscountById(id) {
+        const validator = new Validator();
+        if (!validator.isUUID("Discount ID", id))
+            throw new ValidationError("400", validator.clearError());
         return await DiscountRepository.getDiscountById(id);
     };
 
@@ -64,7 +67,11 @@ class DiscountServices {
         }
 
         if (validator.validateDateOrder(validatedData.valid_from, validatedData.valid_to)) {
-            if (new Date(validatedData.valid_from).getTime() < new Date().getTime()) {
+            let valid_from = new Date(validatedData.valid_from);
+            let current = new Date();
+            valid_from.setHours(0, 0, 0, 0);
+            current.setHours(0, 0, 0, 0);
+            if (valid_from < current) {
                 validator.pushError("Valid From date cannot be in the past");
             }
         }
@@ -74,9 +81,9 @@ class DiscountServices {
         }
 
         if (validatedData.branch_id) {
-            const branchExists = await BranchRepository.getBranchById(validatedData.branch_id);
+            const branchExists = await branchServices.getBranchById(validatedData.branch_id);
             if (!branchExists) {
-                throw new ValidationError('400', "Invalid branch ID");
+                throw new ValidationError('404', "Branch not found");
             }
         }
 
@@ -138,13 +145,13 @@ class DiscountServices {
         }
 
         if (validatedData.branch_id) {
-            const branchExists = await BranchRepository.getBranchById(validatedData.branch_id);
+            const branchExists = await branchServices.getBranchById(validatedData.branch_id);
             if (!branchExists) {
-                throw new ValidationError('400', "Invalid branch ID");
+                throw new ValidationError('404', "Branch not found");
             }
         }
 
-        const existingDiscount = await DiscountRepository.getDiscountById(id);
+        const existingDiscount = await this.getDiscountById(id);
         if (!existingDiscount) {
             throw new ValidationError('404', "Discount not found");
         }
