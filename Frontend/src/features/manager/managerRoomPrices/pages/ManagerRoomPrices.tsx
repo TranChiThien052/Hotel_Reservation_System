@@ -9,7 +9,6 @@ import { Button, Input, Space, Table, type TableProps } from "antd";
 import message from "antd/es/message";
 import { useCallback, useEffect, useState } from "react";
 import { CiCirclePlus } from "react-icons/ci";
-import { FaRegBuilding } from "react-icons/fa";
 import { IoSearch } from "react-icons/io5";
 
 const defaultRoomData: RoomPriceFormData = {
@@ -52,7 +51,7 @@ const ManagerRoomPrices = () => {
       try {
         await roomPricesApi.createRoomPrice(values);
         message.success("Thêm giá phòng thành công!");
-        fetchRoomPrices(); // Tải lại dữ liệu sau khi thêm mới
+        fetchRoomPrices(); 
         roomPrices.close();
       } catch (error) {
         message.error("Có lỗi xảy ra khi thêm giá phòng. Vui lòng thử lại.");
@@ -67,7 +66,7 @@ const ManagerRoomPrices = () => {
           values,
         );
         message.success("Cập nhật giá phòng thành công!");
-        fetchRoomPrices(); // Tải lại dữ liệu sau khi cập nhật
+        fetchRoomPrices(); 
         roomPrices.close();
       } catch (error) {
         message.error(
@@ -161,19 +160,7 @@ const ManagerRoomPrices = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-5 w-2/3 mx-auto mt-4">
-        <div className="bg-white rounded-lg border border-gray-300 shadow p-5 flex flex-col gap-3">
-          <div className="flex items-center gap-2 justify-between">
-            <span className="font-xl font-bold text-blue-500">Tổng phòng</span>
-            <FaRegBuilding className="text-blue-500 text-2xl" />
-          </div>
-          <div className="text-2xl font-bold ">
-            {Array.isArray(roomPricesData) ? roomPricesData.length : 0}
-          </div>
-        </div>
-
-
-      </div>
+     
 
       <div className="mt-5 border border-gray-300 rounded-lg">
         <div className="flex items-center gap-2 bg-gray-100 px-4 py-3 border-b border-gray-300 justify-between">
