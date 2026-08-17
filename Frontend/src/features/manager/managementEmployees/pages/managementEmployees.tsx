@@ -6,7 +6,6 @@ import { useFormModal } from "@/shared/hooks/useFormModal";
 import { FormModalModes } from "@/shared/types/type-form-mode";
 import { Button, Input, message, Space, Table, type TableProps } from "antd";
 import { useCallback, useEffect, useState } from "react";
-import { CiCirclePlus } from "react-icons/ci";
 import { FaRegBuilding } from "react-icons/fa6";
 import { IoSearch } from "react-icons/io5";
 import { managerEmployeesFormFields } from "../contants/ManagerEmployees-form-field";
