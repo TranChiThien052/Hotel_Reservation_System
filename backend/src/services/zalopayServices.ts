@@ -104,7 +104,6 @@ class ZalopayService {
                     const updatedBooking = await bookingServices.updateBooking(updatedPayment.booking_id, {
                         status: booking_status.confirmed,
                         deposit_paid_at: updatedPayment.updated_at,
-                        updated_at: new Date(),
                         expires_at: null,
                     });
                     const customer = await customerServices.getCustomerById(updatedBooking.customer_id);
@@ -122,7 +121,7 @@ class ZalopayService {
                 result.return_message = 'success';
             }
         } catch (ex: any) {
-            console.log('lỗi:::' + ex.message);
+            console.log('lỗi:::' + ex);
             result.return_code = 0;
             result.return_message = ex.message;
         }

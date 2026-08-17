@@ -1,9 +1,8 @@
 import BookingServiceRepository from '../repositories/bookingServiceRepo';
-import BookingRepository from '../repositories/bookingRepo';
-import RoomServiceRepository from '../repositories/roomServiceRepo';
-import AccountRepository from '../repositories/accountRepo';
-import HistoryTransactionService from './historyTransactionServices'
 import { Validator, ValidationError } from '../middlewares/validateData';
+import bookingServices from './bookingServices';
+import roomServiceSerives from './roomServiceServices';
+import accountServices from './accountServices';
 
 class BookingServiceService {
     async getAllBookingServices() {
@@ -54,11 +53,17 @@ class BookingServiceService {
 
         const validator = new Validator();
 
-        if (!validator.isEmpty("Booking ID", validatedData.booking_id))
-            validator.isUUID("Booking ID", validatedData.booking_id);
+        const booking = await bookingServices.getBookingById(validatedData.booking_id);
+        if (!booking)
+            throw new ValidationError("404", "Booking not found");
 
-        if (!validator.isEmpty("Service ID", validatedData.service_id))
-            validator.isUUID("Service ID", validatedData.service_id);
+        const service = await roomServiceSerives.getServiceById(validatedData.service_id);
+        if (!service)
+            throw new ValidationError("404", "Service not found");
+
+        const added_by = await accountServices.getAccountById(validatedData.added_by);
+        if (!added_by)
+            throw new ValidationError("404", "Account not found");
 
         if (!validator.isEmpty("Quantity", validatedData.quantity))
             validator.isPositiveNumber("Quantity", validatedData.quantity);
@@ -70,33 +75,14 @@ class BookingServiceService {
             throw new ValidationError('400', validator.clearError());
         }
 
-        const booking = await BookingRepository.getBookingById(validatedData.booking_id);
-        if (!booking) {
-            validator.pushError("Booking not found");
-        }
-
-        const roomService = await RoomServiceRepository.getServiceById(validatedData.service_id);
-        if (!roomService) {
-            validator.pushError("Service not found");
-        }
-
-        const account = await AccountRepository.getAccountById(validatedData.added_by);
-        if (!account) {
-            validator.pushError("Added_by's ID not found");
-        }
-
-        if (validator.error.length > 0) {
-            throw new ValidationError('400', validator.clearError());
-        }
-
-        validatedData.unit_price = roomService ? roomService.price : 0;
+        validatedData.unit_price = service ? service.price : 0;
         validatedData.total_amount = validatedData.unit_price * validatedData.quantity;
         return await BookingServiceRepository.createBookingService(validatedData);
     };
 
     async updateBookingService(id, data) {
         const validator = new Validator();
-        const existingBookingService = await BookingServiceRepository.getBookingServiceById(id);
+        const existingBookingService = await this.getBookingServiceById(id);
         if (!existingBookingService) {
             throw new ValidationError('404', "Booking service not found");
         }
@@ -122,12 +108,10 @@ class BookingServiceService {
 
         if (!validatedData.added_by)
             validatedData.added_by = existingBookingService.added_by;
-
-        if (validator.isUUID("Added_by's ID", validatedData.added_by)) {
-            const account = await AccountRepository.getAccountById(validatedData.added_by);
-            if (!account) {
-                validator.pushError("Added_by's ID not found");
-            }
+        else {
+            const account = await accountServices.getAccountById(validatedData.added_by);
+            if (!account)
+                throw new ValidationError("404", "Account not found");
         }
 
         if (validator.error.length > 0) {

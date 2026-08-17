@@ -36,6 +36,7 @@ class StaffController {
         return await StaffService.createStaff(data)
             .then(staff => res.status(201).json(staff))
             .catch(error => {
+                console.log(error);
                 if (error.code !== 500) {
                     return res.status(parseInt(error.code)).json({ error: error.message });
                 }

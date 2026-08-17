@@ -2,6 +2,7 @@ import HolidayDateRepository from '../repositories/holidayDateRepo';
 import BranchRepository from '../repositories/branchRepo';
 import { Validator, ValidationError } from '../middlewares/validateData';
 import historyTransactionServices from './historyTransactionServices';
+import branchServices from './branchServices';
 
 class HolidayDateService {
     async getAllHolidayDates() {
@@ -9,6 +10,9 @@ class HolidayDateService {
     };
 
     async getHolidayDatesByBranchId(branchId) {
+        const validator = new Validator();
+        if (!validator.isUUID("Branch ID", branchId))
+            throw new ValidationError("400", validator.clearError());
         return await HolidayDateRepository.getHolidayDatesByBranchId(branchId);
     };
 
@@ -29,11 +33,9 @@ class HolidayDateService {
 
         const validator = new Validator();
         if (validatedData.branch_id) {
-            if (validator.isUUID("Branch ID", validatedData.branch_id)) {
-                const branchExists = await BranchRepository.getBranchById(validatedData.branch_id);
-                if (!branchExists) {
-                    validator.pushError("Branch ID does not exist");
-                }
+            const branchExists = await branchServices.getBranchById(validatedData.branch_id);
+            if (!branchExists) {
+                throw new ValidationError("404", "Branch not found");
             }
         }
 
@@ -69,13 +71,7 @@ class HolidayDateService {
     async updateHolidayDate(id, data) {
         const validator = new Validator();
 
-        if (!validator.isEmpty("Holiday Date ID", id)) {
-            if (!validator.isUUID("Holiday Date ID", id)) {
-                throw new ValidationError('400', validator.clearError());
-            }
-        }
-
-        const existingHolidayDate = await HolidayDateRepository.getHolidayDateById(id);
+        const existingHolidayDate = await this.getHolidayDateById(id);
 
         if (!existingHolidayDate) {
             throw new ValidationError('404', "Holiday date not found");
@@ -88,11 +84,9 @@ class HolidayDateService {
         };
 
         if (validatedData.branch_id) {
-            if (validator.isUUID("Branch ID", validatedData.branch_id)) {
-                const branchExists = await BranchRepository.getBranchById(validatedData.branch_id);
-                if (!branchExists) {
-                    validator.pushError("Branch ID does not exist");
-                }
+            const branchExists = await branchServices.getBranchById(validatedData.branch_id);
+            if (!branchExists) {
+                throw new ValidationError("404", "Branch not found");
             }
         }
 

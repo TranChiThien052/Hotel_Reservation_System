@@ -11,6 +11,7 @@ import ResetPasswordTokenRepo from '../repositories/resetPasswordTokenRepo';
 import { sendPasswordResetEmail } from '../services/emailServices2'
 import CustomerRepository from '../repositories/customerRepo';
 import historyTransactionServices from './historyTransactionServices';
+import branchServices from './branchServices';
 
 class AccountService {
     async requestPasswordReset(email) {
@@ -36,7 +37,7 @@ class AccountService {
             throw new ValidationError('404', 'Token not found');
         if (validToken.is_used || validToken.expires_at < new Date())
             throw new ValidationError('400', 'Token is not valid');
-        const before = await accountRepo.getAccountById(validToken.account_id);
+        const before = await this.getAccountById(validToken.account_id);
         await prisma.$transaction(async () => {
             const hashedPassword = await bcrypt.hash(newPassword, Number(process.env.SALT_ROUNDS) || 5);
             const after = await accountRepo.updateAccount(validToken.account_id, { password_hash: hashedPassword });
@@ -70,7 +71,7 @@ class AccountService {
         if (validator.error.length > 0) {
             throw new ValidationError('400', validator.clearError());
         }
-        const account = await AccountRepository.getAccountByUsername(username);
+        const account = await this.getAccountByUsername(username);
         if (!account) {
             throw new ValidationError('404', "Account not found");
         }
@@ -148,7 +149,7 @@ class AccountService {
             throw new ValidationError('404', "Refresh token not found");
         }
 
-        const account = await AccountRepository.getAccountById(validRefreshToken.account_id);
+        const account = await this.getAccountById(validRefreshToken.account_id);
         if (!account) {
             throw new ValidationError('404', "Account not found");
         }
@@ -239,15 +240,13 @@ class AccountService {
             validator.validateAccountRole(validatedData.role)
         if (!validator.isEmpty("Status", validatedData.status))
             validator.validateAccountStatus(validatedData.status)
-        if (!validator.isEmpty("Branch ID", validatedData.branch_id))
-            validator.isUUID("Branch ID", validatedData.branch_id)
         if (!validator.isEmpty("Full Name", validatedData.full_name))
             validator.isString("Full Name", validatedData.full_name)
         if (!validator.isEmpty("Phone", validatedData.phone))
             validator.validatePhoneNumber(validatedData.phone)
         if (validator.error.length > 0)
             throw new ValidationError("400", validator.clearError());
-        const branch = await BranchRepository.getBranchById(validatedData.branch_id);
+        const branch = await branchServices.getBranchById(validatedData.branch_id);
         if (!branch) {
             throw new ValidationError("404", "Branch not found");
         }
@@ -378,7 +377,7 @@ class AccountService {
         if (!decoded || typeof decoded === 'string' || !decoded.account_id) {
             throw new ValidationError('400', "Invalid token");
         }
-        const account = await AccountRepository.getAccountById(decoded.account_id);
+        const account = await this.getAccountById(decoded.account_id);
         if (!account) {
             throw new ValidationError('404', "Account not found");
         }
@@ -401,10 +400,8 @@ class AccountService {
 
     async getAccountById(id) {
         const validator = new Validator();
-        validator.isUUID("Account ID", id);
-        if (validator.error.length > 0) {
+        if (!validator.isUUID("Account ID", id))
             throw new ValidationError('400', validator.clearError());
-        }
         return await AccountRepository.getAccountById(id);
     };
 
@@ -448,21 +445,17 @@ class AccountService {
         if (validatedData.status) {
             validator.validateAccountStatus(validatedData.status);
         }
-        if (validatedData.branch_id) {
-            validator.isUUID("Branch ID", validatedData.branch_id);
-        }
-
         if (validator.error.length > 0) {
             throw new ValidationError('400', validator.clearError());
         }
 
-        const existingAccount = await AccountRepository.getAccountByUsername(validatedData.username);
+        const existingAccount = await this.getAccountByUsername(validatedData.username);
         if (existingAccount) {
-            throw new ValidationError('400', "Username already exists");
+            throw new ValidationError('409', "Username already exists");
         }
 
         if (validatedData.branch_id) {
-            const existingBranch = await BranchRepository.getBranchById(validatedData.branch_id);
+            const existingBranch = await branchServices.getBranchById(validatedData.branch_id);
             if (!existingBranch) {
                 throw new ValidationError('404', "Branch not found");
             }
@@ -504,11 +497,9 @@ class AccountService {
             validator.validateAccountStatus(validatedData.status);
         }
         if (validatedData.branch_id) {
-            if (validator.isUUID("Branch ID", validatedData.branch_id)) {
-                const existingBranch = await BranchRepository.getBranchById(validatedData.branch_id);
-                if (!existingBranch) {
-                    throw new ValidationError('404', "Branch not found");
-                }
+            const existingBranch = await BranchRepository.getBranchById(validatedData.branch_id);
+            if (!existingBranch) {
+                throw new ValidationError('404', "Branch not found");
             }
         }
 
@@ -517,7 +508,7 @@ class AccountService {
         }
 
         if (validator.isUUID("ID", id)) {
-            const existingAccount = await AccountRepository.getAccountById(id);
+            const existingAccount = await this.getAccountById(id);
             if (!existingAccount) {
                 throw new ValidationError('404', "Account not found");
             }
@@ -526,8 +517,8 @@ class AccountService {
         if (validator.error.length > 0) {
             throw new ValidationError('400', validator.clearError());
         }
-        const before = await AccountRepository.getAccountById(id);
-        const after = await AccountRepository.updateAccount(id, validatedData);
+        const before = await this.getAccountById(id);
+        const after = await this.updateAccount(id, validatedData);
         await historyTransactionServices.createUpdateTransaction(
             data.log_account_id,
             "Tài khoản",
@@ -541,6 +532,9 @@ class AccountService {
     };
 
     async deleteAccount(id) {
+        const validator = new Validator();
+        if (!validator.isUUID("Account ID", id))
+            throw new ValidationError("400", validator.clearError());
         return await AccountRepository.deleteAccount(id);
     };
 

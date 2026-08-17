@@ -8,6 +8,9 @@ class BranchService {
     };
 
     async getBranchById(id) {
+        const validator = new Validator();
+        if (!validator.isUUID("Branch ID", id))
+            throw new ValidationError("400", validator.clearError());
         return await branchRepository.getBranchById(id);
     };
 
@@ -89,6 +92,9 @@ class BranchService {
     };
 
     async updateBranch(id, data) {
+        const existingBranch = await this.getBranchById(id);
+        if (!existingBranch)
+            throw new ValidationError("404", "Branch not found");
         const validator = new Validator();
         const validatedData = {
             ...(data.name && { name: data.name }),

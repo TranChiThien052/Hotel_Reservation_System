@@ -1,6 +1,7 @@
 import HistoryTransactionRepository from '../repositories/historyTransactionRepo';
-import StaffRepository from '../repositories/staffRepo';
 import { Validator, ValidationError } from '../middlewares/validateData';
+import branchServices from './branchServices';
+import staffServices from './staffServices';
 
 class HistoryTransactionService {
     async getAllTransactions() {
@@ -27,13 +28,9 @@ class HistoryTransactionService {
     };
 
     async getTransactionByBranchId(id) {
-        const validator = new Validator();
-        if (!validator.isEmpty("Branch ID", id)) {
-            validator.isUUID("Branch ID", id)
-        }
-        if (validator.error.length > 0) {
-            throw new ValidationError('400', validator.clearError());
-        }
+        const branch = await branchServices.getBranchById(id);
+        if (!branch)
+            throw new ValidationError("404", "Branch not found")
         const result = await HistoryTransactionRepository.getTransactionByBranchId(id);
         const response = result.map(r => {
             return {
@@ -46,13 +43,9 @@ class HistoryTransactionService {
 
     async getTransactionsByAccountId(accountId) {
         const validator = new Validator();
-        if (!validator.isEmpty("Account ID", accountId)) {
-            if (validator.isUUID("Account ID", accountId)) {
-                const account = await StaffRepository.getStaffByAccountId(accountId);
-                if (!account) {
-                    throw new ValidationError('404', "Account ID does not exist");
-                }
-            }
+        const account = await staffServices.getStaffByAccountId(accountId);
+        if (!account) {
+            throw new ValidationError('404', "Account ID does not exist");
         }
         if (validator.error.length > 0) {
             throw new ValidationError('400', validator.clearError());

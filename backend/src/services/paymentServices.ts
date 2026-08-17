@@ -1,12 +1,12 @@
 import PaymentRepository from '../repositories/paymentRepo';
-import BookingRepository from '../repositories/bookingRepo';
-import InvoiceRepository from '../repositories/invoiceRepo';
-import AccountRepository from '../repositories/accountRepo';
 import { Validator, ValidationError } from '../middlewares/validateData';
 import historyTransactionServices from './historyTransactionServices';
 import bookingRepo from '../repositories/bookingRepo';
 import { booking_status, payment_method, payment_status } from '../generated/prisma/enums';
 import branchServices from './branchServices';
+import bookingServices from './bookingServices';
+import invoiceServices from './invoiceServices';
+import accountServices from './accountServices';
 
 class PaymentService {
     // async createMomoPayment(data) {
@@ -81,37 +81,25 @@ class PaymentService {
 
     async getPaymentById(id) {
         const validator = new Validator();
-        validator.isUUID("Payment ID", id);
-        if (validator.error.length > 0) {
+        if (!validator.isUUID("Payment ID", id))
             throw new ValidationError('400', validator.clearError());
-        }
         return await PaymentRepository.getPaymentById(id);
     };
 
     async getPaymentsByBookingId(bookingId) {
-        const validator = new Validator();
-        if (!validator.isEmpty("Booking ID", bookingId)) {
-            if (validator.isUUID("Booking ID", bookingId)) {
-                const booking = await BookingRepository.getBookingById(bookingId);
-                if (!booking) {
-                    throw new ValidationError('404', "Booking not found");
-                }
-            }
-        }
-        if (validator.error.length > 0) {
-            throw new ValidationError('400', validator.clearError());
+        const booking = await bookingServices.getBookingById(bookingId);
+        if (!booking) {
+            throw new ValidationError('404', "Booking not found");
         }
         return await PaymentRepository.getPaymentsByBookingId(bookingId);
     };
 
     async getPaymentsByInvoiceId(invoiceId) {
         const validator = new Validator();
-        if (!validator.isEmpty("Invoice ID", invoiceId)) {
-            if (validator.isUUID("Invoice ID", invoiceId)) {
-                const invoice = await InvoiceRepository.getInvoiceById(invoiceId);
-                if (!invoice) {
-                    throw new ValidationError('404', "Invoice not found");
-                }
+        if (validator.isUUID("Invoice ID", invoiceId)) {
+            const invoice = await invoiceServices.getInvoiceById(invoiceId);
+            if (!invoice) {
+                throw new ValidationError('404', "Invoice not found");
             }
         }
         if (validator.error.length > 0) {
@@ -134,17 +122,29 @@ class PaymentService {
         };
 
         const validator = new Validator();
-        if (!validator.isEmpty("Booking ID", validatedData.booking_id))
-            validator.isUUID("Booking ID", validatedData.booking_id);
+
+        const booking = await bookingServices.getBookingById(validatedData.booking_id);
+        if (!booking)
+            throw new ValidationError("404", "Booking not found")
+
+        if (validatedData.invoice_id) {
+            const invoice = await invoiceServices.getInvoiceById(validatedData.invoice_id);
+            if (!invoice)
+                throw new ValidationError("404", "Invoice not found");
+        }
+
+        if (validatedData.processed_by) {
+            const account = await accountServices.getAccountById(validatedData.processed_by);
+            if (!account) {
+                throw new ValidationError('404', "Account not found");
+            }
+        }
+
         if (!validator.isEmpty("Payment Method", validatedData.payment_method))
             validator.validatePaymentMethod(validatedData.payment_method);
         if (!validator.isEmpty("Amount", validatedData.amount)) {
             validator.isDecimal("Amount", validatedData.amount);
             validator.isPositiveNumber("Amount", validatedData.amount);
-        }
-
-        if (validatedData.invoice_id) {
-            validator.isUUID("Invoice ID", validatedData.invoice_id);
         }
         if (validatedData.status) {
             validator.validatePaymentStatus(validatedData.status);
@@ -163,25 +163,9 @@ class PaymentService {
             throw new ValidationError('400', validator.clearError());
         }
 
-        if (validatedData.booking_id) {
-            const booking = await BookingRepository.getBookingById(validatedData.booking_id);
-            if (!booking) {
-                throw new ValidationError('404', "Booking not found");
-            }
-        }
-
-        if (validatedData.invoice_id) {
-            const invoice = await InvoiceRepository.getInvoiceById(validatedData.invoice_id);
-            if (!invoice) {
-                throw new ValidationError('404', "Invoice not found");
-            }
-        }
-
-        if (validatedData.processed_by) {
-            const account = await AccountRepository.getAccountById(validatedData.processed_by);
-            if (!account) {
-                throw new ValidationError('404', "Processed by not found");
-            }
+        if (validatedData.payment_method === payment_method.cash) {
+            validatedData.paid_at = new Date();
+            validatedData.status = payment_status.paid;
         }
 
         try {
@@ -201,11 +185,7 @@ class PaymentService {
 
     async updatePayment(id, data) {
         const validator = new Validator();
-        validator.isUUID("Payment ID", id);
-        if (validator.error.length > 0) {
-            throw new ValidationError('400', validator.clearError());
-        }
-        const existingPayment = await PaymentRepository.getPaymentById(id);
+        const existingPayment = await this.getPaymentById(id);
         if (!existingPayment) {
             throw new ValidationError('404', "Payment not found");
         }
@@ -222,6 +202,11 @@ class PaymentService {
             ...(data.notes && { notes: data.notes }),
         };
 
+        if (validatedData.processed_by) {
+            const account = await accountServices.getAccountById(validatedData.processed_by);
+            if (!account)
+                throw new ValidationError("404", "Account not found");
+        }
         if (validatedData.transaction_ref) {
             validator.isString("Transaction Reference", validatedData.transaction_ref);
         }
@@ -238,17 +223,11 @@ class PaymentService {
         if (validatedData.is_deposit !== undefined) {
             validator.isBoolean("Is Deposit", validatedData.is_deposit);
         }
-        if (validatedData.processed_by) {
-            validator.isUUID("Processed By", validatedData.processed_by);
-        }
         if (validatedData.paid_at) {
             validator.validateDate(validatedData.paid_at);
         }
         if (validatedData.updated_at) {
             validator.validateDate(validatedData.updated_at);
-        }
-        if (validatedData.processed_by) {
-            validator.isUUID("Processed By", validatedData.processed_by);
         }
 
         if (validator.error.length > 0) {
@@ -260,15 +239,8 @@ class PaymentService {
             validatedData.paid_at = new Date();
         }
 
-        if (validatedData.processed_by) {
-            const account = await AccountRepository.getAccountById(validatedData.processed_by);
-            if (!account) {
-                throw new ValidationError('404', "Processed by not found");
-            }
-        };
-
         try {
-            const before = await PaymentRepository.getPaymentById(id);
+            const before = existingPayment;
             const after = await PaymentRepository.updatePayment(id, validatedData);
             if (after) {
                 if (after.is_deposit === false && after.status === payment_status.paid && after.invoice_id) {

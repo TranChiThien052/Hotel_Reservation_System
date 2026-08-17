@@ -131,7 +131,7 @@ class PaymentController {
                 console.log(error);
                 if (typeof parseInt(error.code) === 'number')
                     return res.status(parseInt(error.code)).json({ error });
-                res.status(500).json({error: 'Internal Server Error'})
+                res.status(500).json({ error: 'Internal Server Error' })
             })
     }
 }

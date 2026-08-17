@@ -234,7 +234,7 @@ class AccountController {
 
     async createAdminAccount(req, res) {
         return await AccountService.createAdmin()
-            .then(admin => res.status(201).json())
+            .then(result => res.status(result.code).json(result.message))
             .catch(error => res.status(500).json({ error: error.message }));
     }
 }

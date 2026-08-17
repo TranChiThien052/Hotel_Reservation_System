@@ -1,18 +1,23 @@
 import RoomAvailabilityRepository from '../repositories/roomAvailabilityRepo';
-import RoomTypeRepository from '../repositories/roomTypeRepo';
-import RoomPriceRepository from '../repositories/roomPriceRepo';
-import HolidayDateRepository from '../repositories/holidayDateRepo';
 import { Validator, ValidationError } from '../middlewares/validateData'
 import { calculateDynamicPrice } from '../middlewares/generator';
 import roomRepo from '../repositories/roomRepo';
+import branchServices from './branchServices';
+import roomTypeServices from './roomTypeServices';
+import holidayDateServices from './holidayDateServices';
+import roomPriceServices from './roomPriceServices';
 
 class RoomAvailabilityService {
     async getAvailableRoomCount(branch_id, checkin, checkout, room_type_id?) {
         const validator = new Validator();
-        if (!validator.isEmpty("Branch ID", branch_id))
-            validator.isUUID("Branch ID", branch_id);
-        if (room_type_id)
-            validator.isUUID("Room Type ID", room_type_id);
+        const branch = await branchServices.getBranchById(branch_id);
+        if (!branch)
+            throw new ValidationError("404", "Branch not found");
+        if (room_type_id) {
+            const roomType = await roomTypeServices.getRoomTypeById(room_type_id);
+            if (!roomType)
+                throw new ValidationError("404", "Room Type not found");
+        }
         if (!validator.isEmpty("Checkin", checkin) && !validator.isEmpty("Checkout", checkout))
             validator.validateDateOrder(checkin, checkout);
         if (validator.error.length > 0) {
@@ -21,23 +26,23 @@ class RoomAvailabilityService {
         return await RoomAvailabilityRepository.getAvaibleRoomCount(branch_id, new Date(checkin), new Date(checkout), room_type_id);
     }
 
-    async searchAvailableRooms(branchId: string, checkinAt: string, checkoutAt: string, roomTypeId?: string, numGuests?: number, bookingType?: string) {
+    async searchAvailableRooms(branchId, checkinAt, checkoutAt, roomTypeId?, numGuests?, bookingType?) {
         const checkin = new Date(checkinAt);
         const checkout = new Date(checkoutAt);
 
         let roomTypes: any[] = [];
         if (roomTypeId) {
-            const roomType = await RoomTypeRepository.getRoomTypeById(roomTypeId);
+            const roomType = await roomTypeServices.getRoomTypeById(roomTypeId);
             if (roomType) roomTypes.push(roomType);
         } else {
-            roomTypes = await RoomTypeRepository.getRoomTypesByBranchId(branchId);
+            roomTypes = await roomTypeServices.getRoomTypesByBranchId(branchId);
         }
 
         if (numGuests) {
             roomTypes = roomTypes.filter((roomType: any) => roomType.max_guests >= numGuests);
         }
 
-        const holidays = await HolidayDateRepository.getHolidayDatesByBranchId(branchId);
+        const holidays = await holidayDateServices.getHolidayDatesByBranchId(branchId);
         const holidayDates = holidays.map((holiday) => new Date(holiday.date).toDateString());
 
         const results: any[] = [];
@@ -54,7 +59,7 @@ class RoomAvailabilityService {
             });
             const availableCount = totalRooms - bookedCount;
 
-            const roomPrice = await RoomPriceRepository.getRoomPricesByRoomTypeId(roomType.id);
+            const roomPrice = await roomPriceServices.getRoomPricesByRoomTypeId(roomType.id);
             let estimatedTotal = 0;
             let pricePerUnit = 0;
 

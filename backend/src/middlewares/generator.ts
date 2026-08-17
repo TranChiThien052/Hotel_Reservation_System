@@ -1,4 +1,6 @@
 import crypto from "crypto";
+import { booking_status, booking_type } from "../generated/prisma/enums";
+import paymentServices from "../services/paymentServices";
 
 export const generateToken = () => crypto.randomBytes(32).toString("hex");
 
@@ -67,3 +69,19 @@ export const calculateDynamicPrice = (checkin, checkout, basePrice, weekendRate,
     return total;
 }
 
+export const generateRefundAmount = async (booking) => {
+    if (booking.booking_type === booking_type.hourly)
+        return 0;
+    const created_at = new Date(booking.created_at);
+    const current = new Date();
+    if (booking.status === booking_status.confirmed) {
+        const payments = await paymentServices.getPaymentsByBookingId(booking.id);
+        const payment = payments.filter(payment => payment.is_deposit === true)[0];
+        if (!payment)
+            return 0;
+        if (current.getTime() - created_at.getTime() < 24 * 60 * 60 * 1000)
+            return payment.amount;
+        else if (Number(payment.amount) === Number(booking.total_amount)) return Number(payment.amount) - Number(booking.deposit_amount);
+        else return 0;
+    }
+}

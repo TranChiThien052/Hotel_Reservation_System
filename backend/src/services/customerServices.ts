@@ -1,6 +1,7 @@
 import CustomerRepository from '../repositories/customerRepo';
 import { Validator, ValidationError } from '../middlewares/validateData';
 import historyTransactionServices from './historyTransactionServices';
+import accountServices from './accountServices';
 
 class CustomerService {
     async getAllCustomers() {
@@ -8,6 +9,9 @@ class CustomerService {
     };
 
     async getCustomerById(id) {
+        const validator = new Validator();
+        if (!validator.isUUID("Customer ID", id))
+            throw new ValidationError("400", validator.clearError());
         return await CustomerRepository.getCustomerById(id);
     };
 
@@ -81,6 +85,10 @@ class CustomerService {
     };
 
     async updateCustomer(id, data) {
+        const existingCustomer = await this.getCustomerById(id);
+        if (!existingCustomer)
+            throw new ValidationError("404", "Customer not found");
+
         const validator = new Validator();
 
         const validatingInfo = await CustomerRepository.getValidatingInformation();
@@ -128,19 +136,17 @@ class CustomerService {
                 validatedData.date_of_birth = new Date(validatedData.date_of_birth);
         }
         if (validatedData.account_id) {
-            validator.isUUID("Account ID", validatedData.account_id);
+            const account = await accountServices.getAccountById(validatedData.account_id);
+            if (!account)
+                throw new ValidationError("404", "Account not found");
         }
 
         if (validator.error.length > 0) {
             throw new ValidationError('400', validator.clearError());
         }
 
-        if (validatingInfo.some(customer => customer.id === id) === false) {
-            throw new ValidationError('404', "Customer not found");
-        }
-
         try {
-            const before = await CustomerRepository.getCustomerById(id);
+            const before = existingCustomer;
             const result = await CustomerRepository.updateCustomer(id, validatedData);
             if (result)
                 await historyTransactionServices.createUpdateTransaction(

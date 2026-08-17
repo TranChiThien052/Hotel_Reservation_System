@@ -1,7 +1,9 @@
 import CancellationRequestRepository from '../repositories/cancellationRequestRepo';
 import { Validator, ValidationError } from '../middlewares/validateData';
-import AccountRepository from '../repositories/accountRepo';
-import BookingRepository from '../repositories/bookingRepo';
+import branchServices from './branchServices';
+import bookingServices from './bookingServices';
+import accountServices from './accountServices';
+import { generateRefundAmount } from '../middlewares/generator';
 
 class CancellationRequestService {
     async getAllCancellationRequests() {
@@ -9,15 +11,19 @@ class CancellationRequestService {
     };
 
     async getCancellationRequestById(id) {
+        const validator = new Validator();
+        if (!validator.isUUID("Cancellation Request ID", id))
+            throw new ValidationError("400", validator.clearError());
         return await CancellationRequestRepository.getCancellationRequestById(id);
     };
 
     async getCancellationRequestsByBranchId(id) {
         const validator = new Validator();
-        if (!validator.isEmpty("Branch ID", id))
-            validator.isUUID("Branch ID", id)
-        if (validator.error.length > 0)
-            throw new ValidationError("400", validator.clearError())
+        if (!validator.isUUID("Branch ID", id))
+            throw new ValidationError("400", validator.clearError());
+        const branch = await branchServices.getBranchById(id);
+        if (!branch)
+            throw new ValidationError("404", "Branch not found");
         return await CancellationRequestRepository.getCancellationRequestByBranchId(id)
     }
 
@@ -27,49 +33,38 @@ class CancellationRequestService {
             ...(data.requested_by && { requested_by: data.requested_by }),
             ...(data.reason && { reason: data.reason }),
             ...(data.status && { status: data.status }),
-            ...(data.refund_amount && { refund_amount: data.refund_amount }),
             ...(data.notes && { notes: data.notes }),
         };
 
         const validator = new Validator();
-        if (!validator.isEmpty("Booking ID", validatedData.booking_id))
-            if (validator.isUUID("Booking ID", validatedData.booking_id)) {
-                const booking = await BookingRepository.getBookingById(validatedData.booking_id);
-                if (!booking) {
-                    validator.pushError("Booking not found");
-                }
-            }
 
-        if (validatedData.requested_by)
-            if (validator.isUUID("Requested By", validatedData.requested_by)) {
-                const account = await AccountRepository.getAccountById(validatedData.requested_by);
-                if (!account) {
-                    validator.pushError("Requested_by ID not found");
-                }
-            }
+        const booking = await bookingServices.getBookingById(validatedData.booking_id);
+        if (!booking) {
+            validator.pushError("Booking not found");
+        }
+
+        const account = await accountServices.getAccountById(validatedData.requested_by);
+        if (!account) {
+            validator.pushError("Requested_by ID not found");
+        }
 
         if (validatedData.status)
             validator.validateCancellationStatus(validatedData.status);
 
-        if (validatedData.refund_amount) {
-            validator.isDecimal("Refund Amount", validatedData.refund_amount);
-            validator.isNonNegativeNumber("Refund Amount", validatedData.refund_amount);
-        }
-
         if (validator.error.length > 0) {
             throw new ValidationError('400', validator.clearError());
         }
+
+        validatedData.refund_amount = await generateRefundAmount(booking);
 
         return await CancellationRequestRepository.createCancellationRequest(validatedData);
     };
 
     async updateCancellationRequest(id, data) {
         const validator = new Validator();
-        if (validator.isUUID("Cancellation Request ID", id)) {
-            const existingRequest = await CancellationRequestRepository.getCancellationRequestById(id);
-            if (!existingRequest) {
-                throw new ValidationError('404', 'Cancellation request not found');
-            }
+        const existingRequest = await this.getCancellationRequestById(id);
+        if (!existingRequest) {
+            throw new ValidationError('404', 'Cancellation Request not found');
         }
 
         const validatedData = {
@@ -89,11 +84,9 @@ class CancellationRequestService {
             validator.isNonNegativeNumber("Refund Amount", validatedData.refund_amount);
         }
         if (validatedData.resolved_by) {
-            if (validator.isUUID("Resolved By", validatedData.resolved_by)) {
-                const account = await AccountRepository.getAccountById(validatedData.resolved_by);
-                if (!account) {
-                    validator.pushError("Resolved_by ID not found");
-                }
+            const account = await accountServices.getAccountById(validatedData.resolved_by);
+            if (!account) {
+                validator.pushError("Resolved_by ID not found");
             }
         }
         if (validatedData.refund_processed_at) {
