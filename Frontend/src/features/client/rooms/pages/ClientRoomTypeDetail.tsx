@@ -87,9 +87,9 @@ const ClientRoomTypeDetail = () => {
     const priceHour = price?.price_per_hour ? Number(price.price_per_hour) : null;
     const weekendRate = price?.weekend_rate ? Number(price.weekend_rate) : 0;
     const holidayRate = price?.holiday_rate ? Number(price.holiday_rate) : 0;
-    const originalPrice = priceNum && weekendRate > 0
-        ? Math.round(priceNum / (1 - weekendRate / 100))
-        : null;
+    // const originalPrice = priceNum && weekendRate > 0
+    //     ? Math.round(priceNum / (1 - weekendRate / 100))
+    //     : null;
 
     const handleBooking = () => {
         if (typeId) navigate(`/booking/room-type/${typeId}`);
@@ -197,9 +197,9 @@ const ClientRoomTypeDetail = () => {
                                         <span className="text-3xl font-bold text-amber-500">{formatVND(priceNum)}</span>
                                         <span className="text-gray-400 text-sm">/ đêm</span>
                                     </div>
-                                    {originalPrice && (
+                                    {/* {originalPrice && (
                                         <span className="text-sm text-gray-400 line-through">{formatVND(originalPrice)}</span>
-                                    )}
+                                    )} */}
                                     {priceHour && (
                                         <p className="text-sm text-gray-500">{formatVND(priceHour)} <span className="text-gray-400">/ giờ</span></p>
                                     )}

@@ -102,6 +102,7 @@ const StaffAcccount = () => {
   const handleSubmitForm = async (values: AccountFormData) => {
     if (account.mode === FormModalModes.CREATE) {
       try {
+        values.branch_id = user?.branch_id || "";
         await accountApi.createStaffAccount(values);
         message.success("Tài khoản đã được tạo thành công.");
         account.close();
