@@ -82,6 +82,16 @@ const index = () => {
     }
     setLoading(true);
     try {
+      const checkinDate = new Date(searchParams.checkin_at);
+      checkinDate.setHours(13,0,0,0);
+      searchParams.checkin_at = checkinDate.toISOString();
+
+      const checkoutDate = new Date(searchParams.checkout_at);
+      checkoutDate.setHours(12,0,0,0);
+      searchParams.checkout_at = checkoutDate.toISOString();
+      console.log("Search params:", searchParams);
+
+
       const res = await roomsAvailableApi.searchRoomsAvailable(searchParams);
       const resultsList = res?.results || [];
       const availableRooms = resultsList.filter((r: any) => r.available_count > 0 && !r.is_sold_out);

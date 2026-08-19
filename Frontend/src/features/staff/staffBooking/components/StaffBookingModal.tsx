@@ -253,12 +253,32 @@ const StaffBookingModal = ({ open, onClose, onSuccess, branchId }: StaffBookingM
         setCheckingAvailability(true);
         setErrorMsg('');
         try {
-            const finalCheckin = bookingType === 'daily' ? checkinAt : hourlyCheckin;
-            const finalCheckout = bookingType === 'daily' ? checkoutAt : hourlyCheckout;
+            // const finalCheckin = bookingType === 'daily' ? checkinAt : hourlyCheckin;
+            // const finalCheckout = bookingType === 'daily' ? checkoutAt : hourlyCheckout;
+
+            let finalCheckinDate;
+            let finalCheckoutDate;
+
+            if (bookingType === 'daily') {
+                let checkinDate = new Date(checkinAt);
+                checkinDate.setHours(13, 0, 0, 0);
+                finalCheckinDate = checkinDate.toISOString();
+
+                let checkoutDate = new Date(checkoutAt);
+                checkoutDate.setHours(12, 0, 0, 0);
+                finalCheckoutDate = checkoutDate.toISOString();
+            } else {
+                finalCheckinDate = hourlyCheckin;
+                finalCheckoutDate = hourlyCheckout;
+            }
+
+            console.log("finalCheckinDate:", finalCheckinDate);
+            console.log("finalCheckoutDate:", finalCheckoutDate);
+
             const availableRoomData = await bookingApi.searchAvailableRooms({
                 branch_id: branchId,
-                checkin_at: finalCheckin,
-                checkout_at: finalCheckout,
+                checkin_at:  finalCheckinDate,
+                checkout_at: finalCheckoutDate,
                 room_type_id: selectedRoomTypeId,
                 booking_type: bookingType,
             });

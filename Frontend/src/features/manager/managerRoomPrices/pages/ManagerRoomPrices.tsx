@@ -1,7 +1,6 @@
 import FormModal from "@/app/layout/components/admin/FormModal";
 import { useAppSelector } from "@/app/store/hooks";
 import { roomPricesApi } from "@/features/admin/adminRoomsPrices/api/roomPrices-api";
-import { roomPricesFormFields } from "@/features/admin/adminRoomsPrices/constants/roomPrices-form-fields";
 import type { RoomPrice, RoomPriceFormData } from "@/features/admin/adminRoomsPrices/types/roomPrices-type";
 import { useFormModal } from "@/shared/hooks/useFormModal";
 import { FormModalModes } from "@/shared/types/type-form-mode";
@@ -10,6 +9,7 @@ import message from "antd/es/message";
 import { useCallback, useEffect, useState } from "react";
 import { CiCirclePlus } from "react-icons/ci";
 import { IoSearch } from "react-icons/io5";
+import { managerRoomPricesFormFields } from "../contants/managerRoomPrices-form-fields";
 
 const defaultRoomData: RoomPriceFormData = {
   room_type_id: "",
@@ -197,7 +197,7 @@ const ManagerRoomPrices = () => {
               ? "Chỉnh sửa giá phòng"
               : "Chi tiết giá phòng"
         }
-        fields={roomPricesFormFields}
+        fields={managerRoomPricesFormFields}
         initialValues={roomPrices.selectedRecord || defaultRoomData}
         onSubmit={handleSubmitForm}
       />

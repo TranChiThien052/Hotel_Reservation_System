@@ -1,7 +1,6 @@
 import { useFormModal } from "@/shared/hooks/useFormModal";
 import type { Employee, EmployeeFormData } from "../types/employees-type";
 import { useCallback, useEffect, useState } from "react";
-import { CiCirclePlus } from "react-icons/ci";
 import { FaRegBuilding } from "react-icons/fa6";
 import { Button, Input, message, Space, Table, type TableProps } from "antd";
 import { IoSearch } from "react-icons/io5";
@@ -131,12 +130,12 @@ const employees = () => {
             Danh sách các nhân viên trong hệ thống khách sạn Aurora
           </p>
         </div>
-        <div
+        {/* <div
           className="flex items-center gap-2 bg-orange-400 hover:bg-orange-500 text-white px-4 py-2 rounded-lg cursor-pointer text-lg font-medium"
           onClick={() => employee.openCreate()}
         >
           <CiCirclePlus /> Thêm nhân viên mới
-        </div>
+        </div> */}
       </div>
 
       <div className="grid grid-cols-3 gap-5 w-2/3 mx-auto mt-4">
