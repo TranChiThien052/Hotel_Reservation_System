@@ -518,7 +518,7 @@ class AccountService {
             throw new ValidationError('400', validator.clearError());
         }
         const before = await this.getAccountById(id);
-        const after = await this.updateAccount(id, validatedData);
+        const after = await AccountRepository.updateAccount(id, validatedData);
         await historyTransactionServices.createUpdateTransaction(
             data.log_account_id,
             "Tài khoản",
