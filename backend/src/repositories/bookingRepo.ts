@@ -161,13 +161,16 @@ class BookingRepository {
     };
 
     async getTodayCheckinCount(branch_id) {
-        const today = new Date();
+        const start = new Date();
+        const end = new Date();
+        start.setHours(0, 0, 0, 0);
+        end.setHours(23, 59, 59, 9999);
         const checkins = await prisma.bookings.findMany({
             where: {
                 branch_id: branch_id,
                 checkin_at: {
-                    gte: new Date(today.getFullYear(), today.getMonth(), today.getDate()),
-                    lt: new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1),
+                    gte: start,
+                    lt: end,
                 },
                 status: 'confirmed'
             },
@@ -196,8 +199,8 @@ class BookingRepository {
             where: {
                 branch_id: branch_id,
                 checkout_at: {
-                    gte: new Date(today.getFullYear(), today.getMonth(), today.getDate()),
-                    lt: new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1),
+                    gte: start,
+                    lt: end,
                 },
                 status: 'checked_in'
             },
@@ -225,7 +228,7 @@ class BookingRepository {
         const checkinsCount = checkins.length;
         const checkoutsCount = checkouts.length;
         const revenue = await paymentServices.getRevenueReport(Date.now(), Date.now(), branch_id);
-       
+
         return {
             revenue,
             checkinsCount,

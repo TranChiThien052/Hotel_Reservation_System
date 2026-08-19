@@ -30,9 +30,11 @@ class DiscountRepository {
         return await prisma.discounts.findMany({
             where: {
                 OR: [
+                    { usage_limit: { gt: prisma.discounts.fields.used_count } },
+                    { usage_limit: null },
                     { branch_id: id },
-                    { branch_id: null }
-                ]
+                    { branch_id: null },
+                ],
             }
         })
     }
