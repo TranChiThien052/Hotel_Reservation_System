@@ -50,6 +50,7 @@ const StaffBookingDetails = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
     const user = useAppSelector((state) => state.auth.user);
+    const branchId = user?.branch_id;
     const role = user?.role;
 
     const [booking, setBooking] = useState<Booking | null>(null);
@@ -90,7 +91,7 @@ const StaffBookingDetails = () => {
         try {
             const [bookingData, services, bookingServiceRows, allDiscounts, allBranches, allRoomTypes, calculatedInvoice] = await Promise.all([
                 bookingApi.getBookingById(id),
-                servicesApi.getAllServices(),
+                servicesApi.getServicesByBranchId(branchId || ''),
                 bookingServiceApi.getByBookingId(id),
                 promotionApi.getPromotions(),
                 branchApi.getBranches(),
@@ -844,7 +845,7 @@ const StaffBookingDetails = () => {
                             className="w-full" placeholder="Tìm dịch vụ..." showSearch
                             value={selectedServiceId || undefined} onChange={(v) => setSelectedServiceId(v)}
                             optionFilterProp="label"
-                            options={allServices.map((s: any) => ({ value: s.id, label: `${s.name} — ${formatVND(s.price)}` }))}
+                            options={allServices.map((s: any) => (s.is_active === true ? { value: s.id, label: `${s.name} — ${formatVND(s.price)}` } : null)).filter((v): v is NonNullable<typeof v> => !!v)}
                         />
                     </div>
                     <div>
