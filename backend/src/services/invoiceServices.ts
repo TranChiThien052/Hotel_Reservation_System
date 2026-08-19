@@ -89,12 +89,12 @@ class InvoiceService {
             room_charge = calculateDynamicPrice(booking.checkin_at, booking.checkout_at, basePrice, roomPrice?.weekend_rate, roomPrice?.holiday_rate, holidayDates, booking.booking_type);
             detail.checkin_at = booking.checkin_at;
             detail.checkout_at = booking.checkout_at;
-            detail.total_night = Number(booking.checkout_at.getTime() - booking.checkin_at.getTime()) / (1000 * 60 * 60 * 24);
+            detail.total_night = Math.ceil(Number(booking.checkout_at.getTime() - booking.checkin_at.getTime()) / (1000 * 60 * 60 * 24));
         } else if (booking.actual_checkin_at !== null && booking.actual_checkout_at !== null && booking.booking_type === booking_type.daily) {
             room_charge = calculateDynamicPrice(booking.actual_checkin_at, booking.actual_checkout_at, basePrice, roomPrice?.weekend_rate, roomPrice?.holiday_rate, holidayDates, booking.booking_type);
             detail.checkin_at = booking.actual_checkin_at;
             detail.checkout_at = booking.actual_checkout_at;
-            detail.total_night = Number(booking.actual_checkout_at.getTime() - booking.actual_checkin_at.getTime()) / (1000 * 60 * 60 * 24);
+            detail.total_night = Math.ceil(Number(booking.actual_checkout_at.getTime() - booking.actual_checkin_at.getTime()) / (1000 * 60 * 60 * 24));
             detail.total_night === 0 ? 1 : detail.total_night;
         }
         else if (booking.booking_type === booking_type.hourly) {
@@ -129,7 +129,7 @@ class InvoiceService {
             service_charge,
             discount,
             deposited,
-            total: room_charge + service_charge,
+            total: room_charge + service_charge - discount,
             balance: room_charge + service_charge - discount - deposited,
         }
     }
