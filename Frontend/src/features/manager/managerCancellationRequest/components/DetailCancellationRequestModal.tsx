@@ -205,18 +205,22 @@ const DetailCancellationRequestModal = ({
               </Descriptions.Item>
 
               <Descriptions.Item label="Giảm giá" span={1}>
+                <span className="font-bold text-green-600">
                 {formatVND(Number(cancellationRequest.bookings?.discount_amount) || 0)}
+                </span>
+              </Descriptions.Item>
+
+              <Descriptions.Item label="Dịch vụ" span={1}>
+                {formatVND(Number(cancellationRequest.service_charge) || 0)}
               </Descriptions.Item>
 
               <Descriptions.Item label="Tổng cộng" span={1}>
                 <span className="font-bold text-red-600">
-                  {formatVND(Number(cancellationRequest.bookings?.total_amount) || 0)}
+                  {formatVND(Number(cancellationRequest.bookings?.total_amount) + Number(cancellationRequest.service_charge) || 0)}
                 </span>
               </Descriptions.Item>
 
-              <Descriptions.Item label="Đặt cọc" span={1}>
-                {formatVND(Number(cancellationRequest.bookings?.deposit_amount) || 0)}
-              </Descriptions.Item>
+              
 
               {cancellationRequest.bookings?.notes && (
                 <Descriptions.Item label="Ghi chú phòng" span={2}>

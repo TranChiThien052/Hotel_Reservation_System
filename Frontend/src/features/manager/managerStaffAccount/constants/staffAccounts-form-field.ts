@@ -37,13 +37,13 @@ export const staffAccountsFormFields: FormField<AccountFormData>[] = [
             label: "Họ và tên",
             placeholder: "Nhập họ và tên",
             type: FormFieldTypes.INPUT,
+            hideInUpdateMode: true,
             rules: [
                 {
                     required: true,
                     message: "Vui lòng nhập họ và tên"
                 }
-            ],
-            // hideInUpdateMode: true
+            ]
         },
         {
             key: "phone",

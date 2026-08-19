@@ -10,6 +10,7 @@ export interface CancellationRequestType {
     refund_processed_at?: string,
     resolved_by?: string,
     notes: string,
+    service_charge: number,
     created_at: string,
     updated_at: string,
     bookings: Booking
