@@ -11,6 +11,7 @@ import branchServices from './branchServices';
 import customerServices from './customerServices';
 import roomTypeServices from './roomTypeServices';
 import holidayDateServices from './holidayDateServices';
+import bookingServiceServices from './bookingServiceServices';
 
 class BookingService {
     async getAllBookings() {
@@ -249,6 +250,7 @@ class BookingService {
             } else {
                 validatedData.discount_amount = generateDiscountAmount(validatedData.subtotal, discount.discount_type, Number(discount.discount_value));
                 validatedData.total_amount -= validatedData.discount_amount;
+                await discountServices.updateDiscount(discount.id, { used_count: discount.used_count ? discount.used_count + 1 : 1 });
             }
         }
 
@@ -521,26 +523,43 @@ class BookingService {
                         if (discount.usage_limit && (discount.used_count && discount.used_count >= discount.usage_limit)) {
                             validator.pushError("Discount is expired");
                         }
-                        validatedData.discount_amount = generateDiscountAmount(Number(validatedData.subtotal), discount.discount_type, Number(discount.discount_value));
-                        validatedData.total_amount -= validatedData.discount_amount;
 
-                        if (validatedData.status !== 'pending' && existingBooking.status !== 'pending') {
+                        const services = await bookingServiceServices.getBookingServicesByBookingId(existingBooking.id);
+                        const service_charge = services.reduce((acc, curr) => {
+                            return acc + Number(curr.total_amount);
+                        }, 0);
+
+                        if (validatedData.subtotal + service_charge >= Number(discount.min_order_value)) {
+                            validatedData.discount_amount = generateDiscountAmount(Number(validatedData.subtotal), discount.discount_type, Number(discount.discount_value));
+                            validatedData.total_amount -= validatedData.discount_amount;
+                            if (existingBooking.discount_id) {
+                                const old_discount = await discountServices.getDiscountById(existingBooking.discount_id);
+                                await discountServices.updateDiscount(old_discount?.id, { used_count: old_discount?.used_count ? old_discount.used_count - 1 : 0 });
+                            }
                             await discountServices.updateDiscount(discount.id, { used_count: discount.used_count ? discount.used_count + 1 : 1 });
-                        } else if (validatedData.status === 'confirmed' && existingBooking.status !== 'confirmed') {
-                            await discountServices.updateDiscount(discount.id, { used_count: discount.used_count ? discount.used_count + 1 : 1 });
+                        } else {
+                            validatedData.discount_id = null;
+                            validatedData.discount_amount = 0;
                         }
                     }
                 }
-            } else if (existingBooking.discount_amount) {
-                validatedData.discount_amount = Number(existingBooking.discount_amount);
-                validatedData.total_amount -= validatedData.discount_amount;
-
-                if (validatedData.status === 'confirmed' && existingBooking.status !== 'confirmed') {
-                    const discount = await discountServices.getDiscountById(discount_id);
-                    if (discount) {
-                        await discountServices.updateDiscount(discount.id, { used_count: discount.used_count ? discount.used_count + 1 : 1 });
-                    }
+            } else if (existingBooking.discount_id) {
+                const discount = await discountServices.getDiscountById(existingBooking.discount_id);
+                const services = await bookingServiceServices.getBookingServicesByBookingId(existingBooking.id);
+                const service_charge = services.reduce((acc, curr) => {
+                    return acc + Number(curr.total_amount);
+                }, 0);
+                if (validatedData.subtotal + service_charge >= Number(discount?.min_order_value)) {
+                    validatedData.discount_amount = Number(existingBooking.discount_amount);
+                    validatedData.total_amount -= validatedData.discount_amount;
+                } else {
+                    validatedData.discount_id = null;
+                    validatedData.discount_amount = 0;
+                    await discountServices.updateDiscount(discount?.id, { used_count: discount?.used_count ? discount.used_count - 1 : 0 });
                 }
+            } else {
+                validatedData.discount_id = null;
+                validatedData.discount_amount = 0;
             }
         }
 
