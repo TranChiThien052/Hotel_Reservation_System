@@ -1,7 +1,6 @@
 import type { Promotion, PromotionFormData } from "@/features/admin/adminPromitions/types/promotions-types";
 import type { FormField } from "@/shared/types/form-field";
 import { FormFieldTypes } from "@/shared/types/type-form-field";
-import { message } from "antd";
 
 export const managerDiscountFormFields: FormField<PromotionFormData>[] = [
     {
