@@ -358,7 +358,7 @@ const Rooms = () => {
             <Select
               placeholder="Trạng thái"
               placement="topRight"
-              className="w-[120px]"
+              className="w-30"
               onChange={filterStatus}
               allowClear
               value={statusValue}
@@ -377,7 +377,7 @@ const Rooms = () => {
             <Select
               placeholder="Tình trạng"
               placement="topRight"
-              className="w-[120px]"
+              className="w-30"
               onChange={filterRoomStatus}
               allowClear
               value={roomStatusValue}

@@ -5,7 +5,6 @@ import {
   FaHotel,
   FaSignInAlt,
   FaSignOutAlt,
-  FaUsers,
 } from "react-icons/fa";
 import { FiRefreshCw } from "react-icons/fi";
 import { ListCard, EmptyRow, StatusBadge } from "../components/ListCard";
@@ -28,14 +27,7 @@ const formatTime = (dateStr: string) => {
   return d.toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" });
 };
 
-const formatDate = (dateStr: string) => {
-  const d = new Date(dateStr);
-  return d.toLocaleDateString("vi-VN", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-  });
-};
+
 
 const formatCurrency = (amount: number) => {
   return amount.toLocaleString("vi-VN", { style: "currency", currency: "VND" });
@@ -99,6 +91,8 @@ const Dashboard = () => {
     fetchAll();
   }, [fetchAll]);
 
+  console.log("booking", bookings);
+
 
  
   const activeRooms = rooms.filter((r) => r.is_active);
@@ -107,9 +101,7 @@ const Dashboard = () => {
   const availableRooms = activeRooms.filter((r) => r.status === "available").length;
 
 
-  const inHouseGuests = [...bookings.checkins, ...bookings.checkouts].filter(
-    (b, index, self) => b.status === "checked_in" && self.findIndex((t) => t.id === b.id) === index
-  );
+
 
   const totalRevenue = bookings.revenue.actual_revenue || 0;
   const totalBookingsToday = bookings.checkinsCount + bookings.checkoutsCount;
@@ -164,7 +156,7 @@ const Dashboard = () => {
         <StatCard icon={<TfiMoney />} label="Doanh thu hôm nay" value={formatCurrency(totalRevenue)} color="text-green-600" bg="bg-green-50" />
       </div>
 
-      <div className={"grid grid-cols-1 " + (user?.role === "manager" ? "xl:grid-cols-4" : "xl:grid-cols-3") + " gap-5"}>
+      <div className={"grid grid-cols-1 " + (user?.role === "manager" ? "xl:grid-cols-3" : "xl:grid-cols-2") + " gap-5"}>
         
         <ListCard title="Danh sách Check-in hôm nay" icon={<FaSignInAlt />} accent="text-emerald-500" count={todayCheckins.length}>
           {todayCheckins.length === 0 ? <EmptyRow label="Không có khách check-in hôm nay" /> : (
@@ -200,22 +192,7 @@ const Dashboard = () => {
           )}
         </ListCard>
 
-        <ListCard title="Khách đang lưu trú" icon={<FaUsers />} accent="text-indigo-500" count={inHouseGuests.length}>
-          {inHouseGuests.length === 0 ? <EmptyRow label="Không có khách đang lưu trú" /> : (
-            inHouseGuests.map((b) => (
-              <div key={b.id} className="flex items-center justify-between py-3 border-b border-gray-50 last:border-0 gap-3">
-                <div className="min-w-0">
-                  <p className="font-semibold text-sm text-gray-800 truncate">{b.customers?.full_name ?? "—"}</p>
-                  <p className="text-xs text-gray-400 truncate">{b.booking_code} · {b.room_types?.name ?? "—"}</p>
-                </div>
-                <div className="shrink-0 text-right text-xs text-gray-400">
-                  <p>Từ {formatDate(b.checkin_at)}</p>
-                  <p>Đến {b.checkout_at ? formatDate(b.checkout_at) : "?"}</p>
-                </div>
-              </div>
-            ))
-          )}
-        </ListCard>
+        
         {user?.role === "manager" && (
           <RevenueCard branchId={branchId} />
         )}

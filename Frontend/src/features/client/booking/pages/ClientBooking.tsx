@@ -342,10 +342,25 @@ const ClientBooking = () => {
     setAvailabilityChecking(true);
     setAvailabilityError("");
     try {
-      const finalCheckin =
-        booking_type === "daily" ? checkin_at : hourlyCheckin;
-      const finalCheckout =
-        booking_type === "daily" ? checkout_at : hourlyCheckout;
+      let finalCheckin;
+      let finalCheckout;
+
+        if (booking_type === "daily") {
+          const checkinDate = new Date(checkin_at);
+          checkinDate.setHours(13, 0, 0, 0);
+
+          const checkoutDate = new Date(checkout_at);
+          checkoutDate.setHours(12, 0, 0, 0);
+
+          finalCheckin = checkinDate.toISOString();
+          finalCheckout = checkoutDate.toISOString();
+        } else {
+          finalCheckin = hourlyCheckin;
+          finalCheckout = hourlyCheckout;
+        }
+
+        console.log("client finalCheckin", finalCheckin);
+        console.log("client finalCheckout", finalCheckout);
 
       const result = await roomsAvailableApi.getRoomsAvailable({
         branch_id: room.branch_id,

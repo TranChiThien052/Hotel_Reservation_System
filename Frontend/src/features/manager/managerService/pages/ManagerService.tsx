@@ -247,7 +247,7 @@ const ManagerService = () => {
             <Select
               placeholder="Trạng thái"
               placement="topRight"
-              className="w-[120px]"
+              className="w-30"
               onChange={handleFilterStatus}
               allowClear
               options={[

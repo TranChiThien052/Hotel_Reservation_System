@@ -32,6 +32,12 @@ export const promotionsFormFields: FormField<PromotionFormData>[] = [
       { value: "percentage", label: "Phần trăm" },
       { value: "fixed_amount", label: "Số tiền cố định" },
     ],
+    rules: [
+      {
+        required: true,
+        message: "Vui lòng chọn loại giảm giá",
+      }
+    ]
   },
   {
     key: "discount_value",

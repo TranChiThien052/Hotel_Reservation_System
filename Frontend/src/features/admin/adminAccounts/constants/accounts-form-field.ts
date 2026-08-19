@@ -99,6 +99,10 @@ export const accountsFormFields: FormField<AccountFormData>[] = [
         type: FormFieldTypes.SELECT_FETCH,
         defaultValue: "",
         fetchOptions: branchApi.getBranches,
-        customData: (data: any[]) => data.map((item) => ({label: item.name, value: item.id}))
+        customData: (data: any[]) => data.map((item) => ({label: item.name, value: item.id})),
+        rules: [{
+            required: true,
+            message: "Vui lòng chọn chi nhánh"
+        }]
     }
 ]

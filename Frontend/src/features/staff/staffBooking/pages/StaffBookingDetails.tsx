@@ -418,12 +418,12 @@ const StaffBookingDetails = () => {
     const handleNoShow = async () => {
         if (!booking) return;
         Modal.confirm({
-            title: 'Xác nhận khách không đến nhập phòng',
+            title: 'Xác nhận khách không đến nhận phòng',
             icon: null,
             content: (
                 <div className="flex flex-col gap-2 pt-2">
                     <p className="text-gray-500 text-sm">
-                        Bạn có chắc muốn đánh dấu đơn đặt phòng này là <strong>khách không đến nhập phòng</strong>?
+                        Bạn có chắc muốn đánh dấu đơn đặt phòng này là <strong>khách không đến nhận phòng</strong>?
                     </p>
                     <p className="text-gray-500 text-sm">
                         Mã đặt phòng: <strong>#{booking.booking_code}</strong>
@@ -438,12 +438,12 @@ const StaffBookingDetails = () => {
                 try {
                     await bookingApi.updateBooking(booking.id, {
                         status: 'cancelled',
-                        notes: 'Khách không đến nhập phòng',
+                        notes: 'Khách không đến nhận phòng',
                     } as Booking);
-                    message.success('Đã đánh dấu là khách không đến nhập phòng!');
+                    message.success('Đã đánh dấu là khách không đến nhận phòng!');
                     fetchAll();
                 } catch {
-                    message.error('Đánh dấu khách không đến nhập phòng thất bại!');
+                    message.error('Đánh dấu khách không đến nhận phòng thất bại!');
                 } finally {
                     setActionLoading(false);
                 }

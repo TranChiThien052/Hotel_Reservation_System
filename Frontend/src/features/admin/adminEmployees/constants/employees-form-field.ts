@@ -11,7 +11,13 @@ export const emplloyeesFormFields: FormField<EmployeeFormData>[] = [
         placeholder: "Chọn chi nhánh",
         type: FormFieldTypes.SELECT_FETCH,
         fetchOptions: branchApi.getBranches,
-        customData: (data: any[]) => data.map((item) => ({label: item.name, value: item.id}))
+        customData: (data: any[]) => data.map((item) => ({label: item.name, value: item.id})),
+        rules: [
+            {
+                required: true,
+                message: "Vui lòng chọn chi nhánh"
+            }
+        ]
     },
     {
         key: "full_name",
