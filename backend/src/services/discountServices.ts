@@ -114,6 +114,7 @@ class DiscountServices {
             ...(data.valid_from && { valid_from: data.valid_from }),
             ...(data.valid_to && { valid_to: data.valid_to }),
             ...(data.is_active !== undefined && { is_active: data.is_active }),
+            ...(data.used_count && { used_count: data.used_count })
         };
 
 
@@ -155,6 +156,9 @@ class DiscountServices {
         if (!existingDiscount) {
             throw new ValidationError('404', "Discount not found");
         }
+
+        if (validatedData.used_count && existingDiscount.usage_limit && existingDiscount.usage_limit < validatedData.used_count)
+            throw new ValidationError("400", "Used count cannot be greater than usage limit");
 
         try {
             const result = await DiscountRepository.updateDiscount(id, validatedData);

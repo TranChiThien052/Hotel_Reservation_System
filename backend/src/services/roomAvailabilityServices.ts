@@ -42,8 +42,8 @@ class RoomAvailabilityService {
             roomTypes = roomTypes.filter((roomType: any) => roomType.max_guests >= numGuests);
         }
 
-        const holidays = await holidayDateServices.getHolidayDatesByBranchId(branchId);
-        const holidayDates = holidays.map((holiday) => new Date(holiday.date).toDateString());
+        // const holidays = await holidayDateServices.getHolidayDatesByBranchId(branchId);
+        // const holidayDates = holidays.map((holiday) => new Date(holiday.date).toDateString());
 
         const results: any[] = [];
 
@@ -59,16 +59,16 @@ class RoomAvailabilityService {
             });
             const availableCount = totalRooms - bookedCount;
 
-            const roomPrice = await roomPriceServices.getRoomPricesByRoomTypeId(roomType.id);
-            let estimatedTotal = 0;
-            let pricePerUnit = 0;
+            // const roomPrice = await roomPriceServices.getRoomPricesByRoomTypeId(roomType.id);
+            // let estimatedTotal = 0;
+            // let pricePerUnit = 0;
 
-            if (roomPrice) {
-                const basePrice = bookingType === 'hourly' ? Number(roomPrice.price_per_hour) : Number(roomPrice.price_per_day);
-                pricePerUnit = basePrice;
+            // if (roomPrice) {
+            //     const basePrice = bookingType === 'hourly' ? Number(roomPrice.price_per_hour) : Number(roomPrice.price_per_day);
+            //     pricePerUnit = basePrice;
 
-                estimatedTotal = calculateDynamicPrice(checkin, checkout, basePrice, Number(roomPrice.weekend_rate), Number(roomPrice.holiday_rate), holidayDates, bookingType || 'daily');
-            }
+            //     estimatedTotal = calculateDynamicPrice(checkin, checkout, basePrice, Number(roomPrice.weekend_rate), Number(roomPrice.holiday_rate), holidayDates, bookingType || 'daily');
+            // }
             const result_data = {
                 room_type: {
                     id: roomType.id,
@@ -81,8 +81,8 @@ class RoomAvailabilityService {
                 booked_count: bookedCount,
                 available_count: availableCount,
                 is_sold_out: availableCount <= 0,
-                price_per_unit: pricePerUnit,
-                estimated_total: estimatedTotal
+                // price_per_unit: pricePerUnit,
+                // estimated_total: estimatedTotal
             };
             results.push(result_data);
         }
