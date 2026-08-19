@@ -7,7 +7,14 @@ import { generateRefundAmount } from '../middlewares/generator';
 
 class CancellationRequestService {
     async getAllCancellationRequests() {
-        return await CancellationRequestRepository.getAllCancellationRequests();
+        const cancellationRequest = await CancellationRequestRepository.getAllCancellationRequests();
+        cancellationRequest.forEach(cr => {
+            const service_charge = cr.bookings.booking_services.reduce((acc, curr) => {
+                return acc + Number(curr.total_amount);
+            }, 0)
+            Object.assign(cr, { service_charge });
+        });
+        return cancellationRequest;
     };
 
     async getCancellationRequestById(id) {
@@ -24,7 +31,14 @@ class CancellationRequestService {
         const branch = await branchServices.getBranchById(id);
         if (!branch)
             throw new ValidationError("404", "Branch not found");
-        return await CancellationRequestRepository.getCancellationRequestByBranchId(id)
+        const cancellationRequest = await CancellationRequestRepository.getCancellationRequestByBranchId(id)
+        cancellationRequest.forEach(cr => {
+            const service_charge = cr.bookings.booking_services.reduce((acc, curr) => {
+                return acc + Number(curr.total_amount);
+            }, 0)
+            Object.assign(cr, { service_charge });
+        });
+        return cancellationRequest;
     }
 
     async createCancellationRequest(data) {

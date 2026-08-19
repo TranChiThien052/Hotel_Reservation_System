@@ -4,7 +4,11 @@ class CancellationRequestRepository {
     async getAllCancellationRequests() {
         return await prisma.cancellation_requests.findMany({
             include: {
-                bookings: true,
+                bookings: {
+                    include: {
+                        booking_services: true,
+                    }
+                }
             }
         });
     };
@@ -31,7 +35,11 @@ class CancellationRequestRepository {
         return await prisma.cancellation_requests.findMany({
             where: { bookings: { branch_id: branch_id } },
             include: {
-                bookings: true,
+                bookings: {
+                    include: {
+                        booking_services: true,
+                    }
+                }
             }
         });
     };
