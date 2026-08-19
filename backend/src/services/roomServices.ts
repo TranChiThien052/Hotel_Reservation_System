@@ -65,7 +65,7 @@ class RoomService {
             validator.isBoolean("Is Active", validatedData.is_active);
         }
 
-        if (validatedData.room_charge[0] != validatedData.floor)
+        if (validatedData.room_number[0] != validatedData.floor)
             validator.pushError('Room number is not match with floor');
 
         if (validator.error.length > 0) {
