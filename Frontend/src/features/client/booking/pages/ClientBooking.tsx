@@ -498,14 +498,14 @@ const ClientBooking = () => {
   const discountEligible =
     !discount ||
     discount.min_order_value <= 0 ||
-    subtotal >= discount.min_order_value;
+    (subtotal + serviceSubtotal) >= discount.min_order_value;
   const discountAmount =
     discount && discountEligible
       ? discount.discount_type === "percentage"
         ? Math.round(
-            (subtotal * discount.discount_value) / 100,
+            ((subtotal + serviceSubtotal) * discount.discount_value) / 100,
           )
-        : Math.min(discount.discount_value, subtotal)
+        : Math.min(discount.discount_value, subtotal + serviceSubtotal)
       : 0;
   const total = subtotal + serviceSubtotal - discountAmount;
 
