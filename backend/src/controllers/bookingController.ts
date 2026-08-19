@@ -96,6 +96,7 @@ class BookingController {
         return await BookingService.updateBooking(id, data)
             .then(booking => res.status(200).json(booking))
             .catch(error => {
+                console.log(error);
                 if (typeof parseInt(error.code) === 'number')
                     return res.status(parseInt(error.code)).json({ error: error.message });
                 res.status(500).json({ error: error.message });

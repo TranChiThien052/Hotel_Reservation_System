@@ -323,7 +323,7 @@ class BookingService {
 
         if (validatedData.checkin_at && validatedData.checkout_at) {
             if (validator.validateDateOrder(validatedData.checkin_at, validatedData.checkout_at)) {
-                let checkin = new Date(validatedData.checked_in);
+                let checkin = new Date(validatedData.checkin_at);
                 let checkout = new Date(validatedData.checkout_at);
                 let current = new Date();
                 if (validatedData.booking_type == 'daily' || existingBooking.booking_type == 'daily') {
